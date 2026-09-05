@@ -1,0 +1,13 @@
+DECWAR source-faithful TypeScript port
+
+Derived from the supplied Decwar distribution.
+Original source notices:
+Copyright 1979, 2011 Bob Hysick, Jeff Potter, The University of Texas
+Computation Center and Harris Newman.
+
+The archive also records modifications by DrForbin / Merlyn Cousins.
+Original files and notices remain under old_source/fortran 1978.
+
+This port is distributed under GPL version 3 or, at your option, any later
+version, consistent with the supplied source. See LICENSE and the original
+COPYING file.

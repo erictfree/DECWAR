@@ -1,0 +1,2991 @@
+{
+  "baseline": "Supplied archive; DECCMP.CMD and CAN1.CMD",
+  "inventory": [
+    {
+      "file": "ALT.COD",
+      "bytes": 2675,
+      "lines": 252,
+      "sha256": "a9ddbd7982e0572d3b9c43f5dc1dd434c7ecf35f79a822d8e9b80ae337c47c7a",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "BASBLD.FOR",
+      "bytes": 1639,
+      "lines": 45,
+      "sha256": "be940a13d020d992da43898571ad3cbad6ede0dd710335f2959ce8c262a857cd",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "BASKIL.FOR",
+      "bytes": 2254,
+      "lines": 66,
+      "sha256": "3343623b2c4c481702eca2b75583a13fde02d421dc6b3c9414d8e51a8f84ba03",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "BASPHA.FOR",
+      "bytes": 3524,
+      "lines": 87,
+      "sha256": "ead03a732687f50c73c194b1b6fe03910b85dbb9dd71c83076656cbaa81fb76b",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "BLKDAT.FOR",
+      "bytes": 3261,
+      "lines": 105,
+      "sha256": "037f6b2491267fbc583a870214afa75df4b0d0088acb093632d65f9dbe306c6b",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "BUILD.FOR",
+      "bytes": 3784,
+      "lines": 114,
+      "sha256": "917824a3f12d00f6c7f8b63dbb14b45036c2df7fdd03e08d1445d28471e85cfe",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "C.ICD",
+      "bytes": 155,
+      "lines": 8,
+      "sha256": "46501b9764c5f3193d04c24bb9181c8dd79094023a7c4be4d8674717827a4208",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "CAN.MIC",
+      "bytes": 549,
+      "lines": 18,
+      "sha256": "0c7b77874043b75d1f2120688823b7fe4cbc1c3defa7255b52db791b3460a680",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "CAN1.CMD",
+      "bytes": 528,
+      "lines": 17,
+      "sha256": "5e51cc50d0cb354198172aaa7db2ac1e5d40b70d819ec7737f3fce6cb95eb47c",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "CAPTUR.FOR",
+      "bytes": 4483,
+      "lines": 127,
+      "sha256": "df3fa5eb47617063c16ccd06079a461f26692110e290c899dbaeef23acd3f5b7",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "CCOM.ICD",
+      "bytes": 663,
+      "lines": 20,
+      "sha256": "53e0a24fc13ed390edfba84031d753e945f225fbec8ff6fd3a895caf98d13b75",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "CHECK.FOR",
+      "bytes": 3144,
+      "lines": 97,
+      "sha256": "5755b4283b524d380f9ae5a3b3def3adfc8f46e367c4433960090b937c5e5e57",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "CHKPNT.FOR",
+      "bytes": 1400,
+      "lines": 43,
+      "sha256": "18cdd53ecf1fe55db1e7ada99b1c721263c8ea624aefb07e3b0fc041f1cee110",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "CISHNG.MAC",
+      "bytes": 3046,
+      "lines": 120,
+      "sha256": "8abe35914b944546a031d5f8cf87020a539818c4a299caea422e95b67ca778e5",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "CLRBUF.FOR",
+      "bytes": 1049,
+      "lines": 30,
+      "sha256": "f61a4d1c562983a901cdb521690087bca186f772cbbe461cfbd9b8feb4cfb1bf",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "CMP.CMD",
+      "bytes": 113,
+      "lines": 6,
+      "sha256": "01736c01760e93d2327c9df1707d676e739f0e2bf892d6123a2b6f3febd3b677",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "CONTEN.MIC",
+      "bytes": 186,
+      "lines": 11,
+      "sha256": "1d77acd100ffd50b327cda9202d9ff041ad4c88b1c7008c65c2b997b3c9aefd6",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "CONTEN.TEC",
+      "bytes": 2205,
+      "lines": 52,
+      "sha256": "cb8635bff313f9bf2f4b515515262514baf41b557d3034335004d170bfe332e1",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "COPYING",
+      "bytes": 35148,
+      "lines": 675,
+      "sha256": "ca372a7d92560b1fa9f6d832b440e8bcd62d9adfa8870c98287deab66d98310e",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "CUST.CMD",
+      "bytes": 280,
+      "lines": 24,
+      "sha256": "889bb521d950476590558d858f8143d6d501302b34f4b0fe66f3539d3d004e4b",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "CXRF.ICD",
+      "bytes": 295,
+      "lines": 18,
+      "sha256": "f7c15ab61bba486ef96e86633ed69a4eb9c88868f3fc666d74d98f7932beec40",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "D.CMD",
+      "bytes": 28,
+      "lines": 1,
+      "sha256": "c036d4e39d26a5425abff5fcc30bb85ce1d1ac88dff571165adfb690596c66fc",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "DAMAGE.FOR",
+      "bytes": 2496,
+      "lines": 80,
+      "sha256": "c9138ed429acf0b61c93cd3dfba4b8a2224cbf38fd9c18e17d1ff74703562b0c",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "DECCMP.CMD",
+      "bytes": 422,
+      "lines": 6,
+      "sha256": "bbf85a3fe902c0cbe7beb2d3fc79d88cd589452f1922030fa44c08dba8c64728",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "DECFIX.MAC",
+      "bytes": 1203,
+      "lines": 49,
+      "sha256": "89560b6b372c87361a69141d53c373f7107e320c234263e30c0d964765009d78",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "DECNWS.RNO",
+      "bytes": 7035,
+      "lines": 210,
+      "sha256": "347a2212c76b51d07fc5263ce841723b4f46ce135ac1cc099954316c817c88cc",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "DECWAR.CMD",
+      "bytes": 382,
+      "lines": 6,
+      "sha256": "fefbf1c572e3409c415e4f503b5892c606f2da95a719197f7b0ff9efa2c39c5f",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "DECWAR.COM",
+      "bytes": 6787,
+      "lines": 106,
+      "sha256": "2af7d81ad4b468c876caf5f9eecccd0c7b236a3e66979a7340ac12fc2e522626",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "DECWAR.DOC",
+      "bytes": 55338,
+      "lines": 1409,
+      "sha256": "0b0ff5c20d27ba0ad139fdb33fb5989abbe3ad50f4826c4801528ade98ee6f00",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "DECWAR.FOR",
+      "bytes": 9503,
+      "lines": 353,
+      "sha256": "faaa002fe1f2560b98f9d8aaa42acae4c3db80249a2e1ad0aee0ef352531919d",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "DECWAR.HLP",
+      "bytes": 52693,
+      "lines": 1358,
+      "sha256": "ec6eea88d07c669351a6812cc0ba9cf894afbd8558bdd520ef38032089d27a01",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "DECWAR.IMP",
+      "bytes": 2763,
+      "lines": 70,
+      "sha256": "fd4133b45b5743bcd86c1fb7e94e984d806f2bccb9c175d44ec1a224f25baa19",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "DECWAR.LTR",
+      "bytes": 1642,
+      "lines": 60,
+      "sha256": "7ea9985afc48371a755cfbae175147411ffe076ea0909e1397574b0616a0e66d",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "DECWAR.MAP",
+      "bytes": 74983,
+      "lines": 1668,
+      "sha256": "39046ed7c8fd2026efddffbeac0c57beb71bb1f196b176ef7346c3084c6323fc",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "DECWAR.NDX",
+      "bytes": 2379,
+      "lines": 72,
+      "sha256": "cdb3009a0a7e86a9799b107ab925f09dba22103421d1a5739bd88d7294c8e9c9",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "DECWAR.NWS",
+      "bytes": 530,
+      "lines": 16,
+      "sha256": "0651d3265b2df38b61db091259bebad7ff941f0231f386b916cc81cadefd200c",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "DECWAR.RNH",
+      "bytes": 52520,
+      "lines": 1454,
+      "sha256": "3e6e1900b19814262996de5b389fdf47bf2f969b91af80bb71a273230b5e8afb",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "DECWAR.TAP",
+      "bytes": 1256,
+      "lines": 42,
+      "sha256": "2d5e477639a073b5dcc14c679dddc99ac314164306d3342eedb2ed70bdc84707",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "DECWR.ICD",
+      "bytes": 146,
+      "lines": 8,
+      "sha256": "532742edabe5474a0ae00d738f85fc9d0009a4fd15062b3f7ee21f630a682c5f",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "DEFINE.FOR",
+      "bytes": 2452,
+      "lines": 93,
+      "sha256": "6458e6e08e09cb1744239cb83c16243491ab57ac5bac7a68863cffc7b7df49ca",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "DEFINE.HLP",
+      "bytes": 608,
+      "lines": 21,
+      "sha256": "024ffcee9dfc31f76c669513d38ea368b6dc8161d1163d88bebd9b5b16277c39",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "DIST.FOR",
+      "bytes": 2990,
+      "lines": 86,
+      "sha256": "40322dcaa061030b4199ccd1198d21263373afc79a53146ff1a67b08c3221284",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "DOCK.FOR",
+      "bytes": 2902,
+      "lines": 83,
+      "sha256": "4efaebfdeb1d1b37068a1ef5057d41a902f98b1088481f98250b5aa8826a9560",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "DSHIP.FOR",
+      "bytes": 1281,
+      "lines": 39,
+      "sha256": "0cb5547fdd604935c064a413785aeac2bd9a362dd59c43d8a14d6d6147c00bea",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "DW2.FOR",
+      "bytes": 3338,
+      "lines": 106,
+      "sha256": "edb28e345a5e8dd5605c8c6853c3c901185f418f5404f2ecebf12af533d24c39",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "ENDGAM.FOR",
+      "bytes": 2683,
+      "lines": 76,
+      "sha256": "6cd791b5f84ee79492f411aa04816ee719fc0d6dcebf5ac4eda1327062373680",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "ENERGY.FOR",
+      "bytes": 3135,
+      "lines": 109,
+      "sha256": "9a576b95b1d0987e4de644c00a812b536b826822599aa3eb4d1cdf62590a8095",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "ENTER.MAC",
+      "bytes": 2670,
+      "lines": 75,
+      "sha256": "32ff2e5fa33d2c30cb7dd0adfeb74964ef1d5bd0ab2b2e1c35e31ebfa2f7e8fe",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "EXTERN.FOR",
+      "bytes": 14854,
+      "lines": 400,
+      "sha256": "0325bbbf7da0fd444fb9d482c77e63419be5984a22f2964e434debd433554e3f",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "EXTERN.TEC",
+      "bytes": 232,
+      "lines": 10,
+      "sha256": "b9305cdf43ec3cbb68386e4c3fd94fe71dda90d562a71f198e386e85ab65ed55",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "FREE.FOR",
+      "bytes": 4372,
+      "lines": 148,
+      "sha256": "f51a2897960cccf3f0ccbffd0d4e7915c5e5c39a78709067af36a82ed3b08a6f",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "GETCMD.FOR",
+      "bytes": 3896,
+      "lines": 133,
+      "sha256": "387dc159b6f8ac72639ac4bd5681a3b867458459ac5698f36089aa8d7c896064",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "GETLIN.MAC",
+      "bytes": 19081,
+      "lines": 797,
+      "sha256": "648a55eeef4cb3bb6872dbecc1ac93f6dc5e6612fe1d2a47def408c771433df7",
+      "compiled": false,
+      "sections": [
+        {
+          "line": 402,
+          "title": "GETLIN -- INLI."
+        },
+        {
+          "line": 457,
+          "title": "GETLIN -- NXCH./RUBT."
+        },
+        {
+          "line": 512,
+          "title": "GETLIN -- CTAB."
+        },
+        {
+          "line": 522,
+          "title": "GETLIN -- DELE."
+        },
+        {
+          "line": 574,
+          "title": "GETLIN -- ECHR."
+        },
+        {
+          "line": 590,
+          "title": "GETLIN -- DISP."
+        },
+        {
+          "line": 616,
+          "title": "GETLIN -- ECHG."
+        },
+        {
+          "line": 642,
+          "title": "SCAN -- SCAN."
+        },
+        {
+          "line": 690,
+          "title": "SCAN -- NXTT."
+        }
+      ],
+      "entries": []
+    },
+    {
+      "file": "HIGH.FOR",
+      "bytes": 969,
+      "lines": 25,
+      "sha256": "36470a7efacc681422387d444faec6920ce38526498f73209e3bcbbaf9f6dba7",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "HISEG.FOR",
+      "bytes": 4291,
+      "lines": 101,
+      "sha256": "1c97aa18b06cbd3780a28910225ecfe87c45a86b7a7da376f5196ffe01017be9",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "HISEG.TEC",
+      "bytes": 493,
+      "lines": 18,
+      "sha256": "10e8f7d4bc8f8d897d5db7d2119f3b707f1c101b0b5a30546859d2a9cfcbb70c",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "HLP.COM",
+      "bytes": 1091,
+      "lines": 19,
+      "sha256": "89af7043efb75294c93758bcde844f8f3dd3d330ffdd64b13a05113e2797a83f",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "JUMP.FOR",
+      "bytes": 2774,
+      "lines": 82,
+      "sha256": "580c45799c38875d00788083b901dda3ad6ac8fc1940371f0f3a6bb14a43f3a1",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "KQSRCH.FOR",
+      "bytes": 1677,
+      "lines": 50,
+      "sha256": "3ed57be27a1e07e379b3fe52f1041af2eea19a369985e30561eb0335a0199e4e",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "L.CMD",
+      "bytes": 594,
+      "lines": 22,
+      "sha256": "950df73de0dc91adcb4f92bca7975f7c6daaad2cedb3caa5b904098a1b49a18e",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "L.MIC",
+      "bytes": 1312,
+      "lines": 48,
+      "sha256": "fad909f123e71b7525efc79d5be1074d6e6b76b53f1bff668f33ce647a9bc997",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "LABCRE.ICD",
+      "bytes": 40,
+      "lines": 7,
+      "sha256": "880424ecb82986313afea2d0b921034bdfd399edd198853ae9b8775f0923ed2a",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "LDEB.CMD",
+      "bytes": 727,
+      "lines": 23,
+      "sha256": "ab58aeebdca23cfef92980d9741c1f99835eff22fe2bd9a7b8ac28d66c4283b1",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "LINE.CMD",
+      "bytes": 262,
+      "lines": 24,
+      "sha256": "875907a4ff24bda2b8f23ca2c4663e2cdf89e4833e7310f618ffee358435e464",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "LIST.FOR",
+      "bytes": 1811,
+      "lines": 65,
+      "sha256": "8c52566ebb5a9c168f87a588ea02c1adb301414553a99dd176620e1e42aef77a",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "LOAD.CMD",
+      "bytes": 126,
+      "lines": 7,
+      "sha256": "0d1c2fb9d57cad1ddfedbe855d90e091dcfad78adf2782bc944561b0b2b6d79e",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "LOCAL.FOR",
+      "bytes": 930,
+      "lines": 25,
+      "sha256": "69de2c9c457d4c68d26028d0439223eda4a26c5d454c298b6860aeedffe56d21",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "LOCATE.FOR",
+      "bytes": 5277,
+      "lines": 169,
+      "sha256": "1f2eb576247c7e7d13c0f08810e1f0c39420106c6e018a868c785672973eaf3d",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "LOFCHK.MAC",
+      "bytes": 2146,
+      "lines": 81,
+      "sha256": "f87527d899881f76884087254e613afb7c9995c851eff6a638a9e2da0fb45c07",
+      "compiled": false,
+      "sections": [],
+      "entries": [
+        {
+          "line": 26,
+          "symbols": "LOFCHK"
+        }
+      ]
+    },
+    {
+      "file": "LOW.FOR",
+      "bytes": 928,
+      "lines": 25,
+      "sha256": "d111fca15e69ad19820dea0c1f91e3bd6e0b7670af347578ee9984095fa5b398",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "LOWSEG.FOR",
+      "bytes": 3822,
+      "lines": 83,
+      "sha256": "f3d5aca7d5d66db3f88d09106b7057b0f3a6e06357a78d440b06bdf33ecfa036",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "LOWSEG.TEC",
+      "bytes": 478,
+      "lines": 18,
+      "sha256": "9c51553e0e055246cc9a40d584fd50541bcef6fe449302cae20d440e2018a6e9",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "LSTFLG.FOR",
+      "bytes": 8472,
+      "lines": 231,
+      "sha256": "48fded62d38c85f39bec023494837017ba51c5b91b44c7bedca9a0026d1092f1",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "LSTOBJ.FOR",
+      "bytes": 2841,
+      "lines": 89,
+      "sha256": "8b1376a14fcc876c95d14d3a5244f75c384df6df23db05385db2803a50dfe18c",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "LSTOUT.FOR",
+      "bytes": 4100,
+      "lines": 134,
+      "sha256": "f8bcb0668ec8fadc35213c6c07d9498f3930f0146d2c98a09a26df50907056f1",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "LSTSCN.FOR",
+      "bytes": 8934,
+      "lines": 294,
+      "sha256": "1bf373081f80eb5ab95de20ddc782e557c9eca6f8975796a8010c56d6c5f72ba",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "LSTSUM.FOR",
+      "bytes": 1466,
+      "lines": 44,
+      "sha256": "3ff6821be64266526f637bcc6e58e70cf0221e1f7a73e9b8bee23649b7453725",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "LSTUPD.FOR",
+      "bytes": 2348,
+      "lines": 66,
+      "sha256": "5111e25467e1e9f0e414cd85bf696ba929a91b89e5dde94c94974210a23c00ce",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "LSTVAR.FOR",
+      "bytes": 2704,
+      "lines": 73,
+      "sha256": "b03bc34b8e8c6cbbc84ad7048f6246b23a1bde44a6989bc9ad6c316bfdf78ed1",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "MAKHLP.MIC",
+      "bytes": 98,
+      "lines": 3,
+      "sha256": "ef8d5b9602a8daf346ab66f9a2483b691f9305f560510b13359f8c7f54c348f4",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "MAKNWS.MIC",
+      "bytes": 42,
+      "lines": 1,
+      "sha256": "49457dea9edadb3080e24fb2225d59b7b3c062d56fbf8684d4cef088e88f3932",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "MOVE.FOR",
+      "bytes": 5214,
+      "lines": 159,
+      "sha256": "35032f78f1380f1dbcf3692f2f195505b7c6af402d92e907d4a3f33b8dc9da24",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "MSC.COM",
+      "bytes": 604,
+      "lines": 11,
+      "sha256": "fae0956e1e7936a01960a490a853e508e5cb9cabfec568791094d01e488e9e2d",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "MSG.MAC",
+      "bytes": 13784,
+      "lines": 403,
+      "sha256": "912663e3bb3011493d2dde5f4347121b8498caf911c4884cc9241a4e498d3115",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "NDX.TEC",
+      "bytes": 331,
+      "lines": 14,
+      "sha256": "23e1a7cf2156d8eb8e4b6a58da0334bdfa7a5cc6907326e6b5501ff90b70b245",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "NETREV.CMD",
+      "bytes": 283,
+      "lines": 24,
+      "sha256": "dfc9673e9cb29c870fab40094947b370751c0186cb8348de49a86313280a5304",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "NOVA.FOR",
+      "bytes": 6647,
+      "lines": 181,
+      "sha256": "f6bdd57a690a6f5d189cc1412cfd6cafcbcf1d1d2ee983f352734d64c54dbc0e",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "OUTHDB.FOR",
+      "bytes": 1859,
+      "lines": 41,
+      "sha256": "c9c1737c741027a27e07871eff72a1ffed5a6172610c0cd20122727fe7881b0c",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "OUTHIT.FOR",
+      "bytes": 9340,
+      "lines": 288,
+      "sha256": "ad9305f074055c2e3fa4f8b2756459d40e16831b489651bf927f53daaa573102",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "OUTMSG.FOR",
+      "bytes": 1670,
+      "lines": 54,
+      "sha256": "87e57e935fba10fd9d925bfb2c9865d53c399bb63bb33394564dd54cf929c1a6",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "PAGE.TCO",
+      "bytes": 372,
+      "lines": 22,
+      "sha256": "a37c84bffec417876aece7e0dfcd8bfb9fe8bd9433d036af43cd351e03fdc4ed",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "PAGE.TEC",
+      "bytes": 347,
+      "lines": 24,
+      "sha256": "6ddb8b257607f7464ae91e6ebf3779f62633b91510c55dadef77c9ec3cf22904",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "PARAM.FOR",
+      "bytes": 6751,
+      "lines": 188,
+      "sha256": "02de942b2fa7f2d97e970d568a8741d58133d85efaee94abb8c206e876d73cac",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "PARAM.TEC",
+      "bytes": 491,
+      "lines": 20,
+      "sha256": "7da8c191a31e6b1f7618a2d3a9a15897cbdd8c4172ff5b274610d3a78449415b",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "PASWRD.FOR",
+      "bytes": 1526,
+      "lines": 42,
+      "sha256": "3e0033b2e763a74e25502dfbc0a2a6c7101a112c130571e40697e666203ab3c8",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "PDWDOC.CMD",
+      "bytes": 28,
+      "lines": 1,
+      "sha256": "29086276ec733de6521e9e9523eb85c269ac1990b2cb5c9d4e3d88eaa2a179ea",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "PDWDOC.XF4",
+      "bytes": 2136,
+      "lines": 72,
+      "sha256": "2b17e9b79e81c3694599d74e388ea0884e71863cf536621b59d1d5b747fa885b",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "PHACON.FOR",
+      "bytes": 5457,
+      "lines": 166,
+      "sha256": "7067032b08d27323e97ee54c68238bd6d6ecc4df01ab4b0ad915b6e113031a50",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "PLACE.FOR",
+      "bytes": 2094,
+      "lines": 57,
+      "sha256": "3ce592cce5657727a9852d67eedbe7403ef0f59531161f4c6b434c5a6ec688df",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "PLNATK.FOR",
+      "bytes": 3823,
+      "lines": 95,
+      "sha256": "e8e583d88945b7adc7cba3043e8a936becae438ac5ac0cbe88c656496f924663",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "PLNRMV.FOR",
+      "bytes": 1995,
+      "lines": 60,
+      "sha256": "48be6d71fefbff5c8403573992827c14b3b796fce39c507c8e918f75dcaafbe2",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "POINTS.FOR",
+      "bytes": 6762,
+      "lines": 200,
+      "sha256": "41c2e4f2b2f9c28ba17259e1e4d70d68a2ae7700ffe83b93d5808a22924ea905",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "PRIDIS.FOR",
+      "bytes": 1778,
+      "lines": 46,
+      "sha256": "69e61d383c72cdf1eac8139dbe9b9ebcc15e708b2490edec825a80a7a473743e",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "PRLOC.FOR",
+      "bytes": 1918,
+      "lines": 54,
+      "sha256": "2e3a8f17b55323203d0032c931c7b26278a2872d2360c3b113368aa18dbef140",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "PROMPT.FOR",
+      "bytes": 1956,
+      "lines": 52,
+      "sha256": "ebb86b14799de0e2339981d63a2d98c524af6460757b7c0cb041decf9fd5e021",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "RADIO.FOR",
+      "bytes": 2608,
+      "lines": 87,
+      "sha256": "31dd448e63cf6b6b027c3cbed1ea4033ae6b7ad1feafc07ec042785445c41e57",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "REPAIR.FOR",
+      "bytes": 2499,
+      "lines": 72,
+      "sha256": "b06c42ea8eb6eaf6d1df50c7ace852b0fff6726f3409eba6f5dedbb2c76afc10",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "ROMDRV.FOR",
+      "bytes": 7346,
+      "lines": 235,
+      "sha256": "8d26e1d32251d507d32a0d71a2070fed71cc9f006cde493caa262b4471d5da4d",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "ROMSTR.FOR",
+      "bytes": 1401,
+      "lines": 39,
+      "sha256": "dcedb07508d0b7205c9c75ad86eeafcff08dfba91555a78ab562bd8dfd1da814",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "ROMTOR.FOR",
+      "bytes": 4590,
+      "lines": 139,
+      "sha256": "e669b7053ec2210b54671c02908d2c636c777aa5134dffbc68ae3985f420686e",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "SCAN.FOR",
+      "bytes": 5015,
+      "lines": 155,
+      "sha256": "f63e815361c44c9c136d30d7c3ac8ca7d57a6705f40f72b23f9c1928fa790c8a",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "SET.FOR",
+      "bytes": 4284,
+      "lines": 159,
+      "sha256": "7b935c03d6de72aac8d6ab9b020ae1698a97b5f74dcb7f9752de1ef3512a7724",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "SETEXT.FOR",
+      "bytes": 2346,
+      "lines": 59,
+      "sha256": "477b49acbd416e651eee9883773834c6cde005dd37223afba7c13f2e049d9a1c",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "SETEXT.TEC",
+      "bytes": 235,
+      "lines": 10,
+      "sha256": "2ac7ac4260c01463a26ab745e4fae2702a4d4224a166f1a979c8222ab0a71f73",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "SETMSG.MAC",
+      "bytes": 2157,
+      "lines": 67,
+      "sha256": "5b263ea2e675af51be71c5c55129703446c3d6f95368d9ec234237e6137bb2fc",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "SETUP.FOR",
+      "bytes": 16599,
+      "lines": 564,
+      "sha256": "047ea57d8ba8242cadba1696f900faf4ba386a290ee45db2ec742c7c02fa2648",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "SHIELD.FOR",
+      "bytes": 3346,
+      "lines": 104,
+      "sha256": "c834cd5de124dbd090d7474d9a234062a9dcbf6b1c612daf2bf764a08c99e0f9",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "SNOVA.FOR",
+      "bytes": 2729,
+      "lines": 75,
+      "sha256": "fd43cbea14bdefea147997e5990916b42d96bef5aee165ac10d2042e9d00f9d5",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "STATUS.FOR",
+      "bytes": 5398,
+      "lines": 164,
+      "sha256": "3e002585d05453ac056fe50dae13a049e21228f2bc062a68cf1de2c0ab86d93e",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "TECSAV.INF",
+      "bytes": 72,
+      "lines": 3,
+      "sha256": "c2fd97a0f139ee423f075c4ec6efaf2d7429b6cec4ca34c161e99af5dc8868d1",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "TELL.FOR",
+      "bytes": 4862,
+      "lines": 165,
+      "sha256": "e26c4d4cbd6c0537fc9c162488969c434ef9e581072134c06da296d4a5276ce6",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "TIME.FOR",
+      "bytes": 1572,
+      "lines": 48,
+      "sha256": "3e1e854598eae347f273705e897ffce13022f4995bd498ff23e2ad0fd6bba0e3",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "TO.DO",
+      "bytes": 2013,
+      "lines": 56,
+      "sha256": "82790a7da944823b46e812ab1f8a6d4aefb73d8d2e18dc51708aaf5e08cf6bc6",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "TORDAM.FOR",
+      "bytes": 6848,
+      "lines": 195,
+      "sha256": "b1932ea72bcea91cf9a23dcbed2ba3dac93b5a8876d18228811ceed64120aaf2",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "TORP.COD",
+      "bytes": 908,
+      "lines": 23,
+      "sha256": "dce43cd58c21ece8c97bd3f57d4a91e4ab99000020943d367d069165bd719f58",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "TORP.FOR",
+      "bytes": 8417,
+      "lines": 264,
+      "sha256": "0907b454bd054b651474249fcb82a397cf471c70305162864c95da3ad4283b6d",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "TRACTR.FOR",
+      "bytes": 3507,
+      "lines": 134,
+      "sha256": "021591c326969eb6d75a656e8e8d5f7450dab6054a7ae4fefd8c2deafb455394",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "TRAP.FOR",
+      "bytes": 1455,
+      "lines": 40,
+      "sha256": "99ec3c9f54502213f44eee7260694d821c20de434aa16c66d986f951afe15a56",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "TTY.MAC",
+      "bytes": 3523,
+      "lines": 208,
+      "sha256": "3a6a4fbf8bba75723b0a71b3b871d0d82d8f8c58b5efa786313e6a0a97e00968",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "TYPE.FOR",
+      "bytes": 3278,
+      "lines": 103,
+      "sha256": "4fcb6ff3f208c2746a3b755d81b28fc234f954fb3023fb14b948d06ebe9b3547",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "USERS.FOR",
+      "bytes": 1857,
+      "lines": 58,
+      "sha256": "5050916c20c89e35fd8f65552926958b19f6f1978dcfed8936bf620ca02cb661",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "W.MAC",
+      "bytes": 2524,
+      "lines": 77,
+      "sha256": "2d6e850c43dd1def3f7689dad6294e838c51490a8a2960df2414ac148580a03b",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "WARMAC.MAC",
+      "bytes": 160801,
+      "lines": 6574,
+      "sha256": "88be16809b4959c546db16a71b78cf07a7b44ae8f980cda3aff19269e6597a43",
+      "compiled": true,
+      "sections": [
+        {
+          "line": 31,
+          "title": "Macro definitions"
+        },
+        {
+          "line": 223,
+          "title": "FORTRAN interface -- parameters"
+        },
+        {
+          "line": 391,
+          "title": "FORTRAN interface -- high segment common block"
+        },
+        {
+          "line": 467,
+          "title": "FORTRAN interface -- low segment common block"
+        },
+        {
+          "line": 525,
+          "title": "FORTRAN interface -- general purpose common block (low seg)"
+        },
+        {
+          "line": 549,
+          "title": "Registers and other constants"
+        },
+        {
+          "line": 622,
+          "title": "low segment data"
+        },
+        {
+          "line": 752,
+          "title": "high segment data"
+        },
+        {
+          "line": 946,
+          "title": "Character type bits"
+        },
+        {
+          "line": 1102,
+          "title": "RESET./STOP./EXIT./EXIT/MONIT"
+        },
+        {
+          "line": 1214,
+          "title": "PTY"
+        },
+        {
+          "line": 1232,
+          "title": "DECINI"
+        },
+        {
+          "line": 1307,
+          "title": "ECHON/ECHOFF/DMPBUF/TTYON"
+        },
+        {
+          "line": 1350,
+          "title": "Low Level I/O -- Introduction"
+        },
+        {
+          "line": 1406,
+          "title": "Low Level I/O -- OPEN./CLOSE."
+        },
+        {
+          "line": 1514,
+          "title": "Low Level I/O -- SETO./SETI."
+        },
+        {
+          "line": 1571,
+          "title": "Low Level I/O -- OCHR./ICHR."
+        },
+        {
+          "line": 1659,
+          "title": "GTKN -- GTKN"
+        },
+        {
+          "line": 1734,
+          "title": "GTKN -- NXTT."
+        },
+        {
+          "line": 1849,
+          "title": "GETLIN -- INLI."
+        },
+        {
+          "line": 1916,
+          "title": "GETLIN -- NXCH."
+        },
+        {
+          "line": 1937,
+          "title": "GETLIN -- DISP."
+        },
+        {
+          "line": 1965,
+          "title": "GETLIN -- ECHG."
+        },
+        {
+          "line": 1973,
+          "title": "Output -- OUT/SKIP"
+        },
+        {
+          "line": 2004,
+          "title": "Output -- TAB/SPACES/OSPC./OCRL./CRLF"
+        },
+        {
+          "line": 2064,
+          "title": "Output -- OUTC/OUT2C/OUTW/OUT2W"
+        },
+        {
+          "line": 2102,
+          "title": "Output -- OTIM"
+        },
+        {
+          "line": 2131,
+          "title": "Output -- OSTR./OSTB./O2DG./O2DB./OSIX."
+        },
+        {
+          "line": 2223,
+          "title": "Output -- ODEC./OOCT."
+        },
+        {
+          "line": 2253,
+          "title": "Output -- ONUM./OSN1./OSN2./OSN3."
+        },
+        {
+          "line": 2329,
+          "title": "Output -- ODEC/OSDEC"
+        },
+        {
+          "line": 2349,
+          "title": "Output -- OFLT/OSFLT"
+        },
+        {
+          "line": 2382,
+          "title": "Output -- ODISP"
+        },
+        {
+          "line": 2455,
+          "title": "Output -- ODEV"
+        },
+        {
+          "line": 2503,
+          "title": "Output -- OCOND"
+        },
+        {
+          "line": 2532,
+          "title": "Output -- OSTS./STAT"
+        },
+        {
+          "line": 2709,
+          "title": "Random number generator"
+        },
+        {
+          "line": 2754,
+          "title": "PWR"
+        },
+        {
+          "line": 2795,
+          "title": "SCAN -- SETSCN"
+        },
+        {
+          "line": 2863,
+          "title": "SCAN -- MARK"
+        },
+        {
+          "line": 2944,
+          "title": "SCAN -- SHWSCN"
+        },
+        {
+          "line": 2998,
+          "title": "Qmanager -- SETQH/SEQTM"
+        },
+        {
+          "line": 3052,
+          "title": "Qmanager -- SHQA./SHQD."
+        },
+        {
+          "line": 3107,
+          "title": "Qmanager -- RSRV."
+        },
+        {
+          "line": 3167,
+          "title": "Qmanager -- RSRVHQ"
+        },
+        {
+          "line": 3178,
+          "title": "Qmanager -- UPDT."
+        },
+        {
+          "line": 3210,
+          "title": "Qmanager -- SRCH."
+        },
+        {
+          "line": 3253,
+          "title": "Qmanager -- REMV."
+        },
+        {
+          "line": 3293,
+          "title": "Hit communication -- MAKHIT"
+        },
+        {
+          "line": 3435,
+          "title": "Hit communication -- GETHIT"
+        },
+        {
+          "line": 3524,
+          "title": "Message communication -- MAKMSG"
+        },
+        {
+          "line": 3608,
+          "title": "Message communication -- GETMSG"
+        },
+        {
+          "line": 3653,
+          "title": "JOBSTA"
+        },
+        {
+          "line": 3870,
+          "title": "INPUT/CLEAR"
+        },
+        {
+          "line": 3910,
+          "title": "BLKSET/BLKMOV/LOCF"
+        },
+        {
+          "line": 3951,
+          "title": "DAYTIM/RUNTIM/ETIM/PAUSE"
+        },
+        {
+          "line": 4043,
+          "title": "PRGNAM/USRNAM"
+        },
+        {
+          "line": 4103,
+          "title": "CCTRAP"
+        },
+        {
+          "line": 4124,
+          "title": "INTH."
+        },
+        {
+          "line": 4175,
+          "title": "ABORT"
+        },
+        {
+          "line": 4210,
+          "title": "KILHGH/KILLOW"
+        },
+        {
+          "line": 4274,
+          "title": "DEBUG"
+        },
+        {
+          "line": 4350,
+          "title": "EQUAL"
+        },
+        {
+          "line": 4403,
+          "title": "LDIS"
+        },
+        {
+          "line": 4422,
+          "title": "INGAL"
+        },
+        {
+          "line": 4437,
+          "title": "PDIST"
+        },
+        {
+          "line": 4452,
+          "title": "LOCK/LOCK./UNLOCK/UNLO."
+        },
+        {
+          "line": 4655,
+          "title": "NEWS"
+        },
+        {
+          "line": 4707,
+          "title": "GRIPE"
+        },
+        {
+          "line": 5002,
+          "title": "HELP -- HELP"
+        },
+        {
+          "line": 5067,
+          "title": "HELP -- HLPXTR/HLPALL"
+        },
+        {
+          "line": 5108,
+          "title": "HELP -- SHLP."
+        },
+        {
+          "line": 5184,
+          "title": "SLST./OLST."
+        },
+        {
+          "line": 5287,
+          "title": "ESHP./PSHP."
+        },
+        {
+          "line": 5325,
+          "title": "DISP/DISPC/DISPX/SETDSP"
+        },
+        {
+          "line": 5472,
+          "title": "CHKC./CHKD./TRAC."
+        },
+        {
+          "line": 5586,
+          "title": "updsta/shosta - Player Status register"
+        },
+        {
+          "line": 6102,
+          "title": "END"
+        },
+        {
+          "line": 6184,
+          "title": "*Zap\t- clear statistics data files"
+        },
+        {
+          "line": 6225,
+          "title": "ROMSPK - The Romulan speaks!"
+        },
+        {
+          "line": 6399,
+          "title": "updnam\t- update program's running name for tracking"
+        }
+      ],
+      "entries": [
+        {
+          "line": 1116,
+          "symbols": "RESET."
+        },
+        {
+          "line": 1185,
+          "symbols": "STOP., EXIT., EXIT"
+        },
+        {
+          "line": 1191,
+          "symbols": "MONIT"
+        },
+        {
+          "line": 1224,
+          "symbols": "PTY"
+        },
+        {
+          "line": 1237,
+          "symbols": "DECINI"
+        },
+        {
+          "line": 1311,
+          "symbols": "ECHON"
+        },
+        {
+          "line": 1322,
+          "symbols": "ECHOFF"
+        },
+        {
+          "line": 1333,
+          "symbols": "DMPBUF"
+        },
+        {
+          "line": 1342,
+          "symbols": "TTYON"
+        },
+        {
+          "line": 1668,
+          "symbols": "GTKN"
+        },
+        {
+          "line": 1984,
+          "symbols": "OUT"
+        },
+        {
+          "line": 1996,
+          "symbols": "SKIP"
+        },
+        {
+          "line": 2010,
+          "symbols": "TAB"
+        },
+        {
+          "line": 2024,
+          "symbols": "SPACES"
+        },
+        {
+          "line": 2038,
+          "symbols": "SPACE"
+        },
+        {
+          "line": 2051,
+          "symbols": "CRLF"
+        },
+        {
+          "line": 2066,
+          "symbols": "OUTC"
+        },
+        {
+          "line": 2073,
+          "symbols": "OUT2C"
+        },
+        {
+          "line": 2082,
+          "symbols": "OUTW"
+        },
+        {
+          "line": 2092,
+          "symbols": "OUT2W"
+        },
+        {
+          "line": 2108,
+          "symbols": "OTIM"
+        },
+        {
+          "line": 2339,
+          "symbols": "ODEC,OSDEC"
+        },
+        {
+          "line": 2361,
+          "symbols": "OFLT,OSFLT"
+        },
+        {
+          "line": 2391,
+          "symbols": "ODISP"
+        },
+        {
+          "line": 2462,
+          "symbols": "ODEV"
+        },
+        {
+          "line": 2509,
+          "symbols": "OCOND"
+        },
+        {
+          "line": 2596,
+          "symbols": "STAT"
+        },
+        {
+          "line": 2714,
+          "symbols": "SETRAN"
+        },
+        {
+          "line": 2726,
+          "symbols": "IRAN"
+        },
+        {
+          "line": 2738,
+          "symbols": "RAN"
+        },
+        {
+          "line": 2760,
+          "symbols": "PWR"
+        },
+        {
+          "line": 2797,
+          "symbols": "SETSCN"
+        },
+        {
+          "line": 2865,
+          "symbols": "MARK"
+        },
+        {
+          "line": 2946,
+          "symbols": "SHWSCN"
+        },
+        {
+          "line": 3034,
+          "symbols": "SETQH"
+        },
+        {
+          "line": 3045,
+          "symbols": "SETQM"
+        },
+        {
+          "line": 3328,
+          "symbols": "MAKHIT"
+        },
+        {
+          "line": 3445,
+          "symbols": "GETHIT"
+        },
+        {
+          "line": 3534,
+          "symbols": "MAKMSG"
+        },
+        {
+          "line": 3619,
+          "symbols": "GETMSG"
+        },
+        {
+          "line": 3659,
+          "symbols": "JOBSTA"
+        },
+        {
+          "line": 3661,
+          "symbols": "USRPRJ"
+        },
+        {
+          "line": 3872,
+          "symbols": "INPUT"
+        },
+        {
+          "line": 3904,
+          "symbols": "CLEAR"
+        },
+        {
+          "line": 3916,
+          "symbols": "BLKSET"
+        },
+        {
+          "line": 3933,
+          "symbols": "BLKMOV"
+        },
+        {
+          "line": 3947,
+          "symbols": "LOCF"
+        },
+        {
+          "line": 3957,
+          "symbols": "DAYTIM"
+        },
+        {
+          "line": 3968,
+          "symbols": "RUNTIM"
+        },
+        {
+          "line": 3988,
+          "symbols": "ETIM"
+        },
+        {
+          "line": 4003,
+          "symbols": "PAUSE"
+        },
+        {
+          "line": 4049,
+          "symbols": "PRGNAM"
+        },
+        {
+          "line": 4061,
+          "symbols": "USRNAM"
+        },
+        {
+          "line": 4118,
+          "symbols": "CCTRAP"
+        },
+        {
+          "line": 4215,
+          "symbols": "KILHGH"
+        },
+        {
+          "line": 4250,
+          "symbols": "KILLOW"
+        },
+        {
+          "line": 4278,
+          "symbols": "TIMIN,TIMOUT"
+        },
+        {
+          "line": 4311,
+          "symbols": "DEBUG"
+        },
+        {
+          "line": 4361,
+          "symbols": "EQUAL"
+        },
+        {
+          "line": 4408,
+          "symbols": "LDIS"
+        },
+        {
+          "line": 4427,
+          "symbols": "INGAL"
+        },
+        {
+          "line": 4441,
+          "symbols": "PDIST"
+        },
+        {
+          "line": 4466,
+          "symbols": "LOCK"
+        },
+        {
+          "line": 4592,
+          "symbols": "UNLOCK"
+        },
+        {
+          "line": 4659,
+          "symbols": "NEWS"
+        },
+        {
+          "line": 4712,
+          "symbols": "GRIPE"
+        },
+        {
+          "line": 5011,
+          "symbols": "HELP"
+        },
+        {
+          "line": 5072,
+          "symbols": "HLPXTR"
+        },
+        {
+          "line": 5097,
+          "symbols": "HLPALL"
+        },
+        {
+          "line": 5331,
+          "symbols": "DISP"
+        },
+        {
+          "line": 5355,
+          "symbols": "DISPC"
+        },
+        {
+          "line": 5364,
+          "symbols": "DISPX"
+        },
+        {
+          "line": 5376,
+          "symbols": "SETDSP"
+        },
+        {
+          "line": 5589,
+          "symbols": "UPDCAP"
+        },
+        {
+          "line": 5684,
+          "symbols": "PDWDOC"
+        },
+        {
+          "line": 5694,
+          "symbols": "UPDSTA"
+        },
+        {
+          "line": 5885,
+          "symbols": "SHOSTA"
+        },
+        {
+          "line": 6179,
+          "symbols": "APRSET"
+        },
+        {
+          "line": 6185,
+          "symbols": "STAZAP"
+        },
+        {
+          "line": 6227,
+          "symbols": "ROMSPK"
+        },
+        {
+          "line": 6561,
+          "symbols": "ONEXIT"
+        },
+        {
+          "line": 6567,
+          "symbols": "PAUSES"
+        }
+      ]
+    },
+    {
+      "file": "WARVER.MAC",
+      "bytes": 894,
+      "lines": 25,
+      "sha256": "03d1a304600699cc0dec6962dd96095d40ca9b6a215127a99df595fc7c07cbba",
+      "compiled": true,
+      "sections": [],
+      "entries": []
+    },
+    {
+      "file": "changes",
+      "bytes": 1503,
+      "lines": 61,
+      "sha256": "8bff07a7769de9d07b8e072002b53a5b10b5d1c8f5b398340fdefa58db797b09",
+      "compiled": false,
+      "sections": [],
+      "entries": []
+    }
+  ],
+  "routines": [
+    {
+      "file": "BASBLD.FOR",
+      "line": 27,
+      "name": "BASBLD",
+      "kind": "subroutine",
+      "calls": []
+    },
+    {
+      "file": "BASKIL.FOR",
+      "line": 27,
+      "name": "BASKIL",
+      "kind": "subroutine",
+      "calls": []
+    },
+    {
+      "file": "BASPHA.FOR",
+      "line": 27,
+      "name": "BASPHA",
+      "kind": "subroutine",
+      "calls": [
+        "PHADAM",
+        "PRIDIS",
+        "MAKHIT",
+        "PHAROM"
+      ]
+    },
+    {
+      "file": "BUILD.FOR",
+      "line": 28,
+      "name": "BUILD",
+      "kind": "subroutine",
+      "calls": [
+        "ODEC",
+        "OUT",
+        "OUTC",
+        "CRLF",
+        "LOCK",
+        "UNLOCK",
+        "PLNRMV",
+        "SETDSP",
+        "ODISP",
+        "PRLOC"
+      ]
+    },
+    {
+      "file": "CAPTUR.FOR",
+      "line": 27,
+      "name": "CAPTUR",
+      "kind": "subroutine",
+      "calls": [
+        "LOCK",
+        "OUT",
+        "PRIDIS",
+        "BASKIL",
+        "UNLOCK",
+        "SETDSP",
+        "PHADAM",
+        "CRLF",
+        "ODISP",
+        "PRLOC",
+        "MAKHIT"
+      ]
+    },
+    {
+      "file": "CHECK.FOR",
+      "line": 36,
+      "name": "CHECK",
+      "kind": "subroutine",
+      "calls": [
+        "CHKPNT"
+      ]
+    },
+    {
+      "file": "CHKPNT.FOR",
+      "line": 29,
+      "name": "CHKPNT",
+      "kind": "subroutine",
+      "calls": []
+    },
+    {
+      "file": "CLRBUF.FOR",
+      "line": 24,
+      "name": "CLRBUF",
+      "kind": "subroutine",
+      "calls": [
+        "OUT",
+        "CLEAR"
+      ]
+    },
+    {
+      "file": "DAMAGE.FOR",
+      "line": 25,
+      "name": "DAMAGE",
+      "kind": "subroutine",
+      "calls": [
+        "CRLF",
+        "OUT",
+        "ODEV",
+        "SPACE",
+        "TAB",
+        "OFLT",
+        "ODISP",
+        "SKIP",
+        "SPACES"
+      ]
+    },
+    {
+      "file": "DECWAR.FOR",
+      "line": 21,
+      "name": "DECWAR",
+      "kind": "program",
+      "calls": [
+        "BLKSET",
+        "OUT",
+        "GTKN",
+        "TYPE",
+        "SUMMAR",
+        "PREGAM",
+        "TTYON",
+        "SETUP",
+        "APRSET",
+        "PLACE",
+        "GETCMD",
+        "BASES",
+        "BUILD",
+        "CAPTUR",
+        "DAMAGE",
+        "DOCK",
+        "ENERGY",
+        "GRIPE",
+        "HELP",
+        "IMPULS",
+        "LIST",
+        "MOVE",
+        "NEWS",
+        "PHACON",
+        "PLANET",
+        "POINTS",
+        "CLEAR",
+        "RADIO",
+        "REPAIR",
+        "SCAN",
+        "SET",
+        "SHIELD",
+        "SRSCAN",
+        "STATUS",
+        "TARGET",
+        "TELL",
+        "TIME",
+        "TORP",
+        "TRACTR",
+        "USERS",
+        "DEBUG",
+        "PASWRD",
+        "BASPHA",
+        "PLNATK",
+        "BASBLD",
+        "ROMDRV",
+        "ODEC",
+        "CRLF",
+        "CCTRAP",
+        "UPDSTA",
+        "FREE",
+        "EXIT"
+      ]
+    },
+    {
+      "file": "DEFINE.FOR",
+      "line": 21,
+      "name": "DEFINE",
+      "kind": "subroutine",
+      "calls": [
+        "OUT",
+        "OUTW",
+        "CRLF",
+        "GTKN",
+        "OUT2W"
+      ]
+    },
+    {
+      "file": "DIST.FOR",
+      "line": 24,
+      "name": "DIST",
+      "kind": "subroutine",
+      "calls": [
+        "BLKSET"
+      ]
+    },
+    {
+      "file": "DOCK.FOR",
+      "line": 26,
+      "name": "DOCK",
+      "kind": "subroutine",
+      "calls": [
+        "CRLF",
+        "ODISP",
+        "OUT",
+        "STATUS"
+      ]
+    },
+    {
+      "file": "DSHIP.FOR",
+      "line": 24,
+      "name": "DSHIP",
+      "kind": "subroutine",
+      "calls": [
+        "FREE"
+      ]
+    },
+    {
+      "file": "ENDGAM.FOR",
+      "line": 26,
+      "name": "ENDGAM",
+      "kind": "subroutine",
+      "calls": [
+        "KILHGH",
+        "OUT",
+        "POINTS",
+        "UPDSTA",
+        "FREE",
+        "EXIT"
+      ]
+    },
+    {
+      "file": "ENERGY.FOR",
+      "line": 24,
+      "name": "ENERGY",
+      "kind": "subroutine",
+      "calls": [
+        "CRLF",
+        "OUT",
+        "GTKN",
+        "MAKHIT"
+      ]
+    },
+    {
+      "file": "FREE.FOR",
+      "line": 29,
+      "name": "FREE",
+      "kind": "subroutine",
+      "calls": [
+        "LOCK",
+        "SETDSP",
+        "TRCOFF",
+        "KQSRCH",
+        "GETHIT",
+        "GETMSG",
+        "BLKSET",
+        "UNLOCK"
+      ]
+    },
+    {
+      "file": "FREE.FOR",
+      "line": 100,
+      "name": "RSTART",
+      "kind": "entry",
+      "calls": [
+        "LOCK",
+        "JOBSTA",
+        "SETDSP",
+        "UNLOCK",
+        "OUT",
+        "MONIT"
+      ]
+    },
+    {
+      "file": "GETCMD.FOR",
+      "line": 24,
+      "name": "GETCMD",
+      "kind": "subroutine",
+      "calls": [
+        "TTYON",
+        "OUTHIT",
+        "OUTMSG",
+        "PRGNAM",
+        "DMPBUF",
+        "CCTRAP",
+        "PAUSE",
+        "CRLF",
+        "CHKSEQ",
+        "OUT",
+        "ENDGAM",
+        "PROMPT",
+        "ZAPLOK",
+        "GTKN",
+        "CLEAR",
+        "POINTS",
+        "UPDSTA",
+        "FREE",
+        "ODISP"
+      ]
+    },
+    {
+      "file": "HIGH.FOR",
+      "line": 21,
+      "name": "HIGH",
+      "kind": "subroutine",
+      "calls": []
+    },
+    {
+      "file": "JUMP.FOR",
+      "line": 25,
+      "name": "JUMP",
+      "kind": "subroutine",
+      "calls": [
+        "SETDSP"
+      ]
+    },
+    {
+      "file": "KQSRCH.FOR",
+      "line": 25,
+      "name": "KQSRCH",
+      "kind": "subroutine",
+      "calls": []
+    },
+    {
+      "file": "LIST.FOR",
+      "line": 24,
+      "name": "LIST",
+      "kind": "subroutine",
+      "calls": []
+    },
+    {
+      "file": "LIST.FOR",
+      "line": 34,
+      "name": "SUMMAR",
+      "kind": "entry",
+      "calls": []
+    },
+    {
+      "file": "LIST.FOR",
+      "line": 38,
+      "name": "BASES",
+      "kind": "entry",
+      "calls": []
+    },
+    {
+      "file": "LIST.FOR",
+      "line": 42,
+      "name": "PLANET",
+      "kind": "entry",
+      "calls": []
+    },
+    {
+      "file": "LIST.FOR",
+      "line": 46,
+      "name": "TARGET",
+      "kind": "entry",
+      "calls": [
+        "BLKSET",
+        "CRLF",
+        "LSTSCN",
+        "LSTFLG",
+        "LSTOUT"
+      ]
+    },
+    {
+      "file": "LOCAL.FOR",
+      "line": 21,
+      "name": "TURKEY",
+      "kind": "subroutine",
+      "calls": []
+    },
+    {
+      "file": "LOCATE.FOR",
+      "line": 35,
+      "name": "LOCATE",
+      "kind": "function",
+      "calls": []
+    },
+    {
+      "file": "LOCATE.FOR",
+      "line": 45,
+      "name": "RELOC",
+      "kind": "entry",
+      "calls": [
+        "OUT",
+        "GTKN",
+        "PAUSE"
+      ]
+    },
+    {
+      "file": "LOW.FOR",
+      "line": 21,
+      "name": "LOW",
+      "kind": "subroutine",
+      "calls": []
+    },
+    {
+      "file": "LSTFLG.FOR",
+      "line": 25,
+      "name": "LSTFLG",
+      "kind": "subroutine",
+      "calls": [
+        "LSTOBJ",
+        "OUT",
+        "PRLOC",
+        "LSTUPD",
+        "CRLF",
+        "ODISP"
+      ]
+    },
+    {
+      "file": "LSTOBJ.FOR",
+      "line": 26,
+      "name": "LSTOBJ",
+      "kind": "subroutine",
+      "calls": [
+        "OUTC",
+        "SPACE",
+        "ODISP",
+        "TAB",
+        "PRLOC",
+        "OFLT",
+        "OSFLT",
+        "OUT",
+        "ODEC",
+        "CRLF"
+      ]
+    },
+    {
+      "file": "LSTOUT.FOR",
+      "line": 23,
+      "name": "LSTOUT",
+      "kind": "subroutine",
+      "calls": [
+        "CRLF",
+        "LSTOBJ",
+        "LSTSUM"
+      ]
+    },
+    {
+      "file": "LSTSCN.FOR",
+      "line": 24,
+      "name": "LSTSCN",
+      "kind": "subroutine",
+      "calls": [
+        "OUT",
+        "OUTW",
+        "CRLF",
+        "PRLOC"
+      ]
+    },
+    {
+      "file": "LSTSUM.FOR",
+      "line": 23,
+      "name": "LSTSUM",
+      "kind": "subroutine",
+      "calls": [
+        "ODEC",
+        "OUT",
+        "SPACE",
+        "OUTC",
+        "CRLF"
+      ]
+    },
+    {
+      "file": "LSTUPD.FOR",
+      "line": 24,
+      "name": "LSTUPD",
+      "kind": "subroutine",
+      "calls": []
+    },
+    {
+      "file": "MOVE.FOR",
+      "line": 25,
+      "name": "MOVE",
+      "kind": "subroutine",
+      "calls": [
+        "OUT"
+      ]
+    },
+    {
+      "file": "MOVE.FOR",
+      "line": 38,
+      "name": "IMPULS",
+      "kind": "entry",
+      "calls": [
+        "OUT",
+        "OUT2C",
+        "OFLT",
+        "CHECK",
+        "LOCK",
+        "UNLOCK",
+        "SETDSP"
+      ]
+    },
+    {
+      "file": "NOVA.FOR",
+      "line": 25,
+      "name": "NOVA",
+      "kind": "subroutine",
+      "calls": [
+        "SETDSP",
+        "JUMP",
+        "PRIDIS",
+        "MAKHIT",
+        "TRCOFF",
+        "BASKIL",
+        "LOCK",
+        "PLNRMV",
+        "UNLOCK"
+      ]
+    },
+    {
+      "file": "OUTHIT.FOR",
+      "line": 33,
+      "name": "OUTHIT",
+      "kind": "subroutine",
+      "calls": [
+        "BLKSET",
+        "CRLF",
+        "GETHIT",
+        "ODISP",
+        "OUTC",
+        "ODEC",
+        "SPACE",
+        "PRLOC",
+        "OSFLT",
+        "OUT",
+        "OFLT",
+        "OUT2C",
+        "ODEV"
+      ]
+    },
+    {
+      "file": "OUTMSG.FOR",
+      "line": 24,
+      "name": "OUTMSG",
+      "kind": "subroutine",
+      "calls": [
+        "GETMSG",
+        "OUT",
+        "ODISP",
+        "OUT2C",
+        "CRLF"
+      ]
+    },
+    {
+      "file": "PASWRD.FOR",
+      "line": 24,
+      "name": "PASWRD",
+      "kind": "subroutine",
+      "calls": [
+        "OUT"
+      ]
+    },
+    {
+      "file": "PHACON.FOR",
+      "line": 25,
+      "name": "PHACON",
+      "kind": "subroutine",
+      "calls": [
+        "OUT",
+        "PAUSE",
+        "PRIDIS",
+        "MAKHIT",
+        "PHAROM",
+        "PHADAM"
+      ]
+    },
+    {
+      "file": "PLACE.FOR",
+      "line": 25,
+      "name": "PLACE",
+      "kind": "subroutine",
+      "calls": [
+        "SETDSP"
+      ]
+    },
+    {
+      "file": "PLNATK.FOR",
+      "line": 28,
+      "name": "PLNATK",
+      "kind": "subroutine",
+      "calls": [
+        "PHADAM",
+        "PRIDIS",
+        "MAKHIT",
+        "PHAROM"
+      ]
+    },
+    {
+      "file": "PLNRMV.FOR",
+      "line": 25,
+      "name": "PLNRMV",
+      "kind": "subroutine",
+      "calls": [
+        "BASKIL",
+        "BLKMOV",
+        "SETDSP",
+        "ENDGAM"
+      ]
+    },
+    {
+      "file": "POINTS.FOR",
+      "line": 23,
+      "name": "POINTS",
+      "kind": "subroutine",
+      "calls": [
+        "BLKSET",
+        "OUT",
+        "CRLF",
+        "TAB",
+        "SPACE",
+        "OUT2W",
+        "OUT2C",
+        "OFLT",
+        "SPACES",
+        "ODEC"
+      ]
+    },
+    {
+      "file": "PRIDIS.FOR",
+      "line": 29,
+      "name": "PRIDIS",
+      "kind": "subroutine",
+      "calls": []
+    },
+    {
+      "file": "PRLOC.FOR",
+      "line": 29,
+      "name": "PRLOC",
+      "kind": "subroutine",
+      "calls": [
+        "OUTC",
+        "ODEC",
+        "SPACE",
+        "OSDEC",
+        "CRLF"
+      ]
+    },
+    {
+      "file": "PROMPT.FOR",
+      "line": 30,
+      "name": "PROMPT",
+      "kind": "subroutine",
+      "calls": [
+        "OUT",
+        "ODEC",
+        "OUTC",
+        "OUT2C"
+      ]
+    },
+    {
+      "file": "RADIO.FOR",
+      "line": 25,
+      "name": "RADIO",
+      "kind": "subroutine",
+      "calls": [
+        "CRLF",
+        "OUT",
+        "GTKN",
+        "ODISP"
+      ]
+    },
+    {
+      "file": "REPAIR.FOR",
+      "line": 31,
+      "name": "REPAIR",
+      "kind": "subroutine",
+      "calls": [
+        "DAMAGE"
+      ]
+    },
+    {
+      "file": "ROMDRV.FOR",
+      "line": 32,
+      "name": "ROMDRV",
+      "kind": "subroutine",
+      "calls": [
+        "PLACE",
+        "PRIDIS",
+        "MAKHIT",
+        "TELL",
+        "DIST",
+        "ROMSTR",
+        "ROMTOR",
+        "PHADAM",
+        "BASPHA",
+        "PLNATK",
+        "BASBLD",
+        "CHECK",
+        "SETDSP",
+        "ODISP",
+        "OUT",
+        "PRLOC"
+      ]
+    },
+    {
+      "file": "ROMDRV.FOR",
+      "line": 212,
+      "name": "PHAROM",
+      "kind": "entry",
+      "calls": []
+    },
+    {
+      "file": "ROMDRV.FOR",
+      "line": 220,
+      "name": "DEADRO",
+      "kind": "entry",
+      "calls": [
+        "SETDSP"
+      ]
+    },
+    {
+      "file": "ROMDRV.FOR",
+      "line": 228,
+      "name": "TOROM",
+      "kind": "entry",
+      "calls": []
+    },
+    {
+      "file": "ROMSTR.FOR",
+      "line": 24,
+      "name": "ROMSTR",
+      "kind": "subroutine",
+      "calls": []
+    },
+    {
+      "file": "ROMTOR.FOR",
+      "line": 25,
+      "name": "ROMTOR",
+      "kind": "subroutine",
+      "calls": [
+        "CHECK",
+        "PRIDIS",
+        "MAKHIT",
+        "SNOVA",
+        "TORDAM",
+        "TRCOFF",
+        "DIST",
+        "ROMSTR",
+        "LOCK",
+        "SETDSP",
+        "PLNRMV",
+        "UNLOCK"
+      ]
+    },
+    {
+      "file": "SCAN.FOR",
+      "line": 34,
+      "name": "SCAN",
+      "kind": "subroutine",
+      "calls": []
+    },
+    {
+      "file": "SCAN.FOR",
+      "line": 51,
+      "name": "SRSCAN",
+      "kind": "entry",
+      "calls": [
+        "SETSCN",
+        "MARK",
+        "SHWSCN",
+        "OUT"
+      ]
+    },
+    {
+      "file": "SET.FOR",
+      "line": 27,
+      "name": "SET",
+      "kind": "subroutine",
+      "calls": [
+        "OUT",
+        "GTKN",
+        "USRNAM",
+        "CRLF",
+        "ENDGAM",
+        "SETDSP"
+      ]
+    },
+    {
+      "file": "SETUP.FOR",
+      "line": 24,
+      "name": "A",
+      "kind": "subroutine",
+      "calls": []
+    },
+    {
+      "file": "SETUP.FOR",
+      "line": 31,
+      "name": "CC1",
+      "kind": "subroutine",
+      "calls": [
+        "UNLOCK",
+        "EXIT"
+      ]
+    },
+    {
+      "file": "SETUP.FOR",
+      "line": 48,
+      "name": "CC2",
+      "kind": "subroutine",
+      "calls": [
+        "UNLOCK",
+        "EXIT"
+      ]
+    },
+    {
+      "file": "SETUP.FOR",
+      "line": 65,
+      "name": "KILCHK",
+      "kind": "subroutine",
+      "calls": [
+        "KQSRCH",
+        "OUT",
+        "ODEC",
+        "CCTRAP",
+        "DMPBUF",
+        "ECHOFF",
+        "OTIM",
+        "ENDGAM",
+        "CRLF",
+        "ECHON",
+        "GTKN",
+        "CC1"
+      ]
+    },
+    {
+      "file": "SETUP.FOR",
+      "line": 117,
+      "name": "PREGAM",
+      "kind": "subroutine",
+      "calls": [
+        "JOBSTA",
+        "MONIT",
+        "TTYON",
+        "OUT",
+        "GTKN",
+        "SHOSTA",
+        "HLPXTR",
+        "HLPALL",
+        "XGTCMD",
+        "PRGNAM",
+        "GRIPE",
+        "HELP",
+        "NEWS",
+        "POINTS",
+        "SET",
+        "SUMMAR",
+        "TIME",
+        "TYPE",
+        "USERS",
+        "DEBUG",
+        "PASWRD",
+        "STAZAP"
+      ]
+    },
+    {
+      "file": "SETUP.FOR",
+      "line": 204,
+      "name": "SETUP",
+      "kind": "subroutine",
+      "calls": [
+        "FRCCHK",
+        "CRLF",
+        "JOBSTA",
+        "OUT",
+        "KILHGH",
+        "START",
+        "EXIT",
+        "CCTRAP",
+        "LOCK",
+        "CC1",
+        "SETRAN",
+        "BLKSET",
+        "SETQH",
+        "SETQM",
+        "GTKN",
+        "PLACE",
+        "KQSRCH",
+        "OUT2W",
+        "CC2",
+        "ODEC",
+        "UNLOCK",
+        "UPDCAP"
+      ]
+    },
+    {
+      "file": "SETUP.FOR",
+      "line": 498,
+      "name": "XGTCMD",
+      "kind": "subroutine",
+      "calls": [
+        "CRLF",
+        "OUT2C",
+        "DMPBUF",
+        "GTKN",
+        "MONIT",
+        "OUT"
+      ]
+    },
+    {
+      "file": "SETUP.FOR",
+      "line": 563,
+      "name": "Z",
+      "kind": "subroutine",
+      "calls": []
+    },
+    {
+      "file": "SHIELD.FOR",
+      "line": 26,
+      "name": "SHIELD",
+      "kind": "subroutine",
+      "calls": [
+        "CRLF",
+        "OUT",
+        "GTKN",
+        "TRCOFF"
+      ]
+    },
+    {
+      "file": "SNOVA.FOR",
+      "line": 25,
+      "name": "SNOVA",
+      "kind": "subroutine",
+      "calls": [
+        "SETDSP",
+        "NOVA",
+        "PRIDIS",
+        "MAKHIT"
+      ]
+    },
+    {
+      "file": "STATUS.FOR",
+      "line": 28,
+      "name": "STATUS",
+      "kind": "subroutine",
+      "calls": [
+        "CRLF",
+        "OUT2C",
+        "OUT",
+        "ODEC",
+        "SPACE",
+        "OSFLT",
+        "OUTC",
+        "OFLT",
+        "PRLOC",
+        "OCOND"
+      ]
+    },
+    {
+      "file": "TELL.FOR",
+      "line": 25,
+      "name": "TELL",
+      "kind": "subroutine",
+      "calls": [
+        "OUT",
+        "GTKN",
+        "OUTW",
+        "CRLF",
+        "ROMSPK",
+        "MAKMSG",
+        "SETDSP",
+        "ODISP"
+      ]
+    },
+    {
+      "file": "TIME.FOR",
+      "line": 24,
+      "name": "TIME",
+      "kind": "subroutine",
+      "calls": [
+        "OUT",
+        "OTIM",
+        "CRLF"
+      ]
+    },
+    {
+      "file": "TORDAM.FOR",
+      "line": 26,
+      "name": "TORDAM",
+      "kind": "subroutine",
+      "calls": [
+        "JUMP",
+        "SETDSP"
+      ]
+    },
+    {
+      "file": "TORDAM.FOR",
+      "line": 119,
+      "name": "PHADAM",
+      "kind": "entry",
+      "calls": [
+        "BASKIL",
+        "SETDSP"
+      ]
+    },
+    {
+      "file": "TORP.FOR",
+      "line": 24,
+      "name": "TORP",
+      "kind": "subroutine",
+      "calls": [
+        "OUT",
+        "BLKSET",
+        "PAUSE",
+        "CHECK",
+        "MAKHIT",
+        "PRIDIS",
+        "SNOVA",
+        "TORDAM",
+        "TRCOFF",
+        "TOROM",
+        "JUMP",
+        "LOCK",
+        "SETDSP",
+        "PLNRMV",
+        "UNLOCK",
+        "ODEC",
+        "CRLF"
+      ]
+    },
+    {
+      "file": "TRACTR.FOR",
+      "line": 27,
+      "name": "TRACTR",
+      "kind": "subroutine",
+      "calls": [
+        "CRLF",
+        "OUT",
+        "GTKN",
+        "ODISP",
+        "MAKHIT"
+      ]
+    },
+    {
+      "file": "TRACTR.FOR",
+      "line": 126,
+      "name": "TRCOFF",
+      "kind": "entry",
+      "calls": [
+        "MAKHIT"
+      ]
+    },
+    {
+      "file": "TRAP.FOR",
+      "line": 27,
+      "name": "TRAP",
+      "kind": "subroutine",
+      "calls": [
+        "CCTRAP",
+        "FREE",
+        "MONIT",
+        "RSTART"
+      ]
+    },
+    {
+      "file": "TYPE.FOR",
+      "line": 34,
+      "name": "TYPE",
+      "kind": "subroutine",
+      "calls": [
+        "OUT",
+        "GTKN",
+        "OUT2W",
+        "CRLF"
+      ]
+    },
+    {
+      "file": "USERS.FOR",
+      "line": 26,
+      "name": "USERS",
+      "kind": "subroutine",
+      "calls": [
+        "CRLF",
+        "OUT",
+        "STAT",
+        "SPACES",
+        "PRLOC"
+      ]
+    }
+  ]
+}

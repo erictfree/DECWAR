@@ -1,0 +1,23 @@
+{
+  "name": "decwar-source-port",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "license": "GPL-3.0-or-later",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "scripts": {
+    "start": "node tools/run-telnet.ts",
+    "dev:telnet": "node tools/run-telnet.ts",
+    "audit": "node tools/audit.ts",
+    "audit:check": "node tools/audit.ts --check",
+    "test": "node --test test/*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "check": "npm run audit:check && npm run typecheck && npm test"
+  },
+  "devDependencies": {
+    "@types/node": "^26.4.1",
+    "typescript": "^7.0.2"
+  }
+}

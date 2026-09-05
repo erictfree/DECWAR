@@ -1,0 +1,17 @@
+{
+  "authorization": "User authorized CPU/compiler manuals only, 2026-09-05. No external DECWAR implementation evidence.",
+  "manuals": [
+    {
+      "file": "tmp/pdfs/fortran10-v5.pdf",
+      "url": "https://ftpmirror.your.org/pub/misc/bitsavers/pdf/dec/pdp10/TOPS10/AA-0944E-TB_FORTRAN-10_Programmers_Reference_Ver_5_Jan77.pdf",
+      "bytes": 12497141,
+      "sha256": "f29fa001726ab20199813a5f151740d4ed82d12cf044356a649a29cb7fd9ba29"
+    },
+    {
+      "file": "tmp/pdfs/pdp10-processor-1982.pdf",
+      "url": "https://ftpmirror.your.org/pub/misc/bitsavers/pdf/dec/pdp10/1982_ProcRefMan.pdf",
+      "bytes": 38003019,
+      "sha256": "b6fa866f1a5e8f1962ce6080659330c0f830583bb433484e66269a8f930757c7"
+    }
+  ]
+}

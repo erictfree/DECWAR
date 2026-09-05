@@ -1,0 +1,22 @@
+// Source-derived OUTHIT/MSG/WARMAC/PRLOC byte fixtures shared by component and raw tests.
+export const hitTranscripts: [number, string, string, string][] = [
+  [1, 'L 1-2 +100  123P  W 3-4 -45\r\n', 'L @1-2, +100.0%  123.4 unit P  W @3-4, -45.0%\r\n',
+    'Lexington @1-2, +100.0% makes 123.4 unit phaser hit on \r\nWolf @3-4, -45.0%\r\n'],
+  [2, 'L 1-2 +100  123T  W 3-4 -45\r\n', 'L @1-2, +100.0%  123.4 unit T  W @3-4, -45.0%\r\n',
+    'Lexington @1-2, +100.0% makes 123.4 unit torpedo hit on \r\nWolf @3-4, -45.0%\r\n'],
+  [3, 'L 1-2 +100  123T  W 3-4 -45\r\n', 'L @1-2, +100.0% deflected T  W @3-4, -45.0%\r\n',
+    'Lexington @1-2, +100.0% has torpedo deflected by \r\nWolf @3-4, -45.0%\r\n'],
+  [4, 'T2 miss 3-4\r\n', 'T2 miss @3-4\r\n', 'Weapons Officer:  Captain, torpedo 2 lost @3-4\r\n'],
+  [5, 'T2 gulp 3-4\r\n', 'T2 gulp @3-4\r\n', 'Weapons Officer:  Captain, torpedo 2 swallowed by black hole @3-4\r\n'],
+  [6, '* 1-2 U\r\n', '* @1-2 U\r\n', 'Star @1-2  UNAFFECTED by Photon Torpedo!\r\n'],
+  [7, '* 1-2 N\r\n', '* @1-2 N\r\n', 'Star @1-2 novas\r\n'],
+  [8, '* 1-2  123N  W 3-4 -45\r\n', '* @1-2  123.4 unit N  W @3-4, -45.0%\r\n',
+    'Star @1-2 makes 123.4 unit hit on Wolf @3-4, -45.0%\r\n'],
+  [9, ')( 3-4 A\r\n', ')( @3-4 attacked\r\n', 'Emp Base @3-4 is under attack, Captain.\r\n'],
+  [10, ')( 3-4 D\r\n', ')( @3-4 dead\r\n', 'Emp Base @3-4 has been destroyed, Captain.\r\n'],
+  [11, '??  1-2\r\n', '??  @1-2\r\n', 'Romulan detected @1-2\r\n'],
+  [12, 'L 123 > W \r\n', 'L 123.4 > W \r\n', 'Lexington  transfers 123.4 units of energy to the  Wolf \r\n'],
+  [13, 'Trac. Beam on\r\n', 'Trac. Beam on\r\n', '\r\nTractor beam activated, Captain.\r\n'],
+  [14, 'Trac. Beam off\r\n', 'Trac. Beam off\r\n', '\r\nTractor beam broken, Captain.\r\n'],
+  [15, 'T2 neutralized 3-4\r\n', 'T2 neutralized @3-4\r\n', 'Weapons Officer:  Captain, torpedo 2 neutralized by friendly object @3-4\r\n'],
+];

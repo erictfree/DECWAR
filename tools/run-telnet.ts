@@ -1,0 +1,67 @@
+// Playable host over the existing source composition. Historical diagnostic
+// behavior remains available with --strict. See docs/playable-decisions.md.
+import { mkdirSync,appendFileSync } from 'node:fs';
+import { dirname,resolve } from 'node:path';
+import { once } from 'node:events';
+import { createTelnetServer } from '../src/transport/server.ts';
+import { WorldDirectory } from '../src/runtime/world-directory.ts';
+import { reloadableSession,SessionReload } from '../src/runtime/reloadable-session.ts';
+import { liveSessionRuntime } from '../test/fixtures/live-session-runtime.ts';
+import { DiskWordFiles } from '../src/runtime/word-files.ts';
+import { acquireDataDirectory } from '../src/runtime/data-directory.ts';
+
+const args=process.argv.slice(2);
+if(args.includes('--help')){
+  process.stdout.write('Usage: npm start -- [--port 2323] [--data data] [--log logs/telnet-runtime.log] [--strict]\nPlayable DECWAR; localhost only. --strict selects historical diagnostic behavior.\nSee docs/playable-decisions.md for documented compatibility repairs.\n');
+  process.exit(0);
+}
+let port=2323,playable=true,data=resolve('data'),log=resolve('logs','telnet-runtime-'+new Date().toISOString().replaceAll(':','-')+'.log');
+for(let i=0;i<args.length;i++){
+  const option=args[i];if(option==='--strict'){playable=false;continue;}const value=args[++i];
+  if(option==='--port'&&value!==undefined&&/^\d+$/.test(value)&&Number(value)<=65535)port=Number(value);
+  else if(option==='--log'&&value)log=resolve(value);
+  else if(option==='--data'&&value)data=resolve(value);
+  else{process.stderr.write('Invalid option or value: '+option+'\nUse --help for usage.\n');process.exit(2);}
+}
+mkdirSync(dirname(log),{recursive:true});
+function record(event:Record<string,unknown>){appendFileSync(log,JSON.stringify({time:new Date().toISOString(),...event})+'\n');}
+let releaseData:()=>void;
+try{releaseData=acquireDataDirectory(data);}catch(error){process.stderr.write(String(error)+'\n');record({event:'host-error',error:String(error)});process.exit(1);}
+const worlds=new WorldDirectory(new DiskWordFiles(data));
+const host=createTelnetServer({
+  createSession(terminal,connection){
+    record({event:'session-start',job:connection.id});
+    return reloadableSession(()=>{
+      const world=worlds.load();
+      const runtime=liveSessionRuntime(terminal,'full',world,connection.id,{promptForName:true,playable,lifecycle:{
+        removeHighSegment(){worlds.remove(world);},run(){throw new SessionReload();},
+      }});
+      runtime.f.jobStatus.monitor.job=BigInt(connection.id);runtime.f.jobStatus.monitor.sequenceJob=BigInt(connection.id);
+      return runtime.program;
+    },()=>{worlds.monitor.releaseJob(connection.id);record({event:'session-reload',job:connection.id});});
+  },
+  onSessionEnd(id,result){
+    worlds.monitor.releaseJob(id);
+    record({event:'session-end',job:id,reason:result.reason,...(result.reason==='failed'?{error:result.error instanceof Error?result.error.stack:String(result.error)}:{})});
+    if(result.reason==='failed')process.stderr.write(`Session ${id} stopped: ${String(result.error)}\nDetails: ${log}\n`);
+  },
+});
+let stopping=false;
+async function stop(signal:string){
+  if(stopping)return;stopping=true;record({event:'shutdown',signal});
+  await host.close();releaseData();record({event:'stopped'});
+}
+process.on('SIGINT',()=>{void stop('SIGINT').catch(failed);});
+process.on('SIGTERM',()=>{void stop('SIGTERM').catch(failed);});
+function failed(error:unknown){
+  process.exitCode=1;process.stderr.write(String(error)+'\n');
+  record({event:'host-error',error:error instanceof Error?error.stack:String(error)});
+  void host.close().then(()=>releaseData()).catch(closeError=>process.stderr.write(String(closeError)+'\n'));
+}
+try{
+  host.server.listen(port,'127.0.0.1');await once(host.server,'listening');
+  host.server.on('error',failed);
+  const address=host.server.address();if(!address||typeof address==='string')throw new Error('Expected a TCP listener address');
+  record({event:'listening',host:'127.0.0.1',port:address.port,data,profile:playable?'playable':'historical-diagnostic',limitations:playable?'docs/playable-decisions.md':'docs/running.md'});
+  process.stdout.write(`DECWAR ${playable?'playable':'historical diagnostic'} runtime: telnet 127.0.0.1 ${address.port}\nHost log: ${log}\nStatistics: ${data}\n${playable?'Documented repairs enabled; see docs/playable-decisions.md.':'Exact historical behavior remains unresolved in some paths; see docs/running.md.'}\n`);
+}catch(error){failed(error);}
