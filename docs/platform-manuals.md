@@ -86,6 +86,25 @@ domain, as are deliberately unnormalized operands. These remain explicit gaps,
 not silently normalized or rejected DECWAR game inputs. Token SCALE faults store
 the wrapped result before invoking the required trap handler.
 
+### Byte deposits and token text
+
+The same Processor Reference Manual, printed pp. 2-87–2-89 (PDF 145–147),
+defines byte-pointer advancement and IDPB. A seven-bit deposit replaces only
+its selected bits; it preserves the other bits of the destination. After five
+characters in a 36-bit field, advancing crosses to the next field, leaving the
+unused low bit intact. The pointer initially preceding the first character uses
+position 36 and size 7. Pages 145 and 147 were visually inspected in the local
+cached PDF for this review.
+
+Austin NXTT's linked pointer instruction is `505500440700` at octal 460475,
+and its IDPB is `136440000012` at 460522. ANUM resets the shared counter with
+`515340204500` at 460603, yielding octal `204500000000` (decimal 17800626176).
+These words were read from the preserved, hash-verified executable, rather than
+inferred from a synthetic floating fixture. The [specification evidence](spec/evidence.md#compiled-tokenizer-observations)
+records reproduction commands; [LEX-8](spec/lexical.md#lex-8--decimal-text-spill)
+defines the resulting abstract cross-field effects. This closes text-deposit
+encoding for ordinary lines, not all floating-point arithmetic or trap behavior.
+
 ## FORTRAN language and runtime
 
 Source: DEC, [FORTRAN-10 Programmer's Reference, Version 5, January 1977](https://ftpmirror.your.org/pub/misc/bitsavers/pdf/dec/pdp10/TOPS10/AA-0944E-TB_FORTRAN-10_Programmers_Reference_Ver_5_Jan77.pdf).

@@ -292,3 +292,42 @@ as CONF-11. Exclude subsequent prompts.
 [summary rows](terminal.md#term-20--list-family-summary-rows) and
 [grouped output](terminal.md#term-21--list-family-grouped-assembly).
 These cases are source-path derivations, not native transcript comparisons.
+
+## CONF-13 — Decimal text-deposit scenarios
+
+These cases describe completed ordinary token acquisition alone, before command
+dispatch. The eighty-character cases are acquired at the line-length limit.
+Assume no control interruption or arithmetic fault. Repetition notation below
+constructs exact input text; it is not syntax typed into DECWAR.
+
+| ID | Conditions and input | Expected observation |
+| --- | --- | --- |
+| EX-DECIMAL-01 | Acquire `123456.789` as one token | Retained text is `12345`, category REAL, count 1. The decimal point resumes deposits after those five saved characters, but the following sentinel clears the second text field before acquisition returns. |
+| EX-DECIMAL-02 | Acquire thirteen commas, then a period, then 66 uppercase A characters (80 total) | Return 14 tokens: thirteen null categories, then alphanumeric `.AAAA`. Numeric fields 1–11 become −33548091006; field 12 becomes −33550237696; fields 13 and 14 are zero. Sentinel is position 15 with zero text/numeric value. Earlier null categories remain unchanged despite their overwritten numeric fields. |
+| EX-DECIMAL-03 | Acquire `1`, thirteen commas, a period and 65 uppercase A characters (80 total) | Token 1 retains text `1` and integer category, but its numeric value becomes −33548091005. The low bit from its original value 1 survives the seven-bit deposits. Token 14 is alphanumeric `.AAAA` with numeric value zero. |
+
+**Evidence:** [LEX-8](lexical.md#lex-8--decimal-text-spill),
+[compiled tokenizer observations](evidence.md#compiled-tokenizer-observations).
+These are source/instruction and arithmetic derivations, not native transcript
+comparisons. The alphanumeric suffixes in the two long cases prevent fractional
+digit arithmetic after the initial decimal point.
+
+## CONF-14 — LIST parser and partial-output scenarios
+
+Assume a live, nonprivileged actor, no intervening events, and an output cursor
+at the left margin after a blank line. Strings describe the command's output
+alone, excluding the next prompt. There are no queued notifications.
+
+| ID | Conditions and input | Expected observation |
+| --- | --- | --- |
+| EX-LIST-11 | LIST BANANA | Exactly `"Illegal keyword BANAN\r\n"`; the diagnostic uses the retained spelling. |
+| EX-LIST-12 | LIST 0 | Exactly `"Syntax error near keyword 0\r\n"`; reject the nonpositive range. |
+| EX-LIST-13 | LIST 76 1 | Exactly `"Illegal coordinate 76-1\r\n"`; no `@` is added. |
+| EX-LIST-14 | PLANETS LIST SUMMARY | Exactly `"Syntax error near keyword SUMMA\r\n"`; the second output selector conflicts with the first. |
+| EX-LIST-15 | Actor is eligible for ordinary default LIST; LIST AND AND | Exactly `"Null group illegal\r\n"`. The first empty group uses defaults; the second aborts. Omit final rows for selections accumulated by the first group. |
+| EX-LIST-16 | Actor at 10–10, cell 12–12 empty, absolute output; BASES 12 12 AND BANANA | Exactly `"No base @12-12\r\nIllegal keyword BANAN\r\n"`. Keep the first group's immediate diagnostic when parsing the later group fails. |
+
+**Evidence:** [GRAM-11](grammar.md#gram-11--list-family-grouping),
+[TERM-22](terminal.md#term-22--list-selection-diagnostics),
+[LIST outer loop](../../legacy/utexas/DECWAR.FOR#L1359).
+These are source-derived cases, not native transcript comparisons.

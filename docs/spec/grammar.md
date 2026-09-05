@@ -329,7 +329,8 @@ Selector recognition order is significant:
 Each successful selector updates the current group. Object, side, coordinate,
 range and output selectors have conflict rules rather than free commutativity:
 
-- A coordinate is unavailable to SUMMARY and cannot follow any object, side,
+- A coordinate is unavailable to SUMMARY and cannot follow a coordinate, named
+  object, other object selector, side,
   ALL, range, CLOSEST or output selector. Its two coordinates must be legal.
 - Only one explicit range is allowed; it must be positive, requires an acting
   ship and cannot accompany a coordinate.
@@ -352,7 +353,8 @@ range and output selectors have conflict rules rather than free commutativity:
 - Ship names reject prior selectors other than named objects/Romulan; their
   duplicate test is U-LIST-SHIP. ROMULAN cannot repeat.
 
-Illegal keywords and selector conflicts diagnose and abort further processing.
+Illegal keywords and selector conflicts diagnose and abort further processing;
+TERM-22 specifies their text and the distinction from group-selection returns.
 This clause still requires exhaustive ordering examples; it must not be replaced
 with an unordered filter-object parser.
 

@@ -7,7 +7,6 @@ implementation to substitute arbitrary behavior and claim full conformance.
 | --- | --- | --- |
 | U-NUMERIC | Define abstract finite arithmetic for all reachable integer/REAL operations, including decimal input, overflow and abnormal operands. CPU manuals explain instructions; the inspected FORTRAN V5 manual does not establish every V6 compiler transformation. | LEX-5; future state/gameplay clauses |
 | U-EVALUATION | Establish compiler evaluation of compound logical expressions containing random calls, such as TORDAM's `I(5)=5` combined with a base-kind test. Do not assume a modern short-circuit rule or omit a draw merely because the other operand determines the result. | GAME-DAMAGE; autonomous actions; RNG |
-| U-REAL-TOKEN | ANUM. reuses NXTT.'s X3 character counter when initializing fractional scale. Establish retained text for decimal inputs independently of a blanket five-character rule. | LEX-4 |
 | U-CONTROL | Resolve delivered controls, monitor interception, echo, callback arguments and reentrancy. EXEC-11 now specifies the pending-control loop and source handler; do not make the host repair historical law. | LEX-2; execution and terminal |
 | U-FINAL-POINTS | Final POINTS enters a DO range without initializing its counter. The native observed successful quit does not establish all residue/alias conditions. | Scoring and exit |
 | U-ZERO-AVERAGE | Determine score division-by-zero outcomes and continuation under the reference compiler/runtime. | Scoring |
@@ -40,5 +39,12 @@ resolved merely by assigning an issue ID.
 U-TOKEN-LIMIT is resolved for ordinary tokens by LEX-7 and EX-CAPACITY-01 through
 EX-CAPACITY-04. The source checks end-of-command before the capacity increment;
 comma consumption and a final null result explain the delimiter-sensitive bound.
-This is a source-control-flow derivation, not a native transcript. Decimal-token
-storage remains U-REAL-TOKEN.
+This is a source-control-flow derivation, not a native transcript.
+
+U-REAL-TOKEN is resolved for ordinary acquired lines by LEX-8. The preserved
+Austin executable confirms the decimal branch's reset value and subsequent
+decrement/deposit sequence. A token's own text still retains its first five
+characters; the additional deposits can overwrite subsequent text and earlier
+numeric fields. Arithmetic faults or malformed REAL values produced by such
+overwrites remain U-NUMERIC. This is compiled-image inspection plus source and
+CPU-manual derivation, not a native interactive test.

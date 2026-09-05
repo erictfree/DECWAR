@@ -39,8 +39,8 @@ five-character representation, not its parsed decimal numeric value.
 To express that representation abstractly, for retained transformed character
 codes c1 through c5 (zero-padding missing positions), form
 `c1×2^29 + c2×2^22 + c3×2^15 + c4×2^8 + c5×2` and interpret it as a signed
-36-bit integer before absolute value. Decimal-token retained-text anomalies and
-the most-negative absolute value remain covered by numeric unresolved entries.
+36-bit integer before absolute value. LEX-8 defines decimal text retention and
+spill effects; the most-negative absolute value remains U-NUMERIC.
 Thus a numeric-looking tournament name must not simply seed with its numeric value.
 
 **Evidence:** [SETUP seeding](../../legacy/utexas/SETUP.FOR#L180),

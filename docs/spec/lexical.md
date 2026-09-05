@@ -1,7 +1,7 @@
 # Lexical rules
 
 Status: directly reviewed against Austin's command-input source. Numeric REAL
-conversion, unusual control delivery and token-capacity boundary behavior retain
+conversion, unusual control delivery and exceptional token-capacity behavior retain
 explicit open questions below. These rules concern command input, not the
 separate captain-name reader or raw message bodies.
 
@@ -74,12 +74,12 @@ A token has retained text, a category, a numeric value and an origin position in
 the acquired line. The categories are null, integer, REAL, alphanumeric and end
 of command. End of command is a sentinel, not an ordinary argument.
 
-An ordinary integer/alphanumeric token retains its first five transformed
+Every scanned token's own text field retains its first five transformed
 characters. Numeric accumulation continues beyond those five characters; the
-retained name and numeric value are distinct. An alphanumeric token's numeric
-value is zero. Decimal-point processing has a separate retained-text uncertainty
-(U-REAL-TOKEN); the five-character rule must not be generalized to that path
-without resolving it.
+retained name and numeric value are distinct. Immediately after scanning an
+alphanumeric token its numeric value is zero. A later decimal token can overwrite
+earlier numeric fields under LEX-8 without changing their categories. Decimal
+processing therefore requires more than truncating a string to five characters.
 
 The scanner attempts numeric interpretation until an invalid numeric character
 or sequence occurs. An optional sign is numeric only at the start; at most one
@@ -159,9 +159,61 @@ ASCIL macro, discards the entire remaining physical line, sets the returned coun
 to zero and writes the end sentinel at the first position. Earlier token storage
 is not all erased; it is outside the returned sequence. Subsequent interpretation
 must respect that count/sentinel rather than treating stale token fields as input.
-These rules apply to ordinary tokens whose scanning has not encountered the
-separate decimal-retention anomaly U-REAL-TOKEN.
+These rules require scanning to return normally; arithmetic-fault continuation
+remains U-NUMERIC. LEX-8 does not alter this outer token-capacity counter.
 
 **Evidence:** [GTKN capacity/recovery](../../legacy/utexas/WARMAC.MAC#L1407),
 [NXTT delimiter handling](../../legacy/utexas/WARMAC.MAC#L1454),
 [character classes](../../legacy/utexas/WARMAC.MAC#L838).
+
+## LEX-8 — Decimal text spill
+
+The first decimal point accepted by the numeric scanner resets the text-deposit
+allowance to 17800626176 before that character is deposited. This is a positive
+integer much larger than an ordinary input line. It is the same allowance that
+initially limited deposits to five characters; it is not an independent decimal
+scale counter. A later invalid numeric character does not undo this reset.
+
+For each token, start with an allowance of five and a deposit position of zero;
+clear that token's text field. Process transformed characters in source order.
+First perform the numeric-character handling, including the reset just described
+if applicable. Decrement the allowance. If it is nonnegative, deposit the
+character at the current deposit position and advance that position. Otherwise
+skip the deposit without advancing its position. Numeric processing and input
+consumption continue whether or not a deposit occurs.
+
+Consequently the token's own text field always receives its first five
+characters. A decimal point after a longer integer prefix resumes deposits at
+the sixth position: skipped prefix characters are not restored. After the reset,
+remaining ordinary-line characters can spill into subsequent fields. No later
+numeric error restores the five-character limit or rolls back those deposits.
+
+Define the spill's observable state effects through a logical sequence of
+thirty encoded fields: the fifteen token-text fields followed by the fifteen
+token numeric fields. This sequence specifies cross-field updates; it does not
+require contiguous storage in an implementation. Each encoded field has a
+36-bit residue. Text has five seven-bit character positions with weights
+2^29, 2^22, 2^15, 2^8 and 2^1. The unselected bits are preserved by a deposit.
+
+For token i (positions are one-based), deposit position j (zero-based) selects
+logical field `i + floor(j/5)` and character position `j mod 5`. With selected
+weight 2^s, old residue E and transformed character c, replace E by
+`E + (c − (floor(E/2^s) mod 128)) × 2^s`. This preserves the other character
+positions and the low bit. For a numeric field, this is a change to its encoded
+value, not decimal parsing of the deposited letters. Categories are not changed.
+Integer encodings use the signed 36-bit interpretation; interpretation and
+exceptional use of affected REAL encodings remain subject to U-NUMERIC.
+
+Scanning later tokens clears and overwrites their own text fields normally.
+Finishing the current token assigns its own numeric value; finishing the command
+clears the sentinel's text/numeric fields and assigns its end category. These
+later writes can overwrite spilled characters. Earlier numeric fields affected
+by the spill are not automatically repaired. The ordinary 80-character acquired
+line and fourteen-result bound prevent these deposits from reaching beyond
+numeric field 12; category and origin arrays are not deposit targets in that
+domain. Raw-name acquisition and exceptional control paths are outside it.
+
+**Evidence:** [NXTT/ANUM](../../legacy/utexas/WARMAC.MAC#L1454),
+[field order](../../legacy/utexas/WARMAC.MAC#L376),
+[compiled reset/deposit evidence](evidence.md#compiled-tokenizer-observations),
+[byte operations](../platform-manuals.md#byte-deposits-and-token-text).

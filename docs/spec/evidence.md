@@ -90,16 +90,56 @@ identifies missing-argument and no-ship limitations. The initial HELP/PREGAME/em
 
 | Area | Current scope | Remaining work |
 | --- | --- | --- |
-| Lexical | Character table, line reader, ordinary token categories and matcher read directly | REAL-token retention, numeric model and control paths |
+| Lexical | Character table, line reader, token categories, matcher and decimal text spill derived; reset/deposit instructions checked in preserved Austin image | Numeric model, fault continuation and control paths |
 | Grammar | Main/pregame dispatch, locations and all 33 main command forms drafted | Pregame differences, malformed forms, prompt/output linkage |
 | State | World/ship/session domains, roster, distance and ordinary integer units | Finite numeric model, aliases and complete transition invariants |
 | Execution | Main return paths, accounting, hit/radio queues, recipient sets and exclusion classes | Callback/monitor boundaries, queue edge cases and adversarial interleavings |
 | Randomness | Generator, seeding, placement order, command/helper draw ledger and exact generator vectors | Compound-condition evaluation, abnormal bounds and full seeded interaction traces |
 | Session | Admission, options, team/ship selection, release and termination drafted | Raw-name boundaries, identity, reentry and concurrency details |
 | Gameplay | Resources, scans, traversal, combat, installations, novas, Romulan, LIST and reports drafted | Numeric execution and final scoring; review failure effects |
-| Terminal | Prompts, fields, scans, utilities, all 15 hit-notification types, score tables, radio/speech, status/damage/time/identity reports, LIST rows/grouped assembly and 324 exact named fragments drafted | Remaining selection diagnostics, inline literals and command assembly, extreme fields and controls |
-| Conformance | Claim boundaries and 125 source-derived scenarios drafted | Deeper failure/interaction cases, native comparisons and a reusable verifier |
+| Terminal | Prompts, fields, scans, utilities, all 15 hit-notification types, score tables, radio/speech, status/damage/time/identity reports, LIST rows/grouped assembly/parser diagnostics and 324 exact named fragments drafted | No-matching-group message edge, remaining inline literals and command assembly, extreme fields and controls |
+| Conformance | Claim boundaries and 134 source-derived scenarios drafted | Deeper failure/interaction cases, native comparisons and a reusable verifier |
 | CompuServe appendix | Eleven clauses including standings, DOCUMENT, TELL replies/relocation, speech-mask aliases, queue differences and exclusion/wait behavior | Persistence failures and literal catalogue, node-derived speech, monitor lock limits and other argument aliases |
+
+## Compiled tokenizer observations
+
+The preserved Austin EXE is a new reference build from the pinned source, not
+an independent recovered historical executable. Its SHA-256 is
+`6989a5977ecb4b395b0e4f6651b7824d9628e178c0b8a88fc03774127188a1a3`.
+The read-only inspector verifies that identity before decoding its BACK10
+five-byte representation and EXE page directory. It does not execute the image
+or connect to a running world. Address and instruction columns below are octal.
+
+| Address | Source operation | Encoded instruction |
+| --- | --- | --- |
+| 460405 | GTKN entry's hangup test; address agrees with the LINK map. | `332000000335` |
+| 460474 | NXTT selects the current token text field, using token index X1. | `201505000142` |
+| 460475 | Initialize its seven-bit character pointer before the first character. | `505500440700` |
+| 460521 | Decrement X3 and skip the deposit when negative. | `361340460523` |
+| 460522 | Deposit the character and advance the pointer. | `136440000012` |
+| 460603 | ANUM resets X3 to octal 204500000000 for the first accepted decimal point. | `515340204500` |
+| 460604 | Store that value as the initial fractional scale. | `202340004545` |
+
+Reproduce the word inspection with:
+
+```sh
+node tools/spec/inspect-reference.ts --marker=GTKN --words=3
+node tools/spec/inspect-reference.ts --marker=NXTT. --words=60
+node tools/spec/inspect-reference.ts --marker=ANUM. --words=40
+```
+
+The fields and source instruction sequence agree with the linked instructions.
+CPU byte-operation definitions then establish LEX-8's deposition rule. This is
+compiled-image corroboration and arithmetic derivation, not a native transcript
+or a proof of all tokenizer behavior. In particular it does not establish
+overflow/trap continuation in decimal arithmetic.
+
+**Evidence:** [preserved image](../../legacy/utexas-reference/f78f2ec/DECWAR.EXE),
+[artifact identity/format](../../legacy/utexas-reference/f78f2ec/artifacts.json),
+[LINK entry addresses](../../legacy/utexas-reference/f78f2ec/DECWAR.MAP#L686),
+[source scanner](../../legacy/utexas/WARMAC.MAC#L1454),
+[inspection tool](../../tools/spec/inspect-reference.ts),
+[CPU byte-operation evidence](../platform-manuals.md#byte-deposits-and-token-text).
 
 The draft cannot support a complete game implementation yet. Compilation into
 one document verifies document structure; it does not establish semantic completeness.

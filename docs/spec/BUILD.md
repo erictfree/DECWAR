@@ -70,3 +70,15 @@ coverage appendix separately. Before sharing a typeset revision, inspect the
 LaTeX log for overfull boxes and missing characters, render the PDF to images,
 and check title page, contents, tables, breaks and representative clause pages.
 Rebuild after edits. The normal source archive audit remains `npm run audit:check`.
+
+## Read-only compiled-image inspection
+
+`node tools/spec/inspect-reference.ts --marker=ANUM. --words=40` prints encoded
+words around a SIXBIT source marker in the preserved Austin EXE. Alternatively
+use `--address=460603 --words=2`, with an octal address and decimal word count.
+The tool verifies the artifact's manifest hash and decodes only the directory/end
+block forms used by this pinned image. Its output splits words into instruction
+fields for inspection; it does not establish that every displayed word is code.
+It neither executes the image nor contacts an emulator. Node alone is sufficient.
+The [compiled tokenizer observations](evidence.md#compiled-tokenizer-observations)
+give the reviewed findings and their limits.

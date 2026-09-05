@@ -814,3 +814,45 @@ not settle those paths.
 [selection state](../../legacy/utexas/LSTVAR.FOR#L1),
 [selection and diagnostics](../../legacy/utexas/DECWAR.FOR#L1750),
 [indirect text output](../../legacy/utexas/WARMAC.MAC#L1650).
+
+## TERM-22 — LIST selection diagnostics
+
+The parser's stored keyword is the retained token text, not the complete raw
+input spelling. Its diagnostic operation emits that single text field up to
+its first zero character, without quotation marks or a separating space beyond
+the prefix already present in the fragment.
+
+| Selected failure path | Output recipe |
+| --- | --- |
+| Empty group after the first group | `fragment(lsts01,1)`. |
+| Unrecognized keyword or disallowed token category | `fragment(lsts02)`, stored keyword, `break`. |
+| Recognized selector conflicts with preceding selectors, or an invalid range | `fragment(lsts03)`, stored keyword, `break`. |
+| Accepted coordinate form has a location outside the galaxy | `fragment(lsts04)`, `location(v,h,1,0,absolute,short)`. |
+| Specific-coordinate path rejects sensor reach | `fragment(lstf01)`, `location(v,h,1,0,absolute,short)`. |
+| Specific-coordinate path finds no requested BASES/PLANETS/TARGETS object | `fragment(lstf02)`, `fragment(lstf03)` or `fragment(lstf04)`, respectively; then `location(v,h,1,0,outputMode,long)`. |
+| Named Romulan requested with option disabled | `fragment(type06,1)`. |
+| Named Romulan requested with option enabled but absent | `fragment(lstf05,1)`. |
+| Named ship found unoccupied, or its recorded board cell is empty | `object(code,0)`, `text(" is not in the game")`, one unconditional CR/LF. |
+
+The parser does not add a syntax diagnostic when its token pointer exceeds the
+capacity guard; it takes its abort return. The coordinate guard after consuming
+the second coordinate likewise aborts silently when it exceeds the bound.
+
+A parser abort prevents the final grouped pass, even if earlier groups had
+accumulated selections. It does not retract an earlier immediate row, coordinate
+diagnostic or named-object diagnostic. A group-selection diagnostic can instead
+return to the outer group loop; it need not end the whole command. These are
+different return paths under GRAM-11, not one generic exception/rollback rule.
+
+The no-matching-group message uses an ordered composition of the no-result
+prefix, optional known qualifier, faction adjective, object class and range
+suffix. Its complete domain remains U-LIST-OUTPUT because an unset adjective
+is passed as an indirect zero text reference. Do not silently replace that path
+with a polished generic no-results message. The table above specifies the
+independent diagnostic paths whose fragments and assembly are established.
+
+**Evidence:** [LSTSCN diagnostics and guards](../../legacy/utexas/DECWAR.FOR#L1552),
+[LSTFLG coordinate/named paths](../../legacy/utexas/DECWAR.FOR#L1750),
+[LIST outer loop](../../legacy/utexas/DECWAR.FOR#L1379),
+[OUTW](../../legacy/utexas/WARMAC.MAC#L1726),
+[diagnostic fragments](../../legacy/utexas/MSG.MAC#L105).

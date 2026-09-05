@@ -1634,3 +1634,56 @@ port/tool attribution remain separate.
 - Goal remains active. Remaining work includes command/selection diagnostics,
   finite arithmetic and compiler evaluation, unresolved aliases and host
   boundaries, persistence failures, node-derived speech and deeper conformance.
+
+### 2026-09-05 — Compiled tokenizer evidence and LIST diagnostics
+
+- Prior goal turn classified as progress: 18d192f published report output and
+  the PDF spacing correction. Verified a clean worktree before this review.
+- Added a read-only preserved-image inspector, tools/spec/inspect-reference.ts.
+  It checks the EXE against artifacts.json, decodes the documented BACK10
+  representation and this image's directory/end block forms, and prints encoded
+  words/fields by octal address or SIXBIT marker. It neither interprets game
+  commands nor executes/connects to the running reference. Consulted only the
+  existing authorized full-repository loader for its file-directory format.
+- Corroborated NXTT/ANUM source operations against the pinned compiled image.
+  GTKN's address agrees with the LINK map; ANUM at octal 460603 contains
+  515340204500, which sets X3 to octal 204500000000 (decimal 17800626176).
+  NXTT's decrement/deposit sequence and seven-bit pointer are present at the
+  recorded addresses. Reproduction commands and words are in the evidence
+  appendix; logs/spec-reference-{gtkn,nxtt,anum,out}.log retain the inspections.
+- Resolved U-REAL-TOKEN for ordinary acquired lines with new LEX-8. Each token's
+  own text retains its first five transformed characters, but the accepted
+  decimal point resumes/continues deposits into later text and earlier numeric
+  fields. Defined abstract bit replacement, preservation of unselected bits,
+  subsequent token/sentinel overwrites and unchanged categories. Derived the
+  ordinary-line bound: no spill beyond numeric field 12. Floating arithmetic
+  faults and interpretation of overwritten REAL values remain U-NUMERIC.
+- Reviewed the already cached Processor Reference Manual's byte operations,
+  printed pp. 2-87–2-89 / PDF145–147, including rendered pages145/147. Updated
+  docs/platform-manuals.md. No external DECWAR material or downloads were used.
+- Added TERM-22 for LIST-family parser guards, stored-keyword diagnostics,
+  invalid coordinates, range rejection and named-object availability messages.
+  Documented that later parser failure suppresses final grouped rows but keeps
+  already emitted immediate output. No-matching-group indirect text remains
+  U-LIST-OUTPUT. Clarified the coordinate conflict wording in GRAM-11.
+- Added nine source-derived scenarios (134 total): three tokenizer cases and
+  six LIST parsing/partial-output cases. Long decimal cases use an alphabetic
+  suffix to avoid fractional-digit arithmetic. Arithmetic field replacements
+  and the maximum spill bound were independently calculated and recorded in
+  logs/spec-token-spill-derivation.log; these are not native executions.
+- Validation passed: 14 chapters/appendices, 389 local links, 324 named fragments,
+  134 scenario rows, immutable-source audit, typecheck and whitespace. Identifier
+  review found 150 definitions and zero unmatched references. An initial wrong
+  grammar anchor was rejected, preserved in logs/spec-token-check-initial.log,
+  and corrected before final build. Other logs: logs/spec-build.log,
+  logs/spec-check.log, logs/spec-audit-check.log, logs/spec-token-typecheck.log
+  and logs/spec-clause-reference-review.log.
+- Rendered and inspected new lexical, diagnostic, scenario and compiled-evidence
+  pages. Reordered the evidence table to give explanations adequate width.
+  Final document has 97 pages; logs/spec-token-render.log and
+  logs/spec-token-final-render.log record rendering. No gameplay, archive,
+  native-state or server changes; no gameplay tests were warranted.
+- Goal remains active. The inspector provides a concrete next route for checking
+  compiler evaluation and retained values against this build. Remaining source
+  output, finite arithmetic, host/alias boundaries, CompuServe persistence and
+  deeper conformance still need review.
