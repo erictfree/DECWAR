@@ -1,5 +1,10 @@
 # Session and configuration
 
+**Companion source analysis — excluded from the generalized specification.**
+This earlier draft retains historical behavior and open research questions.
+Its machine-fidelity requirements do not apply to the current book; see the
+[normalization policy](NORMALIZATION.md) and [current language coverage](language-coverage.md).
+
 Status: main entry, admission and cleanup reviewed at source level. Raw-name
 edge cases, monitor identity and concurrency still limit conformance.
 

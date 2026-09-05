@@ -36,7 +36,8 @@ inside a shared PDF. Original archive identity is separately pinned in the text.
 The combined tree generates one LaTeX file, then XeLaTeX runs three passes for
 the contents and references. PDF layout uses numbered sections, a title page,
 contents, running headers, page numbers and explicitly labeled appendices.
-Table columns and verbatim records wrap to page width. Source evidence stays
+Table columns and verbatim records wrap to page width. Short grammar and pseudocode
+blocks are kept together on a page. Source evidence stays
 with its preceding paragraph. The final TeX pass fails the build for overflowing
 boxes, missing characters or unresolved references. The same document tree generates standalone
 HTML with embedded styling and a Markdown edition with explicit link anchors.
@@ -66,7 +67,10 @@ working draft.
 ## Validation
 
 A successful build is not proof that the game semantics are complete. Check the
-coverage appendix separately. Before sharing a typeset revision, inspect the
+[language conversion coverage](language-coverage.md) separately. The command-table
+inventory and extracted messages checked by the builder belong to source
+research; their coverage does not mean every command has a rewritten semantic
+clause in the book. Before sharing a typeset revision, inspect the
 LaTeX log for overfull boxes and missing characters, render the PDF to images,
 and check title page, contents, tables, breaks and representative clause pages.
 Rebuild after edits. The normal source archive audit remains `npm run audit:check`.
@@ -85,7 +89,8 @@ give the reviewed findings and their limits.
 
 ## Research outside the publication
 
-The book manifest excludes evidence.md, implementation-notes.md, PLAN.md and
-this build guide. They preserve derivations, review coverage and tooling without
+The book manifest excludes the earlier operational chapters, evidence.md,
+implementation-notes.md, NORMALIZATION.md, PLAN.md and this build guide. They
+preserve derivations, review coverage and tooling without
 putting implementation recipes into the syntax-and-semantics document. Brief
 source citations in the book link to this companion material when useful.

@@ -1,5 +1,10 @@
 # Observable terminal behavior
 
+**Companion source analysis — excluded from the generalized specification.**
+This earlier draft retains historical behavior and open research questions.
+Its machine-fidelity requirements do not apply to the current book; see the
+[normalization policy](NORMALIZATION.md) and [current language coverage](language-coverage.md).
+
 Status: source-derived output recipes cover prompts, scans, utilities, combat,
 radio and reports. Remaining assembly and boundary gaps are recorded in the
 coverage appendix. This is not a Telnet protocol specification.

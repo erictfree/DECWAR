@@ -6,11 +6,22 @@ The University of Texas at Austin
 
 Department of Arts and Entertainment Technologies
 
-**Draft in progress.** This specification defines the Austin reconstruction's
-observable game behavior independently of implementation language and platform.
+**Draft in progress.** This edition is being rewritten around grammar, abstract
+game types and command semantics in readable pseudocode. Nine commands are
+converted: SHIELDS, RADIO, ENERGY, DOCK, REPAIR, SCAN, SRSCAN, STATUS and DAMAGES,
+with shared turn accounting.
+Other command families, world evolution, sessions,
+complete responses and variant amendments remain in progress. The earlier
+source analysis is retained as companion research outside this book.
+
+This specification defines the Austin reconstruction's
+game language and recognizable game behavior independently of implementation
+language and platform. This is a forward-looking specification, not a contract
+for reproducing PDP-10 machine behavior.
 It is intended to support independent implementations, including future clients
 that do not present a terminal. It does not yet provide a complete conformance
-standard. The [plan](PLAN.md) and [coverage record](evidence.md) identify progress.
+standard. The [plan](PLAN.md) and [language coverage](language-coverage.md) identify
+progress separately from the older source analysis.
 
 ## SCOPE-1 — Core and amendments
 
@@ -21,17 +32,20 @@ to core clause identifiers. A core rule is not inferred from CompuServe merely
 because that version has more extensive documentation or was ported first.
 
 The legacy implementations and preserved Austin executable are the primary
-evidence for deriving syntax and meaning. This document states the resulting
+evidence for deriving syntax and game rules. Ordinary arithmetic replaces
+machine-specific integer and floating-point artifacts. Small numerical
+differences caused by that normalization are permitted; new command syntax
+and redesigned mechanics are not. This document states the resulting
 rules in terms of inputs, abstract game state, transitions and observations.
-It does not prescribe algorithms, data structures, memory layouts, programming
-languages or platform services. A completed normative clause must stand on its
+Its abstract algorithms specify effects, without prescribing storage layouts,
+implementation techniques, programming languages or platform services. A completed normative clause must stand on its
 own; citations explain provenance rather than supplying omitted requirements.
 
 Instruction analysis, storage explanations, build procedures and review coverage
 belong in the companion [research and coverage record](evidence.md), which is
-not included in the assembled specification. Historical quirks remain part of
-the rules when they affect game behavior, even when their causes are described
-only in those companion notes.
+not included in the assembled specification. The [normalization policy](NORMALIZATION.md) separates the game’s established
+rules from numerical and representation artifacts that do not belong in this
+forward-looking language.
 
 ## SCOPE-2 — Normative language and evidence
 
@@ -60,26 +74,26 @@ state changes, information disclosure, resource charges, random choices, timing,
 and effects visible to other captains. An abstract transition can have intermediate
 observable steps; commands are not assumed atomic.
 
-An implementation need not reproduce addresses, physical segments, instruction
-encodings or operating-system calls. It MUST preserve the observable effects that
-the corresponding normative clause establishes, including numeric truncation,
-state sharing and effects caused by source aliasing. A graphical implementation
+The specification does not require physical addresses, instruction encodings,
+packed fields, finite-word overflow, corrupted token values or accidental
+cross-field changes. Commands MUST preserve the game-state changes and player
+observations established by their semantic clauses under ordinary arithmetic. A graphical implementation
 can claim a future game-semantics profile without claiming terminal conformance;
 profile criteria will be defined separately rather than silently relaxing output.
 
 ## Current sections
 
-- [Lexical rules](lexical.md): application characters, tokenization and matching.
-- [Command grammar](grammar.md): command dispatch and initial productions.
-- [Abstract state](state.md), [execution](execution.md) and [sessions](session.md).
-- [Game semantics](gameplay.md) and [randomness](randomness.md).
-- [Terminal behavior](terminal.md) and [conformance examples](conformance.md).
-- [CompuServe amendments](compuserve.md).
-- [Named message fragments](messages.md): exact source text.
-- [Unresolved behavior](unresolved.md): questions and separate playable policies.
+- [Abstract game model](language-model.md): identities, quantities and state.
+- [Lexical rules](lexical.md) and [command grammar](grammar.md).
+- [Commands and their meaning](commands.md): state transitions in pseudocode.
+- [Turns and elapsed time](turns.md): repair, action accounting and pacing.
+- [Semantic examples and conformance](language-conformance.md).
+- [CompuServe variant](variants.md).
 
-Remaining clause-level work is tracked in the companion plan and coverage record.
-No host port, filesystem format, programming language or emulator is mandated.
+The [plan](PLAN.md) tracks the remaining conversion. The [earlier game-rule
+analysis](gameplay.md), [terminal analysis](terminal.md), [message catalogue](messages.md)
+and [source coverage](evidence.md) remain available separately. They are research
+inputs, not additional normative chapters of this generalized specification.
 
 ## Attribution
 

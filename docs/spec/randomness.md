@@ -1,5 +1,10 @@
 # Randomness
 
+**Companion source analysis — excluded from the generalized specification.**
+This earlier draft retains historical behavior and open research questions.
+Its machine-fidelity requirements do not apply to the current book; see the
+[normalization policy](NORMALIZATION.md) and [current language coverage](language-coverage.md).
+
 Status: base generator, setup order, command draw sites and ordinary generator
 vectors reviewed. The nine RNG-5 call sites are corroborated against the pinned
 Austin executable. Abnormal bounds and full interleaving scenarios remain under

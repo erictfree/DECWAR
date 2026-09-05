@@ -1,5 +1,10 @@
 # CompuServe amendments
 
+**Companion source analysis — excluded from the generalized specification.**
+This earlier draft retains historical behavior and open research questions.
+Its machine-fidelity requirements do not apply to the current book; see the
+[normalization policy](NORMALIZATION.md) and [current language coverage](language-coverage.md).
+
 Status: selected amendments reviewed against both archives. This appendix is
 incomplete; pending assembly, output and persistence details remain in the
 coverage record. It is not a second independently defined core language.
@@ -279,29 +284,25 @@ remove the sender. If none remain, suppress the no-recipient diagnostic when
 a Romulan reply was attempted through the present-Romulan path; otherwise emit
 it. If recipients remain, acquire and publish the player's body normally.
 
-### Autonomous speech and recipient-mask effects
+### Autonomous speech audiences
 
-Autonomous TELL generates its body before recipient validation and suppresses
-the unoccupied/broken/off-radio and no-recipient diagnostics. It still removes
-unavailable recipients among the ten roster slots, clears gag selections for
-remaining recipients, and queues a nonempty selection. Player TELL ROMULAN's
-immediate reply is addressed only to that captain and bypasses this later filter.
+CompuServe Romulan announcements use three audiences:
 
-For autonomous speech, the body choices and four draws are TERM-13's choices,
-but the source retains octal masks 777777, 000777 and 777000. These select slots
-1–18, 1–9 and 10–18 respectively, despite the ten-slot roster. The validation
-loop visits only slots 1–10. Thus the second choice can include Empire slots
-6–9 while calling them human; the third includes slot 10 and nonexistent slots
-11–18. Do not replace these masks with the ordinary five-member radio groups.
+| Form of address | Intended player audience |
+| --- | --- |
+| All captains | Both factions. |
+| Human captains | All Federation captains, plus the captains of Cobra, Demon, Hawk and Jackal. |
+| Klingon captains | The captain of Wolf. |
 
-Publication increments a message flag for every remaining bit without a
-ten-slot bound. Under both supplied declarations the ten message flags are
-immediately followed by the ten hit flags. Consequently publication for bits
-11–18 also increments hit flags for captains 1–8, without creating corresponding
-hit entries. This alias effect is expressible as state changes in an independent
-implementation; preserving an out-of-bounds memory write is not required. The
-nonexistent recipients also remain in queue membership until removed by queue
-eviction or reinitialization. Their effects must not be silently normalized away.
+Thus the human-addressed announcement can reach several Empire captains.
+Announcements are delivered only to occupied ships with operational, enabled
+radios. Unavailable recipients do not receive the message and do not cause an
+unavailable-recipient diagnostic. A direct reply to TELL ROMULAN is addressed
+only to the speaking captain, independently of these audiences.
+
+The announcement wording follows TERM-13. Additional delivery anomalies in this
+variant remain U-C-SPEECH; they are not defined here as new ships, combat damage
+or new player actions. Their derivation is retained in the companion research.
 
 ### Direct reply construction
 

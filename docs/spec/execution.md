@@ -1,5 +1,10 @@
 # Execution and multiplayer ordering
 
+**Companion source analysis — excluded from the generalized specification.**
+This earlier draft retains historical behavior and open research questions.
+Its machine-fidelity requirements do not apply to the current book; see the
+[normalization policy](NORMALIZATION.md) and [current language coverage](language-coverage.md).
+
 Status: main-loop and queue algorithms are drafted. Event delivery and lock
 failure interleavings still require review; this is not a full
 concurrency conformance model.

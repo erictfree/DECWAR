@@ -1,5 +1,10 @@
 # Game semantics
 
+**Companion source analysis — excluded from the generalized specification.**
+This earlier draft retains historical behavior and open research questions.
+Its machine-fidelity requirements do not apply to the current book; see the
+[normalization policy](NORMALIZATION.md) and [current language coverage](language-coverage.md).
+
 Status: these clauses have been read directly from Austin. Combat notifications,
 exact numeric execution and complete scoring remain under review. Formulas use
 STATE-4's integer quanta; REAL

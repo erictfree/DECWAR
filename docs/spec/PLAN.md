@@ -12,12 +12,56 @@ help text and comments are supporting evidence. The TypeScript port is useful
 for finding questions and exercising examples, but is not the specification's
 authority. No other DECWAR implementation supplies rules.
 
-Define observable behavior without requiring a language, operating system,
-memory layout or transport implementation. Preserve observable arithmetic,
-alias effects, ordering and text even when their historical causes are machine
-specific. Separate terminal conformance from abstract game semantics. Unresolved
-compiler/monitor behavior remains explicitly unresolved. Current playable repairs
-are a separate, nonhistorical policy record, never silently normative Austin rules.
+Define the game’s syntax and meaning with modern abstract types and ordinary
+arithmetic. The user explicitly superseded the earlier machine-compatibility
+target for this specification: integer quirks, packed representations, overflow
+and accidental cross-field effects must not become game rules. Small calculation
+differences from removing these artifacts are acceptable. Do not add commands,
+argument forms, new game mechanics or silent balance changes.
+
+Record numerical normalization separately, with source references. Preserve
+integer counts where the game quantity is discrete, such as torpedoes and grid
+coordinates; do not confuse those with PDP-10 arithmetic artifacts. Existing
+port and native-fidelity research remain separate from the language specification.
+
+## Revised language-specification structure
+
+The publication needs a structural rewrite, not merely removal of machine names.
+Earlier chapters contain valuable source analysis but often describe internal
+operations instead of language meaning. Retain that analysis as companion
+research while rewriting the normative document around these layers:
+
+1. **Abstract types and state:** named identities, records, enumerations, sets,
+   sequences and quantities in game units. Use language-neutral typed records and readable pseudocode
+   familiar to TypeScript readers, without importing JavaScript numeric or object
+   semantics. No memory maps, packed fields, numeric object codes or aliases.
+2. **Lexical syntax and grammar:** define complete productions and abbreviation
+   resolution. Interactive continuations are syntax in their own right.
+3. **Commands:** each command groups its production, defaults and prompts,
+   preconditions, changes to abstract state, results, failure/cancellation effects,
+   and game-time/resource consequences. Common semantic operations are defined
+   once and named by their game meaning, not by historical routine names.
+4. **World rules:** movement, combat, autonomous entities, time and multiplayer
+   interactions describe events and state transitions independently of commands.
+5. **Presentation:** player-visible responses and an exact terminal presentation
+   appendix, separate from the core state-transition descriptions.
+6. **Variants and conformance:** CompuServe amendments use the same abstract
+   vocabulary. Examples pair command input and initial state with resulting
+   state and observations. Historical causes stay in research notes.
+
+The new `language-model.md` and `commands.md` establish that vocabulary and
+command format. The book now includes that new model, lexical/grammar chapters, the first
+converted commands, normalized examples and the initial variant appendix. The
+older operational chapters remain outside the manifest as research. Continue
+converting all remaining command families and world rules; this shorter draft
+is not a claim that the rewrite is complete. Preserve source coverage during
+the transition.
+
+Use the legacy code to establish actual command forms and game mechanics, then
+express those rules in the abstract model. Representation accidents belong in
+research, not in the generalized language. Any proposed departure beyond the
+authorized numerical normalization needs an explicit decision; do not invent
+replacement gameplay while rewriting the prose.
 
 ## Deliverables
 
@@ -31,19 +75,24 @@ consequences without prescribing how a new implementation realizes them.
 
 | Document | Content |
 | --- | --- |
-| README.md | Scope, reading order, revision, normative terminology and conformance claims. |
-| lexical.md | Character repertoire, folding, tokens, numbers, abbreviations, separators and line editing/termination. |
-| grammar.md | Grammar notation; command and subcommand productions; interactive continuations, defaults, cancellation and errors. |
-| state.md | Abstract world/session state, identities, units, numeric domains, precision, truncation and visibility. |
-| execution.md | Command acceptance and completion, intermediate effects, scheduling boundaries, time, shared-state ordering and interrupts. |
-| session.md | Startup/configuration, initialization, admission, permissions, galaxy lifecycle, exit, persistence and reset. |
-| gameplay.md | Movement, scans, combat, resources, repair, tractor beams, planets, bases, radio, Romulans and scoring. |
-| randomness.md | Draw operations, ranges, state ownership, initialization, draw order and seeded reproducibility requirements. |
-| terminal.md | Output messages, formatting, prompts, controls and application-byte behavior; distinguish transport bindings. |
-| conformance.md | Claim boundaries, reproducible scenarios, initial conditions, inputs, expected state/output and error cases. |
-| compuserve.md | Appendix of additions, removals and changed rules keyed to Austin clauses; unchanged clauses inherit core rules. |
-| evidence.md | Companion research outside the assembled specification: clause-to-source references, instruction/storage derivations, corroborating observations and review coverage. |
-| unresolved.md | Specific open questions, affected clauses, available evidence and what would resolve each question; separate playable policies. |
+| README.md | Scope, reading order, revision, terminology and conformance claims. |
+| language-model.md | Abstract identities, records, quantities and visibility concepts. |
+| lexical.md | Characters, folding, tokens, numbers, abbreviations, separators and editing. |
+| grammar.md | Command productions, matching order and interactive continuations. |
+| commands.md | Each command's syntax, preconditions, state changes, outputs and completion. |
+| turns.md | Time, automatic repair, action accounting and command completion. |
+| language-conformance.md | Initial conditions, inputs and expected abstract state changes. |
+| variants.md | CompuServe amendments expressed in the same abstract vocabulary. |
+| language-coverage.md | Conversion progress and remaining dependencies, outside the book. |
+| NORMALIZATION.md | Numerical/representation decisions and source derivations, outside the book. |
+
+Further chapters will cover complete world rules, sessions, randomness,
+multiplayer ordering and response/terminal presentation. Add them to book.json
+only after expressing their requirements in the abstract model. Earlier state.md,
+execution.md, session.md, gameplay.md, randomness.md, terminal.md, conformance.md
+and compuserve.md remain research inputs outside the manifest. The evidence and
+unresolved records preserve source analysis; they are not extra normative clauses
+of the generalized language.
 
 ## Work sequence and checkpoints
 
@@ -55,7 +104,7 @@ consequences without prescribing how a new implementation realizes them.
 2. **Specify input and state.** Derive lexical behavior before command grammar;
    document matching precedence and contextual parsing rather than assuming a
    conventional parser. Define units and numeric operations independently of
-   physical storage. Trace observable aliases to abstract effects.
+   physical storage. Exclude representation accidents; record the normalization rationale separately.
 3. **Specify commands and transitions.** Work through every reachable command
    and interactive continuation. Each clause records valid forms, defaults,
    preconditions, ordered effects, time/resource costs, failure behavior and
@@ -92,7 +141,7 @@ consequences without prescribing how a new implementation realizes them.
 - Representative conformance scenarios cover each command family and lifecycle
   boundary. Examples distinguish source-derived expectations from native runs.
 - The CompuServe appendix is a consistent set of amendments to the Austin core.
-- Unknowns and deliberate playable repairs have explicit identities and scope;
+- Unknowns, normalization decisions and separate playable repairs have explicit scope;
   no complete historical-parity claim is made while they remain unresolved.
 - Documentation validation and source audits pass; a final report identifies
   coverage, remaining uncertainties and published revision.
@@ -105,3 +154,16 @@ Extra High is reserved for a concrete unresolved problem that warrants it.
 Maintain progress and verification logs throughout; a checkpoint is not the end
 of the goal. No new reference downloads, runtime changes or server restarts are
 required by this plan.
+
+## Structural references
+
+The GraphQL specification is a useful organizational reference: grammar, types,
+validation, execution and responses, with abstract algorithms whose observable
+results define conformance. ECMAScript’s algorithm conventions provide a second
+reference for abstract operations. WebDriver illustrates command-by-command
+preconditions, state changes and results. These references concern document
+form only; none supplies DECWAR rules.
+
+- [GraphQL notation and algorithms](https://spec.graphql.org/September2025/#sec-Algorithms)
+- [ECMAScript algorithm conventions](https://tc39.es/ecma262/multipage/notational-conventions.html#sec-algorithm-conventions)
+- [WebDriver commands](https://w3c.github.io/webdriver/#commands)

@@ -57,7 +57,7 @@ for (const name of entries) {
     text = text.replace(/^# .*\n\n\*\*Eric Freeman, PhD · Noah Smith, PhD\*\*\s+The University of Texas at Austin\s+Department of Arts and Entertainment Technologies\n/, '# Scope and conformance\n');
   }
   const doc = JSON.parse(convert(['--from=gfm', '--to=json'], text)) as Document;
-  if (name === 'conformance.md') {
+  if (name.endsWith('conformance.md')) {
     const expected = [...text.matchAll(/^\| (EX-(?:[A-Z]+-)+\d+) \|/gm)].map(match => match[1]);
     const actual: string[] = [];
     walk(doc.blocks, node => {
@@ -69,7 +69,7 @@ for (const name of entries) {
     if (JSON.stringify(expected) !== JSON.stringify(actual))
       throw new Error('Conformance scenarios must parse as table rows; check blank lines and delimiters');
     if (new Set(expected).size !== expected.length) throw new Error('Duplicate conformance scenario ID');
-    console.log(`Checked ${actual.length} source-derived scenario rows.`);
+    console.log(`Checked ${actual.length} specification scenario rows.`);
   }
   const map = new Map<string, string>();
   const prefix = name.replace(/\.md$/, '').toLowerCase();
@@ -88,7 +88,8 @@ for (const name of entries) {
       }
       const total = widths.reduce((a: number, b: number) => a + b, 0);
       const proportions = columns.length === 3
-        ? (name === 'conformance.md' ? [0.24, 0.38, 0.38] : [0.24, 0.52, 0.24])
+        ? (name.endsWith('conformance.md') ? [0.24, 0.38, 0.38]
+          : name === 'commands.md' ? [0.38, 0.18, 0.44] : [0.24, 0.52, 0.24])
         : widths.map((w: number) => Math.floor(100 * w / total) / 100);
       proportions[proportions.length - 1] = 1 - proportions.slice(0, -1).reduce((a: number, b: number) => a + b, 0);
       columns.forEach((column: any, i: number) => { column[1] = { t: 'ColWidth', c: proportions[i] }; });
@@ -159,7 +160,7 @@ const args = ['--from=json', '--standalone', '--toc', '--toc-depth=2', '--number
 // A title page with the supplied affiliation, without injecting raw HTML into PDF metadata.
 const coverTex = resolve(out, 'title.tex');
 const escapeTex = (s: string) => s.replace(/[\\{}$&#%_^~]/g, c => ({'\\':'\\textbackslash{}','~':'\\textasciitilde{}','^':'\\textasciicircum{}'}[c] || '\\' + c));
-writeFileSync(coverTex, `\\begin{titlepage}\n\\centering\n\\vspace*{1.4in}\n{\\Huge\\bfseries ${escapeTex(book.title)}\\par}\n\\vspace{0.6in}\n{\\Large ${escapeTex(book.subtitle)}\\par}\n\\vspace{0.8in}\n${book.authors.map((s: string) => '{\\large ' + escapeTex(s) + '\\par}').join('\n')}\n\\vspace{0.3in}\n${escapeTex(book.institution)}\\par\n${escapeTex(book.department)}\\par\n\\vfill\n${escapeTex(book.date)}\\par\n\\vspace{0.2in}\n{\\small Incomplete draft. Austin reconstruction is the core; historical equivalence is not certified.\\par}\n\\end{titlepage}\n`);
+writeFileSync(coverTex, `\\begin{titlepage}\n\\centering\n\\vspace*{1.4in}\n{\\Huge\\bfseries ${escapeTex(book.title)}\\par}\n\\vspace{0.6in}\n{\\Large ${escapeTex(book.subtitle)}\\par}\n\\vspace{0.8in}\n${book.authors.map((s: string) => '{\\large ' + escapeTex(s) + '\\par}').join('\n')}\n\\vspace{0.3in}\n${escapeTex(book.institution)}\\par\n${escapeTex(book.department)}\\par\n\\vfill\n${escapeTex(book.date)}\\par\n\\vspace{0.2in}\n{\\small Incomplete draft. Game rules are derived from the Austin reconstruction.\\par}\n\\end{titlepage}\n`);
 // Suppress Pandoc's default title for TeX; our title page includes the affiliation.
 const texDoc = structuredClone(combined); delete texDoc.meta.title; delete texDoc.meta.author; delete texDoc.meta.date; delete texDoc.meta.subtitle;
 texDoc.meta['title-meta'] = strings(book.title);
@@ -179,6 +180,13 @@ walk(texDoc.blocks, node => {
 // a page containing only source links at the end of a chapter.
 const texBlocks: Node[] = [];
 for (const block of texDoc.blocks) {
+  if (block.t === 'CodeBlock' && block.c[1].split('\n').length <= 40) {
+    // Keep short algorithms intact; line-breaking verbatim can otherwise split
+    // a procedure after its first line despite the samepage option.
+    texBlocks.push({ t: 'RawBlock', c: ['latex', '\\par\\noindent\\begin{minipage}{\\linewidth}'] },
+      block, { t: 'RawBlock', c: ['latex', '\\end{minipage}\\par'] });
+    continue;
+  }
   const isEvidence = block.t === 'Para' && block.c[0]?.t === 'Strong'
     && block.c[0].c[0]?.t === 'Str' && block.c[0].c[0].c === 'Evidence:';
   if (isEvidence && texBlocks.at(-1)?.t === 'Para') {

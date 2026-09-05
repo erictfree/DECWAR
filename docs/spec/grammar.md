@@ -50,9 +50,7 @@ The initial startup dialogue accepts HELP, PREGAME or empty input separately.
 **Evidence:** [command DATA](../../legacy/utexas/DECWAR.FOR#L437),
 [GETCMD](../../legacy/utexas/DECWAR.FOR#L1243),
 [XGTCMD](../../legacy/utexas/SETUP.FOR#L402),
-[PREGAM](../../legacy/utexas/SETUP.FOR#L76). Austin's FORTRAN PARAM specifies
-16 pregame entries; the assembly's independently declared 12 does not shorten
-this FORTRAN matching loop.
+[PREGAM](../../legacy/utexas/SETUP.FOR#L76).
 
 ## GRAM-3 — Coordinate forms
 
@@ -76,14 +74,14 @@ REAL-category coordinates are rejected even if their mathematical value is whole
 
 COMPUTED resolves ship names in roster order and ROMULAN to current positions.
 The optional leading integer remains a scalar; each name contributes two items.
-An absent target is rejected; a named player ship must also have a positive board
-entry at its recorded location. Computing requires computer damage below 3000.
+An absent target is rejected; a named player ship must occupy its recorded
+location. Computing requires computer damage below 300 damage units.
 A nonprivileged session with terminal speed above 300 incurs a pause of twice
 that speed in milliseconds before the remaining computed input is validated.
 Computed coordinates are absolute, independent of the input default.
 
 **Evidence:** [LOCATE/RELOC](../../legacy/utexas/DECWAR.FOR#L1404).
-**Open:** empty computed forms and compiler-loop edge cases must be included in
+**Open:** empty computed forms and boundary cases must be included in
 boundary examples before a complete acceptance grammar can be claimed.
 
 ## GRAM-4 — Movement, capture and construction
@@ -146,7 +144,8 @@ remaining tokens or a noninteger range produce the syntax diagnostic. Direction
 matching uses the source's successive checks in the displayed order.
 
 SCAN initially uses radius 10; SRSCAN uses 7. Before parsing explicit ranges,
-the default is limited to `truncate((terminalWidth - 9) / 4)`. One explicit integer
+the default is limited to the nonnegative whole-column count that fits
+`(terminalWidth - 9) / 4`. One explicit integer
 replaces all four extents; a second replaces horizontal extents. Thus explicit
 ranges are not constrained by that default-width calculation. Each final extent
 is clamped to 0 through 10 and the rectangle to the galaxy boundary.
@@ -183,8 +182,8 @@ first argument. Other arguments are not a universal syntax failure. DOCK only
 tests STATUS at its first argument before invoking its report parser.
 
 TRACTOR with no argument while a beam is active attempts release. Otherwise it
-prompts for OFF or a ship name; empty continuation cancels. The missing-argument
-problem U-TRACTOR-ARG limits the release semantics, not lexical recognition.
+prompts for OFF or a ship name; empty continuation cancels. The complete
+release semantics remain under review.
 
 **Evidence:** [SHIELD](../../legacy/utexas/DECWAR.FOR#L3739),
 [ENERGY](../../legacy/utexas/DECWAR.FOR#L1009),
@@ -224,7 +223,7 @@ first matching ship in roster order. A self-directed gag/ungag returns unchanged
 
 ## GRAM-9 — Quit
 
-Main-game QUIT discards pending command input, clears the control flag and
+Main-game QUIT discards pending command input and
 requests confirmation unless a disconnect is already recorded. A YES prefix
 confirms; any other response resumes command acquisition. Pregame QUIT exits
 without that in-game confirmation path. Interrupts are separately scoped in
@@ -254,13 +253,6 @@ in order, stopping at the first nonalphanumeric. An unknown item emits a syntax
 diagnostic but processing continues with later items. Item matching is checked
 in the order shown in the production, not by a global unique-match test.
 
-The default report replaces the token text and categories beginning at its
-entry token with the seven synthetic alphanumeric selectors C, L, T, E, D, S
-and R, followed by an end-of-line category. It leaves the recorded token count,
-numeric values and raw-input positions unchanged. These are changes to the
-current parsed command, not input characters submitted by the captain. The
-observable field order and rendering are defined in TERM-15.
-
 DAMAGES first checks whether any device has positive damage. If none does, it
 reports all devices functional without parsing selectors. Otherwise an initial
 alphanumeric selector starts specific-device mode: process alphanumeric tokens
@@ -275,7 +267,7 @@ before admission. ALL selects every available column, omitting self before
 admission. A nonalphanumeric token ends selector scanning; an unrecognized
 alphanumeric token aborts with the points diagnostic. The selector-completion
 path suppresses the Romulan column when the option is disabled. Final scoring
-enters a different unresolved path; see U-FINAL-POINTS.
+is a separate rule still under review.
 
 TYPE prompts for a missing/invalid switch. The exact one-character candidate O
 is diagnosed as ambiguous before reprompting. OUTPUT reports preferences;
@@ -310,9 +302,8 @@ a coordinate or explicitly named object may be reported immediately.
 | PLANETS | Planets | Both sides and neutral | Detail | 10 |
 | TARGETS | Ships, bases, planets | Opposing side and Romulan | Detail | 10 |
 
-The whole-game sentinel is an unbounded range for legal galaxy locations. It is
-not a new coordinate or a visible distance value. Bare commands do not acquire an
-extra summary through the commented-out auto-summary statement.
+Whole-game range covers every legal galaxy location. Commands without arguments
+use the output choices in the table.
 
 Selector recognition order is significant:
 
@@ -350,11 +341,11 @@ range and output selectors have conflict rules rather than free commutativity:
 - Explicit LIST/SUMMARY output selectors reject prior output, coordinate,
   CLOSEST or named-object selectors. Their interaction with the command's
   default output is retained, including LIST SUMMARY selecting both modes.
-- Ship names reject prior selectors other than named objects/Romulan; their
-  duplicate test is U-LIST-SHIP. ROMULAN cannot repeat.
+- Ship names reject prior selectors other than named objects/Romulan; repeated
+  ship-name selection remains under review. ROMULAN cannot repeat.
 
-Illegal keywords and selector conflicts diagnose and abort further processing;
-TERM-22 specifies their text and the distinction from group-selection returns.
+Illegal keywords and selector conflicts diagnose and abort further processing.
+Their exact diagnostic text will be specified with the report responses.
 This clause still requires exhaustive ordering examples; it must not be replaced
 with an unordered filter-object parser.
 
@@ -384,7 +375,8 @@ HELP without arguments lists general topics. `*` lists visible commands; other
 tokens are matched first against visible main commands, then extra help topics.
 Ambiguity is diagnosed in the applicable search. Privilege changes which starred
 commands are offered. HELP is rejected under red alert before its temporary
-ship-removal path. The special initial startup HELP dialogue is SESSION-1.
+ship-removal path. The special initial startup HELP dialogue belongs to the
+session rules, which are still being rewritten.
 
 NEWS reads its asset and requests YES confirmation at a section separator
 consisting of a dot immediately after a line boundary. Other responses stop

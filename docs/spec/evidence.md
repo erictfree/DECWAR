@@ -18,6 +18,10 @@ Each normative clause carries physical source links. A source review means its
 cited statements were inspected; it is not a full independent verification or a
 native differential test. No completed conformance suite exists yet.
 
+The tables below track the earlier source-analysis draft. They do not measure
+conversion into the generalized book. Use [language coverage](language-coverage.md)
+for that progress and [normalization](NORMALIZATION.md) for the arithmetic policy.
+
 ## Main command coverage
 
 All 33 main dispatch slots are inventoried directly from Austin's DATA table and

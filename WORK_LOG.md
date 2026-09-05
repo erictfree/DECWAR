@@ -1763,3 +1763,84 @@ port/tool attribution remain separate.
   logs/austin-live-host.log record this. Port 2323 was not restarted or changed.
 - Updated running/status guidance. Immediate ESC is now available on the restarted
   Austin listener; the specification goal continues independently.
+
+## 2026-09-05 — Restructure around grammar and abstract game semantics
+
+- The user clarified that removing machine names was insufficient: the book
+  must be a language specification, with grammar, named abstract state and
+  command semantics, not a low-level compatibility audit. Pseudocode is explicitly
+  welcome. Updated PLAN with a structural rewrite, keeping source analysis as
+  companion research and preserving rather than discarding established behavior.
+- Added language-model.md with records, enumerations, quantities in game units,
+  identities, positions, ships, radio settings and messages. Added commands.md
+  with grammar plus readable SHIELDS/RADIO state transitions and examples.
+  These staged chapters are not yet substituted for the older quanta-based
+  book; README explicitly marks the structural revision and incomplete conversion.
+  SHIELDS TRANSFER and the rest of the command/world model still need conversion.
+- Moved CompuServe autonomous-speech mask/flag derivation into research notes.
+  Its variant clause now describes the real player audiences. Added U-C-SPEECH
+  for additional delivery effects that still need a player-visible formulation;
+  no packed fields or nonexistent player identities are invented as game entities.
+- Consulted GraphQL, ECMAScript algorithm conventions and WebDriver solely as
+  examples of specification form, after the user asked for an analogue. No game
+  facts or alternate DECWAR implementation were obtained externally. Recorded
+  the structural references in PLAN. Grammar plus syntax-directed abstract
+  operations and readable pseudocode are the intended approach.
+- Existing book structural check passed: 145 scenarios, 13 included sections,
+  393 local links and 324 fragments. This validates the transitional document,
+  not completion of its rewrite. Log: logs/spec-language-restructure-check.log.
+  No game code, server state or source archive changed in this documentation pass.
+
+## 2026-09-05 — Generalized language, ordinary arithmetic and nine commands
+
+- The user explicitly removed PDP-10 integer quirks from the specification's
+  target, accepting small numerical differences while forbidding invented syntax
+  or game semantics. Recorded the distinction in AGENTS.md, PLAN and the separate
+  NORMALIZATION.md policy. This does not change the running port's fidelity
+  requirements or authorize a gameplay rewrite.
+- Replaced the book manifest's operational/source-analysis chapters with the
+  abstract model, lexical/grammar clauses, command semantics, turn accounting,
+  normalized examples and initial CompuServe appendix. The earlier 93-page
+  source-analysis PDF was retained locally as decwar-source-analysis-draft.pdf;
+  its canonical chapters remain available as explicitly labeled research outside
+  the new book. The preceding staged-chapter log entry describes an earlier
+  intermediate state; the new chapters are now included.
+- Converted SHIELDS, RADIO, ENERGY, DOCK, REPAIR, SCAN, SRSCAN, STATUS and DAMAGES
+  to grammar plus abstract game-state effects. Directly reviewed Austin's cited
+  routines. Energy and damage use game units, shield strength uses percentage
+  points, and elapsed time uses milliseconds. Shield transfer retains fractions;
+  ship-to-ship transfer uses the 90% delivery rate and capacity-limited charge
+  without integer conversion artifacts. Kept game rules such as charging for
+  raising already-raised shields, double hull repair when already docked, and
+  scan discovery within ten sectors even outside the displayed rectangle.
+- Added ordinary records/enums for ships, installations, world, radio, knowledge,
+  the 18-ship Austin roster and coordinates. Shared turn rules cover automatic
+  repair, accounting, life support and existing pacing formulas. Effective-speed
+  selection during admission remains explicitly pending: direct source review
+  ruled out assuming that it simply equals the latest captain's speed.
+- Removed STATUS's token-mutation description from the language chapter and
+  retained its derivation in research. Decimal token values are independent.
+  Packed recipient masks and cross-field effects are not generalized-language
+  requirements. Kept discrete grammar values, torpedo counts and whole-sector
+  bounds; numerical normalization does not invent new argument spellings.
+- Added language-coverage.md to distinguish nine converted commands and their
+  explicit dependencies from the older 33-command research inventory. Twenty-four
+  main commands, full pregame/session behavior, combat/world rules, concurrency,
+  complete responses and remaining variant changes still need conversion. The
+  specification goal remains active; this is a reviewed checkpoint, not completion.
+- Publication checks: final single PDF is 33 pages; Markdown, HTML and LaTeX
+  built successfully. Validated eight included sections, 111 local links, 28
+  scenario rows and the unchanged 324-fragment source catalogue. Scenario-row
+  validation is structural, not execution against a native implementation.
+  Logs: logs/spec-generalized-final.log and the preceding build logs. An initial
+  conformance-ID duplication and an overfull inline field were corrected.
+- Improved example-table proportions and kept short pseudocode blocks together
+  after rendered review caught a split repair procedure. Reviewed the final
+  repair, conformance and variant pages; also inspected title, model, shield
+  transfer and turn-accounting pages during layout review. Images and extraction
+  are in tmp/pdfs/spec-generalized/ and tmp/pdfs/spec-generalized.txt. Final TeX
+  checks report no overfull boxes, missing characters or undefined references.
+- Typecheck and immutable-source/generated-data audit passed; git diff --check
+  passed. Logs: logs/spec-generalized-typecheck-final.log and
+  logs/spec-generalized-audit.log. No game code, archived source, listener or
+  active galaxy was changed. Generated PDFs and build products remain ignored.

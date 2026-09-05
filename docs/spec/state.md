@@ -1,5 +1,10 @@
 # Abstract state and values
 
+**Companion source analysis — excluded from the generalized specification.**
+This earlier draft retains historical behavior and open research questions.
+Its machine-fidelity requirements do not apply to the current book; see the
+[normalization policy](NORMALIZATION.md) and [current language coverage](language-coverage.md).
+
 Status: state domains and basic numeric/coordinate rules reviewed; full arithmetic
 and every state transition remain under review. The names below are specification
 concepts, not requirements for classes, arrays or memory layouts.

@@ -1,5 +1,10 @@
 # Conformance and examples
 
+**Companion source analysis — excluded from the generalized specification.**
+This earlier draft retains historical behavior and open research questions.
+Its machine-fidelity requirements do not apply to the current book; see the
+[normalization policy](NORMALIZATION.md) and [current language coverage](language-coverage.md).
+
 ## CONF-1 — Claims during drafting
 
 This draft defines no complete DECWAR conformance certificate. A report may
@@ -293,23 +298,20 @@ as CONF-11. Exclude subsequent prompts.
 [grouped output](terminal.md#term-21--list-family-grouped-assembly).
 These cases are source-path derivations, not native transcript comparisons.
 
-## CONF-13 — Decimal text-deposit scenarios
+## CONF-13 — Decimal interpretation
 
-These cases describe completed ordinary token acquisition alone, before command
-dispatch. The eighty-character cases are acquired at the line-length limit.
-Assume no control interruption or arithmetic fault. Repetition notation below
-constructs exact input text; it is not syntax typed into DECWAR.
+These cases apply ordinary decimal interpretation and independent token values
+under the generalized language’s normalization policy. They are specification
+examples, not expected transcripts of the old machine’s input-corruption paths.
 
 | ID | Conditions and input | Expected observation |
 | --- | --- | --- |
-| EX-DECIMAL-01 | Acquire `123456.789` as one token | Retained text is `12345`, category REAL, count 1. No earlier token exists for LEX-8 to affect; the sentinel has empty text and value zero. |
-| EX-DECIMAL-02 | Acquire thirteen commas, then a period, then 66 uppercase A characters (80 total) | Return 14 tokens: thirteen null categories, then alphanumeric `.AAAA`. Numeric fields 1–11 become −33548091006; field 12 becomes −33550237696; fields 13 and 14 are zero. Sentinel is position 15 with zero text/numeric value. Earlier null categories remain unchanged despite their overwritten numeric fields. |
-| EX-DECIMAL-03 | Acquire `1`, thirteen commas, a period and 65 uppercase A characters (80 total) | Token 1 retains text `1` and integer category, but its numeric value becomes −33548091005. The transformation preserves the original value’s odd parity. Token 14 is alphanumeric `.AAAA` with numeric value zero. |
+| EX-DECIMAL-01 | Acquire `123456.789` as one token | Retained matching text is `12345`; numeric value is 123456.789; category REAL. |
+| EX-DECIMAL-02 | Acquire thirteen commas, then a period, then 66 uppercase A characters | Earlier null tokens retain numeric value zero. The final token is alphanumeric `.AAAA` with numeric value zero. |
+| EX-DECIMAL-03 | Acquire `1`, thirteen commas, a period and 65 uppercase A characters | The first token remains integer 1. The final alphanumeric token does not alter it. |
 
-**Evidence:** [LEX-8](lexical.md#lex-8--decimal-text-spill),
-[compiled tokenizer observations](evidence.md#compiled-tokenizer-observations).
-These are derived examples, not native transcript comparisons. The alphabetic
-suffixes prevent fractional-digit arithmetic after the initial decimal point.
+**Basis:** [independent values](lexical.md#lex-8--independent-token-values),
+[normalization policy](NORMALIZATION.md).
 
 ## CONF-14 — LIST parser and partial-output scenarios
 

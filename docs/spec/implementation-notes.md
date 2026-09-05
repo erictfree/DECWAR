@@ -1,5 +1,10 @@
 # Implementation derivations supporting the specification
 
+**Historical research, outside the generalized specification.** Earlier preservation
+requirements below describe machine-fidelity analysis. They do not override the
+[normalization policy](NORMALIZATION.md); aliases and numerical artifacts are
+excluded from the normative book.
+
 This companion document is excluded from the assembled specification. It retains
 historical implementation explanations used to derive behavioral rules; it is
 not an implementation design for a new game. See also [compiled evidence](evidence.md).
@@ -185,3 +190,41 @@ substitute Austin's particular word or gag-slot set. CompuServe has ten ordinary
 gag identities, making a direct transfer of Austin's eighteen-slot interpretation
 especially inappropriate.
 
+
+## CompuServe autonomous speech derivation
+
+### Autonomous speech and recipient-mask effects
+
+Autonomous TELL generates its body before recipient validation and suppresses
+the unoccupied/broken/off-radio and no-recipient diagnostics. It still removes
+unavailable recipients among the ten roster slots, clears gag selections for
+remaining recipients, and queues a nonempty selection. Player TELL ROMULAN's
+immediate reply is addressed only to that captain and bypasses this later filter.
+
+For autonomous speech, the body choices and four draws are TERM-13's choices,
+but the source retains octal masks 777777, 000777 and 777000. These select slots
+1–18, 1–9 and 10–18 respectively, despite the ten-slot roster. The validation
+loop visits only slots 1–10. Thus the second choice can include Empire slots
+6–9 while calling them human; the third includes slot 10 and nonexistent slots
+11–18. Do not replace these masks with the ordinary five-member radio groups.
+
+Publication increments a message flag for every remaining bit without a
+ten-slot bound. Under both supplied declarations the ten message flags are
+immediately followed by the ten hit flags. Consequently publication for bits
+11–18 also increments hit flags for captains 1–8, without creating corresponding
+hit entries. This alias effect is expressible as state changes in an independent
+implementation; preserving an out-of-bounds memory write is not required. The
+nonexistent recipients also remain in queue membership until removed by queue
+eviction or reinitialization. Their effects must not be silently normalized away.
+
+
+## STATUS token substitution
+
+The default STATUS report replaces the token text and categories beginning at
+its entry token with C, L, T, E, D, S and R, followed by an end-of-line category.
+It leaves recorded token count, numeric values and raw-input positions unchanged.
+This is an implementation technique for generating default report selectors,
+not a required mutation of parsed input in the generalized specification.
+The language rule states only the resulting report selection and order.
+
+**Source:** [STATUS](../../legacy/utexas/DECWAR.FOR#L3860).

@@ -1,5 +1,16 @@
 # DECWAR port contract
 
+Specification scope: the user's latest 2026-09-05 direction makes the language
+specification forward-looking. Derive command syntax and game mechanics from
+the archives, but express semantics with abstract types, readable pseudocode
+and ordinary mathematical quantities. Remove PDP-10 integer/floating-point
+quirks, packed representations and accidental cross-field effects from the
+normative book. Small resulting numerical differences are authorized; invented
+syntax, mechanics and balance changes are not. Record normalization in
+docs/spec/NORMALIZATION.md and retain historical analysis outside book.json.
+This exception applies to the specification, not the running port: the fidelity
+requirements below still govern game code and source preservation.
+
 Current user priority: on 2026-09-05 the user explicitly asked to set aside
 unresolved historical/compiler parity and get a functioning game. Implement
 documented, narrow repairs in a playable profile; retain the historical

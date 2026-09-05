@@ -1,6 +1,6 @@
 {
   "title": "DECWAR Language and Behavior Specification",
-  "subtitle": "Austin Core • Working Draft",
+  "subtitle": "Austin Core \u2022 Generalized Semantics \u2022 Working Draft",
   "authors": [
     "Eric Freeman, PhD",
     "Noah Smith, PhD"
@@ -12,19 +12,14 @@
   "repositoryUrl": "https://github.com/erictfree/DECWAR",
   "chapters": [
     "README.md",
+    "language-model.md",
     "lexical.md",
     "grammar.md",
-    "state.md",
-    "execution.md",
-    "session.md",
-    "gameplay.md",
-    "randomness.md",
-    "terminal.md",
-    "conformance.md"
+    "commands.md",
+    "turns.md",
+    "language-conformance.md"
   ],
   "appendices": [
-    "compuserve.md",
-    "messages.md",
-    "unresolved.md"
+    "variants.md"
   ]
 }
