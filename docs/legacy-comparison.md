@@ -6,8 +6,8 @@ Scope update: subsequent review of the full upstream repository
 found the missing startup asset at msc/decwar.ini and an emulator/build workflow
 outside the imported 39-file subtree. See [Austin build evidence](austin-build-evidence.md).
 Statements below about missing files describe the imported subtree, not the
-entire repository or its installed runtime. The plan now first attempts to
-generate a map and capture reference behavior using that environment.
+entire repository or its installed runtime. The native build, map and sample reference transcripts are now preserved;
+[Austin implementation](austin-implementation.md) records the subsequent port.
 
 ## Finding
 
@@ -26,9 +26,9 @@ handling, privileged commands, and synchronization. Adopting UT behavior would
 therefore require more than changing the player-count constant.
 
 This is a structural and selected behavioral comparison, not a complete
-semantic audit or an original-executable comparison. The running TypeScript
-game continues to use the supplied CompuServe baseline and its documented
-playable-profile repairs.
+semantic audit or an original-executable comparison. At this initial review the TypeScript game used CompuServe. It now defaults to
+Austin, with CompuServe explicitly selectable; both use documented playable
+repairs. The source comparison below retains the initial review evidence.
 
 ## Evidence and method
 
@@ -253,13 +253,14 @@ the first two are known, label the historical answer unresolved.
 
 The two copies can cross-check shared formulas and tables and expose omissions,
 but selecting whichever line looks better would create an undocumented hybrid.
-An eighteen-player variant would need coordinated roster, masks, population,
-storage/queue, and interface decisions; it has not been enabled by this review.
+The eighteen-player variant required coordinated roster, masks, population,
+storage/queue and interface changes. Their implementation is recorded in the
+[Austin ledger](austin-implementation.md).
 
-The next useful deeper reviews are: (1) FORTRAN/MACRO COMMON and argument
+The initial review identified these areas for deeper analysis: (1) FORTRAN/MACRO COMMON and argument
 agreement, (2) startup defaults and command/terminal transcripts, (3) lock and
-interrupt behavior, and (4) changed Romulan and persistence paths. Those reviews
-can remain read-only until a target behavior is explicitly selected.
+interrupt behavior, and (4) changed Romulan and persistence paths. The ledger records subsequent work; [current status](status.md) identifies
+remaining verification limits.
 
 ## Verification records
 
@@ -274,5 +275,6 @@ can remain read-only until a target behavior is explicitly selected.
 - `logs/legacy-comparison-audit.log`: existing archive/generated-data audit passes.
 
 The local diagnostic logs are ignored by Git. This report records the durable
-findings. No original binaries were executed, no upstream build scripts were
-run, no server was restarted, and no new runtime test result is claimed.
+findings. During this initial comparison no original binaries were executed, no upstream
+build scripts were run, and no new runtime test result was claimed. Subsequent
+native build observations are recorded separately in the build evidence.

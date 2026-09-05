@@ -1369,3 +1369,40 @@ build evidence, plan/status and platform/modernization notes. Credit and license
 terms remain intact. Internal instructions and historical work-log records retain
 their operational context. Reviewed the documentation diff and whitespace; no
 runtime code, generated data or archived source changes.
+
+## Documentation consistency review — September 5, 2026
+
+Completed the documentation review before further gameplay implementation.
+Added docs/README.md as a reading guide, docs/architecture.md for source-to-runtime
+structure, memory aliases, scaled integers and modern host choices, and
+docs/documentation-standard.md for durable writing/evidence requirements.
+README links these guides and retains Eric Freeman/OpenAI GPT-6 Astra, Noah Smith,
+legacy CompuServe tape attribution, decwar.org and the existing license scope.
+
+Replaced the accumulated status page with current capabilities, dated validation
+and explicit limits. Preserved its former contents in
+docs/history/implementation-progress.md, verified verbatim except for one relative
+link adjustment. Scope notes distinguish historical CompuServe analysis from
+current Austin-default behavior. Updated the migration plan/comparison and build
+summary to reflect the completed native reference build. Running instructions
+separate Node/Telnet from TOPS-10/SIMH and distinguish configurable ports from
+existing local processes. Added physical source links for the five playable
+repairs and documented the FORTRAN V5 manual versus V6 reference compiler limit.
+
+The source-index generator now labels its inventory as CompuServe and links
+Austin evidence. No gameplay, runtime data, source archives or reference artifacts
+changed; no servers restarted. Historical decision IDs and technical records remain.
+
+Verification:
+- npm run audit: regenerated the documentation header; logs/documentation-review-audit.log.
+- npm run audit:check: both variants and generated evidence pass; logs/documentation-review-audit-check.log.
+- 265 local links across 21 documents, including heading/source-line targets,
+  all 17 preserved reference artifact hashes/sizes, and historical status copy:
+  passed; logs/documentation-review-links.log.
+- git diff --check: passed. Gameplay tests were not rerun for documentation and
+  a documentation-generator header change; the last executable checkpoint remains
+  4,563 passing tests at 31d34e4. This review does not establish exhaustive source
+  understanding or original-executable parity.
+
+Publishing this documentation pass under the existing instruction to commit and
+push ready changes to main. Further implementation remains separate from this review.

@@ -16,6 +16,10 @@ The downloaded PDFs, their URLs, lengths and SHA-256 digests are recorded in
 pages are under `tmp/pdfs/`, outside the immutable source archive. Page numbers
 below are printed numbers; PDF page numbers are one-based.
 
+Unqualified WARMAC/POINTS line references below describe CompuServe. The
+[Austin reference build](austin-build-evidence.md) used FORTRAN 6(1144); the
+FORTRAN V5 manual below does not establish every behavior of that compiler.
+
 ## Processor arithmetic
 
 Source: DEC, [DECsystem-10/DECSYSTEM-20 Processor Reference Manual, June 1982](https://ftpmirror.your.org/pub/misc/bitsavers/pdf/dec/pdp10/1982_ProcRefMan.pdf).
@@ -106,7 +110,9 @@ Source: DEC, [FORTRAN-10 Programmer's Reference, Version 5, January 1977](https:
   prohibited. POINTS final entry (`POINTS.FOR:28-60`, label 500 to terminal 600)
   bypasses initialization. The manual cannot supply a private counter value
   for this path. Existing explicit diagnostic continuation policies remain
-  diagnostic; a final-entry shortcut would be a compatibility decision.
+  diagnostic. The playable profile now selects the explicitly documented
+  [final-entry repair](playable-decisions.md); this does not resolve the compiler
+  behavior.
 - **Appendix C, C-2–C-3:** actual constants can be overwritten through dummy
   arguments, type mismatch is unchecked, and expressions may be rearranged
   outside parentheses even without global optimization. A universal

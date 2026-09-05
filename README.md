@@ -121,6 +121,11 @@ establish complete equivalence with the original executable.
 
 ## Explore and contribute
 
+Start with the [documentation guide](docs/README.md). The
+[architecture](docs/architecture.md) explains memory layouts, scaled arithmetic
+and modern host services; the [documentation standard](docs/documentation-standard.md)
+sets expectations for source evidence and behavior changes.
+
 - [Running the game](docs/running.md): setup, commands, variants and storage.
 - [Implementation status](docs/status.md) and [Austin implementation](docs/austin-implementation.md): what is connected, tested and still unresolved.
 - [Source study](docs/source-study.md) and [source index](docs/source-index.md): a route into the FORTRAN and assembly.

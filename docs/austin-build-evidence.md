@@ -1,64 +1,94 @@
-# Austin repository: build and reference-execution evidence
+# Austin reference build
 
-The full `decwarorg/utexas` repository was reviewed on September 5, 2026,
-beyond the previously imported source subtree. That initial review did not
-execute upstream scripts or change a running game.
+A fresh build of the pinned Austin reconstruction completed on September 5,
+2026. Its map, symbols, executable, initialization file, toolchain record and
+Yorktown/Wolf terminal captures are preserved in
+[legacy/utexas-reference/f78f2ec](../legacy/utexas-reference/f78f2ec/README.md).
+These are new reconstruction artifacts, not recovered historical originals.
 
-A subsequent local build succeeded on September 5, 2026 using a native build
-of the bundled simulator.
-The fresh map, symbols, executable and successful Yorktown/Wolf session evidence
-are preserved in [the Austin reference build](../legacy/utexas-reference/f78f2ec/README.md).
-The read-only findings below describe the earlier search; statements about not
-yet having booted or generated a map are superseded by that execution record.
+## Source and environment
 
-## Scope and result
+The build used `decwarorg/utexas` commit
+`f78f2ec733999617e4281ba3ed967bff8cd5d8f8`, the same revision as the immutable
+39-file reconstruction in this repository. Review covered the full upstream
+repository and supplied environment; no other DECWAR implementation was used.
 
-Verified current main with `git ls-remote`:
-`f78f2ec733999617e4281ba3ed967bff8cd5d8f8`. This matches our imported snapshot
-and the previously downloaded full repository archive. Examined its 595-file
-inventory, relevant build scripts and documentation, and the disk ZIP inventory.
-Did not search other DECWAR repositories or follow external implementation links.
+The full repository contains Docker Compose support, a SIMH PDP-10 KL emulator,
+BACK10 export tooling, TOPS-10 disks and restore/compile/link scripts. Its normal
+workflow restores the game sources, compiles them inside TOPS-10, links against
+SYS:FORLIB and installs DECWAR.EXE. See the pinned
+[upstream README](https://github.com/decwarorg/utexas/blob/f78f2ec733999617e4281ba3ed967bff8cd5d8f8/readme.md)
+and [build script](https://github.com/decwarorg/utexas/blob/f78f2ec733999617e4281ba3ed967bff8cd5d8f8/simh/utexas.do).
 
-There is no standalone DECWAR.MAP, DECWAR.SYM or DECWAR listing file in this
-commit's ordinary file inventory. The bundled disk ZIP contains two opaque
-PDP-10 disk images; their internal filesystem has not been mounted or searched.
-This is not a claim that no such file exists inside those images or in repository
-history. More importantly, the supplied environment appears sufficient to
-regenerate a map from the reconstruction, subject to running and verifying it.
+For this reference build, Docker's engine was unavailable. The bundled emulator
+and BACK10 were compiled natively on macOS with Apple clang 17; the game itself
+was still compiled and run inside the emulated TOPS-10 environment. Using the
+repository's Docker-related files does not mean that this native run was a Docker
+container. The TypeScript game is a separate Node process.
 
-## A build-and-run environment is supplied
+Observed toolchain:
 
-The repository's [README](https://github.com/decwarorg/utexas/blob/f78f2ec733999617e4281ba3ed967bff8cd5d8f8/readme.md)
-describes restoring, compiling, linking and installing the game at startup,
-then connecting by Telnet on port 2030 and running `r gam:decwar` after login.
-This is corroborated by the executable build path:
+| Component | Observed identity |
+| --- | --- |
+| Monitor | KL703, system 1025 |
+| FORTRAN | 6(1144) |
+| MACRO | 53B(1244) |
+| LINK | 6(2376) |
+| Runtime library | SYS:FORLIB.REL; linked MAX. module dated December 3, 1981 |
 
-1. `start.py` unpacks `docker/dsk-20251103.zip` if the disk directory is absent
-   and starts Docker Compose.
-2. `Dockerfile` builds the bundled SIMH PDP-10 KL simulator and BACK-10 tool.
-3. `docker-compose.yaml` mounts the reconstruction and msc directories, creates
-   the source tape using `msc/tape.py --simple`, then boots the simulator.
-4. `simh/boot-from-disk.ini` attaches the two disks and invokes `simh/utexas.do`.
-5. [simh/utexas.do](https://github.com/decwarorg/utexas/blob/f78f2ec733999617e4281ba3ed967bff8cd5d8f8/simh/utexas.do)
-   restores sources, issues `compile/comp decwar, high, low, setup, warmac,
-   msg, setmsg`, links with SYS:FORLIB, saves DECWAR.EXE and assigns GAM: to
-   the installed directory.
+The supplied boot script sets a 1986 guest clock. Dates printed by LINK therefore
+do not establish an original 1986 build. The actual host build date is 2026-09-05.
+The inspected FORTRAN language manual is version 5; a successful version-6 build
+does not establish every compiler policy used by the TypeScript port.
 
-The disk ZIP lists `kl_dskb0.rp6` (315,187,200 bytes) and `kl_dskb1.rp6`
-(315,177,984 bytes). The repository also includes the FORTRAN-10 V6 tape and
-`simh/fort10v6.do`; the disk-creation script invokes that installation workflow.
-The compiler/runtime actually selected by the running disk must still be
-identified from execution. Tape filenames alone do not prove exact versions.
+## What was changed for the build
 
-This is substantially better evidence than an isolated source folder. We have
-not independently booted it, verified a successful build, or played the resulting
-binary yet. Successful execution would establish a reference for this pinned
-reconstruction/environment, not authenticate an untouched 1981 release.
+Game source remained unchanged. The isolated launch configuration bound Telnet
+to localhost:2030, disabled unused/unavailable network devices, enabled logging
+and accommodated the supplied disk's startup messages. Manual OPR intervention
+was needed; this is not a claim of a fully unattended build.
 
-## The missing initialization file is present outside the imported subtree
+The source compile list and link module order were preserved. The first LINK
+line requested `DECWAR/SAVE/MAP/SYFILE` so the same build produced a map and
+symbols as well as the executable. The source's L.MIC also documents map/symbol
+options, but was not substituted for the actual recorded link sequence.
 
-[msc/decwar.ini](https://github.com/decwarorg/utexas/blob/f78f2ec733999617e4281ba3ed967bff8cd5d8f8/msc/decwar.ini)
-contains these commands, with source CR/LF bytes:
+Exact commands, startup changes and diagnostics are preserved in
+[commands.txt](../legacy/utexas-reference/f78f2ec/commands.txt),
+[launch-changes.diff](../legacy/utexas-reference/f78f2ec/launch-changes.diff) and
+[build-console.txt](../legacy/utexas-reference/f78f2ec/build-console.txt).
+The bundle contains build evidence and outputs, not the full emulator or disk
+images. Rebuilding requires the pinned upstream environment.
+
+## Preserved outputs
+
+| Artifact | Purpose |
+| --- | --- |
+| DECWAR.MAP | The 47,459-byte LINK map: module/global symbols, entry points, segment locations and allocation sizes. |
+| DECWAR.SYM | The 6,395-byte symbol export in BACK10 core-dump representation. |
+| DECWAR.EXE | The 176,640-byte executable export in the same lossless representation. It is not a macOS/Node executable. |
+| reference-output.tap | Raw SIMH/TOPS-10 BACKUP export, retained in case another host representation is needed. |
+| DECWAR.INI | The actual five-command startup asset from the full repository. |
+| artifacts.json | File hashes, byte counts, formats, toolchain and verification scope. |
+
+Binary SYM/EXE exports use five host bytes per 36-bit word: four bytes carry the
+high 32 bits and the low nibble of the fifth carries the remaining four. Default
+BACK10 ASCII extraction was used only for the text map. BACKUP reported completion
+then a high-segment-return diagnostic; the detached tape listed and exported all
+three files successfully. That diagnostic remains in the preserved record.
+
+The map reports HISEG at octal 400010 with 3,122 words, LOWSEG at octal 140 with
+129 words, LOCAL at octal 341 with 200 words, and TIMERS at octal 406072 with
+250 words. Its entry address is octal 406467. These are the addresses of this
+linked reconstruction. The map does not contain the entire source, all live
+state, or every compiler-local calling convention.
+
+## Initialization and observed sessions
+
+The imported source subtree does not contain DECWAR.INI. The full repository
+supplies [msc/decwar.ini](https://github.com/decwarorg/utexas/blob/f78f2ec733999617e4281ba3ed967bff8cd5d8f8/msc/decwar.ini),
+and its tape-staging script installs that file. Its exact CR/LF bytes are preserved
+and its commands are used by the Austin TypeScript startup:
 
 ```text
 set prompt informative
@@ -68,54 +98,14 @@ targets
 srscan 2 w
 ```
 
-[msc/tape.py](https://github.com/decwarorg/utexas/blob/f78f2ec733999617e4281ba3ed967bff8cd5d8f8/msc/tape.py)
-explicitly copies this file into the staging area used to build the source tape.
-The prior comparison correctly found it absent from the imported 39-file
-subtree; it is not absent from the complete project's runtime inputs. It should
-be separately preserved with provenance and used as evidence for the Austin
-default startup. File-absent behavior remains a separate case to test.
+Yorktown (slot 9) and Wolf (slot 18) each joined the native game, read the INI,
+displayed STATUS and completed QUIT with final points. Yorktown also completed
+SCAN 10. Both nine-ship menus appear in the captures. These establish observed
+boundary-slot behavior; they do not prove eighteen simultaneous native captains
+or a full native-versus-TypeScript combat comparison. The captures are Telnet
+client terminal transcripts, not raw network captures.
 
-## How to obtain the map
-
-[utexas23-reconstruction/L.MIC](https://github.com/decwarorg/utexas/blob/f78f2ec733999617e4281ba3ed967bff8cd5d8f8/utexas23-reconstruction/L.MIC)
-documents `/M` for a map (default DECWAR.MAP), `/S` for a symbol file (default
-DECWAR.SYM), and `/E` for a saved executable. Its documented production command
-is `@L/M/S/E`. The script translates those into LINK's `/MAP`, `/SYFILE`, and
-`/SSAVE` switches.
-
-The ordinary automated LINK session in `simh/utexas.do` requests the saved game
-but does not request a map or symbol file. That provides a concrete explanation
-for not seeing one among the source files; it is an output we can request.
-
-For a reference build, preserve the automation's exact module order, libraries
-and build settings, and add map/symbol output to that LINK session in an isolated
-working copy. Alternatively stage L.MIC and evaluate its documented invocation;
-the existing tape script copies FOR/MAC sources and selected assets, not L.MIC,
-so `@L/M/S/E` should not be assumed available immediately after automatic restore.
-Compare the resulting link/save behavior before declaring the alternate path
-equivalent. Do not replace the imported source or modify the active TS host.
-
-Record the map and symbols alongside the source commit, compiler, assembler,
-LINK/FORLIB/monitor identities, complete commands, warnings, executable hash and
-startup transcript. Capture the same build's terminal behavior as a reference
-for the port. A map from a preexisting disk binary could be stale relative to
-the pinned source, so a fresh documented link is preferable.
-
-## Consequences for the Austin plan
-
-First try the supplied environment and capture a fresh map, symbols, build
-output and initialization transcript. Use those artifacts to resolve layout
-and compiler assumptions before adopting virtual addresses or startup repairs.
-The virtual-layout strategy remains a fallback if the reconstructed environment
-cannot be made to provide the required evidence; missing old artifacts need not
-block a playable port indefinitely.
-
-The repository's changelog also identifies a July 19, 2025 hit-link allocation
-repair from `knhshp*10` to `knhshp*18`. This adds explicit reconstruction history
-to the earlier observed queue difference. It supports treating this snapshot
-as maintained runnable reconstruction code rather than a pristine historical
-copy. No game-rule changes or licensing conclusions follow automatically.
-
-Local records: `logs/austin-repository-artifact-search.log`,
-`logs/austin-repository-disk-package.log`, and
-`logs/austin-repository-search-provenance.log`.
+For the separate emulator's connection sequence and the distinction from the
+Node host, see [running instructions](running.md#typescript-host-and-native-reference).
+The [Austin implementation ledger](austin-implementation.md) records how the
+port uses this evidence and which modern bindings remain.

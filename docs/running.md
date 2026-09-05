@@ -141,3 +141,26 @@ compiler scratch/literals still use documented host addresses. Original timing,
 all malformed inputs and exhaustive monitor/compiler equivalence remain
 unverified. See [Austin implementation](austin-implementation.md),
 [decisions](decisions.md) and [platform manuals](platform-manuals.md).
+
+## TypeScript host and native reference
+
+The TypeScript game and the preserved PDP-10 reference are separate programs.
+
+| | TypeScript port | Native reference |
+| --- | --- | --- |
+| Environment | Node.js 24 or newer | TOPS-10 under a PDP-10 emulator, with the reference build environment |
+| Launch | `npm start` | Separate emulator boot and TOPS-10 game launch; see [build evidence](austin-build-evidence.md) |
+| Connection | Default localhost port 2323; configurable with `--port` | Emulator terminal port configured separately; the recorded reference setup uses 2030 |
+| Login | DECWAR captain-name dialogue | TOPS-10 login before DECWAR |
+
+Port numbers do not select a source variant. `--variant` selects the TypeScript
+variant, and `--port` selects its listener. Updating files does not change the
+variant of an already running host. The two-variant examples above describe new
+launches, not the assignments of existing local processes.
+
+When the recorded native reference environment is running, connect to its terminal
+port, enter `login decwar`, then `r gam:decwar`. That reference account needs no
+password in the preserved setup. `npm start` does not boot this environment.
+The reference was run locally with SIMH using the upstream Docker-directory
+assets; Docker is not required for the TypeScript game. The preserved executable
+and map are evidence, not a complete bundled TOPS-10 installation.

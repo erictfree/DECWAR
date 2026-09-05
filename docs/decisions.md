@@ -1,5 +1,13 @@
 # Modernization decisions
 
+This record began with the CompuServe archive and retains development
+checkpoints. Unqualified source filenames and line numbers refer to that archive
+unless an entry identifies Austin. Earlier integration gaps and proposed policies
+describe their checkpoint, not the current release. See [current status](status.md),
+[architecture](architecture.md), [playable repairs](playable-decisions.md) and the
+[Austin implementation ledger](austin-implementation.md) for delivered behavior
+and remaining limits. Numbered decisions and source evidence remain preserved.
+
 Every entry distinguishes implementation structure from observable behavior.
 No entry authorizes a simplified gameplay release.
 

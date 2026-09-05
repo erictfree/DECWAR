@@ -1,5 +1,13 @@
 # Source study
 
+This record began with the CompuServe archive and retains development
+checkpoints. Unqualified source filenames and line numbers refer to that archive
+unless an entry identifies Austin. Earlier integration gaps and proposed policies
+describe their checkpoint, not the current release. See [current status](status.md),
+[architecture](architecture.md), [playable repairs](playable-decisions.md) and the
+[Austin implementation ledger](austin-implementation.md) for delivered behavior
+and remaining limits. Numbered decisions and source evidence remain preserved.
+
 This document records findings from the supplied files. It does not claim a
 complete audit. Source references below are physical line numbers in the
 unchanged archive; `source-index.md` links the files, and `source-manifest.json`

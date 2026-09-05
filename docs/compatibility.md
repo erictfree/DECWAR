@@ -1,6 +1,14 @@
 # Compatibility findings and unresolved dependencies
 
-All evidence is local to `legacy/compuserve/fortran 1978`. "Preserved" below means
+This record began with the CompuServe archive and retains development
+checkpoints. Unqualified source filenames and line numbers refer to that archive
+unless an entry identifies Austin. Earlier integration gaps and proposed policies
+describe their checkpoint, not the current release. See [current status](status.md),
+[architecture](architecture.md), [playable repairs](playable-decisions.md) and the
+[Austin implementation ledger](austin-implementation.md) for delivered behavior
+and remaining limits. Numbered decisions and source evidence remain preserved.
+
+The original findings below concern `legacy/compuserve/fortran 1978`. "Preserved" below means
 implemented in a focused module and tested from source-derived expectations;
 it does not mean compared against a running PDP-10 executable.
 

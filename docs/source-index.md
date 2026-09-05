@@ -1,4 +1,6 @@
-# Local source index
+# CompuServe source index
+
+This inventory covers the CompuServe archive. See [legacy provenance](../legacy/README.md) and [Austin implementation](austin-implementation.md) for the separate Austin source.
 
 Generated from 135 files (25,143 lines). This is a navigational inventory, not a claim of semantic review.
 

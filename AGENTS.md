@@ -18,10 +18,9 @@ The user explicitly authorized importing decwarorg/utexas's
 utexas23-reconstruction directory into legacy/utexas on 2026-09-05. Preserve
 that snapshot and its provenance in legacy/README.md and legacy/utexas-manifest.json.
 The user subsequently selected Austin reconstruction as the default and approved
-implementation of docs/austin-default-plan.md. Implement Austin and retain an
-explicit CompuServe variant. Preserve the running CompuServe behavior while
-introducing variant support; switch the default only after Austin is playable
-and verified. Source variant and playable/diagnostic mode are separate choices.
+implementation of docs/austin-default-plan.md. Austin is now the verified
+playable launch default; retain the explicit CompuServe variant. Preserve
+variant isolation and existing running galaxies. Source variant and playable/diagnostic mode are separate choices.
 
 On 2026-09-05 the user authorized CPU/compiler manuals solely to resolve
 PDP-10 arithmetic and FORTRAN runtime/compiler behavior. This does not authorize
@@ -73,3 +72,8 @@ Do not ship a simplified game under a compatibility claim. Do not substitute
 JavaScript floating point for PDP-10 floating point without an explicit decision.
 Use original text, including spelling, whitespace, control characters, and
 apparently outdated version banners. Generated data is rebuilt by `npm run audit`.
+
+Follow docs/documentation-standard.md for public documentation. Keep current
+guides consistent with delivered behavior; preserve prior checkpoints in history
+and WORK_LOG.md. The current priority is documentation review before further
+implementation. Do not treat historical prospective text as a fresh work queue.

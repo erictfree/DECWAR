@@ -33,6 +33,20 @@ All five repairs above apply to both source variants: Austin retains the relevan
 POINTS, TRACTR, LSTSCN and GETCMD paths. Additional Austin source differences and
 monitor bindings are recorded in [Austin implementation](austin-implementation.md).
 
+## Source and implementation trace
+
+The repairs are selected in
+[playable-runtime-policy.ts](../test/fixtures/playable-runtime-policy.ts) and
+connected by the production session factory. Physical source locations below
+identify the affected routines; the decision table above identifies their triggers.
+
+| Routine | CompuServe | Austin combined source |
+| --- | --- | --- |
+| POINTS | [POINTS.FOR](../legacy/compuserve/fortran%201978/POINTS.FOR#L23) | [DECWAR.FOR, line 2893](../legacy/utexas/DECWAR.FOR#L2893) |
+| TRACTR | [TRACTR.FOR](../legacy/compuserve/fortran%201978/TRACTR.FOR#L27) | [DECWAR.FOR, line 4432](../legacy/utexas/DECWAR.FOR#L4432) |
+| LSTSCN | [LSTSCN.FOR](../legacy/compuserve/fortran%201978/LSTSCN.FOR#L24) | [DECWAR.FOR, line 1519](../legacy/utexas/DECWAR.FOR#L1519) |
+| GETCMD | [GETCMD.FOR](../legacy/compuserve/fortran%201978/GETCMD.FOR#L24) | [DECWAR.FOR, line 1184](../legacy/utexas/DECWAR.FOR#L1184) |
+
 ## Validation
 
 Playable lifecycle checks cover zero-turn/empty-team points, nonzero final score

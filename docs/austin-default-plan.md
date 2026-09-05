@@ -5,7 +5,10 @@ Date: September 5, 2026. Status: implemented; Austin is the launch default. Veri
 Review of the full upstream repository expanded the available evidence:
 [build evidence](austin-build-evidence.md) identifies a supplied emulator/build
 environment, map-generation support and msc/decwar.ini outside the imported
-subtree. Reproduce that build before falling back to a virtual layout.
+subtree. That build has since been reproduced and its evidence preserved. The prospective
+language below records the migration plan; it is not a new work queue. See
+[current status](status.md) and the [implementation ledger](austin-implementation.md)
+for completed work and remaining fidelity limits.
 
 ## Intended result
 
