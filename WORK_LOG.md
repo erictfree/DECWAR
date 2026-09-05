@@ -1584,3 +1584,53 @@ port/tool attribution remain separate.
   archive, native state or server changes. Goal remains active: remaining report
   output, numeric/compiler boundaries, persistence failures, node text, other
   aliases and deeper conformance work still require review.
+
+### 2026-09-05 — Specification reports and exact PDF spacing
+
+- Prior goal turn classified as progress: b89f5ac published radio output,
+  CompuServe speech and exclusion rules. Continued the active specification goal.
+- Added TERM-15–18 from Austin DECWAR.FOR STATUS, DAMAGE, TIME and USERS plus
+  WARMAC's field/identity/duration primitives. Defined default field order,
+  prefixes, widths, trailing spaces and line endings; selected zero/negative
+  device damage; radio-damage precedence; six identity fields in every mode;
+  separate clock sampling and the arithmetic two-character duration formatter.
+  Recorded STATUS's synthetic-token replacement without changing its retained
+  token count, numeric values or raw-input positions. C-2 now explicitly places
+  the CompuServe USERS divider before slot 6 instead of Austin slot 10.
+- Added TERM-19–21 from LSTOBJ, LSTSUM and LSTOUT: exact detail and summary rows,
+  grouping/order, range-text precedence, discovery updates, caller counter
+  resets and separate target totals. Kept source counters rather than replacing
+  the Romulan count with a semantic singleton. Valid-object recipes do not
+  claim consistent world snapshots or repair concurrently invalid records.
+- Added U-LIST-OUTPUT for selected output paths that are not established:
+  zero-valued indirect diagnostic text, noncombat object kinds falling through
+  to the Romulan row body with retained flags, and concurrent invalid planet
+  types. The argument address check in OUT does not guarantee that a zero
+  indirect message value emits an empty string.
+- Added nineteen source-derived report scenarios (125 total), including exact
+  STATUS/DAMAGES/TIME/USERS bytes, 100-hour duration output, LIST field padding,
+  summary counter reset, Romulan count versus target total, and discovery effects.
+  These are source derivations; no native comparison was claimed or executed.
+- Initial PDF build rejected three overflowing STATUS table labels. Preserved
+  the diagnostics in logs/spec-reports-build-initial.log and
+  logs/spec-reports-layout-initial.log, then split the prefix and value tables.
+- Visual review found that the builder's long-inline-code LaTeX override
+  collapsed repeated spaces. Replaced ordinary spaces in that override with
+  explicit fixed-width spaces and legal wrap points. Canonical Markdown/HTML
+  text is unchanged. Widened the conformance expected-result column to balance
+  it with conditions. Documented presentation wrapping in docs/spec/BUILD.md.
+- Verified the spacing fix against actual PDF glyph positions: EX-LIST-04's
+  five-space gap measured 26.1518 pt at 5.2304 pt per monospaced character,
+  exactly five spaces. Evidence is logs/spec-reports-spacing-check.log and
+  tmp/pdfs/spec-reports/spacing-bbox.html. Rendered and inspected report tables,
+  scenarios and representative earlier scenario pages; final book is 92 pages.
+- Validation passed: 14 chapters/appendices, 369 local links, 324 named fragments,
+  125 parsed scenario rows, source audit, TypeScript typecheck and whitespace.
+  Clause scan: 146 defined identifiers, zero unmatched references. Logs include
+  logs/spec-build.log, logs/spec-check.log, logs/spec-audit-check.log,
+  logs/spec-reports-typecheck.log, logs/spec-clause-reference-review.log and
+  logs/spec-reports-spacing-render.log. No gameplay tests were needed for these
+  documentation/build changes; no runtime, archives, native state or servers changed.
+- Goal remains active. Remaining work includes command/selection diagnostics,
+  finite arithmetic and compiler evaluation, unresolved aliases and host
+  boundaries, persistence failures, node-derived speech and deeper conformance.

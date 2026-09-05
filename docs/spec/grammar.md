@@ -254,6 +254,13 @@ in order, stopping at the first nonalphanumeric. An unknown item emits a syntax
 diagnostic but processing continues with later items. Item matching is checked
 in the order shown in the production, not by a global unique-match test.
 
+The default report replaces the token text and categories beginning at its
+entry token with the seven synthetic alphanumeric selectors C, L, T, E, D, S
+and R, followed by an end-of-line category. It leaves the recorded token count,
+numeric values and raw-input positions unchanged. These are changes to the
+current parsed command, not input characters submitted by the captain. The
+observable field order and rendering are defined in TERM-15.
+
 DAMAGES first checks whether any device has positive damage. If none does, it
 reports all devices functional without parsing selectors. Otherwise an initial
 alphanumeric selector starts specific-device mode: process alphanumeric tokens

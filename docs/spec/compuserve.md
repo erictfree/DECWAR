@@ -20,11 +20,15 @@ slots 6–10 are Cobra, Demon, Hawk, Jackal and Wolf. Name resolution and iterat
 use this order. Ordinary radio groups use the corresponding five-member sides;
 autonomous speech retains different masks under C-8. Galaxy dimensions, ten base
 slots per side and maximum range 10 are unchanged.
+USERS therefore places TERM-18's faction divider before slot 6 rather than slot
+10. It retains all six identity fields in every verbosity mode.
 
 **Evidence:** [C PARAM](../../legacy/compuserve/fortran%201978/PARAM.FOR#L25),
 [C names](../../legacy/compuserve/fortran%201978/BLKDAT.FOR#L84),
 [C SETUP](../../legacy/compuserve/fortran%201978/SETUP.FOR#L298),
-[Austin PARAM](../../legacy/utexas/PARAM.FOR#L5).
+[Austin PARAM](../../legacy/utexas/PARAM.FOR#L5),
+[C USERS](../../legacy/compuserve/fortran%201978/USERS.FOR#L26),
+[C identity formatter](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L2594).
 
 ## C-3 — Initial dialogue (amends SESSION-1 and SESSION-3)
 

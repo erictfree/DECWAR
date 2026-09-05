@@ -241,3 +241,54 @@ the source's ordinary output buffer behavior. Quoted strings use JSON escapes.
 
 **Evidence:** [radio output recipes](terminal.md#term-14--radio-commands-and-delivered-messages).
 These cases do not resolve U-ROM-GAG or malformed message-buffer contents.
+
+## CONF-11 — Status and identity report scenarios
+
+These source-derived cases assume no intervening activity, an output cursor at
+the left margin after a blank line, and no queued notifications. Expected strings
+describe the named report alone, excluding later command prompts. They use JSON
+escapes; spaces, including trailing spaces, are significant.
+
+| ID | Conditions and input | Expected observation |
+| --- | --- | --- |
+| EX-STATUS-02 | Short, undocked Green actor at 12–34, turn count 0, 10 torpedoes, engine energy 50000, hull damage 0, shields raised at strength 1000, working radio on; STATUS | Exactly `"SD0 G 12-34 T10 E5000 D0 SH+100 ROn \r\n"`. |
+| EX-STATUS-03 | Medium, shields lowered at strength 1000; STATUS SHIELDS | Exactly `"Shlds  -100.0% 2500.0 units\r\n"`; the reserve remains positive. |
+| EX-STATUS-04 | Short actor at 12–34, relative-output preference; STATUS LOCATION LOCATION | Exactly `"12-34 12-34 \r\n"`; do not change the coordinate preference. |
+| EX-STATUS-05 | Short, radio disabled and radio damage 3000; STATUS RADIO | Exactly `"Rdamaged \r\n"`, regardless of the disabled state. |
+| EX-DAMAGE-02 | Every device has zero or negative damage; DAMAGES UNKNOWN | Exactly `"All devices functional.\r\n"`; no selector diagnostic. |
+| EX-DAMAGE-03 | Short, warp damage 10 and shield damage 0; DAMAGES SH | Exactly `"SH     0\r\n"`; no general heading or warp row. |
+| EX-DAMAGE-04 | Medium, warp damage 10 and shield damage 0; DAMAGES SH | Exactly `"Shields     0.0\r\n"`; selected zero damage is shown. |
+| EX-TIME-02 | Pregame; elapsed world 3600001 ms, session CPU 999 ms, host time of day 3723000 ms; TIME | Exactly `"\r\nGame's elapsed time:  01:00:00\r\nJob's total run time: 00:00:00\r\nCurrent time of day:  01:02:03\r\n"`; omit ship fields. |
+| EX-TIME-03 | Duration formatter receives 360000000 ms | Exactly `":0:00:00"`; this is 100 elapsed hours, not a wrapped clock time or an expanded decimal field. |
+| EX-USERS-02 | Short, no occupied roster slots; USERS | Exactly `"----\r\n"`; the faction divider is emitted despite an empty roster. |
+
+**Evidence:** [STATUS](terminal.md#term-15--status-fields),
+[DAMAGES](terminal.md#term-16--device-damage-reports),
+[TIME](terminal.md#term-17--time-reports-and-duration-fields) and
+[USERS](terminal.md#term-18--users-identity-rows).
+These expectations have not been executed against the native image.
+
+## CONF-12 — LIST-family presentation scenarios
+
+These source-derived cases exercise the specified row or grouped-output
+operation with supplied valid selection state. They do not assert that every
+combination is produced by one particular command spelling. Assume absolute
+coordinate output, no intervening activity, and the same initial cursor condition
+as CONF-11. Exclude subsequent prompts.
+
+| ID | Conditions and input | Expected observation |
+| --- | --- | --- |
+| EX-LIST-02 | Medium; enemy Romulan detail flagged out of range, command LIST | Exactly `"*?? out of range\r\n"`; no coordinates or energy. |
+| EX-LIST-03 | Medium; friendly Federation base detail at 12–34, strength 1000, in range | Exactly `" <> @12-34   100.0%\r\n"`. |
+| EX-LIST-04 | Short; neutral planet detail at 12–34, one build | Exactly `"  @ 12-34     1\r\n"`; no build suffix. |
+| EX-LIST-05 | Long; enemy Empire planet detail at 12–34, one build, command LIST | Exactly `"*Emp planet  @12-34     1 build\r\n"`. |
+| EX-LIST-06 | Short summary, count 2, category Federation ship, known and whole-game flags | Exactly `"  2 known Federation ships\r\n"`; reset the supplied count to zero. |
+| EX-LIST-07 | Medium summary, count 1, category Romulan, specified-range and whole-game flags | Exactly `"  1 Romulan in game\r\n"`; whole-game suffix takes precedence. |
+| EX-LIST-08 | Short grouped pass with Romulan selection counter 2 and summary flag only; all other selection counters zero; command SUMMARY | Exactly `"  2 Romulans\r\n"`; reset the Romulan counter. Do not clamp the displayed count to one. |
+| EX-LIST-09 | Same selected Romulan state, but command TARGETS | Exactly `"  2 Romulans\r\n\r\n  1 target\r\n"`; the separate target total increases once. |
+| EX-LIST-10 | Grouped detailed base row admitted without the privilege-only bit; viewer has not discovered it | Emit the row, then add the viewing team's discovery bit. A summary-only flag does not add that bit. |
+
+**Evidence:** [detail rows](terminal.md#term-19--list-family-detail-rows),
+[summary rows](terminal.md#term-20--list-family-summary-rows) and
+[grouped output](terminal.md#term-21--list-family-grouped-assembly).
+These cases are source-path derivations, not native transcript comparisons.

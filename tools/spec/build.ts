@@ -87,7 +87,9 @@ for (const name of entries) {
         widths[i] = Math.max(widths[i], Math.sqrt(length) * 3);
       }
       const total = widths.reduce((a: number, b: number) => a + b, 0);
-      const proportions = columns.length === 3 ? [0.24, 0.52, 0.24] : widths.map((w: number) => Math.floor(100 * w / total) / 100);
+      const proportions = columns.length === 3
+        ? (name === 'conformance.md' ? [0.24, 0.38, 0.38] : [0.24, 0.52, 0.24])
+        : widths.map((w: number) => Math.floor(100 * w / total) / 100);
       proportions[proportions.length - 1] = 1 - proportions.slice(0, -1).reduce((a: number, b: number) => a + b, 0);
       columns.forEach((column: any, i: number) => { column[1] = { t: 'ColWidth', c: proportions[i] }; });
     }
@@ -162,12 +164,15 @@ writeFileSync(coverTex, `\\begin{titlepage}\n\\centering\n\\vspace*{1.4in}\n{\\H
 const texDoc = structuredClone(combined); delete texDoc.meta.title; delete texDoc.meta.author; delete texDoc.meta.date; delete texDoc.meta.subtitle;
 texDoc.meta['title-meta'] = strings(book.title);
 texDoc.meta['author-meta'] = strings(book.authors.join('; '));
-// Pandoc protects spaces inside inline code. Long semantic formulas need legal
-// line breaks at operators without changing their visible text or HTML source.
+// Pandoc protects spaces inside inline code. Our long-code override must also
+// preserve every space, including repeated/leading/trailing output padding.
+// Explicit fixed spaces survive TeX tokenization; allow breaks after them and
+// operators without changing the canonical text or the HTML/Markdown editions.
 walk(texDoc.blocks, node => {
   if (node.t !== 'Code' || node.c[1].length < 20) return;
   const value = Array.from(node.c[1] as string).map(char =>
-    escapeTex(char) + (/[×−+\/,=]/.test(char) ? '\\allowbreak{}' : '')).join('');
+    char === ' ' ? '\\hspace*{\\fontdimen2\\font}\\allowbreak{}' :
+      escapeTex(char) + (/[×−+\/,=]/.test(char) ? '\\allowbreak{}' : '')).join('');
   node.t = 'RawInline'; node.c = ['latex', '\\texttt{' + value + '}'];
 });
 // Keep a short evidence paragraph with the preceding prose instead of leaving

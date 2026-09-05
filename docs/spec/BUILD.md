@@ -40,6 +40,9 @@ Table columns and verbatim records wrap to page width. Source evidence stays
 with its preceding paragraph. The final TeX pass fails the build for overflowing
 boxes, missing characters or unresolved references. The same document tree generates standalone
 HTML with embedded styling and a Markdown edition with explicit link anchors.
+Long inline code uses explicit fixed spaces in LaTeX so repeated, leading and
+trailing spaces in terminal examples survive typesetting. Wrapping is presentation;
+it does not introduce a newline into the represented character sequence.
 
 The LaTeX backend follows the documented
 [Pandoc PDF workflow](https://pandoc.org/MANUAL.html#creating-a-pdf). This tooling

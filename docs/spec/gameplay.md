@@ -266,8 +266,9 @@ The specific-coordinate and named-object paths can output before this final pass
 Object detail flags opposing-side entries with `*` except in TARGETS, which
 omits that marker. In-range ship detail includes signed shield strength; base
 detail includes strength when not out of range; planet detail includes nonzero
-build count. The full output assembly and unusual alias/duplicate conditions
-remain open; these selection rules are not a complete LIST output specification.
+build count. TERM-19 through TERM-21 define detail rows, summaries and grouped
+assembly. Unusual alias/duplicate conditions and invalid concurrent record/type
+combinations remain outside the established domain.
 
 **Evidence:** [LSTFLG](../../legacy/utexas/DECWAR.FOR#L1750),
 [LSTUPD](../../legacy/utexas/DECWAR.FOR#L1922),
@@ -279,6 +280,7 @@ STATUS reports the acting ship's state under GRAM-10, including absolute locatio
 regardless of its coordinate-output default. Shield status encodes mode through
 the sign of strength. Radio status reports damage before considering the radio-off
 set. DAMAGED-device reports preserve device order and selected output verbosity.
+TERM-15 and TERM-16 define their exact field and line assembly.
 
 USERS iterates the whole roster, emits the faction divider at slot 10, and reports
 occupied ships using the six-field identity presentation in all verbosity modes.
@@ -286,6 +288,7 @@ Long output adds headings. Privilege adds location. Do not assume short output
 uses the commented two-field branch. TIME reports elapsed world time, and when
 aboard, elapsed ship time and CPU time since commissioning, then session CPU time
 and current time of day. Clock/account identifiers are explicit host inputs.
+TERM-17 defines duration formatting and TERM-18 defines identity rows.
 
 SET changes the selected preference immediately. ROMOPT enables future Romulan
 activity; ENDFLG invokes world termination; BHREMV clears all black-hole cells
