@@ -8,8 +8,8 @@ attribution and license notices.
 ## Compuserve
 
 `compuserve/fortran 1978/` contains the 135-file archive originally supplied in
-`old_source/fortran 1978/`. The user requested the directory name `compuserve`;
-the move preserves every file byte and the existing internal directory layout.
+`old_source/fortran 1978/`. It now lives under `compuserve`, with every file
+byte and the original internal directory layout preserved.
 This defines the TypeScript port's CompuServe variant. Its integrity
 is checked by `npm run audit:check` against `docs/source-manifest.json`.
 Original attribution and GPL notices remain in the archive.
@@ -18,7 +18,7 @@ Original attribution and GPL notices remain in the archive.
 
 `utexas/` is an unmodified copy of the contents of
 [`utexas23-reconstruction`](https://github.com/decwarorg/utexas/tree/f78f2ec733999617e4281ba3ed967bff8cd5d8f8/utexas23-reconstruction)
-from `decwarorg/utexas`, imported at the user's request on September 5, 2026.
+from `decwarorg/utexas`, imported on September 5, 2026.
 
 - Commit: `f78f2ec733999617e4281ba3ed967bff8cd5d8f8`.
 - Files: 39, preserving upstream subdirectories and file bytes.
@@ -35,8 +35,8 @@ tables and the local reference build are described in
 
 ## Locally rebuilt Austin reference
 
-At the user's request, a fresh build of the pinned Austin source was completed
-on September 5, 2026 using the repository's bundled emulator and TOPS-10 disks.
+The pinned Austin source was rebuilt on September 5, 2026 using the
+repository's bundled emulator and TOPS-10 disks.
 The original `utexas/` files remain unchanged; outputs are preserved separately
 in [utexas-reference/f78f2ec](utexas-reference/f78f2ec/README.md).
 

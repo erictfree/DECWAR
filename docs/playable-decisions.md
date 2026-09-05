@@ -1,8 +1,8 @@
 # Playable profile
 
-On September 5, 2026 the user asked to set aside unresolved historical parity
-and get a functioning game. `npm start` and `npm run dev:telnet` now select this
-profile. `--strict` retains the earlier historical diagnostic behavior.
+The playable profile provides a functioning game while work on historical
+parity continues. `npm start` and `npm run dev:telnet` select this profile.
+`--strict` retains the historical diagnostic behavior.
 
 Both source archives remain unchanged; each supplies its own game rules, commands,
 messages, maps, combat, movement, Romulan behavior and scoring formulas. This

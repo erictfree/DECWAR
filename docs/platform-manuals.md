@@ -1,10 +1,11 @@
-# Authorized CPU and compiler evidence
+# CPU and compiler evidence
 
-The user authorized **CPU/compiler manuals only** on 2026-09-05. All DECWAR
-rules, source control flow, random sequences and output still come exclusively
-from `legacy/compuserve`. These manuals explain the platform beneath that code.
+External references are limited to **CPU/compiler manuals**. DECWAR rules,
+source control flow, random sequences and output come from each variant's
+archive in `legacy/compuserve` or `legacy/utexas`. These manuals explain the
+platform beneath that code.
 
-The supplied `DECWAR.MAP:1-3` identifies a `/KI` executable linked on
+The supplied CompuServe `DECWAR.MAP:1-3` identifies a `/KI` executable linked on
 19-May-1982; routine entries identify FORTRAN `/KI`. It does not identify the
 compiler version or provide the compiler-generated instruction stream. Thus a
 documented FORTRAN V5 rule is evidence for a named compatibility policy, not

@@ -1,11 +1,11 @@
 # Austin repository: build and reference-execution evidence
 
-Reviewed September 5, 2026 after the user authorized searching the full
-`decwarorg/utexas` repository, beyond the previously imported source subtree.
-No upstream scripts were executed and no running game was changed.
+The full `decwarorg/utexas` repository was reviewed on September 5, 2026,
+beyond the previously imported source subtree. That initial review did not
+execute upstream scripts or change a running game.
 
-Execution follow-up: the user subsequently requested a subagent run this build.
-It succeeded on September 5, 2026 using a native build of the bundled simulator.
+A subsequent local build succeeded on September 5, 2026 using a native build
+of the bundled simulator.
 The fresh map, symbols, executable and successful Yorktown/Wolf session evidence
 are preserved in [the Austin reference build](../legacy/utexas-reference/f78f2ec/README.md).
 The read-only findings below describe the earlier search; statements about not

@@ -5,8 +5,8 @@
 documented repairs for undefined final-scoring, argument and control-flow paths.
 Normal quit, death, disconnect, ship reuse and game-over are exercised end to end.
 Exact original-executable parity and complete source understanding remain unfinished.
-`--strict` retains the earlier historical diagnostic profile. The user explicitly
-prioritized a functioning game on September 5, 2026; see playable-decisions.md.
+`--strict` retains the historical diagnostic profile; see playable-decisions.md
+for the repairs used by the functioning game.
 
 Current verification: `npm run check` passes the archive/generated-data check,
 strict TypeScript checking, and all 4563 behavioral tests. Development tools are
@@ -24,7 +24,7 @@ network regressions and the installed Telnet client; full check:
 logs/build-interrupt-full-check.log. Existing server processes require restart.
 
 Legacy sources now live under `legacy/`: the original archive is in
-`compuserve/fortran 1978`, and the user-requested UT Austin reconstruction is
+`compuserve/fortran 1978`, and the UT Austin reconstruction is
 in `utexas` with a pinned commit, file manifest and upstream license. The port and source audit now select and validate each variant independently.
 
 ## Evidence levels
@@ -179,7 +179,7 @@ work and retained command outputs are recorded in ../WORK_LOG.md and ../logs/.
 
 ## Work sequence
 
-The user approved prioritizing executable milestones. The fidelity contract and
+Implementation proceeds through executable milestones. The fidelity contract and
 release gates below remain in force. These are planned milestones, not completed
 capabilities; a development harness with declared policies is not a parity release.
 
@@ -335,13 +335,13 @@ startup and main TYPE calls. Full check passes 4,367 tests.
 End-to-end fresh-game QUIT exposes final POINTS entering an uninitialized DO
 continuation and dividing by zero ship/turn counts. Tests preserve these cases;
 no invented zero averages or suppressed runtime diagnostics were added.
-The user authorized CPU/compiler manuals only to resolve these platform
-semantics. DECWAR logic remains sourced exclusively from legacy/compuserve.
+CPU/compiler manuals are used only to resolve these platform semantics. At this
+stage, DECWAR logic was sourced exclusively from legacy/compuserve.
 
 
 ## D-148–D-149: documented machine arithmetic and DO policy
 
-User-authorized CPU/compiler references are recorded in platform-manuals.md and
+CPU/compiler references are recorded in platform-manuals.md and
 platform-manuals.json. No external DECWAR implementation evidence was used.
 RAN now has a real 36-bit floating-word codec for its FSC domain. Session PWR
 executes the original assembly multiplication tree with normalized FMPR rounding,

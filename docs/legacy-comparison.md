@@ -2,7 +2,7 @@
 
 Source review: September 5, 2026. No game code or archive files changed.
 
-Scope update: subsequent user-authorized review of the full upstream repository
+Scope update: subsequent review of the full upstream repository
 found the missing startup asset at msc/decwar.ini and an emulator/build workflow
 outside the imported 39-file subtree. See [Austin build evidence](austin-build-evidence.md).
 Statements below about missing files describe the imported subtree, not the

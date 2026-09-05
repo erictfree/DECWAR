@@ -2,7 +2,7 @@
 
 Date: September 5, 2026. Status: implemented; Austin is the launch default. Verification and remaining parity limits are recorded in austin-implementation.md and WORK_LOG.md.
 
-Updated after the user authorized searching the full upstream repository:
+Review of the full upstream repository expanded the available evidence:
 [build evidence](austin-build-evidence.md) identifies a supplied emulator/build
 environment, map-generation support and msc/decwar.ini outside the imported
 subtree. Reproduce that build before falling back to a virtual layout.
@@ -15,7 +15,7 @@ and Austin's source-backed commands, output, and behavior. CompuServe remains
 an explicitly selectable compatibility variant using the existing ten-player
 baseline. Both use the same engine where their source behavior agrees.
 
-The user selected Austin as the default. The implementation now provides both variants; pre-existing running galaxies and archive files are unchanged. The milestones below retain the approved plan, with results in the implementation ledger.
+Austin is the default. The implementation provides both variants; pre-existing running galaxies and archive files are unchanged. The milestones below retain the approved plan, with results in the implementation ledger.
 “Austin reconstruction” describes the target accurately; it does not claim
 verified fidelity to an untouched historical release.
 

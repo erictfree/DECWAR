@@ -7,7 +7,7 @@ No entry authorizes a simplified gameplay release.
 
 Use DECCMP.CMD and CAN1.CMD to identify the build. Preserve modifications
 already present, the displayed banner, spelling, and apparent defects. Reason:
-the user designated the supplied code as truth; reconstructing a hypothetical
+the supplied code defines the game's behavior; reconstructing a hypothetical
 pristine 1978 release would introduce another authority. An older behavior may
 be documented as an alternative only when the archive itself establishes it.
 
@@ -3954,7 +3954,7 @@ entry execute through the shared runtime; TYPE callers pass actual argument
 addresses rather than literal values mistaken for addresses. The startup banner
 continues to display the archived text even though VERSIO is assigned 24.
 
-The user authorized CPU/compiler manuals only. References, editions and page
+External references are limited to CPU/compiler manuals. Editions and page
 numbers are recorded in platform-manuals.md. The archive alone supplies the game.
 Where assembly explicitly selects an instruction (RAN FSC, PWR FMPR and ANUM
 FLTR/FDV/FAD/FMPRI), implement that instruction's documented supported domain.

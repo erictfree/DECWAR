@@ -1359,3 +1359,13 @@ pushing under the user's instruction to publish ready changes to main.
 Added the user-provided https://decwar.org link beside the README attribution
 for readers interested in the overall DECWAR effort. Documentation-only update;
 no external implementation research or game changes. Whitespace check passed.
+
+## Public documentation voice
+
+Replaced conversational approval/request narration in public documentation with
+direct project descriptions, dated provenance and technical policy. This covers
+the legacy overview, licensing explanation, playable profile, source comparison,
+build evidence, plan/status and platform/modernization notes. Credit and license
+terms remain intact. Internal instructions and historical work-log records retain
+their operational context. Reviewed the documentation diff and whitespace; no
+runtime code, generated data or archived source changes.

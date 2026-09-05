@@ -6,9 +6,8 @@ data were initially ported from the supplied CompuServe archive. The port now
 also implements the UT Austin reconstruction as its default variant. Selecting
 Austin does not change the license of the combined codebase.
 
-At Eric Freeman's request, original project contributions are also offered
-under the [MIT license](LICENSE-MIT), to the extent their copyright holders
-control those rights. This permission covers our original contributions, not
+Original project contributions are also offered under the [MIT license](LICENSE-MIT),
+to the extent their copyright holders control those rights. This permission covers our original contributions, not
 third-party expression incorporated into them. It does not make every TypeScript
 file, or the combined game, available under MIT alone. Reusing a mixed or derived
 file still requires respecting the licenses of its underlying material.
