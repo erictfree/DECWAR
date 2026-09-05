@@ -27,78 +27,78 @@ Examples identify source-derived scenarios, not executed native comparisons. Mac
 
 | Slot | Source name | Grammar | Detailed semantics | Examples |
 | --- | --- | --- | --- | --- |
-| 1 | BASES | GRAM-11 | draft: GAME-LIST | pending |
-| 2 | BUILD | GRAM-4 | draft: GAME-BUILD | pending |
-| 3 | CAPTURE | GRAM-4 | draft: GAME-CAPTURE | pending |
-| 4 | DAMAGES | GRAM-10 | draft: GAME-REPORTS | pending |
-| 5 | DOCK | GRAM-7 | draft: GAME-DOCK | pending |
-| 6 | ENERGY | GRAM-7 | draft: GAME-ENERGY | pending |
-| 7 | GRIPE | GRAM-12 | pending | pending |
-| 8 | HELP | GRAM-12 | pending | pending |
-| 9 | IMPULSE | GRAM-4 | draft: GAME-MOVE | pending |
-| 10 | LIST | GRAM-11 | draft: GAME-LIST | pending |
-| 11 | MOVE | GRAM-4 | draft: GAME-MOVE | pending |
-| 12 | NEWS | GRAM-12 | pending | pending |
-| 13 | PHASERS | GRAM-5 | draft: GAME-PHASERS | pending |
-| 14 | PLANETS | GRAM-11 | draft: GAME-LIST | pending |
-| 15 | POINTS | GRAM-10 | draft: GAME-POINTS | pending |
-| 16 | QUIT | GRAM-9 | pending | pending |
-| 17 | RADIO | GRAM-8 | draft: GAME-RADIO | pending |
+| 1 | BASES | GRAM-11 | draft: GAME-LIST | EX-BASES-01 |
+| 2 | BUILD | GRAM-4 | draft: GAME-BUILD | EX-BUILD-01 |
+| 3 | CAPTURE | GRAM-4 | draft: GAME-CAPTURE | EX-CAPTURE-01 |
+| 4 | DAMAGES | GRAM-10 | draft: GAME-REPORTS | EX-DAMAGE-01 |
+| 5 | DOCK | GRAM-7 | draft: GAME-DOCK | EX-DOCK-01 |
+| 6 | ENERGY | GRAM-7 | draft: GAME-ENERGY | EX-ENERGY-01 |
+| 7 | GRIPE | GRAM-12 | draft: GAME-GRIPE | EX-GRIPE-01 |
+| 8 | HELP | GRAM-12 | draft: GAME-HELP | EX-HELP-01/02 |
+| 9 | IMPULSE | GRAM-4 | draft: GAME-MOVE | EX-IMPULSE-01 |
+| 10 | LIST | GRAM-11 | draft: GAME-LIST | EX-LIST-01 |
+| 11 | MOVE | GRAM-4 | draft: GAME-MOVE | EX-MOVE-01 |
+| 12 | NEWS | GRAM-12 | draft: GAME-NEWS | EX-NEWS-01 |
+| 13 | PHASERS | GRAM-5 | draft: GAME-PHASERS | EX-PHASER-01 |
+| 14 | PLANETS | GRAM-11 | draft: GAME-LIST | EX-PLANETS-01 |
+| 15 | POINTS | GRAM-10 | draft: GAME-POINTS | EX-POINTS-01 |
+| 16 | QUIT | GRAM-9 | draft: SESSION-4 | EX-QUIT-01 |
+| 17 | RADIO | GRAM-8 | draft: GAME-RADIO | EX-RADIO-02 |
 | 18 | REPAIR | GRAM-7 | draft: GAME-REPAIR | EX-REPAIR-01 |
 | 19 | SCAN | GRAM-6 | draft: GAME-SCAN | EX-SCAN-01 |
-| 20 | SET | GRAM-8 | draft: GAME-REPORTS | pending |
+| 20 | SET | GRAM-8 | draft: GAME-REPORTS | EX-SET-01 |
 | 21 | SHIELDS | GRAM-7 | draft: GAME-SHIELD | EX-SHIELD-01–04 |
-| 22 | SRSCAN | GRAM-6 | draft: GAME-SCAN | pending |
-| 23 | STATUS | GRAM-10 | draft: GAME-REPORTS | pending |
-| 24 | SUMMARY | GRAM-11 | draft: GAME-LIST | pending |
-| 25 | TARGETS | GRAM-11 | draft: GAME-LIST | pending |
-| 26 | TELL | GRAM-12 | draft: GAME-RADIO | pending |
-| 27 | TIME | GRAM-10 | draft: GAME-REPORTS | pending |
-| 28 | TORPEDOS | GRAM-5 | draft: GAME-TORPEDO | pending |
-| 29 | TRACTOR | GRAM-7 | draft: GAME-TRACTOR | pending |
-| 30 | TYPE | GRAM-10 | pending | pending |
-| 31 | USERS | GRAM-10 | draft: GAME-REPORTS | pending |
-| 32 | *DEBUG | GRAM-13 | pending | pending |
-| 33 | *PASSWORD | GRAM-13 | pending | pending |
+| 22 | SRSCAN | GRAM-6 | draft: GAME-SCAN | EX-SRSCAN-01 |
+| 23 | STATUS | GRAM-10 | draft: GAME-REPORTS | EX-STATUS-01 |
+| 24 | SUMMARY | GRAM-11 | draft: GAME-LIST | EX-SUMMARY-01 |
+| 25 | TARGETS | GRAM-11 | draft: GAME-LIST | EX-TARGETS-01 |
+| 26 | TELL | GRAM-12 | draft: GAME-RADIO | EX-RADIO-01 |
+| 27 | TIME | GRAM-10 | draft: GAME-REPORTS | EX-TIME-01 |
+| 28 | TORPEDOS | GRAM-5 | draft: GAME-TORPEDO | EX-TORPEDO-01 |
+| 29 | TRACTOR | GRAM-7 | draft: GAME-TRACTOR | EX-TRACTOR-01 |
+| 30 | TYPE | GRAM-10 | draft: GAME-TYPE | EX-TYPE-01 |
+| 31 | USERS | GRAM-10 | draft: GAME-REPORTS | EX-USERS-01 |
+| 32 | *DEBUG | GRAM-13 | draft: SESSION-6 | EX-DEBUG-01 |
+| 33 | *PASSWORD | GRAM-13 | draft: SESSION-6 | EX-PRIV-01 |
 
 ## Pregame coverage
 
 The FORTRAN table contains 16 slots, of which 14 are named. Slots 2 and 5 are
-blank and unmatchable. GRAM-2 records dispatch; command-specific pregame effects
-still require review. The initial HELP/PREGAME/empty dialogue is separate.
+blank and unmatchable. GRAM-2 records dispatch; SESSION-6 defines the pregame call paths and
+identifies missing-argument and no-ship limitations. The initial HELP/PREGAME/empty dialogue is separate.
 
 | Slot | Source name | Status |
 | --- | --- | --- |
-| 1 | ACTIVATE | Arguments/effects pending |
-| 2 | (blank) | Unmatchable; no invented command |
-| 3 | GRIPE | Arguments/effects pending |
-| 4 | HELP | Arguments/effects pending |
-| 5 | (blank) | Unmatchable; no invented command |
-| 6 | NEWS | Arguments/effects pending |
-| 7 | POINTS | Arguments/effects pending |
-| 8 | QUIT | Arguments/effects pending |
-| 9 | SET | Arguments/effects pending |
-| 10 | SUMMARY | Arguments/effects pending |
-| 11 | TIME | Arguments/effects pending |
-| 12 | TYPE | Arguments/effects pending |
-| 13 | USERS | Arguments/effects pending |
-| 14 | *DEBUG | Arguments/effects pending |
-| 15 | *PASSWORD | Arguments/effects pending |
-| 16 | *ZAP | Arguments/effects pending |
+| 1 | ACTIVATE | draft: SESSION-6; shared-path limits apply |
+| 2 | (blank) | blank, unmatchable |
+| 3 | GRIPE | draft: SESSION-6; shared-path limits apply |
+| 4 | HELP | draft: SESSION-6; shared-path limits apply |
+| 5 | (blank) | blank, unmatchable |
+| 6 | NEWS | draft: SESSION-6; shared-path limits apply |
+| 7 | POINTS | draft: SESSION-6; shared-path limits apply |
+| 8 | QUIT | draft: SESSION-6; shared-path limits apply |
+| 9 | SET | draft: SESSION-6; shared-path limits apply |
+| 10 | SUMMARY | draft: SESSION-6; shared-path limits apply |
+| 11 | TIME | draft: SESSION-6; shared-path limits apply |
+| 12 | TYPE | draft: SESSION-6; shared-path limits apply |
+| 13 | USERS | draft: SESSION-6; shared-path limits apply |
+| 14 | *DEBUG | draft: SESSION-6; shared-path limits apply |
+| 15 | *PASSWORD | draft: SESSION-6; shared-path limits apply |
+| 16 | *ZAP | draft: SESSION-6; shared-path limits apply |
 
 ## Section review status
 
 | Area | Current scope | Remaining work |
 | --- | --- | --- |
-| Lexical | Character table, line reader, ordinary token categories and matcher read directly | REAL-token retention, capacity edges, numeric model and control paths |
+| Lexical | Character table, line reader, ordinary token categories and matcher read directly | REAL-token retention, numeric model and control paths |
 | Grammar | Main/pregame dispatch, locations and all 33 main command forms drafted | Pregame differences, malformed forms, prompt/output linkage |
 | State | World/ship/session domains, roster, distance and ordinary integer units | Finite numeric model, aliases and complete transition invariants |
-| Execution | Main return paths, accounting, hit/radio queues, recipient sets and exclusion classes | Interruptions, queue edge cases and adversarial interleavings |
+| Execution | Main return paths, accounting, hit/radio queues, recipient sets and exclusion classes | Callback/monitor boundaries, queue edge cases and adversarial interleavings |
 | Randomness | Generator, seeding and initial placement draw order | Per-command draw ledger and reproducible vectors |
 | Session | Admission, options, team/ship selection, release and termination drafted | Raw-name boundaries, identity, reentry and concurrency details |
 | Gameplay | Resources, scans, traversal, combat, installations, novas, Romulan, LIST and reports drafted | Combat notifications, numeric execution and exact scoring; review failure effects |
-| Terminal | Prompts, numeric/coordinate fields and scan cells/axes drafted | Exhaustive output catalogue and per-command assembly, extreme fields and controls |
-| Conformance | Claim boundaries and 23 source-derived scenarios drafted | Every remaining command family, native comparisons and a reusable verifier |
+| Terminal | Prompts, fields, scans, utilities and 324 exact named fragments drafted | Remaining inline literals and command assembly, extreme fields and controls |
+| Conformance | Claim boundaries and 65 source-derived scenarios drafted | Deeper failure/interaction cases, native comparisons and a reusable verifier |
 | CompuServe appendix | Nine amendment/scope clauses drafted from both sources | Full persistence, TELL and locking/alias effects; align with remaining core clauses |
 
 The draft cannot support a complete game implementation yet. Compilation into

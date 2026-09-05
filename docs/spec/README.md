@@ -67,6 +67,7 @@ profile criteria will be defined separately rather than silently relaxing output
 - [Game semantics](gameplay.md) and [randomness](randomness.md).
 - [Terminal behavior](terminal.md) and [conformance examples](conformance.md).
 - [CompuServe amendments](compuserve.md).
+- [Named message fragments](messages.md): exact source text.
 - [Evidence and coverage](evidence.md): source references and review status.
 - [Unresolved behavior](unresolved.md): questions and separate playable policies.
 

@@ -118,3 +118,69 @@ win condition.
 
 **Evidence:** [ENDGAM](../../legacy/utexas/DECWAR.FOR#L961),
 [SET ENDFLG](../../legacy/utexas/DECWAR.FOR#L3715).
+
+## SESSION-6 — Pregame commands and privileged utilities
+
+Pregame acquisition emits CR/LF and `PG> `, clears the control flag, flushes
+output, and waits in 10000-millisecond intervals. Empty input repeats the prompt.
+A control flag or disconnect after token acquisition exits to the host. Search
+all 16 pregame slots with normal ambiguity detection. If no pregame match exists,
+search the main command table to distinguish a command valid only in the game
+from an unknown command. Both diagnostics, and ambiguity, append the help hint
+before the next prompt. Blank slots remain unmatchable.
+
+ACTIVATE returns to normal admission; its program-name helper immediately returns
+without changing observable state. Pregame QUIT exits directly to the host,
+without main-game confirmation or ship scoring. GRIPE, HELP, NEWS, POINTS, SET,
+SUMMARY, TIME, TYPE, USERS, *DEBUG and *PASSWORD enter their shared routines and
+return to pregame when those routines return. Pregame POINTS supplies false for
+final scoring. These shared calls do not manufacture an acting ship when none
+is selected: zero-index state accesses and TYPE's missing argument remain explicit
+unresolved cases, not defaults borrowed from the main game.
+
+*PASSWORD compares the entered token with the exact source password `*MINK`;
+a prefix is insufficient. A match enables privilege and any other result clears
+it, with no Austin rejection output. *DEBUG without privilege emits the unknown
+command and help hint; with privilege it reports the collected routine timing
+records. These are diagnostic counters, not new gameplay capabilities.
+
+*ZAP has no effect without privilege. With privilege it emits
+`\r\nZapping statistics logs....`, acquires internal exclusion with retries,
+and calls diagnostic GRIPE recording. The ordinary standings-display call inside
+that diagnostic path is commented out. It clears positions 1 through 639 of its
+640-value statistics workspace, leaving position 0 untouched, then attempts to
+write the regular and free-account statistics bindings in order. An open failure
+reports `\r\n\r\nCan't open file for output!\r\n\r\n` and skips to common cleanup.
+Both success and failure release held locks, emit `\r\nFinished!\r\n`, and clear
+the diagnostic mode. This retained administrative operation does not establish
+an active Austin mission-standings lifecycle. The record meanings and inherited
+storage bindings remain U-ADMIN-STORAGE.
+
+**Evidence:** [PREGAM dispatch](../../legacy/utexas/SETUP.FOR#L76),
+[XGTCMD](../../legacy/utexas/SETUP.FOR#L402),
+[PASWRD](../../legacy/utexas/DECWAR.FOR#L2626),
+[DEBUG](../../legacy/utexas/WARMAC.MAC#L3639),
+[PRGNAM](../../legacy/utexas/WARMAC.MAC#L3412),
+[STAZAP](../../legacy/utexas/WARMAC.MAC#L4636).
+
+## SESSION-7 — Display-name conversion
+
+SET NAME starts immediately after the delimiter following its switch token,
+without discarding additional spacing characters. At a separate name prompt it
+starts at the first input character. Copy at most 12 characters, stopping at NUL.
+For each character above 95 clear bit 32, subtract 32, and if negative add 64;
+retain the low six bits. In the display repertoire these six-bit values are
+rendered after adding 32. Unused positions are zero, displaying as spaces.
+
+If both six-character groups are all zero, leave the name unchanged and return
+failure; otherwise replace the selected ship's two name fields and return
+success. The operation discards the rest of the command line. It does not change
+roster identity, account identity or faction. A switch-line failure causes SET
+to prompt once for another name; failure at that second prompt returns.
+
+Pregame has no selected ship, but this assembly entry still performs indexed
+public-field writes. Their cross-field effects remain U-PREGAME-ARG; do not
+silently reinterpret them as setting a future captain's private name.
+
+**Evidence:** [USRNAM](../../legacy/utexas/WARMAC.MAC#L3419),
+[SET NAME](../../legacy/utexas/DECWAR.FOR#L3648).

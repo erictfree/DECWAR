@@ -1,7 +1,9 @@
 # Building the specification
 
 The ordered chapter list in book.json is the single document manifest. Markdown
-chapters are canonical; generated LaTeX, PDF, HTML and assembled Markdown are
+chapters are canonical, except messages.md, which is extracted from the immutable
+archive by `node tools/spec/messages.ts`. Every build verifies that catalogue.
+Generated LaTeX, PDF, HTML and assembled Markdown are
 build products. Edit the chapters, not those outputs.
 
 ## Commands and dependencies
@@ -34,7 +36,9 @@ inside a shared PDF. Original archive identity is separately pinned in the text.
 The combined tree generates one LaTeX file, then XeLaTeX runs three passes for
 the contents and references. PDF layout uses numbered sections, a title page,
 contents, running headers, page numbers and explicitly labeled appendices.
-Table columns wrap to page width. The same document tree generates standalone
+Table columns and verbatim records wrap to page width. Source evidence stays
+with its preceding paragraph. The final TeX pass fails the build for overflowing
+boxes, missing characters or unresolved references. The same document tree generates standalone
 HTML with embedded styling and a Markdown edition with explicit link anchors.
 
 The LaTeX backend follows the documented

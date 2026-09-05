@@ -1459,3 +1459,40 @@ port/tool attribution remain separate.
   Markdown table break caught by visual inspection. PDF/HTML remain local ignored
   build products. Remaining work includes the complete output catalogue, pregame
   edge cases, compiler-dependent semantics, expanded scenarios and C amendments.
+
+### 2026-09-05 — Specification utilities, literal catalogue and scanner bounds
+
+- Prior goal turn classified as progress: published the initial specification and
+  document builder in 7d5ce56. This continuation inspected that clean worktree.
+- Added source-generated `docs/spec/messages.md` with all 324 named Austin ASCIZ
+  fragments, literal JSON escapes and source line numbers; `tools/spec/messages.ts`
+  checks it directly against the immutable archive on every book build. It is a
+  literal catalogue, not a claim of complete output-path coverage.
+- Drafted HELP/NEWS/GRIPE and TYPE behavior, pregame dispatch/administrative paths,
+  display-name conversion, output composition/object/device/condition fields,
+  shield/dock/TYPE output and acquisition/exit diagnostics. Clarified HELP/GRIPE's
+  actual black-hole board substitution, seven-column help lists, four-BEL yellow
+  notification, tab-counter masking and the pause service's ten-second cap.
+- Derived ordinary token capacity from GTKN/NXTT control flow: end-of-command is
+  checked before the capacity increment; fourteen tokens followed by a comma
+  overflow while thirteen plus a final null fit. Resolved U-TOKEN-LIMIT in that
+  bounded domain and added four scanner boundary scenarios. Decimal token storage
+  remains separately unresolved.
+- Added source-derived cases for every main command, utilities, session and queues;
+  65 scenarios now parse as tables. Builder checks table parsing and unique scenario
+  IDs, preventing a blank-line error from silently rendering raw table text.
+- Recorded unresolved pregame missing arguments/public-field indexing, GRIPE
+  header argument alias and retained administrative storage semantics. Described
+  the pending-control loop and selected handler without importing the host repair.
+- Checks passed: spec build (14 chapters/appendices, 257 local links, 324 fragments,
+  65 scenario rows), typecheck and archive/generated audit. Logs remain
+  `logs/spec-build.log`, `logs/spec-typecheck.log`, `logs/spec-audit-check.log` and
+  `logs/spec-render.log`. Rendered all pages and reviewed contact sheets; adjusted
+  verbatim wrapping for the literal catalogue and shortened an orphaned appendix
+  paragraph. The builder now keeps source evidence with its preceding prose and
+  rejects final-pass overflow, missing characters and undefined references; PDF
+  metadata carries the title and author names. No runtime/gameplay changes, native-state mutations or server restarts.
+- Goal remains active: remaining inline/output assembly, exact scoring/finite
+  arithmetic, deeper interleaving examples and the complete CompuServe amendment
+  set still require review. Page count and passing structural checks are not
+  evidence of complete historical conformance.

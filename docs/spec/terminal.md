@@ -112,9 +112,10 @@ and line breaks. Message fragments are not automatically complete lines.
 HELP and NEWS serve separately preserved assets and their own formatting logic.
 Their presence does not establish that every help example is executable syntax.
 
-An exhaustive message catalogue, inline literals and per-command output assembly
-remain a required part of this draft's coverage. Until they are included, this
-chapter cannot support a full exact-output implementation.
+The [named-fragment catalogue](messages.md) preserves all 324 named ASCIZ
+fragments from MSG.MAC and SETMSG.MAC, including their literal whitespace.
+Inline literals and per-command output assembly remain required coverage. Until
+they are included, this chapter cannot support a full exact-output implementation.
 
 **Evidence:** [messages](../../legacy/utexas/MSG.MAC#L7),
 [GETCMD diagnostics](../../legacy/utexas/DECWAR.FOR#L1252),
@@ -141,3 +142,149 @@ default. Leading signs, omitted zero-location relative text and the separating
 space are part of terminal conformance.
 
 **Evidence:** [PRLOC](../../legacy/utexas/DECWAR.FOR#L3078).
+
+## TERM-7 — Output composition notation
+
+The following operations name observable formatting effects, not required APIs:
+
+| Operation | Effect |
+| --- | --- |
+| `text(s)` | Emit the exact characters in s. JSON escapes in this specification denote character codes. |
+| `fragment(id,n)` | Emit the named catalogue fragment, then n unconditional CR/LF pairs; omitted n means zero. |
+| `break` | Apply TERM-3's conditional blank-line operation. |
+| `integer(x,w)` / `signed(x,w)` | Ordinary or signed decimal field from TERM-3, with default width zero. |
+| `fixed(x,w)` / `signedFixed(x,w)` | Ordinary or signed scaled-by-ten field under current verbosity. |
+| `object(code,s)` | TERM-8 object text; append one space if s is positive. |
+| `device(d)` / `condition(c)` | TERM-8 device or condition text. |
+| `location(v,h,n,w,m,f)` | TERM-6 coordinate output; n selects ending CR/LF, w width, m coordinate mode and f verbosity. |
+| `column(n)` | Emit `max(n−cursorColumn−1,0)` spaces. |
+
+Apply operations in sequence; no implied spaces or line breaks occur between
+them. A fragment can already begin or end with CR/LF, independently of its n
+argument. The Austin ASCIL macro expands to ASCIZ with no added characters,
+despite its comment describing an automatic CR/LF suffix. Directly quoted ASCIL
+text must therefore not receive that suffix by convention.
+
+For buffered output, the source's cursor counter increases for codes 32 through
+127, including DEL. CR sets the counter to zero and, if the old counter was
+nonzero, sets the blank-line counter to −1. LF increments the blank-line counter
+without moving the horizontal counter. Backspace decrements the horizontal
+counter without a lower clamp. Tab assigns `32×floor((cursorColumn+8)/32)` for
+ordinary nonnegative coordinates: the source clears five low bits after adding
+eight. Do not replace that arithmetic with conventional eight-column tab stops.
+Other control characters leave these counters unchanged. TERM-3's conditional
+break emits CR/LF unless the horizontal counter is zero and blank-line counter
+is positive. Buffered output after a disconnect is suppressed before these
+updates; alternate direct-terminal/host paths remain in the transport profile.
+
+**Evidence:** [output primitives](../../legacy/utexas/WARMAC.MAC#L1650),
+[cursor accounting](../../legacy/utexas/WARMAC.MAC#L1309),
+[ASCIL macro](../../legacy/utexas/WARMAC.MAC#L23).
+
+## TERM-8 — Object, device and condition names
+
+Object names outside a scan use this table. Medium shares the short column;
+long output alone uses long names. Negative codes and object kinds above ten
+are normalized to empty space by this operation. The scan-specific rendering in
+TERM-4 remains separate.
+
+| Kind | Short/medium | Long |
+| --- | --- | --- |
+| Empty | `.` | `Empty Space` |
+| Player ship | Roster initial | Roster name |
+| Federation base | `<>` | `Fed Base` |
+| Empire base | `)(` | `Emp Base` |
+| Romulan | `??` | `Romulan` |
+| Neutral planet | ` @` | `Neu planet` |
+| Federation planet | `+@` | `Fed planet` |
+| Empire planet | `-@` | `Emp planet` |
+| Star | `*` | `Star` |
+| Black hole | `BH` | `Black Hole` |
+
+Device names below all include one trailing space, represented in the quoted
+strings. Device order is fixed.
+
+| Short | Medium | Long |
+| --- | --- | --- |
+| `SH ` | `Shields ` | `Deflector Shields ` |
+| `WA ` | `Warp ` | `Warp Engines ` |
+| `IM ` | `Impulse ` | `Impulse Engines ` |
+| `LS ` | `Life Sup ` | `Life Support ` |
+| `TO ` | `Torps ` | `Torpedo Tubes ` |
+| `PH ` | `Phasers ` | `Phasers ` |
+| `CO ` | `Computer ` | `Computer ` |
+| `RA ` | `Radio ` | `Radio ` |
+| `TR ` | `Tractor ` | `Tractor Beam ` |
+
+Condition output prefixes `D+` in short format or `Docked+` otherwise when the
+acting ship is docked. Append `G`, `Y` or `R` in short format, or `Green`,
+`Yellow` or `Red` otherwise. There is no separator between the docking prefix
+and condition, and no automatic trailing space.
+
+**Evidence:** [ODISP](../../legacy/utexas/WARMAC.MAC#L1969),
+[ODEV](../../legacy/utexas/WARMAC.MAC#L2054),
+[OCOND](../../legacy/utexas/WARMAC.MAC#L2087).
+
+## TERM-9 — Shield, docking and preference output
+
+SHIELDS begins with `break`. A missing/unrecognized switch prompts
+`fragment(shld01)`. Missing transfer amount prompts `fragment(shld02)`.
+Confirmation prompts `fragment(shld03)`; refusal emits `fragment(shld04,1)`.
+A completed transfer emits `fragment(shld05,1)`. Successful UP emits
+`fragment(shld06,1)`, then any tractor-release notification, then
+`fragment(shld07,1)` if energy is nonpositive. DOWN emits
+`fragment(shld08,1)`. Critically damaged shields reject UP with
+`fragment(shld09,1)`.
+
+A DOCK failure for no adjacent installation emits `break`, the acting location's
+object with one trailing space, then `fragment(dock01,1)`. A completed docking
+emits `fragment(dockin,1)` before any requested STATUS output. REPAIR has no
+unconditional success text; it calls the damage report only when requested.
+These outputs precede their later main-loop repair/accounting effects.
+
+TYPE OUTPUT emits, in order:
+
+1. `fragment(type02,2)`, the selected verbosity fragment `shtfrm`, `medfrm`
+   or `lngfrm`, then `fragment(type03,1)`.
+2. `inform` or `normal`, then `fragment(type04,1)`.
+3. `shtfrm` or `lngfrm` for scans, then `fragment(type05,1)`.
+4. `relfrm`, `bthfrm` or `absfrm` for input mode, then `fragment(type08,1)`.
+5. The corresponding output-mode fragment, then `fragment(type09,1)`.
+6. `fragment(set008)`, the terminal's two padded five-character name fields,
+   then `break`.
+
+TYPE OPTION emits `break`, `fragment(decver,1)`, then `fragment(setu06,1)`
+when Romulan activity is enabled or `fragment(type06,1)` otherwise; finally
+`fragment(setu07,1)` when black holes were selected or `fragment(type07,1)`
+otherwise. An ambiguous TYPE O emits `fragment(ambswi,1)` before asking for
+its switch through `fragment(type01)`.
+
+**Evidence:** [SHIELD](../../legacy/utexas/DECWAR.FOR#L3739),
+[DOCK](../../legacy/utexas/DECWAR.FOR#L893),
+[REPAIR](../../legacy/utexas/DECWAR.FOR#L3190),
+[TYPE](../../legacy/utexas/DECWAR.FOR#L4540).
+
+## TERM-10 — Acquisition and exit diagnostics
+
+Before a main prompt, apply `break`. Fatal hull damage enters final scoring and
+release; exhausted energy first emits the actor's object with a trailing space
+and `fragment(main02,1)`. If condition is yellow after the energy check, emit
+four BEL characters (code 7) before world-end checking and prompting. The source
+literal is a packed string of four BELs followed by NUL, not a single bell.
+
+For an unknown or ambiguous main command, emit `unkcom` or `ambcom`, append
+`forhlp` only outside short verbosity, then apply `break` and return to the
+state/prompt checks. A consumed empty command skips the diagnostic. A control
+rejected under red alert emits `fragment(noquit,1)` before clearing input.
+Explicit QUIT prompts `fragment(sure00)` and discards the old line before reading
+confirmation, so an answer appended to the QUIT command is not used.
+
+Pregame uses unconditional CR/LF before `PG> `. Unknown, ambiguous and
+main-game-only input respectively emit `unkcom`, `ambcom` and `maicom`, each
+followed by `fragment(forhlp,1)`. These pregame diagnostics do not suppress the
+help hint in short verbosity.
+
+**Evidence:** [GETCMD](../../legacy/utexas/DECWAR.FOR#L1184),
+[packed yellow-alert literal](../../legacy/utexas/DECWAR.FOR#L1206),
+[QUIT](../../legacy/utexas/DECWAR.FOR#L134),
+[XGTCMD](../../legacy/utexas/SETUP.FOR#L426).

@@ -1,6 +1,6 @@
 {
   "title": "DECWAR Language and Behavior Specification",
-  "subtitle": "Austin Core \u2022 Working Draft",
+  "subtitle": "Austin Core • Working Draft",
   "authors": [
     "Eric Freeman, PhD",
     "Noah Smith, PhD"
@@ -24,6 +24,7 @@
   ],
   "appendices": [
     "compuserve.md",
+    "messages.md",
     "evidence.md",
     "unresolved.md"
   ]

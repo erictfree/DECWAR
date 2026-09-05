@@ -7,7 +7,7 @@
       "dispatch": "reviewed",
       "grammar": "GRAM-11",
       "semantics": "draft: GAME-LIST",
-      "examples": "pending"
+      "examples": "EX-BASES-01"
     },
     {
       "slot": 2,
@@ -15,7 +15,7 @@
       "dispatch": "reviewed",
       "grammar": "GRAM-4",
       "semantics": "draft: GAME-BUILD",
-      "examples": "pending"
+      "examples": "EX-BUILD-01"
     },
     {
       "slot": 3,
@@ -23,7 +23,7 @@
       "dispatch": "reviewed",
       "grammar": "GRAM-4",
       "semantics": "draft: GAME-CAPTURE",
-      "examples": "pending"
+      "examples": "EX-CAPTURE-01"
     },
     {
       "slot": 4,
@@ -31,7 +31,7 @@
       "dispatch": "reviewed",
       "grammar": "GRAM-10",
       "semantics": "draft: GAME-REPORTS",
-      "examples": "pending"
+      "examples": "EX-DAMAGE-01"
     },
     {
       "slot": 5,
@@ -39,7 +39,7 @@
       "dispatch": "reviewed",
       "grammar": "GRAM-7",
       "semantics": "draft: GAME-DOCK",
-      "examples": "pending"
+      "examples": "EX-DOCK-01"
     },
     {
       "slot": 6,
@@ -47,23 +47,23 @@
       "dispatch": "reviewed",
       "grammar": "GRAM-7",
       "semantics": "draft: GAME-ENERGY",
-      "examples": "pending"
+      "examples": "EX-ENERGY-01"
     },
     {
       "slot": 7,
       "command": "GRIPE",
       "dispatch": "reviewed",
       "grammar": "GRAM-12",
-      "semantics": "pending",
-      "examples": "pending"
+      "semantics": "draft: GAME-GRIPE",
+      "examples": "EX-GRIPE-01"
     },
     {
       "slot": 8,
       "command": "HELP",
       "dispatch": "reviewed",
       "grammar": "GRAM-12",
-      "semantics": "pending",
-      "examples": "pending"
+      "semantics": "draft: GAME-HELP",
+      "examples": "EX-HELP-01/02"
     },
     {
       "slot": 9,
@@ -71,7 +71,7 @@
       "dispatch": "reviewed",
       "grammar": "GRAM-4",
       "semantics": "draft: GAME-MOVE",
-      "examples": "pending"
+      "examples": "EX-IMPULSE-01"
     },
     {
       "slot": 10,
@@ -79,7 +79,7 @@
       "dispatch": "reviewed",
       "grammar": "GRAM-11",
       "semantics": "draft: GAME-LIST",
-      "examples": "pending"
+      "examples": "EX-LIST-01"
     },
     {
       "slot": 11,
@@ -87,15 +87,15 @@
       "dispatch": "reviewed",
       "grammar": "GRAM-4",
       "semantics": "draft: GAME-MOVE",
-      "examples": "pending"
+      "examples": "EX-MOVE-01"
     },
     {
       "slot": 12,
       "command": "NEWS",
       "dispatch": "reviewed",
       "grammar": "GRAM-12",
-      "semantics": "pending",
-      "examples": "pending"
+      "semantics": "draft: GAME-NEWS",
+      "examples": "EX-NEWS-01"
     },
     {
       "slot": 13,
@@ -103,7 +103,7 @@
       "dispatch": "reviewed",
       "grammar": "GRAM-5",
       "semantics": "draft: GAME-PHASERS",
-      "examples": "pending"
+      "examples": "EX-PHASER-01"
     },
     {
       "slot": 14,
@@ -111,7 +111,7 @@
       "dispatch": "reviewed",
       "grammar": "GRAM-11",
       "semantics": "draft: GAME-LIST",
-      "examples": "pending"
+      "examples": "EX-PLANETS-01"
     },
     {
       "slot": 15,
@@ -119,15 +119,15 @@
       "dispatch": "reviewed",
       "grammar": "GRAM-10",
       "semantics": "draft: GAME-POINTS",
-      "examples": "pending"
+      "examples": "EX-POINTS-01"
     },
     {
       "slot": 16,
       "command": "QUIT",
       "dispatch": "reviewed",
       "grammar": "GRAM-9",
-      "semantics": "pending",
-      "examples": "pending"
+      "semantics": "draft: SESSION-4",
+      "examples": "EX-QUIT-01"
     },
     {
       "slot": 17,
@@ -135,7 +135,7 @@
       "dispatch": "reviewed",
       "grammar": "GRAM-8",
       "semantics": "draft: GAME-RADIO",
-      "examples": "pending"
+      "examples": "EX-RADIO-02"
     },
     {
       "slot": 18,
@@ -159,7 +159,7 @@
       "dispatch": "reviewed",
       "grammar": "GRAM-8",
       "semantics": "draft: GAME-REPORTS",
-      "examples": "pending"
+      "examples": "EX-SET-01"
     },
     {
       "slot": 21,
@@ -175,7 +175,7 @@
       "dispatch": "reviewed",
       "grammar": "GRAM-6",
       "semantics": "draft: GAME-SCAN",
-      "examples": "pending"
+      "examples": "EX-SRSCAN-01"
     },
     {
       "slot": 23,
@@ -183,7 +183,7 @@
       "dispatch": "reviewed",
       "grammar": "GRAM-10",
       "semantics": "draft: GAME-REPORTS",
-      "examples": "pending"
+      "examples": "EX-STATUS-01"
     },
     {
       "slot": 24,
@@ -191,7 +191,7 @@
       "dispatch": "reviewed",
       "grammar": "GRAM-11",
       "semantics": "draft: GAME-LIST",
-      "examples": "pending"
+      "examples": "EX-SUMMARY-01"
     },
     {
       "slot": 25,
@@ -199,7 +199,7 @@
       "dispatch": "reviewed",
       "grammar": "GRAM-11",
       "semantics": "draft: GAME-LIST",
-      "examples": "pending"
+      "examples": "EX-TARGETS-01"
     },
     {
       "slot": 26,
@@ -207,7 +207,7 @@
       "dispatch": "reviewed",
       "grammar": "GRAM-12",
       "semantics": "draft: GAME-RADIO",
-      "examples": "pending"
+      "examples": "EX-RADIO-01"
     },
     {
       "slot": 27,
@@ -215,7 +215,7 @@
       "dispatch": "reviewed",
       "grammar": "GRAM-10",
       "semantics": "draft: GAME-REPORTS",
-      "examples": "pending"
+      "examples": "EX-TIME-01"
     },
     {
       "slot": 28,
@@ -223,7 +223,7 @@
       "dispatch": "reviewed",
       "grammar": "GRAM-5",
       "semantics": "draft: GAME-TORPEDO",
-      "examples": "pending"
+      "examples": "EX-TORPEDO-01"
     },
     {
       "slot": 29,
@@ -231,15 +231,15 @@
       "dispatch": "reviewed",
       "grammar": "GRAM-7",
       "semantics": "draft: GAME-TRACTOR",
-      "examples": "pending"
+      "examples": "EX-TRACTOR-01"
     },
     {
       "slot": 30,
       "command": "TYPE",
       "dispatch": "reviewed",
       "grammar": "GRAM-10",
-      "semantics": "pending",
-      "examples": "pending"
+      "semantics": "draft: GAME-TYPE",
+      "examples": "EX-TYPE-01"
     },
     {
       "slot": 31,
@@ -247,23 +247,23 @@
       "dispatch": "reviewed",
       "grammar": "GRAM-10",
       "semantics": "draft: GAME-REPORTS",
-      "examples": "pending"
+      "examples": "EX-USERS-01"
     },
     {
       "slot": 32,
       "command": "*DEBUG",
       "dispatch": "reviewed",
       "grammar": "GRAM-13",
-      "semantics": "pending",
-      "examples": "pending"
+      "semantics": "draft: SESSION-6",
+      "examples": "EX-DEBUG-01"
     },
     {
       "slot": 33,
       "command": "*PASSWORD",
       "dispatch": "reviewed",
       "grammar": "GRAM-13",
-      "semantics": "pending",
-      "examples": "pending"
+      "semantics": "draft: SESSION-6",
+      "examples": "EX-PRIV-01"
     }
   ],
   "pregame": [
@@ -271,7 +271,7 @@
       "slot": 1,
       "command": "ACTIVATE",
       "dispatch": "reviewed",
-      "status": "arguments and effects pending"
+      "status": "draft: SESSION-6; shared-path limits apply"
     },
     {
       "slot": 2,
@@ -283,13 +283,13 @@
       "slot": 3,
       "command": "GRIPE",
       "dispatch": "reviewed",
-      "status": "arguments and effects pending"
+      "status": "draft: SESSION-6; shared-path limits apply"
     },
     {
       "slot": 4,
       "command": "HELP",
       "dispatch": "reviewed",
-      "status": "arguments and effects pending"
+      "status": "draft: SESSION-6; shared-path limits apply"
     },
     {
       "slot": 5,
@@ -301,67 +301,67 @@
       "slot": 6,
       "command": "NEWS",
       "dispatch": "reviewed",
-      "status": "arguments and effects pending"
+      "status": "draft: SESSION-6; shared-path limits apply"
     },
     {
       "slot": 7,
       "command": "POINTS",
       "dispatch": "reviewed",
-      "status": "arguments and effects pending"
+      "status": "draft: SESSION-6; shared-path limits apply"
     },
     {
       "slot": 8,
       "command": "QUIT",
       "dispatch": "reviewed",
-      "status": "arguments and effects pending"
+      "status": "draft: SESSION-6; shared-path limits apply"
     },
     {
       "slot": 9,
       "command": "SET",
       "dispatch": "reviewed",
-      "status": "arguments and effects pending"
+      "status": "draft: SESSION-6; shared-path limits apply"
     },
     {
       "slot": 10,
       "command": "SUMMARY",
       "dispatch": "reviewed",
-      "status": "arguments and effects pending"
+      "status": "draft: SESSION-6; shared-path limits apply"
     },
     {
       "slot": 11,
       "command": "TIME",
       "dispatch": "reviewed",
-      "status": "arguments and effects pending"
+      "status": "draft: SESSION-6; shared-path limits apply"
     },
     {
       "slot": 12,
       "command": "TYPE",
       "dispatch": "reviewed",
-      "status": "arguments and effects pending"
+      "status": "draft: SESSION-6; shared-path limits apply"
     },
     {
       "slot": 13,
       "command": "USERS",
       "dispatch": "reviewed",
-      "status": "arguments and effects pending"
+      "status": "draft: SESSION-6; shared-path limits apply"
     },
     {
       "slot": 14,
       "command": "*DEBUG",
       "dispatch": "reviewed",
-      "status": "arguments and effects pending"
+      "status": "draft: SESSION-6; shared-path limits apply"
     },
     {
       "slot": 15,
       "command": "*PASSWORD",
       "dispatch": "reviewed",
-      "status": "arguments and effects pending"
+      "status": "draft: SESSION-6; shared-path limits apply"
     },
     {
       "slot": 16,
       "command": "*ZAP",
       "dispatch": "reviewed",
-      "status": "arguments and effects pending"
+      "status": "draft: SESSION-6; shared-path limits apply"
     }
   ]
 }

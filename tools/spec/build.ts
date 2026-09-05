@@ -16,6 +16,7 @@ const pandoc = process.env.PANDOC || 'pandoc';
 type Node = { t: string; c?: any };
 type Document = { 'pandoc-api-version': number[]; meta: Record<string, unknown>; blocks: Node[] };
 const entries = [...book.chapters, ...book.appendices] as string[];
+execFileSync(process.execPath, [resolve(root, 'tools/spec/messages.ts'), '--check'], { cwd: root, stdio: 'inherit' });
 const coverage = JSON.parse(readFileSync(resolve(source, 'coverage.json'), 'utf8'));
 function sourceCommands(file: string, marker: string): string[] {
   const text = readFileSync(resolve(root, file), 'utf8');
@@ -56,6 +57,20 @@ for (const name of entries) {
     text = text.replace(/^# .*\n\n\*\*Eric Freeman, PhD · Noah Smith, PhD\*\*\s+The University of Texas at Austin\s+Department of Arts and Entertainment Technologies\n/, '# Scope and conformance\n');
   }
   const doc = JSON.parse(convert(['--from=gfm', '--to=json'], text)) as Document;
+  if (name === 'conformance.md') {
+    const expected = [...text.matchAll(/^\| (EX-[A-Z]+-\d+) \|/gm)].map(match => match[1]);
+    const actual: string[] = [];
+    walk(doc.blocks, node => {
+      if (node.t !== 'Table') return;
+      walk(node, child => {
+        if (child.t === 'Str' && /^EX-[A-Z]+-\d+$/.test(child.c)) actual.push(child.c);
+      });
+    });
+    if (JSON.stringify(expected) !== JSON.stringify(actual))
+      throw new Error('Conformance scenarios must parse as table rows; check blank lines and delimiters');
+    if (new Set(expected).size !== expected.length) throw new Error('Duplicate conformance scenario ID');
+    console.log(`Checked ${actual.length} source-derived scenario rows.`);
+  }
   const map = new Map<string, string>();
   const prefix = name.replace(/\.md$/, '').toLowerCase();
   const appendix = book.appendices.includes(name);
@@ -145,6 +160,8 @@ const escapeTex = (s: string) => s.replace(/[\\{}$&#%_^~]/g, c => ({'\\':'\\text
 writeFileSync(coverTex, `\\begin{titlepage}\n\\centering\n\\vspace*{1.4in}\n{\\Huge\\bfseries ${escapeTex(book.title)}\\par}\n\\vspace{0.6in}\n{\\Large ${escapeTex(book.subtitle)}\\par}\n\\vspace{0.8in}\n${book.authors.map((s: string) => '{\\large ' + escapeTex(s) + '\\par}').join('\n')}\n\\vspace{0.3in}\n${escapeTex(book.institution)}\\par\n${escapeTex(book.department)}\\par\n\\vfill\n${escapeTex(book.date)}\\par\n\\vspace{0.2in}\n{\\small Incomplete draft. Austin reconstruction is the core; historical equivalence is not certified.\\par}\n\\end{titlepage}\n`);
 // Suppress Pandoc's default title for TeX; our title page includes the affiliation.
 const texDoc = structuredClone(combined); delete texDoc.meta.title; delete texDoc.meta.author; delete texDoc.meta.date; delete texDoc.meta.subtitle;
+texDoc.meta['title-meta'] = strings(book.title);
+texDoc.meta['author-meta'] = strings(book.authors.join('; '));
 // Pandoc protects spaces inside inline code. Long semantic formulas need legal
 // line breaks at operators without changing their visible text or HTML source.
 walk(texDoc.blocks, node => {
@@ -153,6 +170,20 @@ walk(texDoc.blocks, node => {
     escapeTex(char) + (/[×−+\/,=]/.test(char) ? '\\allowbreak{}' : '')).join('');
   node.t = 'RawInline'; node.c = ['latex', '\\texttt{' + value + '}'];
 });
+// Keep a short evidence paragraph with the preceding prose instead of leaving
+// a page containing only source links at the end of a chapter.
+const texBlocks: Node[] = [];
+for (const block of texDoc.blocks) {
+  const isEvidence = block.t === 'Para' && block.c[0]?.t === 'Strong'
+    && block.c[0].c[0]?.t === 'Str' && block.c[0].c[0].c === 'Evidence:';
+  if (isEvidence && texBlocks.at(-1)?.t === 'Para') {
+    const previous = texBlocks.pop()!;
+    texBlocks.push({ t: 'RawBlock', c: ['latex', '\\begin{samepage}'] }, previous,
+      { t: 'RawBlock', c: ['latex', '\\nopagebreak[4]'] }, block,
+      { t: 'RawBlock', c: ['latex', '\\end{samepage}'] });
+  } else texBlocks.push(block);
+}
+texDoc.blocks = texBlocks;
 const tex = convert([...args, '--to=latex', '--pdf-engine=xelatex', '-V', 'documentclass=article', '-V', 'fontsize=11pt', '-V', 'geometry:margin=1in', '-V', 'colorlinks=true', '-V', 'urlcolor=blue', '--include-in-header=docs/spec/style/spec.tex', '--include-before-body=' + coverTex], JSON.stringify(texDoc));
 writeFileSync(stem + '.tex', tex.replace(/\\texttt\{([a-z0-9]{32,})\}/g, '\\texttt{\\seqsplit{$1}}'));
 const markdownDoc = structuredClone(combined);
@@ -167,6 +198,8 @@ if (!htmlOnly) {
   for (let pass = 0; pass < 3; pass++) {
     const log = execFileSync(latex, ['-interaction=nonstopmode', '-halt-on-error', '-no-shell-escape', '-output-directory=' + pdfOut, stem + '.tex'], { cwd: root, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 });
     writeFileSync(resolve(out, `xelatex-${pass + 1}.log`), log);
+    if (pass === 2 && /Overfull \\[hv]box|Missing character|There were undefined references/.test(log))
+      throw new Error('PDF layout/reference check failed; inspect output/spec/xelatex-3.log');
   }
 }
 const hashes = entries.map(name => ({ file: 'docs/spec/' + name, sha256: createHash('sha256').update(readFileSync(resolve(source, name))).digest('hex') }));

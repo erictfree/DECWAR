@@ -77,7 +77,7 @@ alone do not imply that Austin has persistent standings.
 [C statistics implementation](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L5586),
 [Austin removed exit call](../../legacy/utexas/DECWAR.FOR#L302).
 
-## C-7 — Privilege and synchronization (pending detailed core clauses)
+## C-7 — Privilege and synchronization (amends GRAM-13 and EXEC-9)
 
 CompuServe's password command requires an exact password match and one of the
 permitted host project identifiers: octal 70000, 337, 70006 or 70725. A failed
@@ -97,7 +97,7 @@ attempt effects without requiring packed board storage from new implementations.
 [C movement locks](../../legacy/compuserve/fortran%201978/MOVE.FOR#L131),
 [Austin lock adapter](../../legacy/utexas/WARMAC.MAC#L3768).
 
-## C-8 — Romulan changes (pending detailed core clauses)
+## C-8 — Romulan changes (amends GAME-ROM-ACTION and GAME-RADIO)
 
 At the first autonomous speech test, CompuServe uses `I(10)=1` where Austin
 uses `I(5)=1`. At the later speech test, CompuServe uses `I(50)<=1` where Austin
@@ -121,12 +121,10 @@ require a dedicated clause before conformance is claimed.
 
 ## C-9 — Matters that are not established amendments
 
-Both FORTRAN PARAM files set the restart-wait constant to zero despite the
-assembly constant 120000. That discrepancy is not an Austin/CompuServe change.
-The 324 named message literals match between archives; this does not establish
-matching inline strings, macro-added newlines or complete output transcripts.
-Austin's argument-copy changes need effect-level analysis rather than mechanical
-requirements to reproduce temporary variables.
+Both FORTRAN PARAM files set restart wait to zero, unlike the assembly value
+120000; this is not a variant change. All 324 named message literals match, but
+inline strings, macro-added newlines and complete transcripts require separate
+comparison. Argument-copy changes need analysis of their alias effects.
 
 **Evidence:** [C PARAM wait](../../legacy/compuserve/fortran%201978/PARAM.FOR#L50),
 [Austin PARAM wait](../../legacy/utexas/PARAM.FOR#L30),

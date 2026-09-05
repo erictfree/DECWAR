@@ -286,8 +286,8 @@ activity; ENDFLG invokes world termination; BHREMV clears all black-hole cells
 in increasing V then H order. These starred-policy switches require privilege.
 SET NAME consumes the remaining raw line, converts at most 12 characters to the
 source's six-bit display repertoire and updates the session's public name if
-nonblank. Exact repertoire/empty-name and pregame behavior remain under review;
-this is distinct from choosing a roster identity.
+nonblank. SESSION-7 defines repertoire and empty-name handling; pregame cross-field
+effects remain unresolved. This is distinct from choosing a roster identity.
 
 **Evidence:** [STATUS](../../legacy/utexas/DECWAR.FOR#L3860),
 [DAMAGE](../../legacy/utexas/DECWAR.FOR#L783),
@@ -762,3 +762,116 @@ retarget/misfire stop, set torpedo readiness to elapsed time plus accumulated
 launched-shot delay. This is distinct from the player's stored-target burst.
 
 **Evidence:** [ROMTOR](../../legacy/utexas/DECWAR.FOR#L3419).
+
+## GAME-HELP — Help and temporary board substitution
+
+HELP while aboard rejects condition red, emitting the red-alert diagnostic without
+changing the board. Otherwise, if a ship is selected, substitute a black-hole cell
+at its current location before processing help. This writes object kind 10; it
+is not the hidden-cell sentinel and not empty space. Keep the ship record and
+occupancy. On completion, clear the control flag and restore the selected ship's
+code at its current coordinates only if its occupancy still denotes a live
+commission. Intervening state changes can affect restoration.
+
+Without topics, display general instructions and the extra-topic list. With
+topics, process them in input order until the end or a control flag. An asterisk
+requests the main command list. Other tokens search that list first, excluding
+its two privileged commands unless privilege is enabled. An ambiguous command
+match is reported without falling through to extra topics. With no command match,
+search CTL-C, a blank unmatchable slot, INTRO, HInts, INput, Output, PAuses and
+PRegame. Report an unknown term when neither list matches.
+
+Matched topics select a section from the help asset. A privileged session first
+tries the special help binding and falls back to the standard binding if opening
+it fails. If the special asset opens but lacks a section, do not silently retry
+the standard asset. Asset search compares at most five characters, folding codes
+above 95 by clearing the case bit, and allows the keyword to end at space or NUL.
+
+A section begins at a dot immediately after LF or form feed. Skip the matching
+keyword line and emit its following content until the next section marker or
+end of file. Suppress form feeds, treating them as boundaries. Check stop controls
+at line boundaries and clear them on exit. Missing sections report the requested
+keyword. The initial HELP startup dialogue separately invokes general help and
+all-command listing; it is not an implicit `HELP INTRO` command.
+
+Lists print the source's padded ten-character names in table order, seven entries
+per line, preserving mixed-case abbreviation cues and blank extra-topic slots.
+The routine's comment says six columns, but its loop counter is seven. Newline
+and fragment composition follow TERM-7.
+
+**Evidence:** [HELP](../../legacy/utexas/WARMAC.MAC#L4134),
+[HLPXTR/HLPALL](../../legacy/utexas/WARMAC.MAC#L4188),
+[section reader](../../legacy/utexas/WARMAC.MAC#L4222),
+[list output](../../legacy/utexas/WARMAC.MAC#L4359),
+[board substitution/restoration](../../legacy/utexas/WARMAC.MAC#L4379),
+[extra-topic table](../../legacy/utexas/DECWAR.FOR#L471).
+
+## GAME-NEWS — News viewing
+
+Open the news asset; failure reports that it cannot be read and returns. Stream
+characters in asset order. After LF, vertical tab or form feed, a following dot
+is a continuation boundary: consume that dot without displaying it, enable
+terminal output, and prompt
+`Do you want to continue viewing the news file? `.
+Only a YES match continues. A dot at the beginning of the asset does not enter
+this branch unless a preceding recognized line-ending character has been read.
+
+At those line boundaries, a control/stop flag also terminates viewing. For a
+live commissioned ship, reset the source activity counter during output so that
+viewing does not count as input idleness. On normal end, refusal or stop, clear
+the stop/control flags, close the news asset and restore prior input. NEWS does
+not invoke HELP's board substitution and has no condition-red rejection here.
+The text and section layout come from the selected asset, not from a rewritten
+summary of historical news.
+
+**Evidence:** [NEWS](../../legacy/utexas/WARMAC.MAC#L3811),
+[news asset](../../legacy/utexas/HLP/DECWAR.NWS).
+
+## GAME-GRIPE — Recording feedback
+
+Reject a commissioned ship under red alert. Otherwise apply GAME-HELP's temporary
+black-hole substitution and begin a new feedback record containing the source
+status header. Prompt `Enter gripe, end with ^Z`. Read at most 20 command-editor
+lines; Ctrl-Z ends input, Ctrl-C aborts. Report the two-lines-remaining warning
+when the decremented allowance reaches two, and the limit warning at zero.
+Reset activity for a live ship while reading. End accepted lines with CR/LF.
+An immediate Ctrl-Z with no first-line characters aborts an empty submission;
+a nonempty last line is terminated before storage.
+
+Append the separator `----------` and CR/LF to the new record, then place the
+new record before the previous feedback contents. This is prepend order, not
+append order. A “being modified” result reports a retry and waits before trying
+again; Ctrl-C during that wait aborts. Other open/read/allocation/write failures
+follow the source diagnostics and cleanup. Storage and resource-failure events
+are abstract host inputs, not a required TOPS-10 file representation.
+
+On cleanup restore terminal output, restore the ship when eligible, and clear
+the control flag. The command's recording and display do not take the main turn
+path. Diagnostic and administrative callers can invoke the recording mechanism
+with a supplied diagnostic body instead of prompting for user lines; their body
+formats are separate from ordinary GRIPE input. The status-header helper's
+argument alias remains U-GRIPE-HEADER; this clause does not claim its unrelated
+caller state is unaffected.
+
+**Evidence:** [GRIPE entry/input](../../legacy/utexas/WARMAC.MAC#L3858),
+[commit/cleanup paths](../../legacy/utexas/WARMAC.MAC#L4050),
+[line allowance](../../legacy/utexas/WARMAC.MAC#L474).
+
+## GAME-TYPE — Preference and world-option reports
+
+The main-game TYPE entry applies GRAM-10. OUTPUT reports output verbosity,
+prompt style, scan format, input coordinate mode, output coordinate mode and
+terminal type, in that order. Print source strings even for internal modes not
+normally selectable by SET, such as BOTH input mode. Terminal type prints its two
+stored five-character name fields without trimming them.
+
+OPTION reports the stored version banner, whether Romulan activity is enabled,
+and whether the black-hole option was selected. Removing all black-hole cells
+through BHREMV does not itself clear that option flag. Neither report changes
+preferences or takes a main-loop turn. The internal kind argument 1 bypasses
+parsing to OUTPUT; kind 2 bypasses parsing to OPTION; main TYPE supplies zero.
+Pregame calls omit this formal argument and remain U-PREGAME-ARG.
+
+**Evidence:** [TYPE](../../legacy/utexas/DECWAR.FOR#L4540),
+[main argument](../../legacy/utexas/DECWAR.FOR#L209),
+[pregame call](../../legacy/utexas/SETUP.FOR#L121).

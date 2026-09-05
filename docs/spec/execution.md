@@ -229,3 +229,57 @@ every permitted instruction-level interleaving, crash point, or monitor failure.
 A complete concurrency profile must state those boundaries explicitly.
 
 **Evidence:** [LOCK/UNLOCK](../../legacy/utexas/WARMAC.MAC#L3768).
+
+## EXEC-10 — Pause service
+
+For the ordinary nonoverflowing millisecond domain, a nonpositive requested
+pause returns immediately. Otherwise cap the duration at 10000 milliseconds,
+sample the host millisecond clock and establish an ending time. Request a
+hibernation of the capped duration. On return, if the current clock is still
+before the ending time, request another 1000 milliseconds and repeat the check.
+Early host wakeups therefore need not end the pause; repeated extra sleeps can
+overshoot its deadline. There is no active automatic lock-release/reacquire
+around this pause: the corresponding instructions are commented out.
+
+This service limit is separate from a command's computed deadline and from the
+main-loop privilege bypass. A computed 20-second remaining delay does not cause
+this call to sleep for 20 seconds. Clock discontinuities and exact hibernation
+semantics remain host-boundary inputs.
+
+**Evidence:** [PAUSE](../../legacy/utexas/WARMAC.MAC#L3357).
+
+## EXEC-11 — Controls during command acquisition
+
+Distinguish a control event delivered while acquiring a new line from a control
+flag already pending at the polling loop. On completing token acquisition with
+a control flag, a ship not under red alert is directed to QUIT. A red ship
+instead receives the cannot-quit report, clears its input buffer, and returns to
+the state/prompt checks. A disconnect on the post-input path also selects QUIT.
+The main QUIT command bypasses confirmation when disconnected; an explicitly
+typed QUIT still follows its own confirmation rule, even under red alert.
+
+At the earlier poll boundary, an already-set control flag or disconnect branches
+to the activity/accounting path rather than directly selecting QUIT. That path
+resets activity, advances the polling counter, delivers any pending hits/messages,
+and otherwise checks world end and loops. With no messages or world-end change,
+this can return to the same boundary with the same pending flag. This source
+cycle is not a promise of eventual cancellation or disconnection cleanup.
+
+The selected interrupt handler suppresses further control handling while its
+rearm latch is set. On a newly handled event it sets that latch and the control
+flag, can advance an interrupted input wait's continuation, and invokes the
+registered callback only through its recursion guard. Token acquisition rearms
+the latch. The older comment describing a decremented control counter and an
+abort after repeated controls does not describe this replacement handler.
+
+CCTRAP's body loads a callback from its argument and clears the control flag;
+several calls provide no argument. The source comment describing a no-argument
+“disable” form does not itself establish what address that body reads. This
+argument/monitor boundary, callback reentrancy and terminal-driver interception
+remain U-CONTROL. A modern adapter may provide a named repair policy, but cannot
+claim that the repaired cancellation path is normative historical behavior.
+
+**Evidence:** [GETCMD control paths](../../legacy/utexas/DECWAR.FOR#L1211),
+[QUIT confirmation](../../legacy/utexas/DECWAR.FOR#L134),
+[CCTRAP/INTH](../../legacy/utexas/WARMAC.MAC#L3469),
+[token acquisition rearming](../../legacy/utexas/WARMAC.MAC#L1380).

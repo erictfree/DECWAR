@@ -137,11 +137,31 @@ differs from SCAN's terminating space.
 
 ## LEX-7 — Capacity and recovery
 
-The source token arrays have 15 positions, including an end sentinel, and the
-scanner reserves capacity while scanning. Overflow emits
-`Too many words -- line ignored`, discards the command remainder and reports an
-empty token sequence. The exact delimiter-sensitive last-slot acceptance boundary
-requires conformance cases before this clause can specify every 14-token input
-(U-TOKEN-LIMIT). It must not be advertised simply as 15 arguments.
+The token arrays have 15 positions. At most 14 scanner results precede the end
+sentinel; the command name counts toward this capacity. Null results created by
+nonspacing delimiters also occupy positions. For each result, the scanner checks
+whether it has observed an end-of-command character before advancing the capacity
+counter. If so, it accepts that result and appends the sentinel. Otherwise,
+exhausting the fourteenth position is overflow even if the next input character
+would end the line.
 
-**Evidence:** [GTKN capacity/recovery](../../legacy/utexas/WARMAC.MAC#L1407).
+At the first position, an empty end-of-command result yields zero tokens. At a
+later position, an empty end-of-command result is retained as a null token before
+the sentinel. Spaces/tabs are skipped when looking for a token and after a token;
+a comma is consumed as one delimiter without reading the character after it in
+that token scan. Consequently fourteen nonempty tokens followed only by spacing
+and line termination fit, but fourteen followed by a comma overflow. Thirteen
+nonempty tokens followed by a comma and termination fit with a fourteenth null
+result.
+
+Overflow emits `Too many words -- line ignored` with no suffix from the Austin
+ASCIL macro, discards the entire remaining physical line, sets the returned count
+to zero and writes the end sentinel at the first position. Earlier token storage
+is not all erased; it is outside the returned sequence. Subsequent interpretation
+must respect that count/sentinel rather than treating stale token fields as input.
+These rules apply to ordinary tokens whose scanning has not encountered the
+separate decimal-retention anomaly U-REAL-TOKEN.
+
+**Evidence:** [GTKN capacity/recovery](../../legacy/utexas/WARMAC.MAC#L1407),
+[NXTT delimiter handling](../../legacy/utexas/WARMAC.MAC#L1454),
+[character classes](../../legacy/utexas/WARMAC.MAC#L838).
