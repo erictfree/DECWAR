@@ -1,0 +1,367 @@
+{
+  "scope": "Austin",
+  "main": [
+    {
+      "slot": 1,
+      "command": "BASES",
+      "dispatch": "reviewed",
+      "grammar": "GRAM-11",
+      "semantics": "draft: GAME-LIST",
+      "examples": "pending"
+    },
+    {
+      "slot": 2,
+      "command": "BUILD",
+      "dispatch": "reviewed",
+      "grammar": "GRAM-4",
+      "semantics": "draft: GAME-BUILD",
+      "examples": "pending"
+    },
+    {
+      "slot": 3,
+      "command": "CAPTURE",
+      "dispatch": "reviewed",
+      "grammar": "GRAM-4",
+      "semantics": "draft: GAME-CAPTURE",
+      "examples": "pending"
+    },
+    {
+      "slot": 4,
+      "command": "DAMAGES",
+      "dispatch": "reviewed",
+      "grammar": "GRAM-10",
+      "semantics": "draft: GAME-REPORTS",
+      "examples": "pending"
+    },
+    {
+      "slot": 5,
+      "command": "DOCK",
+      "dispatch": "reviewed",
+      "grammar": "GRAM-7",
+      "semantics": "draft: GAME-DOCK",
+      "examples": "pending"
+    },
+    {
+      "slot": 6,
+      "command": "ENERGY",
+      "dispatch": "reviewed",
+      "grammar": "GRAM-7",
+      "semantics": "draft: GAME-ENERGY",
+      "examples": "pending"
+    },
+    {
+      "slot": 7,
+      "command": "GRIPE",
+      "dispatch": "reviewed",
+      "grammar": "GRAM-12",
+      "semantics": "pending",
+      "examples": "pending"
+    },
+    {
+      "slot": 8,
+      "command": "HELP",
+      "dispatch": "reviewed",
+      "grammar": "GRAM-12",
+      "semantics": "pending",
+      "examples": "pending"
+    },
+    {
+      "slot": 9,
+      "command": "IMPULSE",
+      "dispatch": "reviewed",
+      "grammar": "GRAM-4",
+      "semantics": "draft: GAME-MOVE",
+      "examples": "pending"
+    },
+    {
+      "slot": 10,
+      "command": "LIST",
+      "dispatch": "reviewed",
+      "grammar": "GRAM-11",
+      "semantics": "draft: GAME-LIST",
+      "examples": "pending"
+    },
+    {
+      "slot": 11,
+      "command": "MOVE",
+      "dispatch": "reviewed",
+      "grammar": "GRAM-4",
+      "semantics": "draft: GAME-MOVE",
+      "examples": "pending"
+    },
+    {
+      "slot": 12,
+      "command": "NEWS",
+      "dispatch": "reviewed",
+      "grammar": "GRAM-12",
+      "semantics": "pending",
+      "examples": "pending"
+    },
+    {
+      "slot": 13,
+      "command": "PHASERS",
+      "dispatch": "reviewed",
+      "grammar": "GRAM-5",
+      "semantics": "draft: GAME-PHASERS",
+      "examples": "pending"
+    },
+    {
+      "slot": 14,
+      "command": "PLANETS",
+      "dispatch": "reviewed",
+      "grammar": "GRAM-11",
+      "semantics": "draft: GAME-LIST",
+      "examples": "pending"
+    },
+    {
+      "slot": 15,
+      "command": "POINTS",
+      "dispatch": "reviewed",
+      "grammar": "GRAM-10",
+      "semantics": "draft: GAME-POINTS",
+      "examples": "pending"
+    },
+    {
+      "slot": 16,
+      "command": "QUIT",
+      "dispatch": "reviewed",
+      "grammar": "GRAM-9",
+      "semantics": "pending",
+      "examples": "pending"
+    },
+    {
+      "slot": 17,
+      "command": "RADIO",
+      "dispatch": "reviewed",
+      "grammar": "GRAM-8",
+      "semantics": "draft: GAME-RADIO",
+      "examples": "pending"
+    },
+    {
+      "slot": 18,
+      "command": "REPAIR",
+      "dispatch": "reviewed",
+      "grammar": "GRAM-7",
+      "semantics": "draft: GAME-REPAIR",
+      "examples": "EX-REPAIR-01"
+    },
+    {
+      "slot": 19,
+      "command": "SCAN",
+      "dispatch": "reviewed",
+      "grammar": "GRAM-6",
+      "semantics": "draft: GAME-SCAN",
+      "examples": "EX-SCAN-01"
+    },
+    {
+      "slot": 20,
+      "command": "SET",
+      "dispatch": "reviewed",
+      "grammar": "GRAM-8",
+      "semantics": "draft: GAME-REPORTS",
+      "examples": "pending"
+    },
+    {
+      "slot": 21,
+      "command": "SHIELDS",
+      "dispatch": "reviewed",
+      "grammar": "GRAM-7",
+      "semantics": "draft: GAME-SHIELD",
+      "examples": "EX-SHIELD-01\u201304"
+    },
+    {
+      "slot": 22,
+      "command": "SRSCAN",
+      "dispatch": "reviewed",
+      "grammar": "GRAM-6",
+      "semantics": "draft: GAME-SCAN",
+      "examples": "pending"
+    },
+    {
+      "slot": 23,
+      "command": "STATUS",
+      "dispatch": "reviewed",
+      "grammar": "GRAM-10",
+      "semantics": "draft: GAME-REPORTS",
+      "examples": "pending"
+    },
+    {
+      "slot": 24,
+      "command": "SUMMARY",
+      "dispatch": "reviewed",
+      "grammar": "GRAM-11",
+      "semantics": "draft: GAME-LIST",
+      "examples": "pending"
+    },
+    {
+      "slot": 25,
+      "command": "TARGETS",
+      "dispatch": "reviewed",
+      "grammar": "GRAM-11",
+      "semantics": "draft: GAME-LIST",
+      "examples": "pending"
+    },
+    {
+      "slot": 26,
+      "command": "TELL",
+      "dispatch": "reviewed",
+      "grammar": "GRAM-12",
+      "semantics": "draft: GAME-RADIO",
+      "examples": "pending"
+    },
+    {
+      "slot": 27,
+      "command": "TIME",
+      "dispatch": "reviewed",
+      "grammar": "GRAM-10",
+      "semantics": "draft: GAME-REPORTS",
+      "examples": "pending"
+    },
+    {
+      "slot": 28,
+      "command": "TORPEDOS",
+      "dispatch": "reviewed",
+      "grammar": "GRAM-5",
+      "semantics": "draft: GAME-TORPEDO",
+      "examples": "pending"
+    },
+    {
+      "slot": 29,
+      "command": "TRACTOR",
+      "dispatch": "reviewed",
+      "grammar": "GRAM-7",
+      "semantics": "draft: GAME-TRACTOR",
+      "examples": "pending"
+    },
+    {
+      "slot": 30,
+      "command": "TYPE",
+      "dispatch": "reviewed",
+      "grammar": "GRAM-10",
+      "semantics": "pending",
+      "examples": "pending"
+    },
+    {
+      "slot": 31,
+      "command": "USERS",
+      "dispatch": "reviewed",
+      "grammar": "GRAM-10",
+      "semantics": "draft: GAME-REPORTS",
+      "examples": "pending"
+    },
+    {
+      "slot": 32,
+      "command": "*DEBUG",
+      "dispatch": "reviewed",
+      "grammar": "GRAM-13",
+      "semantics": "pending",
+      "examples": "pending"
+    },
+    {
+      "slot": 33,
+      "command": "*PASSWORD",
+      "dispatch": "reviewed",
+      "grammar": "GRAM-13",
+      "semantics": "pending",
+      "examples": "pending"
+    }
+  ],
+  "pregame": [
+    {
+      "slot": 1,
+      "command": "ACTIVATE",
+      "dispatch": "reviewed",
+      "status": "arguments and effects pending"
+    },
+    {
+      "slot": 2,
+      "command": null,
+      "dispatch": "reviewed",
+      "status": "blank, unmatchable"
+    },
+    {
+      "slot": 3,
+      "command": "GRIPE",
+      "dispatch": "reviewed",
+      "status": "arguments and effects pending"
+    },
+    {
+      "slot": 4,
+      "command": "HELP",
+      "dispatch": "reviewed",
+      "status": "arguments and effects pending"
+    },
+    {
+      "slot": 5,
+      "command": null,
+      "dispatch": "reviewed",
+      "status": "blank, unmatchable"
+    },
+    {
+      "slot": 6,
+      "command": "NEWS",
+      "dispatch": "reviewed",
+      "status": "arguments and effects pending"
+    },
+    {
+      "slot": 7,
+      "command": "POINTS",
+      "dispatch": "reviewed",
+      "status": "arguments and effects pending"
+    },
+    {
+      "slot": 8,
+      "command": "QUIT",
+      "dispatch": "reviewed",
+      "status": "arguments and effects pending"
+    },
+    {
+      "slot": 9,
+      "command": "SET",
+      "dispatch": "reviewed",
+      "status": "arguments and effects pending"
+    },
+    {
+      "slot": 10,
+      "command": "SUMMARY",
+      "dispatch": "reviewed",
+      "status": "arguments and effects pending"
+    },
+    {
+      "slot": 11,
+      "command": "TIME",
+      "dispatch": "reviewed",
+      "status": "arguments and effects pending"
+    },
+    {
+      "slot": 12,
+      "command": "TYPE",
+      "dispatch": "reviewed",
+      "status": "arguments and effects pending"
+    },
+    {
+      "slot": 13,
+      "command": "USERS",
+      "dispatch": "reviewed",
+      "status": "arguments and effects pending"
+    },
+    {
+      "slot": 14,
+      "command": "*DEBUG",
+      "dispatch": "reviewed",
+      "status": "arguments and effects pending"
+    },
+    {
+      "slot": 15,
+      "command": "*PASSWORD",
+      "dispatch": "reviewed",
+      "status": "arguments and effects pending"
+    },
+    {
+      "slot": 16,
+      "command": "*ZAP",
+      "dispatch": "reviewed",
+      "status": "arguments and effects pending"
+    }
+  ]
+}

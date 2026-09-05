@@ -1,0 +1,17 @@
+:root { color-scheme: light; }
+html { background: #f3f2ef; }
+body { max-width: 58rem; margin: 2rem auto; padding: 3rem; background: white; color: #202326; font: 1.05rem/1.65 Georgia, serif; }
+header { text-align: center; padding: 2rem 0 3rem; border-bottom: 1px solid #bbb; }
+h1,h2,h3 { line-height: 1.25; color: #142e43; }
+h1 { margin-top: 3rem; }
+h2 { margin-top: 2rem; }
+a { color: #17547b; text-underline-offset: .15em; }
+#TOC { margin: 3rem 0; padding: 1rem 2rem; border: 1px solid #ddd; }
+#TOC ul { padding-left: 1.3rem; }
+pre,code { font-family: ui-monospace, Menlo, monospace; font-size: .85em; }
+pre { white-space: pre-wrap; overflow-wrap: anywhere; padding: 1rem; background: #f5f5f5; }
+table { border-collapse: collapse; width: 100%; font-size: .9em; margin: 1.5rem 0; }
+th,td { text-align: left; vertical-align: top; padding: .5rem .7rem; border-bottom: 1px solid #ddd; }
+th { border-bottom: 2px solid #777; }
+@media(max-width: 700px) { body { margin: 0; padding: 1.2rem; } }
+@media print { html { background: white; } body { padding: 0; max-width: none; } a { color: inherit; } }

@@ -13,3 +13,7 @@ data/
 /logs/
 # Local duplicate; canonical reference evidence is in legacy/utexas-reference.
 /reference/austin/
+
+# Rebuilt specification outputs; canonical chapters and build tools are tracked.
+/output/spec/
+/output/pdf/

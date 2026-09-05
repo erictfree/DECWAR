@@ -9,6 +9,7 @@ The [project README](../README.md) introduces the game.
 
 | I want to… | Read |
 | --- | --- |
+| Read the implementation-independent language specification | [Austin core specification (draft)](spec/README.md) |
 | Run or play the game | [Running DECWAR](running.md) |
 | Know what works and what remains unresolved | [Current status](status.md) |
 | Understand the memory model, arithmetic and modern host | [Architecture](architecture.md) |

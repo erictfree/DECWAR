@@ -1406,3 +1406,56 @@ Verification:
 
 Publishing this documentation pass under the existing instruction to commit and
 push ready changes to main. Further implementation remains separate from this review.
+
+## Specification goal and plan — September 5, 2026
+
+Created an active goal for an implementation-independent DECWAR specification.
+Austin is the normative core; CompuServe differences form an appendix. Recorded
+work sequence, deliverables, evidence rules, conformance scope and completion
+criteria in docs/spec/PLAN.md. Source semantics warrant High reasoning effort;
+Extra High is not currently needed. This checkpoint establishes the plan only;
+the specification is not yet drafted or reviewed. No runtime/archive changes.
+
+Specification title-page credit: Eric Freeman, PhD and Noah Smith, PhD;
+The University of Texas at Austin, Department of Arts and Entertainment
+Technologies, as provided for the specification. Existing source provenance and
+port/tool attribution remain separate.
+
+### 2026-09-05 — Specification book and source-derived semantics draft
+
+- Created the ordered Markdown book under `docs/spec`, with Austin core chapters,
+  CompuServe amendments, evidence/coverage and unresolved-behavior appendices.
+  The title/byline includes Eric Freeman, PhD; Noah Smith, PhD; The University of
+  Texas at Austin; Department of Arts and Entertainment Technologies.
+- Added `tools/spec/build.ts` and `spec:check`, `spec:build`, `spec:html` scripts.
+  Pandoc AST assembly checks source command tables and chapter/source links,
+  resolves cross-chapter anchors, and builds one Markdown, LaTeX, HTML and PDF.
+  Outputs are ignored; source chapters, metadata, styles and builder are retained.
+- Drafted all 33 main command forms; source-derived clauses now include scaled
+  resources, movement traversal and towing, phaser/torpedo execution and damage,
+  installation defenses, planet removal/docking, nova chains, Romulan scheduling,
+  target selection and weapons, LIST selection, reporting and score-domain limits.
+- Reviewed the original MACRO hit and radio queues directly. Hit storage is
+  partitioned 40 slots per acting identity, retrieval is physical-slot order,
+  radio overflow evicts a recipient's backlog, and source packing narrows report
+  fields. Drafted queue/recipient/exclusion clauses. Modern FIFO assumptions are
+  not substituted for those behaviors.
+- Recorded additional unresolved compiler-evaluation, Romulan target-residue and
+  message-edge cases. The draft is incomplete; compiled output is not proof of
+  game conformance or exact native equivalence. No gameplay code changed and no
+  running game was restarted.
+- Source evidence: pinned `legacy/utexas/DECWAR.FOR`, `SETUP.FOR`, `WARMAC.MAC`
+  and the supplied parameter/common/message files. No external game rules used.
+- Build output: `logs/spec-build.log`; typecheck: `logs/spec-typecheck.log`;
+  immutable-source/generated audit: `logs/spec-audit-check.log`. Initial PDF QA
+  found table/inline-formula overflow; revised AST widths and TeX line-break
+  handling. Final visual review and remaining semantic coverage are ongoing.
+- Checkpoint validation passed: 13 assembled chapters/appendices and 210 local
+  links; `npm run typecheck`; `npm run audit:check`. Staged review also caught intentional Markdown hard-break
+  whitespace and one stray builder space; removed these before commit.
+  Final XeLaTeX pass has no overfull-box, missing-character or unresolved-reference
+  warnings. Rendered the 53-page working draft and inspected page contact sheets
+  plus the title, traversal and conformance pages at reading size. Corrected a
+  Markdown table break caught by visual inspection. PDF/HTML remain local ignored
+  build products. Remaining work includes the complete output catalogue, pregame
+  edge cases, compiler-dependent semantics, expanded scenarios and C amendments.

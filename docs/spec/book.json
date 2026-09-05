@@ -1,0 +1,30 @@
+{
+  "title": "DECWAR Language and Behavior Specification",
+  "subtitle": "Austin Core \u2022 Working Draft",
+  "authors": [
+    "Eric Freeman, PhD",
+    "Noah Smith, PhD"
+  ],
+  "institution": "The University of Texas at Austin",
+  "department": "Department of Arts and Entertainment Technologies",
+  "date": "September 5, 2026",
+  "sourceRevision": "f78f2ec733999617e4281ba3ed967bff8cd5d8f8",
+  "repositoryUrl": "https://github.com/erictfree/DECWAR",
+  "chapters": [
+    "README.md",
+    "lexical.md",
+    "grammar.md",
+    "state.md",
+    "execution.md",
+    "session.md",
+    "gameplay.md",
+    "randomness.md",
+    "terminal.md",
+    "conformance.md"
+  ],
+  "appendices": [
+    "compuserve.md",
+    "evidence.md",
+    "unresolved.md"
+  ]
+}
