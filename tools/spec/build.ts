@@ -58,12 +58,12 @@ for (const name of entries) {
   }
   const doc = JSON.parse(convert(['--from=gfm', '--to=json'], text)) as Document;
   if (name === 'conformance.md') {
-    const expected = [...text.matchAll(/^\| (EX-[A-Z]+-\d+) \|/gm)].map(match => match[1]);
+    const expected = [...text.matchAll(/^\| (EX-(?:[A-Z]+-)+\d+) \|/gm)].map(match => match[1]);
     const actual: string[] = [];
     walk(doc.blocks, node => {
       if (node.t !== 'Table') return;
       walk(node, child => {
-        if (child.t === 'Str' && /^EX-[A-Z]+-\d+$/.test(child.c)) actual.push(child.c);
+        if (child.t === 'Str' && /^EX-(?:[A-Z]+-)+\d+$/.test(child.c)) actual.push(child.c);
       });
     });
     if (JSON.stringify(expected) !== JSON.stringify(actual))

@@ -94,12 +94,12 @@ identifies missing-argument and no-ship limitations. The initial HELP/PREGAME/em
 | Grammar | Main/pregame dispatch, locations and all 33 main command forms drafted | Pregame differences, malformed forms, prompt/output linkage |
 | State | World/ship/session domains, roster, distance and ordinary integer units | Finite numeric model, aliases and complete transition invariants |
 | Execution | Main return paths, accounting, hit/radio queues, recipient sets and exclusion classes | Callback/monitor boundaries, queue edge cases and adversarial interleavings |
-| Randomness | Generator, seeding and initial placement draw order | Per-command draw ledger and reproducible vectors |
+| Randomness | Generator, seeding, placement order, command/helper draw ledger and exact generator vectors | Compound-condition evaluation, abnormal bounds and full seeded interaction traces |
 | Session | Admission, options, team/ship selection, release and termination drafted | Raw-name boundaries, identity, reentry and concurrency details |
-| Gameplay | Resources, scans, traversal, combat, installations, novas, Romulan, LIST and reports drafted | Combat notifications, numeric execution and exact scoring; review failure effects |
-| Terminal | Prompts, fields, scans, utilities and 324 exact named fragments drafted | Remaining inline literals and command assembly, extreme fields and controls |
-| Conformance | Claim boundaries and 65 source-derived scenarios drafted | Deeper failure/interaction cases, native comparisons and a reusable verifier |
-| CompuServe appendix | Nine amendment/scope clauses drafted from both sources | Full persistence, TELL and locking/alias effects; align with remaining core clauses |
+| Gameplay | Resources, scans, traversal, combat, installations, novas, Romulan, LIST and reports drafted | Numeric execution and final scoring; review failure effects |
+| Terminal | Prompts, fields, scans, utilities, all 15 hit-notification types, ordinary score tables and 324 exact named fragments drafted | Remaining inline literals and command assembly, extreme fields and controls |
+| Conformance | Claim boundaries and 90 source-derived scenarios drafted | Deeper failure/interaction cases, native comparisons and a reusable verifier |
+| CompuServe appendix | Nine amendment/scope clauses including commission records, standings ranking, honor-roll fields and DOCUMENT | Persistence failure paths and literal catalogue, TELL and locking/alias effects; align with remaining core clauses |
 
 The draft cannot support a complete game implementation yet. Compilation into
 one document verifies document structure; it does not establish semantic completeness.

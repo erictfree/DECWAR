@@ -129,3 +129,71 @@ runtime result.
 cases have been derived from source and have not been executed as native
 conformance transcripts. Full numeric, interrupt, failure and multi-session
 schedules remain to be added under CONF-4.
+
+## CONF-6 — Notification and score presentation scenarios
+
+These source-derived examples exercise TERM-11 and TERM-12. Notification fields
+are already decoded, the receiver is live, and no concurrent mutation occurs.
+Unless overridden, the output cursor is at column zero with a preceding blank
+line, so the conditional `break` adds nothing. Quoted output uses JSON escapes.
+Fragment composition and field operations retain their TERM-7 meanings.
+
+| ID | Conditions and input | Expected observation |
+| --- | --- | --- |
+| EX-HIT-03 | Short or medium; type 13 notification | Exactly `"Trac. Beam on\r\n"`. |
+| EX-HIT-04 | Long; type 14 notification | Exactly `"\r\nTractor beam broken, Captain.\r\n"`; the initial CR/LF belongs to the fragment. |
+| EX-HIT-05 | Medium, absolute output; type 4, torpedo number 2, target at 12–34 | Exactly `"T2 miss @12-34\r\n"`. |
+| EX-HIT-06 | Short, absolute output; type 15, torpedo number 3, target at 12–34 | Exactly `"T3 neutralized 12-34\r\n"`. |
+| EX-HIT-07 | Medium, absolute output, radio on and damage 3000; type 9 for a Federation base at 12–34 | Exactly `"<> @12-34 attacked\r\n"`. |
+| EX-HIT-08 | Same notification and preferences, radio damage 3001 | Consume notification; no output under the stated cursor condition. |
+| EX-HIT-09 | Medium, absolute output; type 11, source Romulan at 12–34 | Exactly `"??  @12-34\r\n"`, with two spaces before the location. |
+| EX-HIT-10 | Type 1 with target equal to receiver's ship, target kind 1, zero kill flag and nonzero critical device | Include the critical device suffix. Delivering the same notification to another captain omits it. |
+| EX-HIT-11 | Type 3 delivered once under short and once under medium preferences | Short uses the ordinary damage amount and `T` path; medium uses `outh29` and omits the amount. |
+| EX-POINTS-02 | Ordinary actor-only POINTS; all scores zero, actor turn count 1 | Omit all eight category rows; print zero total and zero per-turn average; omit commission count and per-commission rows. |
+| EX-POINTS-03 | Ordinary actor-only POINTS, medium; only enemy-damage score 19, actor turns 2 | Category and total fields end in `1.9`; per-turn field ends in `0.9` because integer division gives 9 before formatting. Stored score stays 19. |
+| EX-POINTS-04 | Ordinary POINTS selects two columns; a category is zero for one but 10 for the other | Include the category row with both fields, including its zero field. |
+
+**Evidence:** [notification recipes](terminal.md#term-11--delivered-hit-notifications)
+and [score recipes](terminal.md#term-12--score-tables), derived from OUTHIT,
+POINTS and the named fragments. These cases have not been executed against the
+native image and do not resolve final-entry or zero-divisor behavior.
+
+## CONF-7 — Random-state scenarios
+
+These source-derived cases specify the state immediately after the named
+operation, excluding subsequent main-loop or autonomous activity. Initial state
+means an already established RNG-1 state, not a call to the clock-based zero-seed
+initializer. Exact fractions denote REAL values.
+
+| ID | Conditions and input | Expected observation |
+| --- | --- | --- |
+| EX-RNG-01 | Initial state 1; six consecutive I(100) calls | Results 14, 64, 56, 80, 48, 75; final state 29360264577. |
+| EX-RNG-02 | Initial state 1; R(), I(100), R() | Results 1013/134217728, 64, 73209255/134217728; final state 18814778687. Both call forms advance the same stream. |
+| EX-RNG-03 | Initial state 262144; I(100) | Result 19; new state 33103223937. Preserve the old upper residue when replacing the zero lower residue. |
+| EX-RNG-04 | Initial state 1, warp damage 3000; enter MOVE | Critical-engine rejection before any random draw; state remains 1. |
+| EX-RNG-05 | Initial state 1, undamaged engine; enter MOVE and cancel during location acquisition | Entry I(4000) yields 1014; new state 260543 despite no completed movement. |
+
+**Evidence:** [generator vectors](randomness.md#rng-6--generator-vectors) and
+[movement draw order](randomness.md#movement-and-phasers). These are arithmetic
+derivations and source-path expectations, not native transcript comparisons.
+
+## CONF-8 — CompuServe standings scenarios
+
+These source-derived cases apply only to C-6. Storage reads and writes succeed,
+the session is connected, and no concurrent update occurs. Update cases specify
+the values passed to the standings operation, without assuming final POINTS has
+resolved its uninitialized-loop behavior. Account identities are nonzero.
+
+| ID | Conditions and input | Expected observation |
+| --- | --- | --- |
+| EX-C-STAT-01 | Elapsed time 999 milliseconds, high score, zero survival flag | Return before reading/updating standings; no recorded-destruction increment. |
+| EX-C-STAT-02 | Elapsed time 1000 milliseconds, score zero, first faction position empty | Pass the eligibility gate and insert a zero-score record; eligibility does not require 1000 score units. |
+| EX-C-STAT-03 | Equal scores; old elapsed time 2000 and incoming 3000 milliseconds; no higher same-account record | Incoming record qualifies before the old one. |
+| EX-C-STAT-04 | Equal scores and equal elapsed times; following position empty | Continue past the tied record and insert at the following position. |
+| EX-C-STAT-05 | Incoming record qualifies for position 3; same account already in position 1; survival flag nonzero | Reject placement; do not write the collection merely to re-save unchanged standings. |
+| EX-C-STAT-06 | Same situation, survival flag zero | Increment recorded destruction and persist the collection despite rejecting the placement. |
+| EX-C-STAT-07 | HONORROLL row with stored score 600 | Credits field displays zero because trunc((600+320)/1000) is zero. |
+| EX-C-STAT-08 | HONORROLL with ordinary negative true argument and terminal width 60 | Header includes its wide suffix, but record rows omit ship/runtime/date fields. |
+
+**Evidence:** [CompuServe persistence amendment](compuserve.md#c-6--persistence-extends-session-4).
+These expectations have not been exercised against a native CompuServe build.

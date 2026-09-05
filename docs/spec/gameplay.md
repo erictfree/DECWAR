@@ -301,16 +301,17 @@ effects remain unresolved. This is distinct from choosing a roster identity.
 GRAM-10 chooses columns. For the ordinary initialized reporting path, display
 selected columns in order: acting ship, Federation, Empire, Romulan. Visit the
 eight score categories in their fixed order and omit a row only when every
-selected value is zero. Sum the displayed category values for each selected
+selected value is zero. Sum the stored category values for each selected
 column, then report totals, commissioned counts for faction/Romulan columns,
 per-commission averages and per-turn averages. Averages use integer division
 before fixed-point display; zero divisors remain U-ZERO-AVERAGE.
 
 Pending per-action score changes are accumulated by EXEC-4, not implicitly
-flushed just because POINTS is requested. Source alias effects through formatting
-calls and final entry's uninitialized loop are not resolved by this mathematical
-summary (U-FINAL-POINTS and U-NUMERIC). No complete final-score conformance claim
-is possible until those effects or a separately named repair policy are specified.
+flushed just because POINTS is requested. Formatting reads score values without
+modifying them; TERM-12 defines exact labels, fields and line endings. Finite
+arithmetic and final entry's uninitialized loop remain subject to U-NUMERIC and
+U-FINAL-POINTS. No complete final-score conformance claim is possible until those
+limits or a separately named repair policy are specified.
 
 **Evidence:** [POINTS](../../legacy/utexas/DECWAR.FOR#L2893),
 [score accumulation](../../legacy/utexas/DECWAR.FOR#L262).

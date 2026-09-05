@@ -134,7 +134,8 @@ finish without any relative suffix. In relative-only mode this can produce an
 empty coordinate field. Otherwise BOTH mode inserts one space. Unless
 absolute-only, emit signed V displacement, `,`, and signed H displacement.
 Use signed-field width zero when the requested width is zero, or width plus one
-otherwise. Append CR/LF only when the caller requests it.
+otherwise. Apply the conditional `break` operation only when the caller
+requests an ending line break.
 
 This is a rendering operation, not a change to the session's coordinate default.
 STATUS can explicitly request absolute output while other callers use that
@@ -156,7 +157,7 @@ The following operations name observable formatting effects, not required APIs:
 | `fixed(x,w)` / `signedFixed(x,w)` | Ordinary or signed scaled-by-ten field under current verbosity. |
 | `object(code,s)` | TERM-8 object text; append one space if s is positive. |
 | `device(d)` / `condition(c)` | TERM-8 device or condition text. |
-| `location(v,h,n,w,m,f)` | TERM-6 coordinate output; n selects ending CR/LF, w width, m coordinate mode and f verbosity. |
+| `location(v,h,n,w,m,f)` | TERM-6 coordinate output; nonzero n selects an ending conditional break, w width, m coordinate mode and f verbosity. |
 | `column(n)` | Emit `max(n−cursorColumn−1,0)` spaces. |
 
 Apply operations in sequence; no implied spaces or line breaks occur between
@@ -288,3 +289,173 @@ help hint in short verbosity.
 [packed yellow-alert literal](../../legacy/utexas/DECWAR.FOR#L1206),
 [QUIT](../../legacy/utexas/DECWAR.FOR#L134),
 [XGTCMD](../../legacy/utexas/SETUP.FOR#L426).
+
+## TERM-11 — Delivered hit notifications
+
+Use the decoded notification fields from EXEC-6, including their narrowing,
+and the receiver's current output preferences and position. Formatting is performed
+at delivery, not publication. Clear the local notification fields before each
+retrieval. If the receiver has no pending hit flag, return. Otherwise apply
+`break` in long verbosity before retrieving the next notification. An unrecognized
+type produces no further text. Continue until the pending flag is zero.
+
+The following rules use TERM-7 operations. Source and target *kind* mean the
+object code divided by 100. Planet kinds are 6 through 8; player ships are 1
+and 2, bases 3 and 4, and Romulan 5. A *planet suffix* is absent unless the
+object is a planet and its reported strength is nonzero; otherwise it is
+`integer(strength)`, enclosed in parentheses only in long verbosity.
+
+### Common attack prefix
+
+Types 1, 2, 3, 6, 7 and 8 begin with these operations:
+
+1. `object(source,0)`, source planet suffix, one space, and source
+   `location(v,h,0,0,outputMode,verbosity)`.
+2. Outside short verbosity, append a comma if source kind is less than 5.
+3. For source kind at most 5, append one space,
+   `signedFixed(sourceShieldMode × sourceStrength)`, and a percent sign outside
+   short verbosity. This includes Romulan kind 5 despite the source comment.
+4. Append one space.
+
+Type 7 then emits `N` in short/medium or `fragment(outh01)` in long, applies
+`break` and finishes. Type 6 similarly emits `U` or `fragment(star02)` and
+finishes. Preserve the leading space within `star02`.
+
+For type 3, medium emits `fragment(outh29)` and long emits
+`fragment(outh30)`, then both proceed directly to the target suffix below.
+Short type 3 follows the ordinary damage path, including its torpedo marker.
+
+### Damage and target suffix
+
+For the ordinary damage path, emit `fragment(outh02)` only in long, then one
+space in every verbosity. If target kind is at most 5, emit `fixed(amount)`
+and, outside short, `fragment(outh03)`. For type 8, emit `N` in short/medium
+or `fragment(outh04)` in long. For other types, emit `P`/`outh06` for type 1
+and `T`/`outh05` otherwise, choosing the letter in short/medium and the fragment
+in long. Targets of kind greater than 5 omit the amount and unit fragment.
+
+Next emit two spaces in short/medium. In long, apply `break` only when target
+kind is less than 5 and the cursor counter exceeds 40; do not otherwise insert
+a separator. Emit `object(target,0)`, target planet suffix, and one space.
+For a displaced target, emit `>` in short, `-->` in medium or
+`fragment(displc)` in long. For a nondisplaced target emit `@` outside short.
+Then emit target `location(v,h,0,0,outputMode,short)`: the coordinate formatter
+is explicitly short even when the rest of the report is long.
+
+If target kind is at most 5 and the kill flag is zero, append a comma outside
+short, one space, `signedFixed(targetShieldMode × targetStrength)`, and a
+percent sign outside short. If this target is the receiving captain's own
+ship and a critical device is recorded, append `; `, `device(deviceNumber)`,
+then one space in short, `fragment(outh08)` in medium or
+`fragment(outh07)` in long. Append `fixed(criticalDamage)` and, only in long,
+`fragment(units1)`. Device names already end in a space. Other captains do not
+receive this device-detail suffix.
+
+In long verbosity, a base target with either a nonzero kill flag or nonzero
+critical damage also produces the base emergency report: two spaces, `break`
+if killed, then `fragment(outh31,1)` and `fragment(outh32,1)`. A surviving
+base emits `fragment(outh33,1)` and finishes with `break`. A killed base emits
+`fragment(outh34)` before the destruction suffix.
+
+For any nonzero kill flag, append one space and apply `break` in long. If the
+flag is not 2, emit `object(target,0)` and `fragment(outh10,1)` in short/medium
+or `fragment(outh09,1)` in long. Then, for every nonzero kill flag, emit
+`object(target,1)` and `fragment(destry,1)`. Finish every ordinary damage path
+with `break`, including surviving targets. Embedded and unconditional line
+endings must not be replaced by a generic one-line-per-event formatter.
+
+### Other notification types
+
+| Type | Output after the per-retrieval long-format break |
+| --- | --- |
+| 4: torpedo miss | `T` in short/medium or `fragment(tormis)` in long; `integer(torpedoNumber)`; `outh13` in short/medium or `outh12` in long; target `location(v,h,1,0,outputMode,verbosity)`. |
+| 5: torpedo into black hole | Same as type 4, replacing the middle fragment with `outh15` or `outh14`. |
+| 15: neutralized torpedo | Same as type 4, replacing the middle fragment with `outh28` or `outh27`. |
+| 9: base assistance | If deliverable, `object(target,1)` and target location without ending newline; short emits ` A` then `break`, medium `fragment(outh17,1)`, long `fragment(outh16,1)`. |
+| 10: base destroyed | Same eligibility and prefix as type 9; short emits ` D` then `break`, medium `fragment(outh19,1)`, long `fragment(outh18,1)`. |
+| 11: Romulan detection | `object(source,1)`; long only `fragment(outh20)`; one space; source `location(v,h,1,0,outputMode,verbosity)`. |
+| 12: energy transfer | `object(source,1)`; long only `fragment(outh21)`; `fixed(amount)`; short/medium ` >` or long `fragment(outh22)`; one space; `object(target,1)`; `break`. |
+| 13: tractor activated | `fragment(outh24,1)` in short/medium or `fragment(outh23,1)` in long. |
+| 14: tractor broken | `fragment(outh26,1)` in short/medium or `fragment(outh25,1)` in long. |
+
+Types 9 and 10 are consumed but suppressed when the receiver's radio damage is
+greater than 3000 or its radio is switched off. Damage exactly 3000 does not
+suppress these notifications. This check occurs after retrieval and after the
+possible long-format break. These are hit-queue notifications; radio-message
+gag filtering does not apply to them. The other types have no such radio gate.
+The torpedo number in types 4, 5 and 15 uses the notification's critical-device
+field, with the same decoding limits.
+
+**Evidence:** [OUTHIT](../../legacy/utexas/DECWAR.FOR#L2404),
+[target suffix](../../legacy/utexas/DECWAR.FOR#L2481),
+[base and destruction suffixes](../../legacy/utexas/DECWAR.FOR#L2520),
+[other event types](../../legacy/utexas/DECWAR.FOR#L2546),
+[literal fragments](messages.md).
+
+## TERM-12 — Score tables
+
+This clause specifies ordinary POINTS output after GAME-POINTS selects its
+columns. Final-entry control flow remains U-FINAL-POINTS; division by a zero
+commission or turn count remains U-ZERO-AVERAGE. Do not substitute zero-valued
+averages as a core rule. Column order is actor, Federation, Empire, Romulan,
+omitting unselected columns throughout. Begin with four zero totals.
+
+Apply `break`, then `column(14)` in short, `column(24)` in medium or
+`column(31)` in long. For the actor header, emit one space, the roster name's
+two padded five-character fields, and two additional spaces outside short.
+For each selected Federation/Empire header emit `federa`/`empire`, one space,
+and two additional spaces outside short. Emit `romula` for the selected Romulan
+header without an added separator. Apply `break`.
+
+Visit the eight score categories in the following order. Omit a category only
+when all selected columns have zero scores in that category. Emit the indicated
+label and long-format addition; then, in selected-column order, emit
+`fixed(categoryScore,11)` and add the stored score, before display scaling, to that column's
+total. Apply `break` after each included category.
+
+| Category | Short label | Medium/long label | Long addition |
+| --- | --- | --- | --- |
+| Enemy damage | `poi11s` | `poi11l` | `column(26)` |
+| Enemies destroyed | `poi12s` | `poi12l` | `fragment(poin22)` |
+| Base damage | `poi13s` | `poi13l` | `column(26)` |
+| Planets captured | `poi14s` | `poi14l` | `fragment(poin21)` |
+| Bases built | `poi15s` | `poi15l` | `fragment(poin23)` |
+| Romulan damage | `poi16s` | `poi16l` | `fragment(poin22)` |
+| Stars destroyed | `poi17s` | `poi17l` | `fragment(poin20)` |
+| Planets destroyed | `poi18s` | `poi18l` | `fragment(poin19)` |
+
+These long additions are literal annotations, including the annotation on
+Romulan damage; they are not new scoring calculations. The formatter reads its
+numeric argument without writing it back. Accumulation therefore uses the stored
+score, not its displayed integer part. The field width 11 applies to the integer
+part: medium/long append the decimal point and fractional digit beyond it.
+Formatting and accumulation are separate reads of the shared score cell. A
+concurrent update between them can make the printed value differ from the value
+added to the total; POINTS does not acquire a snapshot of the whole table.
+
+Emit `poi03s` in short or `poi03l` otherwise, followed by `column(26)` only
+in long. Emit `fixed(total,11)` for each selected column, then `break`.
+
+When any faction column is selected, also emit commission counts and per-commission
+averages. Begin with `poi07s` in short or `poi07l` otherwise and `column(24)`
+only in long. Let count width be 11 in short and 13 otherwise. If the actor
+column is selected, emit that many spaces as its empty count field. Emit
+`integer(commissionCount,countWidth)` for each selected faction: Federation
+and Empire use their commissioned-ship counts, Romulan its commissioning count.
+
+Immediately emit `poi05s` in short or `poi05l` otherwise; do not insert a
+separate `break` before this label. In long apply `column(26)`. Leave the actor
+column blank using count width spaces. For each selected faction emit
+`fixed(trunc(total / commissionCount),11)`.
+
+Finally emit `poi06s` in short or `poi06l` otherwise, again without inserting
+an extra break, and apply `column(26)` only in long. For every selected column
+emit `fixed(trunc(total / turnCount),11)` using actor turns for the actor and
+the corresponding team turns for each faction, then `break`. The label fragments
+already contain leading CR/LF. Integer division occurs before fixed-point
+display; do not calculate an unrestricted decimal average and round it for print.
+
+**Evidence:** [POINTS header and category rows](../../legacy/utexas/DECWAR.FOR#L2935),
+[totals and averages](../../legacy/utexas/DECWAR.FOR#L2997),
+[nonmutating OFLT](../../legacy/utexas/WARMAC.MAC#L1939),
+[score fragments](messages.md).

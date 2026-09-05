@@ -1496,3 +1496,45 @@ port/tool attribution remain separate.
   arithmetic, deeper interleaving examples and the complete CompuServe amendment
   set still require review. Page count and passing structural checks are not
   evidence of complete historical conformance.
+
+### 2026-09-05 — Specification combat output, random ledger and standings
+
+- Prior goal turn classified as progress: published utilities/catalogue work in
+  2d9e051. Continued from a clean worktree without modifying game runtime or
+  native state.
+- Added TERM-11 recipes for all 15 decoded hit-notification types, preserving
+  delivery-time preferences, source/target fields, short deflection behavior,
+  conditional breaks, victim-only device reports, base emergency/destruction
+  sequences and the radio-damage >3000 delivery gate for base distress calls.
+- Added TERM-12 ordinary POINTS tables: category suppression, header/field widths,
+  literal annotations, totals and integer-divided averages. Verified OFLT reads
+  without modifying its argument; documented separate shared-score reads for
+  formatting and accumulation. Corrected coordinate-ending notation to use the
+  source's conditional CRLF operation. Final-entry and zero-divisor limits remain.
+- Added RNG-4/5/6: command/helper draw ledger, enumerated compound-condition
+  evaluation limits and exact source-derived generator vectors. Read the actual
+  FORTRAN and assembly call sites; calculations use an independent integer
+  recurrence, not the port. Logs: logs/spec-random-call-sites.log and
+  logs/spec-random-vectors.log. No new native execution was performed.
+- Expanded C-4/C-6 with active DOCUMENT behavior, account classification,
+  commissioning, standings records, eligibility/ranking, duplicate checks,
+  persistence ordering and honor-roll fields. The eligibility gate is elapsed
+  time >=1000 ms, not score; equal scores favor longer incoming missions; the
+  honor credit addition is octal 500 (decimal 320). The selected source inserts
+  dead missions in principal lists despite retaining memorial-list output.
+  Recorded U-C-STATISTICS for failed/partial storage and U-C-DOCUMENT for the
+  compiler-dependent continued-literal whitespace; no silent corrections.
+- Added 25 scenarios, now 90 source-derived cases. Extended the document builder's
+  scenario-ID recognizer to include variant-qualified IDs (EX-C-STAT-...). It now
+  verifies their actual Pandoc table rows rather than silently omitting them.
+- Validation passed: book build (14 chapters/appendices, 306 local links, 324
+  exact named Austin fragments, 90 scenario rows), typecheck, immutable-source
+  audit and whitespace checks. Command output is in logs/spec-build.log,
+  logs/spec-typecheck.log and logs/spec-audit-check.log. Rendered the expanded
+  PDF and inspected contact sheets plus full-size notification, random-vector
+  and standings pages; logs/spec-final-render.log records rendering. Generated
+  PDF/HTML/LaTeX remain ignored local outputs.
+- Goal remains active. Remaining work includes other inline/output assembly,
+  finite arithmetic/compiler boundaries, fuller adversarial interactions,
+  CompuServe TELL and synchronization/alias amendments, and persistence failures.
+  This checkpoint does not establish full native or implementation conformance.
