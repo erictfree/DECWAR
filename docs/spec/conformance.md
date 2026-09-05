@@ -236,11 +236,11 @@ the source's ordinary output buffer behavior. Quoted strings use JSON escapes.
 | ID | Conditions and input | Expected observation |
 | --- | --- | --- |
 | EX-MESSAGE-02 | Austin receiver has no gag bits; valid queued message from code 101 to original recipients 1 and 2; body `hello` followed by CR/LF and NUL | Emit `"\r\nMessage from E to  E F\r\nhello\r\n\r\n"`. |
-| EX-MESSAGE-03 | Retained body buffer is `old` followed by CR/LF and NUL; message flag 1 but retrieval finds no matching entry | Clear message flag and emit `"old\r\n\r\n"` without a heading. |
+| EX-MESSAGE-03 | Retained body is `old` followed by CR/LF and NUL; message flag 1 but retrieval finds no matching entry | Clear message flag and emit `"old\r\n\r\n"` without a heading. |
 | EX-RADIO-03 | RADIO GAG names the actor's own ship; cursor at left margin after a blank line | No gag change and no output after the suppressed initial break. |
 
 **Evidence:** [radio output recipes](terminal.md#term-14--radio-commands-and-delivered-messages).
-These cases do not resolve U-ROM-GAG or malformed message-buffer contents.
+CompuServe gag behavior and malformed message contents remain unresolved.
 
 ## CONF-11 — Status and identity report scenarios
 
@@ -302,15 +302,14 @@ constructs exact input text; it is not syntax typed into DECWAR.
 
 | ID | Conditions and input | Expected observation |
 | --- | --- | --- |
-| EX-DECIMAL-01 | Acquire `123456.789` as one token | Retained text is `12345`, category REAL, count 1. The decimal point resumes deposits after those five saved characters, but the following sentinel clears the second text field before acquisition returns. |
+| EX-DECIMAL-01 | Acquire `123456.789` as one token | Retained text is `12345`, category REAL, count 1. No earlier token exists for LEX-8 to affect; the sentinel has empty text and value zero. |
 | EX-DECIMAL-02 | Acquire thirteen commas, then a period, then 66 uppercase A characters (80 total) | Return 14 tokens: thirteen null categories, then alphanumeric `.AAAA`. Numeric fields 1–11 become −33548091006; field 12 becomes −33550237696; fields 13 and 14 are zero. Sentinel is position 15 with zero text/numeric value. Earlier null categories remain unchanged despite their overwritten numeric fields. |
-| EX-DECIMAL-03 | Acquire `1`, thirteen commas, a period and 65 uppercase A characters (80 total) | Token 1 retains text `1` and integer category, but its numeric value becomes −33548091005. The low bit from its original value 1 survives the seven-bit deposits. Token 14 is alphanumeric `.AAAA` with numeric value zero. |
+| EX-DECIMAL-03 | Acquire `1`, thirteen commas, a period and 65 uppercase A characters (80 total) | Token 1 retains text `1` and integer category, but its numeric value becomes −33548091005. The transformation preserves the original value’s odd parity. Token 14 is alphanumeric `.AAAA` with numeric value zero. |
 
 **Evidence:** [LEX-8](lexical.md#lex-8--decimal-text-spill),
 [compiled tokenizer observations](evidence.md#compiled-tokenizer-observations).
-These are source/instruction and arithmetic derivations, not native transcript
-comparisons. The alphanumeric suffixes in the two long cases prevent fractional
-digit arithmetic after the initial decimal point.
+These are derived examples, not native transcript comparisons. The alphabetic
+suffixes prevent fractional-digit arithmetic after the initial decimal point.
 
 ## CONF-14 — LIST parser and partial-output scenarios
 
@@ -331,3 +330,27 @@ alone, excluding the next prompt. There are no queued notifications.
 [TERM-22](terminal.md#term-22--list-selection-diagnostics),
 [LIST outer loop](../../legacy/utexas/DECWAR.FOR#L1359).
 These are source-derived cases, not native transcript comparisons.
+
+## CONF-15 — Conditional draws and Romulan gagging
+
+The random cases start with session random state 1 and observe only the named
+condition, after its preceding gates and before subsequent actions. They do not
+assert that a complete attack or activation consumes no additional draws.
+
+| ID | Conditions and input | Expected observation |
+| --- | --- | --- |
+| EX-RNG-06 | Romulan target candidates have distances 10, 20, 30 and 40, in selection order | Keep the first group. No draw; random state remains 1. |
+| EX-RNG-07 | Candidate distances are 10, 9, 9 and 8 | Select the second group without a draw; the third ties and draws `I(2)=2`, leaving that selection; the fourth replaces it without a draw. Final selected group is fourth; random state is 260543. |
+| EX-RNG-08 | Neutral-planet activation reaches its neutral skip condition | Draw `I(2)=2`; do not skip at this condition. Random state is 260543. |
+| EX-RNG-09 | Absent Romulan reaches appearance comparison with counter 11 and admitted-player count 4 | Return without the appearance draw; random state remains 1. |
+| EX-RNG-10 | Supernova examines a neighboring star with the pending-star list already full | Draw `I(5)=4`, then reject adding it for lack of capacity. Random state is 260543. |
+| EX-RNG-11 | Ship target reaches the shared torpedo/phaser critical condition | Draw `I(5)=4` despite the target being a ship; random state becomes 260543. Continue through the ship path. |
+| EX-RNG-12 | Base reaches the destruction condition with strength already zero | Draw `I(10)=4`, then set destruction flag to 2 because strength is nonpositive. Random state is 260543. |
+| EX-RNG-13 | Romulan is absent at the post-torpedo displacement condition | No displacement draw; random state remains 1. |
+| EX-MESSAGE-04 | Receiver has gagged Trenton, and a Romulan message is retrieved | Consume the message without heading or body output. |
+| EX-MESSAGE-05 | Receiver has gagged Hawk, and a Romulan message is retrieved | Consume the message without heading or body output. |
+| EX-MESSAGE-06 | Receiver has gagged only Wolf, and a Romulan message is retrieved | Emit the heading and body under TERM-14; this gag selection does not suppress them. |
+
+**Evidence:** [conditional draw rules](randomness.md#rng-5--compound-condition-draw-order),
+[radio output](terminal.md#term-14--radio-commands-and-delivered-messages).
+These are derived examples, not native transcript comparisons.

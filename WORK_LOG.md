@@ -1687,3 +1687,40 @@ port/tool attribution remain separate.
   compiler evaluation and retained values against this build. Remaining source
   output, finite arithmetic, host/alias boundaries, CompuServe persistence and
   deeper conformance still need review.
+
+## 2026-09-05 — Specify behavior; retain implementation analysis separately
+
+- Clarified the publication boundary: legacy source and the preserved executable
+  remain the strongest evidence, while the book defines syntax and meaning.
+  Excluded evidence.md from the book manifest and added implementation-notes.md
+  as companion research. Preserved the instruction/address tables, storage
+  derivations and unresolved implementation questions there rather than deleting
+  their evidence. README, PLAN and BUILD record this distinction.
+- Recast decimal token interactions as an arithmetic transformation of the
+  returned token values, without prescribing storage. Recast Romulan gagging,
+  exclusion classes, message limits, output edge limits and unresolved questions
+  as observable behavior. Further clause review remains part of the active goal.
+- Established nine Austin conditional random-call sites using the preserved,
+  hash-verified executable: three DIST comparisons, neutral activation, Romulan
+  appearance, supernova neighbor selection, shared critical and base-destruction
+  conditions, and post-torpedo Romulan displacement. Their effects are RNG-5;
+  instruction evidence remains in the companion research record. CompuServe
+  evaluation remains separately unresolved.
+- Established Austin's Romulan gag behavior: gagging Trenton or Hawk suppresses
+  its messages; gagging Wolf alone does not. Compiled OUTMSG indexing and the
+  final roster marker establish the result; they do not establish CompuServe's
+  corresponding mask. Added eleven derived examples, for 145 total. These are
+  not native transcript comparisons.
+- Built and checked the 93-page document: 13 included chapters/appendices,
+  393 local links and 324 named fragments. Source audit passed. Rendered pages
+  6, 10, 11, 58, 75, 76, 92 and 93; visually reviewed changed lexical rules,
+  radio rules, examples and limits. Compiled listings are absent from the book.
+- Compared the new decimal transformation with the former deposition derivation
+  in 952 bounded cases. An initial assertion wrongly included self-deposits;
+  final token assignment erases those, and the corrected comparison checks final
+  numeric observations. An initially incorrect radio-clause link was also caught
+  and corrected before the successful build. Logs: spec-pure-semantics-check.log,
+  spec-pure-semantics-build.log, spec-pure-semantics-audit.log and
+  spec-pure-semantics-review.log under logs/.
+- Specification goal remains active. Finite numeric domains, remaining behavioral
+  edge cases, variant details and conformance coverage still require review.

@@ -163,17 +163,16 @@ The following operations name observable formatting effects, not required APIs:
 
 Apply operations in sequence; no implied spaces or line breaks occur between
 them. A fragment can already begin or end with CR/LF, independently of its n
-argument. The Austin ASCIL macro expands to ASCIZ with no added characters,
-despite its comment describing an automatic CR/LF suffix. Directly quoted ASCIL
-text must therefore not receive that suffix by convention.
+argument. A directly quoted literal has no implicit ending either; any added
+line ending is stated in its output recipe.
 
-For buffered output, the source's cursor counter increases for codes 32 through
+For ordinary application output, the cursor column increases for codes 32 through
 127, including DEL. CR sets the counter to zero and, if the old counter was
 nonzero, sets the blank-line counter to −1. LF increments the blank-line counter
 without moving the horizontal counter. Backspace decrements the horizontal
 counter without a lower clamp. Tab assigns `32×floor((cursorColumn+8)/32)` for
-ordinary nonnegative coordinates: the source clears five low bits after adding
-eight. Do not replace that arithmetic with conventional eight-column tab stops.
+ordinary nonnegative coordinates. These are not conventional eight-column
+tab stops.
 Other control characters leave these counters unchanged. TERM-3's conditional
 break emits CR/LF unless the horizontal counter is zero and blank-line counter
 is positive. Buffered output after a disconnect is suppressed before these
@@ -522,24 +521,24 @@ delivery ends with an additional blank line.
 
 A zero sender bypasses both gag testing and the heading, proceeding directly
 to body output. Failed/no-match retrieval clears sender, recipients and the
-message flag without clearing the retained body buffer. If the output loop
+message flag without clearing the retained body. If the output loop
 entered on a positive flag, it can therefore print a previously retained body
 once through this zero-sender path. Do not replace that path with an implicit
 empty body or an early return.
 
-The gag lookup for nonzero sender uses the sender code modulo 100 as an index
-into the identity-bit table. Romulan code 500 therefore reads index zero,
-which under both supplied declarations aliases the final roster-marker word
-immediately preceding the table. Its character padding determines which gag
-bits can suppress a Romulan message (U-ROM-GAG). Do not infer that Romulan
-messages are always immune to gagging because RADIO has no Romulan ship slot.
+A Romulan message is suppressed when the receiving session has gagged Trenton
+(slot 7), Hawk (slot 14), or both. Gagging Wolf alone does not suppress it.
+Apply this rule to the receiving session's gag selections, independently of the
+message's recipient set. These are Austin rules; the corresponding CompuServe
+behavior remains U-ROM-GAG.
 
 **Evidence:** [RADIO](../../legacy/utexas/DECWAR.FOR#L3129),
 [TELL](../../legacy/utexas/DECWAR.FOR#L3977),
 [OUTMSG](../../legacy/utexas/DECWAR.FOR#L2599),
 [GETMSG failure path](../../legacy/utexas/WARMAC.MAC#L3036),
 [roster markers](../../legacy/utexas/DECWAR.FOR#L489),
-[adjacent marker/bit declarations](../../legacy/utexas/HISEG.FOR#L68).
+[adjacent marker/bit declarations](../../legacy/utexas/HISEG.FOR#L68),
+[compiled mask evidence](evidence.md#compiled-randomness-and-message-observations).
 
 ## TERM-15 — STATUS fields
 
@@ -802,12 +801,10 @@ concurrent replacement of a selected planet cell with a nonplanet, or other
 invalid record/type combinations, have not been established. It does not imply
 a recheck, a snapshot, or a repair of such a state.
 
-Selection diagnostics and specific-coordinate listings of noncombat objects
-also have unresolved paths under U-LIST-OUTPUT. In particular, a zero-valued
-indirect message reference is not defined here as an empty fragment. The output
-routine tests the argument address for zero before examining the value stored
-there; these are different cases. The ordinary valid-object recipes above do
-not settle those paths.
+Output for a group with no matching objects and specific-coordinate listings
+of empty space, stars or black holes remains U-LIST-OUTPUT. The draft does not
+specify those cases as silent or as empty output. The valid-object recipes above
+do not settle them.
 
 **Evidence:** [LIST entries and pass invocation](../../legacy/utexas/DECWAR.FOR#L1359),
 [LSTOUT](../../legacy/utexas/DECWAR.FOR#L1959),
@@ -834,7 +831,7 @@ the prefix already present in the fragment.
 | Named Romulan requested with option enabled but absent | `fragment(lstf05,1)`. |
 | Named ship found unoccupied, or its recorded board cell is empty | `object(code,0)`, `text(" is not in the game")`, one unconditional CR/LF. |
 
-The parser does not add a syntax diagnostic when its token pointer exceeds the
+The parser does not add a syntax diagnostic when its next token position exceeds the
 capacity guard; it takes its abort return. The coordinate guard after consuming
 the second coordinate likewise aborts silently when it exceeds the bound.
 

@@ -20,10 +20,18 @@ historical release. CompuServe differences belong in a separate appendix keyed
 to core clause identifiers. A core rule is not inferred from CompuServe merely
 because that version has more extensive documentation or was ported first.
 
-The source archives are evidence for deriving the specification. A completed
-normative clause should be implementable from its text; importing the source,
-its memory map or the existing TypeScript implementation is not a conformance
-requirement. Citations explain provenance, not an escape hatch for incomplete rules.
+The legacy implementations and preserved Austin executable are the primary
+evidence for deriving syntax and meaning. This document states the resulting
+rules in terms of inputs, abstract game state, transitions and observations.
+It does not prescribe algorithms, data structures, memory layouts, programming
+languages or platform services. A completed normative clause must stand on its
+own; citations explain provenance rather than supplying omitted requirements.
+
+Instruction analysis, storage explanations, build procedures and review coverage
+belong in the companion [research and coverage record](evidence.md), which is
+not included in the assembled specification. Historical quirks remain part of
+the rules when they affect game behavior, even when their causes are described
+only in those companion notes.
 
 ## SCOPE-2 — Normative language and evidence
 
@@ -68,10 +76,9 @@ profile criteria will be defined separately rather than silently relaxing output
 - [Terminal behavior](terminal.md) and [conformance examples](conformance.md).
 - [CompuServe amendments](compuserve.md).
 - [Named message fragments](messages.md): exact source text.
-- [Evidence and coverage](evidence.md): source references and review status.
 - [Unresolved behavior](unresolved.md): questions and separate playable policies.
 
-Remaining clause-level work is tracked in the plan and coverage appendix.
+Remaining clause-level work is tracked in the companion plan and coverage record.
 No host port, filesystem format, programming language or emulator is mandated.
 
 ## Attribution
@@ -81,8 +88,7 @@ OpenAI GPT-6 Astra, based on Noah Smith, PhD’s Austin reconstruction and the l
 CompuServe tape. See [source provenance](../../legacy/README.md),
 [licensing](../../LICENSING.md) and [decwar.org](https://decwar.org).
 
-## Building the single document
+## Companion material
 
-Run `npm run spec:build` to assemble all chapters into one LaTeX document and
-compile its PDF; the same command generates standalone HTML and Markdown.
-See [build instructions](BUILD.md) for dependencies, outputs and validation.
+The [research and coverage record](evidence.md), [work plan](PLAN.md) and
+[build instructions](BUILD.md) accompany this specification separately.

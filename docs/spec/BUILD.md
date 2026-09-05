@@ -82,3 +82,10 @@ fields for inspection; it does not establish that every displayed word is code.
 It neither executes the image nor contacts an emulator. Node alone is sufficient.
 The [compiled tokenizer observations](evidence.md#compiled-tokenizer-observations)
 give the reviewed findings and their limits.
+
+## Research outside the publication
+
+The book manifest excludes evidence.md, implementation-notes.md, PLAN.md and
+this build guide. They preserve derivations, review coverage and tooling without
+putting implementation recipes into the syntax-and-semantics document. Brief
+source citations in the book link to this companion material when useful.

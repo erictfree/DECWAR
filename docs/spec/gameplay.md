@@ -454,8 +454,8 @@ This clause describes the shared phaser/torpedo damage calculation. Let S denote
 the target's integer shield/base strength. Damage quantities H and random values
 below are REAL until an indicated integer assignment. Every assignment converts
 its whole expression; implementations MUST NOT move a truncation through an
-addition or subtraction. Finite operations and compound-condition random draw
-ordering remain U-NUMERIC and U-EVALUATION.
+addition or subtraction. Finite operations remain U-NUMERIC. RNG-5 establishes
+the shared critical/destruction tests' draw order for the pinned Austin image.
 
 A torpedo first returns without changing the target if ship hull damage is at
 least 25000 or engine energy is nonpositive, or if base strength is nonpositive.
@@ -480,8 +480,9 @@ Again clamp ship strength below at zero only.
 
 For an undeflected hit, save integer reported damage `INT(H)`. If
 `H×(B+0.1)` is below 1700, proceed to ordinary damage. Otherwise the compound
-condition tests `I(5)=5` together with whether the target is a base. A qualifying
-base enters critical-base handling immediately. A ship halves H, selects device
+condition consumes `I(5)` before testing whether the target is a base. On result
+5, a base enters critical-base handling immediately. Other base results proceed
+to ordinary base damage. A ship halves H, selects device
 `INT(9×R()+1)`, adds H to that device's damage with conversion at assignment,
 and records `INT(H)` critical damage. Selecting shields lowers them. Then add
 `(R()−0.5)×1000` to H and replace reported damage by `INT(H)`.
@@ -543,8 +544,8 @@ strength through GAME-ROM-DAMAGE. Credit the defending faction with reported
 damage and 5000 for a kill. These are direct faction score updates, not the
 acting player's pending score.
 
-Planet activation visits current planet-record order. A neutral planet's compound
-condition skips it when `I(2)=1`; draw evaluation remains U-EVALUATION. In player
+Planet activation visits current planet-record order. Only a neutral planet
+consumes the selection `I(2)` and is skipped on result 1 (RNG-5). In player
 context skip planets owned by the acting faction. For each remaining planet,
 visit occupied player ships in roster order, excluding its own faction, hidden
 or empty board cells, and targets beyond distance 2. Fire phasers of strength
@@ -601,8 +602,8 @@ Remove the initiating star. Maintain two last-in-first-out work lists: pending
 victims and pending stars. Around the current explosion, scan the clipped 3×3
 square in increasing V then H. Add every ship, base, Romulan or planet location
 to the victim list, recording its displacement from the exploding star. For a
-neighboring star, the compound condition selects it unless `I(5)=5`; see
-U-EVALUATION for calls on other cell kinds. If 29 stars are already pending,
+neighboring star, consume `I(5)` and select it unless the result is 5; nonstars
+consume no draw at this test (RNG-5). If 29 stars are already pending,
 leave the new star intact. Otherwise push its location and immediately clear its
 cell. This is a limit on pending stars, not on total explosions in a chain.
 
@@ -662,7 +663,7 @@ Nonpositive energy removes the Romulan, clears its cell and records destruction.
 Nova damage follows GAME-NOVA instead.
 
 After a player's torpedo hit, a surviving Romulan attempts GAME-DISPLACE when
-`I(10)>7`; preserve the compound-condition evaluation obligation. Player phaser
+`I(10)>7`; an absent Romulan skips this draw (RNG-5). Player phaser
 and torpedo attacks add the reported damage to pending Romulan score, plus 5000
 if it is destroyed. Installations credit their factions directly. Reported damage
 is not the number of energy quanta actually lost.
@@ -683,8 +684,8 @@ occupancy test. Bases require positive strength and a nonzero cell, and their
 faction must have a positive base count.
 
 Compare group winners in the order above. Replace the current winner for a
-smaller squared distance, or a tie when `I(2)=1`. These are compound conditions
-subject to U-EVALUATION. Return the chosen object's position and its Chebyshev
+smaller squared distance without a draw, or on a tie when `I(2)=1`. A larger
+distance consumes no draw either (RNG-5). Return the chosen object's position and its Chebyshev
 distance for subsequent movement/range checks. Ranking distance and returned
 range are deliberately different.
 
@@ -707,7 +708,8 @@ is below player count, return. Otherwise enter Romulan action context and
 increment the Romulan turn count, even if no attack eventually occurs.
 
 For an absent Romulan, wait until the counter is at least three times player
-count and the compound appearance condition permits `I(5)` other than 5.
+count, then draw `I(5)` and continue only for a result other than 5. Do not
+consume that draw while below the bound (RNG-5).
 Reset the counter, place the Romulan in a randomly selected empty cell, mark it
 present, set energy to `200+I(200)` and increment its commissioning count.
 Notify nearby players, also including the privileged acting session. Draw

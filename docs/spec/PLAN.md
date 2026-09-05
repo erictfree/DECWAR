@@ -23,6 +23,11 @@ are a separate, nonhistorical policy record, never silently normative Austin rul
 
 Files under this directory will use stable clause and example identifiers.
 Normative statements will be separated from evidence and explanatory notes.
+The assembled specification contains syntax, semantic rules, examples, source
+citations and explicit limits. Detailed implementation analysis and publication
+procedures remain companion material outside the book manifest. Derive rules
+from the legacy implementations as thoroughly as needed; express their observable
+consequences without prescribing how a new implementation realizes them.
 
 | Document | Content |
 | --- | --- |
@@ -37,7 +42,7 @@ Normative statements will be separated from evidence and explanatory notes.
 | terminal.md | Output messages, formatting, prompts, controls and application-byte behavior; distinguish transport bindings. |
 | conformance.md | Claim boundaries, reproducible scenarios, initial conditions, inputs, expected state/output and error cases. |
 | compuserve.md | Appendix of additions, removals and changed rules keyed to Austin clauses; unchanged clauses inherit core rules. |
-| evidence.md | Clause-to-source references, physical lines/labels, corroborating tests/reference observations and review coverage. |
+| evidence.md | Companion research outside the assembled specification: clause-to-source references, instruction/storage derivations, corroborating observations and review coverage. |
 | unresolved.md | Specific open questions, affected clauses, available evidence and what would resolve each question; separate playable policies. |
 
 ## Work sequence and checkpoints
@@ -80,6 +85,8 @@ Normative statements will be separated from evidence and explanatory notes.
 - Every section above is drafted and source-reviewed, with a coverage matrix
   that exposes omissions instead of relying on page count or test count.
 - Normative rules have traceable source evidence; derived conclusions are marked.
+- The assembled document specifies syntax and meaning, without implementation
+  recipes. Detailed historical derivations remain available in companion notes.
 - Arithmetic, timing and randomness rules are precise enough to implement without
   importing TypeScript helpers or requiring PDP-10 storage structures.
 - Representative conformance scenarios cover each command family and lifecycle

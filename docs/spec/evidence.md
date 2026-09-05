@@ -1,7 +1,9 @@
 # Evidence and coverage
 
-This appendix is informative. It tracks how the draft was derived; it does not
-make incomplete sections normative by referring readers back to executable code.
+This companion research record is not part of the assembled specification.
+It preserves how rules were derived, including implementation analysis and
+compiled-image evidence. The specification itself defines syntax and meaning;
+these notes neither prescribe implementation choices nor supply missing rules.
 
 ## Evidence hierarchy
 
@@ -94,12 +96,12 @@ identifies missing-argument and no-ship limitations. The initial HELP/PREGAME/em
 | Grammar | Main/pregame dispatch, locations and all 33 main command forms drafted | Pregame differences, malformed forms, prompt/output linkage |
 | State | World/ship/session domains, roster, distance and ordinary integer units | Finite numeric model, aliases and complete transition invariants |
 | Execution | Main return paths, accounting, hit/radio queues, recipient sets and exclusion classes | Callback/monitor boundaries, queue edge cases and adversarial interleavings |
-| Randomness | Generator, seeding, placement order, command/helper draw ledger and exact generator vectors | Compound-condition evaluation, abnormal bounds and full seeded interaction traces |
+| Randomness | Generator, seeding, placement order, draw ledger/vectors and nine compiled Austin compound-condition call sites | Abnormal bounds, other side-effecting expressions and full seeded interaction traces |
 | Session | Admission, options, team/ship selection, release and termination drafted | Raw-name boundaries, identity, reentry and concurrency details |
 | Gameplay | Resources, scans, traversal, combat, installations, novas, Romulan, LIST and reports drafted | Numeric execution and final scoring; review failure effects |
 | Terminal | Prompts, fields, scans, utilities, all 15 hit-notification types, score tables, radio/speech, status/damage/time/identity reports, LIST rows/grouped assembly/parser diagnostics and 324 exact named fragments drafted | No-matching-group message edge, remaining inline literals and command assembly, extreme fields and controls |
-| Conformance | Claim boundaries and 134 source-derived scenarios drafted | Deeper failure/interaction cases, native comparisons and a reusable verifier |
-| CompuServe appendix | Eleven clauses including standings, DOCUMENT, TELL replies/relocation, speech-mask aliases, queue differences and exclusion/wait behavior | Persistence failures and literal catalogue, node-derived speech, monitor lock limits and other argument aliases |
+| Conformance | Claim boundaries and 145 source-derived scenarios drafted | Deeper failure/interaction cases, native comparisons and a reusable verifier |
+| CompuServe appendix | Twelve clauses including standings, DOCUMENT, TELL replies/relocation, speech-mask aliases, queue differences, exclusion/wait behavior and unresolved variant-rule limits | Persistence failures and literal catalogue, node-derived speech, monitor lock limits, evaluation/padding and other argument aliases |
 
 ## Compiled tokenizer observations
 
@@ -140,6 +142,62 @@ overflow/trap continuation in decimal arithmetic.
 [source scanner](../../legacy/utexas/WARMAC.MAC#L1454),
 [inspection tool](../../tools/spec/inspect-reference.ts),
 [CPU byte-operation evidence](../platform-manuals.md#byte-deposits-and-token-text).
+
+## Compiled randomness and message observations
+
+These observations use the same preserved, hash-verified Austin image identified
+above. They corroborate particular source branches, not a universal compiler
+evaluation policy. Addresses in the table are octal. The random-call instructions
+are `260740462111`, a call to the LINK map's IRAN entry.
+
+| Call site | Compiled control flow | IRAN call address |
+| --- | --- | --- |
+| DIST, Empire ship comparison | At 413031–413035, smaller distance branches to replacement and unequal distance branches to the next comparison; only equality reaches the call. | 413037 |
+| DIST, Federation base comparison | At 413046–413052, the next distance is compared with the currently selected group's distance using the same smaller/unequal gates. | 413054 |
+| DIST, Empire base comparison | At 413063–413067, the final candidate uses the updated current selection and the same gates. | 413071 |
+| PLNATK | At 427143–427144, a kind other than neutral bypasses the call. Result 1 branches to the loop continuation at 427430. | 427146 |
+| ROMDRV appearance | At 432372–432373, a counter below three times player count branches to return at 432710 before the call. | 432375 |
+| SNOVA | At 436323–436324, a kind other than star bypasses the call. The pending-capacity test at 436331–436333 follows the random-result test. | 436326 |
+| Shared critical test | At 440324–440332, the call and comparison with 5 precede the base-kind comparison. The base-kind test cannot suppress the call. | 440325 |
+| Base destruction | At 441121–441133, the call precedes any strength comparison. Result 10 branches directly to setting the destruction flag; other results reach the strength test. | 441122 |
+| TORP Romulan displacement | At 442141–442142, false Romulan presence bypasses the call; later code compares the result with 7. | 442144 |
+
+OUTMSG at 425640–425644 computes sender modulo 100, reads the indexed value
+based at 405554, intersects it with GAGMSG and loops without output on a nonzero
+intersection. At 405554 the encoded value is `202564020100`, decoding to
+`" W   "`. The next eighteen fields are successive powers of two from 1 through
+131072. Thus the index-zero mask is the final roster marker, and its overlap with
+ordinary eighteen-slot gag sets selects slots 7 and 14. These are data fields;
+the inspector's instruction-column display does not turn them into instructions.
+
+Reproduce representative inspections with:
+
+```sh
+node tools/spec/inspect-reference.ts --address=413026 --words=49
+node tools/spec/inspect-reference.ts --address=427143 --words=10
+node tools/spec/inspect-reference.ts --address=432365 --words=11
+node tools/spec/inspect-reference.ts --address=436322 --words=14
+node tools/spec/inspect-reference.ts --address=440324 --words=12
+node tools/spec/inspect-reference.ts --address=441121 --words=14
+node tools/spec/inspect-reference.ts --address=442141 --words=9
+node tools/spec/inspect-reference.ts --address=425640 --words=5
+node tools/spec/inspect-reference.ts --address=405554 --words=19
+```
+
+The reviewed branches establish RNG-5 and the Austin part of TERM-14. They
+do not establish native outcomes for arithmetic exceptions, invalid target
+records, asynchronous changes between reads, or a differently compiled variant.
+
+**Evidence:** [IRAN and OUTMSG LINK entries](../../legacy/utexas-reference/f78f2ec/DECWAR.MAP#L686),
+[DIST](../../legacy/utexas/DECWAR.FOR#L878),
+[PLNATK](../../legacy/utexas/DECWAR.FOR#L2809),
+[ROMDRV](../../legacy/utexas/DECWAR.FOR#L3247),
+[SNOVA](../../legacy/utexas/DECWAR.FOR#L3827),
+[shared critical code](../../legacy/utexas/DECWAR.FOR#L4128),
+[base destruction](../../legacy/utexas/DECWAR.FOR#L4214),
+[TORP](../../legacy/utexas/DECWAR.FOR#L4375),
+[OUTMSG](../../legacy/utexas/DECWAR.FOR#L2599),
+[roster/bit declarations](../../legacy/utexas/HISEG.FOR#L68).
 
 The draft cannot support a complete game implementation yet. Compilation into
 one document verifies document structure; it does not establish semantic completeness.

@@ -1,13 +1,14 @@
 # Randomness
 
 Status: base generator, setup order, command draw sites and ordinary generator
-vectors reviewed. Compound-condition evaluation, abnormal bounds and full
-interleaving scenarios remain under review.
+vectors reviewed. The nine RNG-5 call sites are corroborated against the pinned
+Austin executable. Abnormal bounds and full interleaving scenarios remain under
+review.
 
 ## RNG-1 — State and draws
 
 Random state belongs to the session performing the operation. Define it as an
-integer residue modulo 2^36, without requiring a physical word. For one draw:
+integer residue modulo 2^36. For one draw:
 
 1. If the state's residue modulo 2^18 is zero, replace that lower residue with
    260543, retaining the upper part.
@@ -138,9 +139,9 @@ the prior-misfire flag. A failed planet exclusion does not consume its `I(4)`.
 | Nova damage to Romulan or planet | No direct random draw in NOVA; the commented Romulan-death test is inactive. |
 | Nova propagation | Visit adjacent cells in GAME-NOVA order. The compound star-selection expression contains `I(5)` (RNG-5). This test precedes the pending-star capacity check. Victims and pending stars subsequently run in their specified stack order. |
 | Placement | `I(75)` for V, then `I(75)` for H, repeated for every rejected placement attempt. |
-| Planet attack | The per-planet neutral-selection expression contains `I(2)` (RNG-5), before the friendly-planet skip. Any attack then consumes its nested phaser-damage draws. |
-| Romulan appearance | The appearance-delay expression contains `I(5)` (RNG-5); successful appearance then runs placement and consumes `I(200)` for initial energy. |
-| Romulan target choice | Three candidate-group comparisons contain `I(2)` calls in Federation ship, Empire ship, Federation base, Empire base selection order; RNG-5 applies. No per-object draw is made in the preceding minimum searches. |
+| Planet attack | Only a neutral planet consumes the selection `I(2)` (RNG-5), before the friendly-planet skip. Any attack then consumes its nested phaser-damage draws. |
+| Romulan appearance | After the initial activity gate, an absent Romulan consumes the delay `I(5)` only when its counter is at least three times the admitted-player count. Successful appearance then runs placement and consumes `I(200)` for initial energy. |
+| Romulan target choice | The three candidate-group comparisons draw `I(2)` only on a tie with the currently selected distance, in Empire ship, Federation base, Empire base order, starting from Federation ship. No per-object draw is made in the preceding minimum searches. |
 | Romulan weapon choice | When both weapon deadlines are strictly earlier than current time, `I(2)` selects the weapon. Equality follows the other deadline branches without this selection draw. |
 | Romulan torpedoes | Each loop iteration starts with `R()` before the prior-misfire stop; a launched shot then draws `I(100)` for misfire, an extra `R()` if misfired, and `R()` for trace length. Path probes and any obstruction's `I(100)` follow. |
 | Romulan speech | The first speech site tests `I(5)=1`; the later site tests `I(10)<=1`. A generated speech consumes `I(3)`, `I(4)`, `I(5)`, `I(5)` for recipients, opening, adjective and noun. |
@@ -162,23 +163,26 @@ draws before them.
 [ROMSPK](../../legacy/utexas/WARMAC.MAC#L4672),
 [fatal selection](../../legacy/utexas/DECWAR.FOR#L257).
 
-## RNG-5 — Compound-condition limit
+## RNG-5 — Compound-condition draw order
 
-The supplied source places random calls inside compound AND/OR expressions.
-The draft does not yet establish whether the selected compiler evaluates a call
-when another operand already determines the logical result (U-EVALUATION).
-Ordinary Boolean algebra establishes a branch result in that situation, but
-does not establish the resulting random state. In particular, describing a call
-as a tie-breaker does not prove it is evaluated only on ties.
+The following rules specify when a random draw occurs. Apply them after all
+earlier preconditions and effects in the corresponding game operation. Ordinary Boolean equivalence alone is insufficient: a condition
+can return the same result while consuming a different random sequence.
 
-The affected sites are DIST's three candidate comparisons, PLNATK's neutral
-planet skip, ROMDRV's absent-Romulan delay, SNOVA's star-selection test,
-TORDAM's base-critical test, the shared base-destruction test, and TORP's
-surviving-Romulan displacement test. Do not silently select JavaScript-style
-short-circuit evaluation for these sites. A reproducibility claim crossing one
-of them must identify established compiler behavior or a separately named
-evaluation policy. The unambiguous draw sequences above remain usable without
-resolving every such site.
+| Site | Required call and branch order |
+| --- | --- |
+| Romulan target selection, three candidate comparisons | Compare the next candidate with the current selected distance. A strictly smaller distance replaces the selection without a draw. A larger distance leaves it unchanged without a draw. Equality consumes `I(2)` and replaces the selection only for result 1. Each comparison uses the selection produced by the preceding one. |
+| Neutral-planet activation | Test whether the planet is neutral. Only if it is, consume `I(2)` and skip its activation for result 1. Nonneutral planets consume no draw at this test. The friendly-planet test follows. |
+| Romulan appearance delay | With Romulan absent, first compare its counter with three times the admitted-player count. If below that bound, return without this draw. Otherwise consume `I(5)` and return for result 5. Successful appearance follows other results. |
+| Supernova neighboring star | Test the candidate's kind. A nonstar consumes no draw at this test. A star consumes `I(5)` and is left intact for result 5. Test pending-star capacity only after a different result; a full pending list does not prevent the draw. |
+| Torpedo/phaser critical damage | Whenever execution reaches this compound test, consume `I(5)` first, including for a ship target. Result 5 enters the base emergency branch only when target kind is at least Federation base. The ordinary subsequent kind test and ship/base path then follow. Earlier damage-threshold branches can bypass the whole test. |
+| Shared base-destruction test | After the emergency shield reduction, consume `I(10)` even when the resulting base strength is already nonpositive. Result 10 sets the destruction flag to 2 without needing the strength test. Otherwise read strength and set the flag to 2 if it is nonpositive. |
+| Romulan displacement after a torpedo hit | After Romulan damage, test whether it remains present. Only a present Romulan consumes `I(10)` here, invoking displacement for a result greater than 7. An absent Romulan consumes no draw at this test. |
+
+These rules apply to the identified Austin operations; they do not make the
+conditions atomic. Draw order for other unreviewed conditions and the CompuServe
+counterparts remains U-EVALUATION. Invalid target records and arithmetic faults
+keep their separately stated limits.
 
 **Evidence:** [DIST](../../legacy/utexas/DECWAR.FOR#L878),
 [PLNATK](../../legacy/utexas/DECWAR.FOR#L2809),
@@ -186,7 +190,8 @@ resolving every such site.
 [SNOVA](../../legacy/utexas/DECWAR.FOR#L3827),
 [critical test](../../legacy/utexas/DECWAR.FOR#L4128),
 [base destruction](../../legacy/utexas/DECWAR.FOR#L4214),
-[Romulan displacement](../../legacy/utexas/DECWAR.FOR#L4375).
+[Romulan displacement](../../legacy/utexas/DECWAR.FOR#L4375),
+[compiled branch evidence](evidence.md#compiled-randomness-and-message-observations).
 
 ## RNG-6 — Generator vectors
 

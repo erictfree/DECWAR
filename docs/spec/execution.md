@@ -118,25 +118,25 @@ modes/strengths and displacement. This reset also occurs when no recipient exist
 It affects the next combat call's initially clear kill/critical fields.
 
 Retrieval decrements the requested player's hit flag first. A negative result
-returns cleared fields. Otherwise scan all 720 slots in physical slot order and
+returns cleared fields. Otherwise scan all 720 slots in slot order and
 retrieve the first whose remaining recipient set includes that player. This is
 not global serial order. If no slot matches, return cleared fields; the hit flag
 is not repaired to a count of matching slots by that path. On success return the
 payload and current remaining recipient set, then remove only this player's
 membership. The slot becomes reusable when no recipients remain.
 
-Payload conversion is observable even with modern storage. Source/target codes,
+Notification values are reduced on publication. Source/target codes,
 hit amount and critical amount retain low 18 bits; decode them unsigned, except
 code 262143 becomes zero. Type and device retain four bits; coordinates retain
 seven; kill status two; shield strengths ten; displacement one. A positive shield
 mode stores its low bit, while a nonpositive mode stores zero; decode zero as −1
 and one as +1. This can make a negative intermediate amount appear as a large
-positive reported amount. Store neither arbitrary-precision values nor the
-original object by reference in place of these conversions.
+positive reported amount. Subsequent changes to the originating object do not
+change an already published notification’s values.
 
-The enqueue/retrieve assembly does not call the queue lock used by radio messages.
-Concurrent publication and serial updates therefore still require an interleaving
-model; the ordering above does not promise an atomic modern queue operation.
+Hit publication and retrieval do not acquire radio-queue exclusion. Concurrent
+publication and serial updates still require an interleaving model; the ordering
+above does not make a complete notification operation atomic.
 
 **Evidence:** [queue capacities](../../legacy/utexas/WARMAC.MAC#L183),
 [MAKHIT](../../legacy/utexas/WARMAC.MAC#L2771),
@@ -164,8 +164,8 @@ or failed search exclusion, reset that flag and the returned sender/recipient se
 to zero. Otherwise find the first published matching entry, copy its original
 header and body, and remove this recipient under exclusion, retrying removal
 failures. Release the entry when no recipients remain. A source header of 262143
-is returned as zero. The analogous destination-sentinel branch contains a distinct
-memory instruction and is tracked by U-MESSAGE-EDGE.
+is returned as zero. The result for an original recipient value of 262143
+remains U-MESSAGE-EDGE.
 
 The output loop consumes messages until the flag is zero. For a nonzero sender,
 check the receiving session's gag set against the sender identity. A gagged message
@@ -174,13 +174,13 @@ sender and the original recipient initials in roster order, then the body.
 Zero-sender messages use the body path without that heading. Gag filtering is a
 delivery-time choice; recipient filtering at send time is GAME-RADIO. TERM-14
 specifies exact composition, retained-body output after a failed retrieval and
-the Romulan index-zero gag lookup's U-ROM-GAG limitation.
+Austin's Romulan gag selections. The corresponding CompuServe behavior remains
+U-ROM-GAG.
 
-Message acquisition uses an explicit supplied string, raw text after the first
-semicolon in the existing line, or a `Msg: ` prompt. The copy loop scans through
-the end-of-line character even when its storage limit has been reached. With the
-source's 17-word entry and preincremented copy counter, at most 75 body characters
-survive; append CR, LF and NUL by overwriting the last stored character with CR.
+Message acquisition uses supplied text, raw text after the first semicolon in
+the existing line, or a `Msg: ` prompt. Consume input through the end-of-line
+character even when the body limit has been reached. Retain at most the first
+75 body characters, followed by CR, LF and NUL.
 A scanned count of at most two, including the terminating character, takes the
 “No message sent” path. That path and interrupt-before-reservation cleanup require
 U-MESSAGE-EDGE before full malformed/cancelled-message conformance.
@@ -208,27 +208,24 @@ connected players only” would change this selection and queue pressure.
 
 ## EXEC-9 — Exclusion boundaries
 
-The Austin public FORTRAN lock entry disregards the supplied lock object's
-identity and requests one shared exclusion class. Its internal assembly entry,
-used for the message queue, requests a second class. Thus named planet and board
-locks in FORTRAN do not define independent resources. An implementation can use
-modern synchronization, but must preserve which operations exclude one another.
+Austin has two exclusion classes: ordinary game operations share one class;
+radio-queue operations use the other. Planet and board operations do not have
+independent exclusion classes. Operations in the same class exclude one another
+when exclusion is successfully acquired.
 
-A failed request sets the failure indication and invokes the source's 25-unit
-monitor hibernation request before returning. Monitor interpretation and grant
-ordering remain U-MONITOR. Callers choose the consequence: MOVE retries public
-exclusion; planet BUILD/CAPTURE/TORPEDO/NOVA paths have their distinct failure
-returns; radio reservation/search can fail; publication/removal retry.
+A failed request sets the failure indication and waits for 25 units of the
+external suspension service before returning. The unit and grant order remain
+U-MONITOR. MOVE retries ordinary exclusion; planet BUILD/CAPTURE/TORPEDO/NOVA
+paths have their distinct failure returns. Radio reservation/search can fail;
+publication/removal retry.
 
-Both public and internal release entries request release of all locks held by
-the session, irrespective of the argument naming a particular lock. A nested
-release can therefore end more exclusion than its call site's name suggests.
-Command acquisition also releases held locks. Do not infer reference-counted
-nested locks or per-object release from the FORTRAN argument lists.
+Every release ends all exclusion held by the session, across both classes.
+A release within a nested operation can therefore end exclusion acquired by its
+caller. Command acquisition also releases held exclusion.
 
-These rules specify resource classes and release scope. They do not yet define
-every permitted instruction-level interleaving, crash point, or monitor failure.
-A complete concurrency profile must state those boundaries explicitly.
+These rules specify exclusion classes and release scope. The complete set of
+permitted interleavings and effects of interrupted or failed exclusion remains
+under review; no FIFO grant order or atomic command execution is implied.
 
 **Evidence:** [LOCK/UNLOCK](../../legacy/utexas/WARMAC.MAC#L3768).
 
@@ -240,8 +237,7 @@ sample the host millisecond clock and establish an ending time. Request a
 hibernation of the capped duration. On return, if the current clock is still
 before the ending time, request another 1000 milliseconds and repeat the check.
 Early host wakeups therefore need not end the pause; repeated extra sleeps can
-overshoot its deadline. There is no active automatic lock-release/reacquire
-around this pause: the corresponding instructions are commented out.
+overshoot its deadline. Pausing does not release or reacquire exclusion.
 
 This service limit is separate from a command's computed deadline and from the
 main-loop privilege bypass. A computed 20-second remaining delay does not cause
@@ -255,7 +251,7 @@ semantics remain host-boundary inputs.
 Distinguish a control event delivered while acquiring a new line from a control
 flag already pending at the polling loop. On completing token acquisition with
 a control flag, a ship not under red alert is directed to QUIT. A red ship
-instead receives the cannot-quit report, clears its input buffer, and returns to
+instead receives the cannot-quit report, clears its pending input, and returns to
 the state/prompt checks. A disconnect on the post-input path also selects QUIT.
 The main QUIT command bypasses confirmation when disconnected; an explicitly
 typed QUIT still follows its own confirmation rule, even under red alert.
@@ -274,12 +270,9 @@ registered callback only through its recursion guard. Token acquisition rearms
 the latch. The older comment describing a decremented control counter and an
 abort after repeated controls does not describe this replacement handler.
 
-CCTRAP's body loads a callback from its argument and clears the control flag;
-several calls provide no argument. The source comment describing a no-argument
-“disable” form does not itself establish what address that body reads. This
-argument/monitor boundary, callback reentrancy and terminal-driver interception
-remain U-CONTROL. A modern adapter may provide a named repair policy, but cannot
-claim that the repaired cancellation path is normative historical behavior.
+The behavior of disabling a control handler, nested control delivery and
+terminal interception remains U-CONTROL. A named cancellation repair is a
+separate policy and does not amend the core rules.
 
 **Evidence:** [GETCMD control paths](../../legacy/utexas/DECWAR.FOR#L1211),
 [QUIT confirmation](../../legacy/utexas/DECWAR.FOR#L134),

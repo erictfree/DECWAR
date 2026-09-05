@@ -440,3 +440,15 @@ output. This does not add a newline to every ASCIZ or named catalogue fragment.
 [C MAKMSG](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L3559),
 [C ASCIL](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L51),
 [Austin MAKMSG](../../legacy/utexas/WARMAC.MAC#L3011).
+
+## C-12 — Unresolved variant rules (qualifies RNG-5 and TERM-14)
+
+This draft does not yet define CompuServe’s draw order for the conditions listed
+in RNG-5 or which gag selections suppress Romulan messages. They remain
+U-EVALUATION and U-ROM-GAG respectively. Austin’s corresponding rules must not
+be inherited as established CompuServe behavior.
+
+**Evidence:** [C OUTMSG](../../legacy/compuserve/fortran%201978/OUTMSG.FOR#L26),
+[C declarations](../../legacy/compuserve/fortran%201978/HISEG.FOR#L1),
+[C linked-image identification](../../legacy/compuserve/fortran%201978/DECWAR.MAP#L1),
+[Austin compiled observations](evidence.md#compiled-randomness-and-message-observations).

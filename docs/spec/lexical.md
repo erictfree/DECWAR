@@ -40,7 +40,7 @@ that limit completes the line without waiting for an additional terminator.
 | ESC after another nonignored character | Finish the new line. |
 
 A backspace or Ctrl-U received before ESC prevents the first-character repeat
-case even when the edited buffer is empty. TELL separately rejects repeated input.
+case even when the edited line is empty. TELL separately rejects repeated input.
 These editing rules do not imply that every terminal or monitor delivers every
 control unchanged. Physical echo and output control sequences are specified in
 the terminal section, not inferred from an input flag's name.
@@ -137,8 +137,7 @@ differs from SCAN's terminating space.
 
 ## LEX-7 — Capacity and recovery
 
-The token arrays have 15 positions. At most 14 scanner results precede the end
-sentinel; the command name counts toward this capacity. Null results created by
+At most 14 scanner results precede the end sentinel; the command name counts toward this capacity. Null results created by
 nonspacing delimiters also occupy positions. For each result, the scanner checks
 whether it has observed an end-of-command character before advancing the capacity
 counter. If so, it accepts that result and appends the sentinel. Otherwise,
@@ -154,11 +153,10 @@ and line termination fit, but fourteen followed by a comma overflow. Thirteen
 nonempty tokens followed by a comma and termination fit with a fourteenth null
 result.
 
-Overflow emits `Too many words -- line ignored` with no suffix from the Austin
-ASCIL macro, discards the entire remaining physical line, sets the returned count
-to zero and writes the end sentinel at the first position. Earlier token storage
-is not all erased; it is outside the returned sequence. Subsequent interpretation
-must respect that count/sentinel rather than treating stale token fields as input.
+Overflow emits exactly `Too many words -- line ignored`, with no added line
+ending, discards the entire remaining physical line and returns an empty token
+sequence. The end sentinel is at the first position; no earlier token belongs
+to that returned sequence.
 These rules require scanning to return normally; arithmetic-fault continuation
 remains U-NUMERIC. LEX-8 does not alter this outer token-capacity counter.
 
@@ -168,52 +166,45 @@ remains U-NUMERIC. LEX-8 does not alter this outer token-capacity counter.
 
 ## LEX-8 — Decimal text spill
 
-The first decimal point accepted by the numeric scanner resets the text-deposit
-allowance to 17800626176 before that character is deposited. This is a positive
-integer much larger than an ordinary input line. It is the same allowance that
-initially limited deposits to five characters; it is not an independent decimal
-scale counter. A later invalid numeric character does not undo this reset.
+For an ordinary completed input line, a token containing an initially accepted
+numeric decimal point can change earlier tokens' numeric values. Their text,
+categories and origin positions remain unchanged. This effect persists even if
+a later character makes the decimal-containing token alphanumeric.
 
-For each token, start with an allowance of five and a deposit position of zero;
-clear that token's text field. Process transformed characters in source order.
-First perform the numeric-character handling, including the reset just described
-if applicable. Decrement the allowance. If it is nonnegative, deposit the
-character at the current deposit position and advance that position. Otherwise
-skip the deposit without advancing its position. Numeric processing and input
-consumption continue whether or not a deposit occurs.
+The following transformation defines the resulting token sequence. It applies
+within LEX-2's eighty-character bound and LEX-7's fourteen-token bound, excluding
+interruption and arithmetic faults.
 
-Consequently the token's own text field always receives its first five
-characters. A decimal point after a longer integer prefix resumes deposits at
-the sixth position: skipped prefix characters are not restored. After the reset,
-remaining ordinary-line characters can spill into subsequent fields. No later
-numeric error restores the five-character limit or rolls back those deposits.
+Process tokens in order. Assign the current token its LEX-4 retained text,
+category, numeric value and origin. If its numeric interpretation never accepts
+a decimal point, make no changes to earlier tokens. Otherwise let p be the
+one-based position of its first accepted decimal point in its transformed text:
 
-Define the spill's observable state effects through a logical sequence of
-thirty encoded fields: the fifteen token-text fields followed by the fifteen
-token numeric fields. This sequence specifies cross-field updates; it does not
-require contiguous storage in an implementation. Each encoded field has a
-36-bit residue. Text has five seven-bit character positions with weights
-2^29, 2^22, 2^15, 2^8 and 2^1. The unselected bits are preserved by a deposit.
+- If p is at most five, let D be the entire transformed token text.
+- Otherwise let D be its first five characters followed by the text from
+  position p through the end. Characters between those portions have no effect.
 
-For token i (positions are one-based), deposit position j (zero-based) selects
-logical field `i + floor(j/5)` and character position `j mod 5`. With selected
-weight 2^s, old residue E and transformed character c, replace E by
-`E + (c − (floor(E/2^s) mod 128)) × 2^s`. This preserves the other character
-positions and the low bit. For a numeric field, this is a change to its encoded
-value, not decimal parsing of the deposited letters. Categories are not changed.
-Integer encodings use the signed 36-bit interpretation; interpretation and
-exceptional use of affected REAL encodings remain subject to U-NUMERIC.
+For token number i, number D's characters from j = 0. For each character c,
+let `k = i + floor(j/5) − 15`. Only k from 1 through i−1 affects the returned
+sequence. At such a position, transform token k's numeric value as follows:
 
-Scanning later tokens clears and overwrites their own text fields normally.
-Finishing the current token assigns its own numeric value; finishing the command
-clears the sentinel's text/numeric fields and assigns its end category. These
-later writes can overwrite spilled characters. Earlier numeric fields affected
-by the spill are not automatically repaired. The ordinary 80-character acquired
-line and fourteen-result bound prevent these deposits from reaching beyond
-numeric field 12; category and origin arrays are not deposit targets in that
-domain. Raw-name acquisition and exceptional control paths are outside it.
+1. Let E be that value's residue modulo 2^36, and let `s = 29 − 7×(j mod 5)`.
+2. Replace E by `E + (c − (floor(E/2^s) mod 128)) × 2^s`, where c is the
+   transformed character code.
+3. Interpret the result as E when E is less than 2^35, or E−2^36 otherwise.
+
+Apply successive transformations in character order. This is an arithmetic
+rule for the resulting values, not decimal interpretation of the characters.
+It preserves a value's parity. Earlier null or alphanumeric tokens can therefore
+acquire nonzero numeric values while retaining their categories. Effects on an
+earlier REAL value remain U-NUMERIC until its abstract numeric domain is complete.
+
+The current token's own text is still its first five transformed characters;
+its own numeric value is the result of LEX-5. No changed value can belong to a
+token beyond position 12 within this clause's input bounds. The terminating
+sentinel has empty text and numeric value zero.
 
 **Evidence:** [NXTT/ANUM](../../legacy/utexas/WARMAC.MAC#L1454),
 [field order](../../legacy/utexas/WARMAC.MAC#L376),
-[compiled reset/deposit evidence](evidence.md#compiled-tokenizer-observations),
-[byte operations](../platform-manuals.md#byte-deposits-and-token-text).
+[companion derivation](implementation-notes.md#decimal-token-derivation),
+[compiled observations](evidence.md#compiled-tokenizer-observations).

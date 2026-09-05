@@ -44,8 +44,7 @@ A ship has position, occupancy/lifecycle state, condition (green/yellow/red),
 torpedo inventory, shield mode, shield strength, engine energy, hull damage,
 life-support reserve, device damage, docked status and a tractor association.
 Device order is shields, warp engines, impulse engines, life support, torpedo
-tubes, phasers, computer, radio and tractor beam. There are nine damage slots
-even though PARAM names only the first eight device indices.
+tubes, phasers, computer, radio and tractor beam. There are nine device-damage values.
 
 Ship occupancy is distinct from positive energy and subfatal hull damage. A
 reserved ship can have fatal damage before its session performs cleanup. Free
@@ -67,7 +66,7 @@ are distinct from accumulated ship and team totals.
 
 ## STATE-3 — Session and information state
 
-Each session has its own command buffer and remainder, preferences, selected
+Each session has its own acquired command line and remainder, preferences, selected
 ship/team, privilege, random state, phaser-bank deadlines, torpedo deadline,
 command pause, gag selections, interrupt/disconnect state and output cursor state.
 World state includes radio-off membership, messages, hit notifications, counts
@@ -76,9 +75,7 @@ state change even when no combat or movement occurs.
 
 One session's lexical remainder, random seed or preferences MUST NOT silently
 become another's. Conversely, ship/world mutations and shared queue effects MUST
-be visible at their specified ordering points. This does not require shared
-memory; independent implementations may use any representation preserving those
-observations.
+be visible at their specified ordering points.
 
 **Evidence:** [LOWSEG](../../legacy/utexas/LOWSEG.FOR#L1),
 [HISEG](../../legacy/utexas/HISEG.FOR#L1),
