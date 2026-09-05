@@ -1,6 +1,7 @@
 # Port status and completion gates
 
-**Playable alpha available.** `npm start` runs the multiplayer Telnet game with
+**Playable alpha available: Austin by default, CompuServe selectable.**
+`npm start` runs the multiplayer Telnet game with
 documented repairs for undefined final-scoring, argument and control-flow paths.
 Normal quit, death, disconnect, ship reuse and game-over are exercised end to end.
 Exact original-executable parity and complete source understanding remain unfinished.
@@ -8,7 +9,7 @@ Exact original-executable parity and complete source understanding remain unfini
 prioritized a functioning game on September 5, 2026; see playable-decisions.md.
 
 Current verification: `npm run check` passes the archive/generated-data check,
-strict TypeScript checking, and all 4536 behavioral tests. Development tools are
+strict TypeScript checking, and all 4563 behavioral tests. Development tools are
 pinned in package-lock.json. These checks do not establish original-executable
 equivalence.
 
@@ -24,8 +25,7 @@ logs/build-interrupt-full-check.log. Existing server processes require restart.
 
 Legacy sources now live under `legacy/`: the original archive is in
 `compuserve/fortran 1978`, and the user-requested UT Austin reconstruction is
-in `utexas` with a pinned commit, file manifest and upstream license. The port
-and source audit still use the Compuserve baseline.
+in `utexas` with a pinned commit, file manifest and upstream license. The port and source audit now select and validate each variant independently.
 
 ## Evidence levels
 
@@ -33,8 +33,8 @@ and source audit still use the Compuserve baseline.
 - **Examined:** source paths read and findings recorded; not exhaustive.
 - **Ported in isolation:** TypeScript routine with focused source-derived tests.
 - **Composed:** routine-to-routine paths execute together with tested output and state effects; this does not imply main-loop integration.
-- **Integrated:** wired into all applicable game paths (none claimed yet).
-- **Differentially verified:** compared with original execution (none yet).
+- **Integrated:** connected to the production session; see the current Austin ledger and playable lifecycle tests.
+- **Differentially verified:** compared with reference execution; native Austin startup transcripts are preserved, but full automated differential verification remains unfinished.
 
 ## Implemented foundation
 
@@ -545,3 +545,33 @@ death, final statistics, active tractor release, ship reuse and endgame/new-game
 all execute through original routines. Real Telnet clients exercise the complete
 join/message/score/quit/rejoin flow. See playable-decisions.md and running.md.
 Final verification passes 4,530 tests at logs/decwar-playable-final-check.log.
+
+## Austin variant available and selected by default
+
+Austin reconstruction is now the default launch; `--variant compuserve` retains
+the ten-player source behavior. Independent source catalogs preserve both
+archives and extract their own tables, assets and layouts. The preserved Austin
+reference link supplies eighteen ships, twenty planets, 720 hit entries and its
+shared memory bases. The production session factory scopes each immutable
+variant through commands, interrupts and galaxy reloads.
+
+Austin entry/INI, pregame, admission, Romulan differences, argument copies,
+lock/monitor paths and omission of CompuServe standings are connected. The
+[implementation ledger](austin-implementation.md) accounts for all eighteen
+changed FORTRAN units and material assembly differences. Served DECWAR.HLP
+describes eighteen ships; the older DECWAR.RNH formatter source still says ten. Variant-specific data markers reject incompatible
+files; old CompuServe records have an explicit reuse command in running.md.
+
+The final pre-default full suite passed **4,562 tests**, including source audit
+and strict TypeScript checks. Eighteen active captains, nineteenth-player rollover,
+720-entry queue saturation, slot-18 phaser death, movement/capture/build/dock,
+quit/disconnect/reuse and game-over are exercised. A separate eighteen-client
+TCP/Telnet run passes concurrent reports and cleanup, as well as Ctrl-C/IP and
+messages. Original-executable differential coverage remains startup/INI/STATUS/
+quit only. Long-duration and adversarial load, exhaustive terminal behavior and
+full compiler equivalence are still unverified. See WORK_LOG.md for exact logs.
+
+Final post-default verification: **4,563/4,563 pass**, including both CLI launch
+variants (logs/austin-release-full-check-2.log). A clean Node 24 dependency install
+and default CLI playthrough pass. Austin is listening on localhost 2324; the
+pre-existing CompuServe host on 2323 was not interrupted.

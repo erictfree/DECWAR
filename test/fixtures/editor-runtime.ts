@@ -1,13 +1,14 @@
+import { currentVariant } from '../../src/runtime/variant-execution.ts';
 import assert from 'node:assert/strict';
 import type { checkRuntimeFixture } from './check-runtime.ts';
 import type { bindTokenRuntime } from './token-runtime.ts';
 import { inputRuntime } from '../../src/compat/input-runtime.ts';
-import { editInput,nextEditorCharacter,redisplayEditor,echoControl } from '../../src/compat/inli-runtime.ts';
+import { editInput,nextEditorCharacter,redisplayEditor,echoControl,austinEchoControl } from '../../src/compat/inli-runtime.ts';
 import type { EditorState,EditorServices } from '../../src/compat/inli-runtime.ts';
 import { terminalCharacter,dispatchInput } from '../../src/compat/character-input-runtime.ts';
 import type { RawTerminalServices } from '../../src/compat/character-input-runtime.ts';
 import { add36,rightHalf,signed36,unpackAscii } from '../../src/compat/word36.ts';
-import { inputLayout } from '../../src/generated/input-layout.ts';
+import { inputLayout } from '../../src/runtime/variant-values.ts';
 type Host=Pick<ReturnType<typeof checkRuntimeFixture>,'m'|'r'|'rt'|'low'|'input'|'h'|'cpu'>&{tokens:ReturnType<typeof bindTokenRuntime>};
 export function bindEditorRuntime(f:Host){
   f.m.map(17500n,Array<bigint>(500).fill(0n));const runtime=inputRuntime(f.input),base=runtime.state;
@@ -34,7 +35,7 @@ export function bindEditorRuntime(f:Host){
     *ochr(){events.push(`ochr:${f.r.c}`);yield*f.rt.run('ochr.');},
     *outstr(address){events.push(`outstr:${address}`);for(let a=address;;a++){for(const c of unpackAscii(f.m.read(a))){if(c==='\0')return;yield*f.cpu.outchr(BigInt(c.charCodeAt(0)));}}},
     *outchr(address){const c=address==='c'?f.r.c:BigInt(unpackAscii(f.m.read(address)).charCodeAt(0));events.push(`outchr:${c}`);yield*f.cpu.outchr(c);},
-    *echo(entry){events.push(entry);echoControl(entry);},
+    *echo(entry){events.push(entry);if(currentVariant().definition.id==='austin')yield*austinEchoControl(entry,state,{*openTTY(){return true;},*halt(){throw new Error('TTY open failed');}});else echoControl(entry);},
     *movnT1(w){f.r.t1=signed36(-w);},*addiC(n){f.r.c=add36(f.r.c,n);},
     *aobjp(){f.r.t1=add36(f.r.t1,0o1000001n);return f.r.t1>=0n;},
   };

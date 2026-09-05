@@ -1,4 +1,4 @@
-import { messages as M } from '../generated/source-data.ts';
+import { messages as M } from '../runtime/variant-values.ts';
 import { equal } from '../compat/parser.ts';
 import { etim } from '../compat/time.ts';
 import { TerminalOutput } from '../compat/output.ts';

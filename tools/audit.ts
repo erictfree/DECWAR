@@ -1,4 +1,5 @@
 import { lockLayout } from './lock-layout.ts';
+import { auditVariants } from './audit-variants.ts';
 import { fileDescriptors } from './file-descriptors.ts';
 import { fileLayout } from './file-layout.ts';
 import { inputRuntimeLayout } from './input-runtime-layout.ts';
@@ -125,3 +126,4 @@ artifact('docs/source-index.md', `# Local source index\n\nGenerated from ${files
 artifact('src/generated/character-bits.ts', '// Generated from WARMAC FLGBIT and CBITS.\nexport const characterBits = ' + JSON.stringify(characterBits(), null, 2) + ' as const;\n');
 
 console.log(`${checking ? 'Verified' : 'Generated'} ${files.length} file hashes, ${routines.length} FORTRAN declarations, ${commands.length} game commands, ${pregame.length} pre-game commands, ${Object.keys(messages).length} ASCIZ strings.`);
+auditVariants(checking);

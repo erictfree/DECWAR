@@ -1,0 +1,39 @@
+Logging to file "/tmp/decwar-austin-reference/console.log"
+Logging to file "/tmp/decwar-austin-reference/console.log" at Sat Sep  5 15:25:00 2026
+/private/tmp/decwar-austin-reference/docker/simh/boot-from-disk.ini-14> at tty -U 127.0.0.1:2030
+%SIM-ERROR: Can't open network port: 127.0.0.1:2030
+/private/tmp/decwar-austin-reference/docker/simh/boot-from-disk.ini-16> set dn rsx20
+%SIM-ERROR: Non-existent device: DN
+/private/tmp/decwar-austin-reference/docker/simh/boot-from-disk.ini-17> at lp20 -n prt.log
+%SIM-INFO: LP20: creating new file: prt.log
+BOOT V3(47)
+
+BOOT>
+[Loading from DSKB:SYSTEM.EXE[1,4]]
+
+KL703 03-19-86
+Why reload: sa
+Date: 03-19-86
+Time: 0000
+
+Startup option: quick
+[Rebuilding the system search list from the HOMe blocks]
+
+[Rebuilding the active swapping list from the HOMe blocks]
+
+[Rebuilding the system dump list from the HOMe blocks]
+
+
+KL703 00:00:00 CTY system 1025
+Connected to Node KL10(1) Line # 106
+.LOGIN 1,2
+.R OPSER
+
+[CCPWFD Waiting for file daemon to start]
+[OPRPAF Processing auto command file]
+?OPRALF LOOKUP failure 0
+*
+Simulation stopped, PC: 000001 (DATAO 774,@35060(14))
+sim> quit
+Goodbye
+Log file closed

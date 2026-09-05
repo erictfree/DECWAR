@@ -1,4 +1,4 @@
-import { clearStatisticsText as T } from '../generated/source-data.ts';
+import { clearStatisticsText as T } from '../runtime/variant-values.ts';
 import { STATISTICS_WORDS } from './statistics.ts';
 import type { StatisticsContext, StatisticsServices } from './statistics.ts';
 

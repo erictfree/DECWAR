@@ -1,6 +1,7 @@
+import { currentVariant } from '../runtime/variant-execution.ts';
 import type { CommonBlock } from '../compat/memory.ts';
 import type { WeaponExpression,WeaponStatementServices } from './weapon-damage-statements.ts';
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 
 export type PasswordStatementServices<W>=Pick<WeaponStatementServices<W>,'logical'|'and'|'compare'|'assign'>&{
   equal(token:bigint,password:'KPASS',one:1):Generator<W,bigint,void>;
@@ -16,6 +17,8 @@ export function* passwordStatements<W>(low:CommonBlock,io:PasswordStatementServi
   const assign=(expression:WeaponExpression<W>)=>io.assign(()=>low.address('pasflg'),'integer',expression);
   yield*assign({type:'integer',evaluate:()=>io.equal(low.address('tknlst',2),'KPASS',1)});
   if(yield*io.compare('eq',flag,integer(-1n)))yield*assign(integer(0n));
+  // Austin DECWAR.FOR PASWRD returns after the exact-match test.
+  if(currentVariant().definition.id==='austin')return;
   if(yield*io.and(...[0o70000n,0o337n,0o70006n,0o70725n].map(project=>
     ()=>io.compare('ne',{type:'integer',evaluate:()=>io.usrprj(0)},integer(project)))))yield*assign(integer(0n));
   if(io.logical(low.read('pasflg')))return;

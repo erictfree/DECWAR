@@ -1,6 +1,6 @@
 import type { CommonBlock } from '../compat/memory.ts';
 import { add36 } from '../compat/word36.ts';
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 import type { WeaponExpression,WeaponStatementServices,WeaponValueType } from './weapon-damage-statements.ts';
 export type JumpStatementLocals={iloc1:bigint;jloc1:bigint;ivv:bigint;ihh:bigint;l:bigint};
 export type JumpStatementServices<W>=Pick<WeaponStatementServices<W>,'binary'|'assign'|'logical'|'assignLogicalZero'>&{

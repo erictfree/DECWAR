@@ -1,6 +1,6 @@
 import type { CommonBlock } from '../compat/memory.ts';
 import { add36 } from '../compat/word36.ts';
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 import type { RepairExpression as Expr,RepairServices } from './repair-statements.ts';
 import type { CommandReturn } from './maintenance.ts';
 export type BuildMessage='build1'|'build2'|'build3'|'build4'|'build5'|'build7'|'noplnt'|'captu5'|'busy1'|'busy2';

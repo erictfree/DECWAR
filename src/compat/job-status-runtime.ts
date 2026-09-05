@@ -1,3 +1,4 @@
+import { currentVariant } from '../runtime/variant-execution.ts';
 import type { WordMemory } from './memory.ts';
 import type { SourceArguments } from './fortran-call.ts';
 import { halfWords,leftHalf,rightHalf,signed36 } from './word36.ts';
@@ -24,8 +25,8 @@ export function* jobStatusRuntime<W>(m:WordMemory,r:JobStatusRegisters,args:Sour
   yield*io.output();yield*io.pjob('t1');m.write(args.address(0),r.t1);
   r.t1=m.read(s.trmopLiteral);if(!(yield*io.trmop()))r.t1=7n;
   if(r.t1>0o13n)r.t1=0o11n;r.t1=m.read(s.speedTable+rightHalf(r.t1));m.write(args.address(5),r.t1);
-  r.t1=m.read(s.who);
-  if(r.t1!==0n){yield*io.pjob('t2');m.write(s.jsqwho,r.t1);m.write(s.jsqtab-1n+rightHalf(r.t1),r.t2);yield*io.afterSequenceStore();}
+  if(currentVariant().definition.id!=='austin'){r.t1=m.read(s.who);
+  if(r.t1!==0n){yield*io.pjob('t2');m.write(s.jsqwho,r.t1);m.write(s.jsqtab-1n+rightHalf(r.t1),r.t2);yield*io.afterSequenceStore();}}
   r.t2=0n;yield*io.getppn();if(r.t1===signed36(halfWords(0o337n,0o2030n)))r.t2=-1n;
   yield*io.ldbProject();if(r.t3===0o77n)r.t2=1n;m.write(s.debflg,r.t2);
   if(!(yield*io.getppn()))m.write(s.usppn,r.t1);m.write(args.address(3),r.t1);m.write(s.frebie,0n);

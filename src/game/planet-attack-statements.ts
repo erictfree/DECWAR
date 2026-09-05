@@ -1,6 +1,7 @@
+import { copiedArgument } from './argument-copy.ts';
 import type { CommonBlock } from '../compat/memory.ts';
 import { add36 } from '../compat/word36.ts';
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 import type { BasePhaserServices,BasePhaserExpression } from './base-phaser-statements.ts';
 
 export type PlanetPredicate<W>=()=>Generator<W,boolean,void>;
@@ -13,7 +14,7 @@ export type PlanetAttackServices<W>=Pick<BasePhaserServices<W>,
   ldis(v:bigint,h:bigint,otherV:bigint,otherH:bigint,range:2):Generator<W,bigint,void>;
   phadam(kind:2,targetAddress:bigint,distanceAddress:bigint,powerAddress:bigint,ship:false):Generator<W,void,void>;
 };
-export type PlanetAttackLocals={k:bigint;pcode:bigint;pteam:bigint;j:bigint;jtype:bigint;phit:bigint;id:bigint};
+export type PlanetAttackLocals={k:bigint;pcode:bigint;pteam:bigint;j:bigint;jtype:bigint;phit:bigint;id:bigint;ja?:bigint};
 // PLNATK.FOR:34-93. Source statements over actual COMMON/compiler words.
 // Compound conditions retain required compiler evaluation policy, including
 // whether/when the IRAN call is evaluated. No implicit host short-circuit rule.
@@ -39,6 +40,7 @@ export function* planetAttackStatements<W>(high:CommonBlock,low:CommonBlock,loca
     if(yield*io.and(predicate(()=>m.read(locals.pcode)===BigInt(K.DXNPLN)),function*(){return (yield*io.iran(2))===1n;})){advance(locals.k);continue;}
     if(yield*io.and(predicate(()=>io.logical(low.read('player'))),predicate(()=>m.read(locals.pteam)===low.read('team')))){advance(locals.k);continue;}
     for(m.write(locals.j,1n);m.read(locals.j)<=BigInt(K.KNPLAY);advance(locals.j)){
+      const ja=copiedArgument(m,locals.j,locals.ja,'DECWAR.FOR:2813');
       m.write(locals.jtype,BigInt(K.DXFPLN));if(m.read(locals.j)>BigInt(K.KNPLAY/2))m.write(locals.jtype,BigInt(K.DXEPLN));
       if(yield*io.or(predicate(()=>m.read(locals.pcode)===m.read(locals.jtype)),predicate(()=>!io.logical(high.read('alive',m.read(locals.j))))))continue;
       if((yield*io.disp(ship(K.KVPOS),ship(K.KHPOS)))<=0n)continue;
@@ -49,7 +51,7 @@ export function* planetAttackStatements<W>(high:CommonBlock,low:CommonBlock,loca
       low.write('vfrom',m.read(planet(K.KVPOS)));low.write('hfrom',m.read(planet(K.KHPOS)));
       low.write('vto',m.read(ship(K.KVPOS)));low.write('hto',m.read(ship(K.KHPOS)));low.write('shjump',0n);
       low.write('iwhat',1n);yield*io.assign(()=>locals.phit,binary('div',power(),value(()=>high.read('numply'))));
-      yield*distance();yield*io.phadam(2,locals.j,locals.id,locals.phit,false);
+      yield*distance();yield*io.phadam(2,ja,locals.id,locals.phit,false);
       if(yield*owned())yield*addScore(K.KPEDAM,value(()=>low.read('ihita')));
       if(yield*io.and(predicate(()=>low.read('klflg')!==0n),owned))yield*addScore(K.KPEKIL,literal(5000n));
       yield*io.pridis(ship(K.KVPOS),ship(K.KHPOS),K.KRANGE,locals.pteam,0);

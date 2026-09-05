@@ -1,6 +1,7 @@
+import { currentVariant } from '../runtime/variant-execution.ts';
 import type { CommonBlock,WordBlock } from '../compat/memory.ts';
-import type { localLayout } from '../generated/local-layout.ts';
-import { constants as K } from '../generated/source-data.ts';
+import type { localLayout } from '../runtime/variant-values.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 import type { CommandReturn } from './maintenance.ts';
 import type { WeaponExpression,WeaponStatementServices,WeaponPredicate,WeaponValueType } from './weapon-damage-statements.ts';
 import type { CheckStatementArguments,CheckPointServices } from './check-statements.ts';
@@ -88,16 +89,21 @@ export function* moveStatements<W>(entry:'move'|'impuls',high:CommonBlock,low:Co
   if(!(yield*and(cmp('eq',path('h1'),word(ship(K.KVPOS))),cmp('eq',path('v1'),word(ship(K.KHPOS))))())){
     yield*setLocal('indxto',index(path('h1'),path('v1')));yield*setLocal('indxfm',index(word(ship(K.KVPOS)),word(ship(K.KHPOS))));
     const board=(name:'indxto'|'indxfm')=>high.address('board',m.read(locals[name]));
+    const austin=currentVariant().definition.id==='austin';
+    if(austin){do{yield*io.lock(123n);}while(io.logical(low.read('lkfail')));}else{
     yield*io.lock(board('indxto'));if(io.logical(low.read('lkfail')))return alt();
     if(m.read(locals.indxto)!==m.read(locals.indxfm)){
       yield*io.lock(board('indxfm'));
       if(io.logical(low.read('lkfail'))){yield*io.unlock(board('indxto'));return alt();}
     }
+    }
     yield*io.setdsp(ship(K.KVPOS)(),ship(K.KHPOS)(),integer(0));
     yield*io.setdsp(out.address('h1'),out.address('v1'),add(mul(lo('team'),integer(100)),lo('who')));
     yield*set(ship(K.KVPOS),path('h1'));yield*set(ship(K.KHPOS),path('v1'));
-    if(m.read(locals.indxto)!==m.read(locals.indxfm))yield*io.unlock(board('indxfm'));
-    yield*io.unlock(board('indxto'));
+    if(austin)yield*io.unlock(1n);else{
+      if(m.read(locals.indxto)!==m.read(locals.indxfm))yield*io.unlock(board('indxfm'));
+      yield*io.unlock(board('indxto'));
+    }
     if(tractor()!==0n){
       yield*setLocal('tl',{type:'integer',evaluate:()=>io.disp(tow(K.KVPOS)(),tow(K.KHPOS)())});
       yield*io.setdsp(sub(path('h1'),int(path('dhs'))),sub(path('v1'),int(path('dvs'))),locals.tl);

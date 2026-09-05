@@ -1,6 +1,7 @@
+import { currentVariant } from '../runtime/variant-execution.ts';
 import { WordBlock } from './memory.ts';
 import type { WordMemory } from './memory.ts';
-import { lockLayout } from '../generated/lock-layout.ts';
+import { lockLayout } from '../runtime/variant-values.ts';
 import { add36,halfWords,leftHalf,rightHalf,signed36 } from './word36.ts';
 export class LockBlock extends WordBlock<typeof lockLayout>{
   constructor(memory:WordMemory,base=BigInt(lockLayout.address)){super(memory,lockLayout,base);}
@@ -18,6 +19,8 @@ export type UnlockServices<W>={
 // WARMAC UNLO:4621-4651. The first matching slot is searched from the end;
 // remembered LOCKED is unchanged. Monitor/private addresses remain required.
 export function* releaseLock<W>(block:LockBlock,state:UnlockState,r:UnlockRegisters,symbols:UnlockSymbols,io:UnlockServices<W>):Generator<W,void,void>{
+  // Austin WARMAC:3789-3798 removes every lock held by this job.
+  if(currentVariant().definition.id==='austin'){yield*io.deq();return;}
   const memory=block.memory;
   for(const address of [symbols.queuen,symbols.quereq])memory.write(address,signed36(halfWords(leftHalf(memory.read(address)),r.t1)));
   r.t2=BigInt(lockLayout.maximum-1);r.t1=rightHalf(r.t1);
@@ -36,6 +39,7 @@ export function* releaseLock<W>(block:LockBlock,state:UnlockState,r:UnlockRegist
 }
 // WARMAC ZAPLOK/KILALL:4604-4619. X2 is live across UNLO and its waits.
 export function* zapLocks<W>(block:LockBlock,r:UnlockRegisters,unlo:()=>Generator<W,void,void>):Generator<W,void,void>{
+  if(currentVariant().definition.id==='austin'){yield*unlo();return;}
   r.x2=BigInt(lockLayout.maximum-1);
   for(;;){r.t1=block.read('loktab',r.x2);if(r.t1!==0n)yield*unlo();r.x2=add36(r.x2,-1n);if(r.x2<0n)return;}
 }
@@ -44,5 +48,5 @@ export function* killAllLocks<W>(block:LockBlock,r:UnlockRegisters,unlo:()=>Gene
 }
 // WARMAC UNLOCK:4594-4599. MOVEI uses the resolved argument address.
 export function* unlockArgument<W>(block:LockBlock,r:UnlockRegisters,address:()=>bigint,unlo:()=>Generator<W,void,void>):Generator<W,void,void>{
-  r.t1=rightHalf(address());block.write('locked',0n);yield*unlo();
+  r.t1=rightHalf(address());if(currentVariant().definition.id!=='austin')block.write('locked',0n);yield*unlo();
 }

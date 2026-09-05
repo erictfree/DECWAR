@@ -1,4 +1,4 @@
-import { constants as K, gripeText as T } from '../generated/source-data.ts';
+import { constants as K, gripeText as T } from '../runtime/variant-values.ts';
 import { divide36, halfWords, rightHalf, signed36 } from '../compat/word36.ts';
 import { PackedBoard } from '../compat/board.ts';
 import { TerminalOutput } from '../compat/output.ts';

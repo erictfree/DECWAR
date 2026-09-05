@@ -2,8 +2,8 @@ import { sourceFile } from './source.ts';
 
 // A public map symbol anchors the adjacent private input words. No preceding
 // compiler/assembler allocation sizes need to be guessed.
-export function inputLayout() {
-  const source = sourceFile('WARMAC.MAC'), lines = source.split('\n');
+export function inputLayout(read:(name:string)=>string=sourceFile) {
+  const source = read('WARMAC.MAC'), lines = source.split('\n');
   const max = source.match(/^\s*maxcnt==\^D(\d+)/im);
   if (!max) throw new Error('Missing explicit decimal MAXCNT');
   const maximum = Number(max[1]), fields: Record<string, { offset:number; words:number; line:number }> = {};
@@ -15,7 +15,7 @@ export function inputLayout() {
     if (start < 0 || !pattern.test(lines[start+i].split(';')[0].trim())) throw new Error('Input allocation disagreement');
     fields[name] = { offset, words, line:start+i+1 }; offset += words;
   }
-  const map = sourceFile('DECWAR.MAP').split('\n'), pattern = /\bCCFLG\.\s+([0-7]+)\s+Global\s+Relocatable/;
+  const map = read('DECWAR.MAP').split('\n'), pattern = /\bCCFLG\.\s+([0-7]+)\s+Global\s+Relocatable/;
   const mapLine = map.findIndex(line => pattern.test(line)), match = map[mapLine]?.match(pattern);
   if (!match) throw new Error('Missing CCFLG. map anchor');
   return { file:'WARMAC.MAC', address:parseInt(match[1],8), mapLine:mapLine+1, maximum, words:offset, fields };

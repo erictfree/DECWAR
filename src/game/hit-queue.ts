@@ -1,9 +1,9 @@
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 import { add36, HALF_MASK, halfWords, leftHalf, rightHalf, signed36, unsigned36 } from '../compat/word36.ts';
 import { TerminalOutput } from '../compat/output.ts';
 import { objectArray, wordArray } from '../compat/memory.ts';
 import type { WordMemory } from '../compat/memory.ts';
-import { queueLayout } from '../generated/queue-layout.ts';
+import { queueLayout } from '../runtime/variant-values.ts';
 
 export type HitQueueMemory = { memory: WordMemory; serialAddress: bigint; linksAddress: bigint;
   dataAddress: bigint; readBits(index: number): bigint };

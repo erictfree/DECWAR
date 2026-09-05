@@ -3,7 +3,13 @@ dist/
 coverage/
 .DS_Store
 *.log
-tmp/pdfs/
+# Local experiments and downloaded CPU/compiler manuals.
+/tmp/
 data/
 # Local compatibility link for a server started before the archive relocation.
 /old_source
+
+# Routine command output and local runtime diagnostics, in any format.
+/logs/
+# Local duplicate; canonical reference evidence is in legacy/utexas-reference.
+/reference/austin/

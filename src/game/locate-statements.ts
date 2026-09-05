@@ -1,6 +1,6 @@
 import type { CommonBlock } from '../compat/memory.ts';
 import { add36,multiply36 } from '../compat/word36.ts';
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 import type { CheckPointServices,CheckStatementServices } from './check-statements.ts';
 import type { WeaponExpression,WeaponPredicate,WeaponStatementServices,WeaponValueType } from './weapon-damage-statements.ts';
 

@@ -1000,3 +1000,348 @@ every derived TypeScript file can be reused under MIT alone. A broader change
 requires establishing the underlying rights/provenance first. No code changed.
 Source/generated-data audit passes in logs/mit-contributions-audit.log. License
 and documentation changes only; the previously passing game suite was not rerun.
+
+## Read-only comparison of UT reconstruction and CompuServe snapshots
+
+User requested understanding the two codebases without changing code, explicitly
+noting that UT is an imperfect reconstruction. Compared only the authorized
+local archives; no external implementation material was consulted. Saved the
+source-backed findings in docs/legacy-comparison.md. No runtime, source archive,
+test, configuration, license, or generated-data files changed; server untouched.
+
+Matched 69 FORTRAN program units across the snapshots (UT amalgamates 59 into
+DECWAR.FOR): 51 normalized statement sequences match and 18 differ. Numeric
+labels, order, and single-quoted text were retained. Comments and D-lines were
+excluded using the archive-specific reader; this is lexical evidence, not a
+compiler or semantic-equivalence proof. Compared relevant MACRO changes in
+context, including locking, entry/exit, echo, statistics and Romulan speech.
+Temporary analysis scripts were kept outside the repository under /tmp.
+
+UT has a complete eighteen-ship roster in both FORTRAN and assembly tables,
+with consistent eighteen-bit group masks, versus ten in the C build selection.
+UT starts with twenty planets versus sixty in C. Major differences also include
+startup via DECWAR.INI, removed honor roll/mission persistence, Romulan message
+and random-test changes, global lock handling, privilege checks and argument
+copies around selected DO-variable calls. Shared named message literals are
+byte-identical: MSG.MAC 301 and SETMSG.MAC 23, including internal CR/LF bytes.
+
+Documented reconstruction limits: UT help still lists ten ships, DECWAR.INI
+is absent and its missing-file branch does not assign the defaults it advertises,
+both copies contain DrForbin/Merlyn modifications, and shared POINTS/TRACTR
+compiler/argument ambiguities remain. C FORTRAN and MACRO disagree on KNHIT
+(64 versus 400); UT agrees on 720. No edits were assigned to a historical author
+or date solely from the directory names. No baseline change is implied.
+
+Results: logs/legacy-fortran-comparison.log,
+logs/legacy-fortran-comparison.json.log, logs/legacy-fortran-differences.log,
+logs/legacy-warmac-candidate-diff.log and logs/legacy-*-diff.log.
+All 135 C and 39 UT file sizes/hashes remain correct, including UT Git blob
+hashes (logs/legacy-comparison-verification.log). npm run audit:check passes
+(logs/legacy-comparison-audit.log). No runtime tests were rerun for this
+documentation-only review. Further semantic work should focus on COMMON/ABI,
+startup and terminal behavior, synchronization, and changed Romulan/persistence
+paths before choosing any UT behavior for the port.
+
+## Plan for Austin as the default variant
+
+User selected the Austin reconstruction as the future default and requested a
+plan. Saved docs/austin-default-plan.md with six runnable milestones: source
+contracts, variant-aware CompuServe regression baseline, eighteen-slot Austin
+world/layout, Austin behavior integration, multi-client verification, then default
+cutover. CompuServe remains explicitly selectable; source variant and existing
+playable/diagnostic mode remain separate. No implementation or restart performed.
+
+Inspected tools/source.ts, audit.ts, common.ts, local-layout.ts and queue-layout.ts;
+tools/run-telnet.ts; shared-world/world-directory/monitor resources; live-session
+and playable-policy bindings; setup statements; and relevant test entry points.
+Found global C-generated imports, literal sixty-planet initialization, fixed
+ten-name extraction, C link-map dependencies, fixed shared-region addresses and
+host use of fixture composition. The imported Austin snapshot has no DECWAR.MAP.
+The plan addresses per-variant data and symbolic/virtual layout before changing
+the default, with explicit review of alias-sensitive paths and both COMMON sides.
+
+Planned verification includes all eighteen Austin slots, team boundaries,
+messages/hits and full-world rollover, source-specific startup/output/Romulan
+behavior, complete lifecycle, lock/interrupt cleanup, storage separation and
+CompuServe regression coverage. Missing INI, contradictory help and shared
+compiler ambiguities receive documented playable decisions where needed rather
+than silently inheriting C behavior. Existing archives, code, generated data,
+configuration, licenses and running server remain unchanged by this planning
+turn. Documentation-only validation: git diff --check.
+
+## Full Austin repository search: build environment, map and initialization
+
+User explicitly authorized searching https://github.com/decwarorg/utexas and
+believes this is running code. Inspected the full previously downloaded archive
+after confirming main remains f78f2ec733999617e4281ba3ed967bff8cd5d8f8 with
+git ls-remote. The initial sandboxed network lookup failed DNS; the authorized
+read-only retry succeeded. Search remained within this repository.
+
+Found no standalone DECWAR.MAP/SYM/listing among 595 current archive files.
+The disk ZIP contains two RP6 disk images; internal guest files were not inspected,
+so their contents and repository history are not ruled out. L.MIC documents
+map/symbol generation and @L/M/S/E. Normal simh/utexas.do compiles and links the
+game without requesting those outputs. Docker/SIMH scripts, bootstrap disks,
+FORTRAN-10 V6 tape/install workflow and README support a reproducible running
+reconstruction, but no emulator or upstream build was executed this turn.
+
+Important correction to the earlier subtree-only evidence: msc/decwar.ini exists
+in the full repository and msc/tape.py copies it into the runtime tape. It sets
+informative prompts, both coordinate output, medium output, then runs TARGETS
+and SRSCAN 2 W. No invented fallback settings are needed merely because it was
+not among the imported source-distribution files. The actual execution remains
+to verify. Changelog also attributes the 10-to-18 hit allocation repair to
+July 19, 2025, adding reconstruction history to the observed source difference.
+
+Saved docs/austin-build-evidence.md with pinned source links and amended the
+comparison's scope and Austin plan. New first milestone: reproduce upstream in
+isolation, capture build identities, map/symbols and reference transcripts;
+virtual layout remains a fallback. No source, runtime, archive, configuration,
+license or running-server changes. Search/provenance records are under
+logs/austin-repository-*.log. Documentation validation: git diff --check.
+
+## Successful native Austin reference build and live emulator
+
+User explicitly requested a subagent run the supplied build/map workflow, then
+asked to preserve the outputs with the Austin archive and asked about local
+play. Delegated isolated build execution; parent independently calculated source
+layout expectations, checked source/artifact hashes and preserved provenance.
+
+Built bundled SIMH pdp10-kl natively with Apple clang17 using make pdp10-kl,
+and BACK10 with cc back10.c -o back10. Docker CLI was installed but its daemon
+was not running; no downloads were required. Extracted pinned f78f2ec sources
+and bundled disks under /tmp/decwar-austin-reference. All 39 game source files
+match their manifest; only isolated boot/instrumentation scripts changed.
+
+Booted KL703 TOPS-10, restored source tape, compiled all listed game modules
+and linked with DECWAR/SAVE/MAP/SYFILE in the original module/library order.
+Verified FORTRA6(1144), MACRO53B(1244), LINK6(2376). Fresh artifacts: MAP47459bytes,
+SYM6395bytes and EXE176640bytes in explicit BACK10 -C lossless word encoding;
+raw BACKUP export tape261896bytes retained. Default ASCII extraction is used
+only for MAP. BACKUP emitted Cannot get high segment back after Done; allthree
+files were listed and extracted, map terminator verified, hashes saved.
+
+Map HISEG3122 and LOWSEG129 exactly match parent calculations from Austin
+declarations. LOCAL200 begins at octal341; TIMERS250 at406072. Source/layout
+comparisons are in logs/austin-reference-map-*.log. Both Yorktown slot9 and Wolf
+slot18 were admitted, actual INI commands ran, STATUS worked, Yorktown SC10
+rendered21x21, and QUIT/YES printed zero-point score tables and returned to the
+monitor. This is executable smoke evidence for the reconstruction, not a full
+18-client/combat/parity verification. Captures are Telnet-client transcripts,
+not raw network byte captures. Guest1986 dates are scripted; actual build2026-09-05.
+
+Saved artifacts/provenance/transcripts/launch diff in reference/austin/f78f2ec
+and, per user's additional keeping request, identical copies alongside the
+immutable source at legacy/utexas-reference/f78f2ec. commands.txt records full
+commands and failed attempts; artifacts.json records formats/hashes. Updated
+legacy/README.md and docs/austin-build-evidence.md to distinguish completed
+execution from the prior read-only search. No TS game or variant implementation
+changes; no plan changes in this build turn.
+
+After clean shutdown at test completion, restarted existing compiled disks for
+the user using ./sims/BIN/pdp10-kl simh/boot-reference.ini in the isolated docker/
+directory. PID42474, execsession24333, localhost2030 verified listening. Login
+DECWAR then R GAM:DECWAR; no password. Separate console-restart.log. TS node
+PID34798 remains listeninglocalhost2323. No active TS game interruption. Native
+emulator is left running for the user. Current runtime state is operational,
+not part of artifact provenance; full disks remain in the temporary worktree.
+
+Final checks: source/generated-data audit passes in
+logs/austin-reference-final-source-audit.log; both saved artifact copies hash
+identically; git diff --check. Full TS tests were not rerun because no runtime
+code changed. Documents/reference files only; no commit or push this turn.
+
+## Austin implementation — source contracts and variant execution (in progress)
+
+The user authorized proceeding with the Austin-default plan after the reference
+build. Both running servers have been left untouched. No default switch yet.
+
+Implemented independent source catalogs and extraction into
+src/generated/variants/{compuserve,austin}.ts. Austin routines inside DECWAR.FOR
+retain physical line numbers; catalogs verify both immutable archives and the
+pinned Austin MAP/INI hashes. Extraction now covers all output tables, anonymous
+messages, startup literals, character bits, file descriptors, lock storage,
+COMMON/local views and queues. Austin yields 18 ships, 20 planets, 720 hit entries,
+4190 queue words, HISEG 3122, LOWSEG 129, and TIMERS at octal 406072. The trailing
+HILST assembly omission is allowed only by a specific Austin extraction option;
+other declaration mismatches still fail. Austin ASCIL emits no CRLF, as its
+actual macro expansion requires. Removed statistics entries produce empty tables,
+not CompuServe replacements. Source archives remain unchanged.
+
+Shared worlds and galaxy rollover retain immutable variant identity and selected
+layout. Named data imports now go through read-only session views. Implementation
+refinement: the factory passes context at the host boundary and AsyncLocalStorage
+carries it through existing statement routines; generator next/throw/return are
+explicitly scoped, since constructing a generator does not scope its resumes.
+This avoids threading a new argument through every instruction helper while
+preserving independent contexts, with no mutable process-global selector or
+in-game environment checks. CompuServe's original generated object identities
+are retained because memory-role checks depend on them. Tests cover interleaved
+variant generators, async continuations, cancellation, and immutable data views.
+This is an internal compatibility bridge; Austin routine behavior is still being
+connected and is not yet offered as a playable/default session.
+
+Verification: logs/austin-variant-foundation-full-check-2.log: all 4541 tests pass.
+The first full check failed solely because the sandbox prohibited localhost
+listeners; rerun with listener access passed. The context migration's first run
+exposed six provenance/object-identity regressions; they were corrected by
+retaining CompuServe's existing data identities. Focused rerun:
+logs/austin-variant-context-focused-2.log: 28/28 pass. A separate new scope test
+initially assumed CompuServe BITS was dimensioned 10; source actually retains 18
+BITS entries, so the test now checks the player dimension of SHPCON. The array
+proxy descriptor check also caught and fixed a JavaScript Proxy length invariant.
+Failures retained in logs; full migration regression rerun currently in progress.
+
+Austin's internal full composition now constructs with its own memory sizes and
+timer location. Broadcast-only ROMSPK binding is connected, with no node/player
+quip tables. Remaining work includes Austin entry/INI, pregame/SETUP/cleanup,
+lock/monitor behavior, changed FORTRAN argument copies and Romulan behavior,
+then 18-player lifecycle/Telnet validation, host selection and default switch.
+
+## Austin implementation — connected gameplay and verification
+
+Connected Austin entry/INI, pregame/admission, twenty-planet setup, eighteen slots,
+statistics removal, ROMDRV/TELL/ROMSPK changes, fixed monitor lock keys and
+release-all behavior, JOBSTA/USPPN/speed table, echo routines and six active
+argument-copy changes. DSHIP calls are all inactive source, recorded as no port.
+Moved the host composition to src/runtime/game-session.ts; tests re-export it.
+Added --variant and guarded variant-specific storage. Default still held at
+CompuServe during these checks; original servers remain untouched.
+
+The complete suite after initial gameplay integration passed 4547 tests in
+logs/austin-game-full-check-1.log. Subsequent focused tests added eighteen-slot
+admission, nineteenth-player rollover, interleaved commands, slot-18 phaser
+kill/death/rejoin, game-over, real TCP Ctrl-C/IP/message/disconnect checks,
+720-entry hit saturation and Austin four-draw Romulan broadcast behavior.
+
+The first live movement/capture/build/dock test exposed a missing JA allocation
+in the separate production defense binder. Fixed that binder's JA and KA storage;
+the standalone fixtures already had their copies. A second test run reached all
+four commands but its energy assertion failed because a nearby enemy base fired
+on the ship after docking. The staged encounter now excludes nearby bases while
+retaining the real commands and turn loop. Failed runs retained in
+logs/austin-command-soak-test*.log. A TypeScript closure-narrowing error in the
+new Telnet test was fixed by capturing the validated numeric port.
+
+logs/austin-differences-test-3.log passes all eight targeted differences tests;
+logs/austin-typecheck-2.log passes strict typechecking. Full final validation
+and host launch/default switch still follow. docs/austin-implementation.md now
+accounts for all eighteen changed FORTRAN units and material assembly differences,
+including modern monitor bindings and remaining parity/load limits.
+
+## Austin default release — completed and running
+
+Austin is now the omitted-variant CLI default. Explicit --variant compuserve
+retains the original ten-player host behavior. Source/repair mode are independent;
+--strict remains diagnostic. README, running instructions, status, approved-plan
+status and the source-difference ledger now describe the implemented variants,
+roster, storage reuse and historical-parity limits.
+
+Final checks:
+- logs/austin-command-soak-test-3.log: five live Austin game tests pass, including
+  real movement/capture/build/dock with original waits, all 18 slots, concurrent
+  reports, nineteenth-player rollover, phaser destruction and game-over.
+- logs/austin-eighteen-telnet-test.log: all eighteen simultaneous real TCP clients
+  issue concurrent commands and quit, leaving no ships or locks. The same test
+  covers raw Ctrl-C, Telnet IP, two-captain messaging, disconnect and reuse.
+- logs/austin-release-full-check-2.log: npm run check passes both frozen-source/
+  generated audits, strict TypeScript checking and all 4563 tests (35.65 seconds).
+- Clean isolated snapshot recorded in logs/austin-release-directory.txt:
+  logs/austin-clean-install-2.log: Node 24 installs all 23 pinned packages;
+  logs/austin-clean-launch-check.log and austin-clean-launch-transcript.log:
+  omitted-variant CLI starts Austin, reads its INI, admits Yorktown, runs STATUS
+  and QUIT, writes Austin metadata, then shuts down the isolated test host.
+- git diff --check passes. Original generated CompuServe files and both immutable
+  source archives remain unchanged.
+
+Retained failed verification: logs/austin-release-full-check.log had 4561 passes
+and one timed-out legacy development-server test because that test assumed the
+old omitted-variant CompuServe startup. It now explicitly selects CompuServe;
+a separate test exercises default Austin, including host metadata and no STA
+writes. The initial offline clean install lacked the cached @types package and
+picked the machine's Node 23 outside this project's environment. Repeated with
+explicit Node 24 and the pinned registry packages; install and launch passed.
+These failures were not suppressed or deleted.
+
+Austin EXIT now preserves HLLZS .JBSA's right-half clearing separately from
+MONIT; both use the documented modern session-exit binding. Remaining original
+monitor continuation, timing, all malformed-input paths and exhaustive compiler/
+original-executable differential behavior are still unverified. No blanket
+historical-parity claim is made.
+
+Operational handoff: new Austin host started using the omitted-variant command
+node tools/run-telnet.ts --port 2324 --log logs/austin-live-host.log, exec session
+32124. Its own data is data/austin. A real connection completed fresh startup,
+Yorktown STATUS and QUIT: logs/austin-live-launch-check.log and
+logs/austin-live-launch-transcript.log. The smoke galaxy is regular with Romulans
+and black holes disabled; it remains available with no smoke captain reserved.
+Existing CompuServe PID34798 on localhost2323 and native PDP-10 reference on
+localhost2030 were not restarted or modified. All implementation/reference work
+remains local in the working tree; no commit or push in this implementation turn.
+
+Final user handoff: after confirming the only Austin connection was the completed
+smoke captain, stopped the new host PID48698 and restarted it on localhost2324
+(exec session90654). This discards only the empty smoke galaxy, allowing the
+user's first captain to choose game options. Listening was confirmed by host
+startup output. Existing CompuServe on2323 remained untouched. The Austin log
+retains both startup records and the intervening clean shutdown.
+
+## Visitor README rewrite
+
+At the user's explicit request, delegated a README-only rewrite to the readme
+subagent, then reviewed its text against the current runtime instructions,
+package requirements, Git remote, source evidence and licensing. Replaced the
+long chronological checklist with a visitor-facing game introduction, Node 24 /
+Telnet quick start, starter commands, Austin/CompuServe comparison, source-fidelity
+approach, honest alpha limits, documentation/development pointers and existing
+license scope. Explained that playing the TypeScript port needs no PDP-10 emulator.
+
+The review found an earlier documentation error: Austin HLP/DECWAR.HLP, which
+source-assets actually serves, says 1–18 players and lists nine ships per side.
+Only HLP/DECWAR.RNH, the older formatter source, still says ten/five. Corrected
+that distinction in running/status/implementation/comparison/plan documentation;
+this supersedes earlier work-log statements that the served Austin help lists
+ten. Also corrected stale variant-adoption sentences in LICENSING.md and
+legacy/README.md without changing any license terms or source archive bytes.
+
+Validation: all 19 local README links resolve (logs/readme-review.log), source
+and generated-data audit passes (logs/readme-source-audit.log), git diff --check
+passes. Documentation-only work: no gameplay code, tests or running servers
+changed, and no commit or push in this turn.
+
+## Repository checkpoint and generated-file retention
+
+The user asked to commit this milestone and decide which generated files belong
+in the repository. Keep the runnable TypeScript changes, regression tests and
+shared binders, extraction tools, checked generated TypeScript, updated docs,
+and one canonical reference bundle at legacy/utexas-reference/f78f2ec. All 17
+manifest entries hash correctly and match the local reference/austin mirror.
+The reference bundle is under 600 KB and includes source-audit inputs MAP/INI,
+lossless EXE/SYM, the raw export tape and curated build/terminal evidence.
+
+Added docs/repository-artifacts.md with retention/regeneration rules. Expanded
+.gitignore to exclude all local logs regardless of extension, all tmp content
+(including downloaded manuals), and the duplicate reference/austin mirror.
+Existing data, dependencies and build outputs remain ignored. Nothing was deleted
+from disk. Added .gitattributes to preserve legacy bytes across checkouts and
+mark generated TypeScript for GitHub's diff display. Neither source archive nor
+any reference artifact bytes changed. Runtime servers remain untouched.
+
+The implementation's final full suite passed 4563 tests before these documentation
+and repository-policy edits. Checking the staged repository snapshot next ensures
+that it does not rely on the newly ignored duplicate or local scratch files.
+
+Staged-only verification completed: copied the Git index into an isolated
+checkout with no local logs, data, downloaded manuals or duplicate reference.
+Pinned dependencies installed from cache under Node 24; both source/generated
+checks passed, TypeScript checking passed, and all 4563 tests passed in 34.10s.
+Results: logs/commit-snapshot-{install,audit,typecheck,tests}.log. This verifies
+that the selected repository files are sufficient for installation and checks.
+
+Git's first staged whitespace check flagged the preserved CR/LF/padding in
+reference artifacts. Did not alter those bytes: .gitattributes now disables
+legacy whitespace checks while retaining ordinary checks for project code.
+The subsequent staged check passes. All 17 reference artifact manifest hashes
+were verified; both original source archives remain unstaged and unchanged.
+Checkpoint commit: "Add Austin-default DECWAR variant and preserve reference evidence".
+This turn creates a local commit on main; no push is included.

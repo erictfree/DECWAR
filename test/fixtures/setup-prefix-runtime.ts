@@ -3,7 +3,7 @@ import type { bindSetupAdmissionRuntime } from './setup-admission-runtime.ts';
 import type { bindPlaceRuntime } from './place-runtime.ts';
 import { setupPrefixStatements } from '../../src/game/setup-prefix-statements.ts';
 import type { SetupPrefixServices,SetupPrefixLabel } from '../../src/game/setup-prefix-statements.ts';
-import { messages } from '../../src/generated/source-data.ts';
+import { messages } from '../../src/runtime/variant-values.ts';
 import { add36,multiply36,MIN_INTEGER } from '../../src/compat/word36.ts';
 import { setControlTrap } from '../../src/compat/interrupt.ts';
 import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-call.ts';

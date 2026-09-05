@@ -1,4 +1,4 @@
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 
 // SETUP.FOR:469-490. This is ship-local state, not a replacement for HISEG.
 export type Ship = {

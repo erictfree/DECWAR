@@ -8,7 +8,7 @@ import type { OpenServices } from '../../src/compat/files.ts';
 import { descriptorAddresses,installFileDescriptors } from '../../src/compat/file-descriptors.ts';
 import { acquireLock } from '../../src/compat/lock.ts';
 import { releaseLock } from '../../src/compat/unlock.ts';
-import { statisticsText,commissionText,outputTables } from '../../src/generated/source-data.ts';
+import { statisticsText,commissionText,outputTables } from '../../src/runtime/variant-values.ts';
 import { add36,halfWords,MIN_INTEGER,rightHalf } from '../../src/compat/word36.ts';
 import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-call.ts';
 type Host=ReturnType<typeof pregameInputRuntimeFixture>&{endgame:ReturnType<typeof bindEndgameRuntime>};

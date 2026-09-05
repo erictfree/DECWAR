@@ -1,4 +1,4 @@
-import { constants as K, romulanText as T } from '../generated/source-data.ts';
+import { constants as K, romulanText as T } from '../runtime/variant-values.ts';
 import { packSixbit, rightHalf, signed36 } from '../compat/word36.ts';
 import type { MessageRegisters } from './message-queue.ts';
 

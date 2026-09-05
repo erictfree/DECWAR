@@ -1,4 +1,4 @@
-import { constants as K, outputTables, statisticsText, commissionText } from '../generated/source-data.ts';
+import { constants as K, outputTables, statisticsText, commissionText } from '../runtime/variant-values.ts';
 import { add36, halfWords, signed36 } from '../compat/word36.ts';
 import type { StatisticsRecord } from './get-command.ts';
 

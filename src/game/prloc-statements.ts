@@ -1,5 +1,5 @@
 import type { CommonBlock,WordMemory } from '../compat/memory.ts';
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 import { add36 } from '../compat/word36.ts';
 
 // Addresses of the six by-reference arguments and compiler-local TW.

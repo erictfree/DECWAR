@@ -2,7 +2,7 @@ import type { CommonBlock,WordBlock } from '../compat/memory.ts';
 import type { FreeStatementServices } from './free-statements.ts';
 import type { WeaponExpression } from './weapon-damage-statements.ts';
 import { add36 } from '../compat/word36.ts';
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 export type RestartLocals={tteam:bigint;i:bigint;dummy:bigint};
 export type RestartStatementServices<W>=Pick<FreeStatementServices<W>,'logical'|'binary'|'assign'|'bounds'|'enterLoop'|'unlock'>&{
   assignAliveTrue(destination:()=>bigint):Generator<W,void,void>;

@@ -1,8 +1,8 @@
 import { CommonBlock, WordBlock, objectArray } from './memory.ts';
 import type { WordMemory } from './memory.ts';
-import { characterBits } from '../generated/character-bits.ts';
-import { inputLayout } from '../generated/input-layout.ts';
-import { constants as K } from '../generated/source-data.ts';
+import { characterBits } from '../runtime/variant-values.ts';
+import { inputLayout } from '../runtime/variant-values.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 import { CommandInput } from './command-input.ts';
 import { UnresolvedFloatInput } from './parser.ts';
 import type { Token } from './parser.ts';

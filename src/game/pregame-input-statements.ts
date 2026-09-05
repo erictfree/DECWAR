@@ -1,6 +1,6 @@
 import type { CommonBlock } from '../compat/memory.ts';
 import { add36 } from '../compat/word36.ts';
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 import type { WeaponExpression,WeaponStatementServices } from './weapon-damage-statements.ts';
 export type PregameInputLocals={i:bigint;precmd:bigint};
 export type PregameInputMessage='ambcom'|'unkcom'|'maicom'|'forhlp';

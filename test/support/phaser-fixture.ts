@@ -9,7 +9,7 @@ import { playerSlots } from '../../src/game/player.ts';
 import { PackedBoard, ldis, pdist } from '../../src/compat/board.ts';
 import { CommandInput } from '../../src/compat/command-input.ts';
 import { TerminalOutput } from '../../src/compat/output.ts';
-import { constants as K } from '../../src/generated/source-data.ts';
+import { constants as K } from '../../src/runtime/variant-values.ts';
 import { rational as real } from './rational-real.ts';
 import type { Rational } from './rational-real.ts';
 import { messageBits } from '../../src/game/message-memory.ts';

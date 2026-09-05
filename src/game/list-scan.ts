@@ -1,4 +1,4 @@
-import { constants as K, messages as M, ships as roster } from '../generated/source-data.ts';
+import { constants as K, messages as M, ships as roster } from '../runtime/variant-values.ts';
 import { equal } from '../compat/parser.ts';
 import type { Token } from '../compat/parser.ts';
 import type { TokenMemory } from '../compat/command-input.ts';

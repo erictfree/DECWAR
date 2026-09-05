@@ -4,7 +4,7 @@ On September 5, 2026 the user asked to set aside unresolved historical parity
 and get a functioning game. `npm start` and `npm run dev:telnet` now select this
 profile. `--strict` retains the earlier historical diagnostic behavior.
 
-The original archive remains unchanged and supplies all game rules, commands,
+Both source archives remain unchanged; each supplies its own game rules, commands,
 messages, maps, combat, movement, Romulan behavior and scoring formulas. This
 profile makes the following narrow repairs rather than waiting for a matching
 compiler/executable. It is a playable alpha, not certified historical parity.
@@ -17,17 +17,21 @@ compiler/executable. It is a playable alpha, not certified historical parity.
 | LIST ship names | Use the accumulated SHIPS mask for duplicate detection. | LSTSCN's singular SHIP is otherwise uninitialized; the surrounding code accumulates SHIPS. |
 | Pending disconnect/interrupt | GETCMD handles control already pending before INPUT. Hangup reaches quit cleanup; Ctrl-C retains the RED-alert no-quit restriction. | Source labels 200→210→350 can spin forever when the flag is already set. |
 
-Quit, death and game-over still call the original POINTS, UPDSTA and FREE
-routines. Cleanup releases tractor beams, drains queues, removes the ship from
-the board and updates player counts. Final statistics retain the source's
+Quit, death and game-over still call the selected source POINTS and FREE
+routines. CompuServe additionally calls UPDSTA; Austin removes those calls. Cleanup releases tractor beams, drains queues, removes the ship from
+the board and updates player counts. CompuServe final statistics retain the source's
 elapsed-time threshold and selection of DECWAR.STA versus DECWAF.STA.
 No fabricated score or blanket cleanup replaces those routines.
 
 The host also retains previously documented modern choices: TCP/Telnet NVT,
 cooperative scheduling, UTC clocks, 36-bit word files, a virtual shared-image
-catalog and synthetic compiler/monitor addresses. The runtime currently reuses
-the compositions under `test/fixtures`; those names reflect their origin, not
-a requirement to install or run a test harness to play.
+catalog and synthetic compiler/monitor addresses. The production factory is `src/runtime/game-session.ts`; it still reuses
+binders under `test/fixtures`. Those names reflect their origin, not
+a requirement to run a test harness to play.
+
+All five repairs above apply to both source variants: Austin retains the relevant
+POINTS, TRACTR, LSTSCN and GETCMD paths. Additional Austin source differences and
+monitor bindings are recorded in [Austin implementation](austin-implementation.md).
 
 ## Validation
 

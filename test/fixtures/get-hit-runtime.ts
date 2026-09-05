@@ -4,7 +4,7 @@ import { getHitRuntime,getHitClearFields } from '../../src/compat/get-hit-runtim
 import type { GetHitServices,GetHitField } from '../../src/compat/get-hit-runtime.ts';
 import { tractorOffStatements } from '../../src/game/tractor-off-statements.ts';
 import type { TractorOffStatementServices } from '../../src/game/tractor-off-statements.ts';
-import { queueLayout } from '../../src/generated/queue-layout.ts';
+import { queueLayout } from '../../src/runtime/variant-values.ts';
 import { queueState } from '../../src/game/queue-state.ts';
 import { add36,multiply36,rightHalf,unsigned36 } from '../../src/compat/word36.ts';
 import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-call.ts';

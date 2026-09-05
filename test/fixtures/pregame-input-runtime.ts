@@ -6,7 +6,7 @@ import { createDataImage,loadHighData,loadPregameData } from '../../src/game/dat
 import { rawEqual } from '../../src/compat/equal.ts';
 import { packAscii } from '../../src/compat/word36.ts';
 import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-call.ts';
-import { messages } from '../../src/generated/source-data.ts';
+import { messages } from '../../src/runtime/variant-values.ts';
 export function pregameInputRuntimeFixture(line='HELP'){
   const f=helpCommandRuntimeFixture('HELP');f.m.map(20300n,Array<bigint>(400).fill(0n));f.low.write('who',0n);f.input.pointer=-1n;
   const locals={i:20300n,precmd:20310n},cmd=20301n,symbols={header:20350n,pg:20360n,promptEnd:20361n,lines:20362n};

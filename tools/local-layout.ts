@@ -16,15 +16,15 @@ type Field = { offset: number; words: number; dimensions: { lower: number; lengt
 export type LocalLayout = { block: string; file: string; routine: string; address: number;
   words: number; declaredWords: number; mapLine: number; fields: Record<string, Field> };
 
-export function localLayouts(constants: Record<string, number | string>): Record<keyof typeof views, LocalLayout> {
-  const map = sourceFile('DECWAR.MAP').split('\n');
+export function localLayouts(constants: Record<string, number | string>, read:(name:string)=>string=sourceFile): Record<keyof typeof views, LocalLayout> {
+  const map = read('DECWAR.MAP').split('\n');
   const result = {} as Record<keyof typeof views, LocalLayout>;
   const number = (text: string): number => {
     const n = /^\d+$/.test(text) ? Number(text) : constants[text.toUpperCase()];
     if (typeof n !== 'number') throw new Error('Unknown local dimension ' + text); return n;
   };
   for (const key of Object.keys(views) as (keyof typeof views)[]) {
-    const [file, routine, block] = views[key], scope = declarationScope(file, routine || undefined);
+    const [file, routine, block] = views[key], scope = declarationScope(file, routine || undefined, read);
     const fields: Record<string, Field> = {}; let offset = 0;
     for (const s of scope.statements) {
       const common = s.text.match(new RegExp('^common\\s*/' + block + '/\\s*(.+)$', 'i')); if (!common) continue;

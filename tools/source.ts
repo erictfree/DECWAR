@@ -31,18 +31,18 @@ export function statements(source: string): Statement[] {
   return result;
 }
 
-export function stringTable(file: string, array: string, words: number): string[][] {
-  const statement = statements(sourceFile(file)).find(item => new RegExp('^data\\s*\\(\\(' + array + '\\(', 'i').test(item.text));
+export function stringTable(file: string, array: string, words: number, read: (name:string)=>string = sourceFile): string[][] {
+  const statement = statements(read(file)).find(item => new RegExp('^data\\s*\\(\\(' + array + '\\(', 'i').test(item.text));
   if (!statement) throw new Error(`Missing DATA table ${array} in ${file}`);
   const literals = [...statement.text.matchAll(/'((?:[^']|'')*)'/g)].map(match => match[1].replaceAll("''", "'"));
   if (literals.length % words !== 0) throw new Error(`Invalid DATA table ${array}`);
   return Array.from({ length: literals.length / words }, (_, index) => literals.slice(index * words, (index + 1) * words));
 }
 
-export function messageCatalog(): Record<string, { text: string; file: string; line: number }> {
+export function messageCatalog(read: (name:string)=>string = sourceFile): Record<string, { text: string; file: string; line: number }> {
   const result: Record<string, { text: string; file: string; line: number }> = {};
   for (const file of ['MSG.MAC', 'SETMSG.MAC']) {
-    const source = sourceFile(file);
+    const source = read(file);
     const matcher = /^([a-z0-9]+)::\s*asciz\s+([^\s])/gim;
     let match: RegExpExecArray | null;
     while ((match = matcher.exec(source))) {
@@ -59,8 +59,8 @@ export function messageCatalog(): Record<string, { text: string; file: string; l
 
 // Scoped extraction of UPDSTA/UPDCAP anonymous OUTSTR literals. This is not a
 // general MACRO parser; count and instruction context are checked explicitly.
-export function statisticsMessages(entry: 'updsta' | 'updcap' | 'shosta' | 'stazap' = 'updsta'): { text: string; file: string; line: number }[] {
-  const file = 'WARMAC.MAC', source = sourceFile(file);
+export function statisticsMessages(entry: 'updsta' | 'updcap' | 'shosta' | 'stazap' = 'updsta', read: (name:string)=>string = sourceFile): { text: string; file: string; line: number }[] {
+  const file = 'WARMAC.MAC', source = read(file);
   const start = source.indexOf('\n' + entry + ':');
   const end = source.indexOf(entry === 'updsta' ? '\nshosta:' : entry === 'updcap' ? '\n;ALL commented'
     : entry === 'shosta' ? '\naprtrp:' : '\nromspk:', start);
@@ -76,15 +76,15 @@ export function statisticsMessages(entry: 'updsta' | 'updcap' | 'shosta' | 'staz
   return result;
 }
 
-export function pregameStatText(): { text: string; file: string; line: number } {
-  const file = 'WARMAC.MAC', source = sourceFile(file), start = source.indexOf('\nstat.y:');
+export function pregameStatText(read: (name:string)=>string = sourceFile): { text: string; file: string; line: number } {
+  const file = 'WARMAC.MAC', source = read(file), start = source.indexOf('\nstat.y:');
   const match = /movei\s+p1,\[asciz\s*\/([^/]*)\/\]/i.exec(source.slice(start));
   if (start < 0 || !match) throw new Error('Missing STAT.Y pre-game label');
   return { text: match[1], file, line: source.slice(0, start + match.index).split('\n').length };
 }
 
-export function debugMessages(): { text: string; file: string; line: number }[] {
-  const file = 'WARMAC.MAC', source = sourceFile(file), start = source.indexOf('\ndebug:');
+export function debugMessages(read: (name:string)=>string = sourceFile): { text: string; file: string; line: number }[] {
+  const file = 'WARMAC.MAC', source = read(file), start = source.indexOf('\ndebug:');
   const end = source.indexOf('\n\f\tsubttl\tEQUAL', start);
   if (start < 0 || end < 0) throw new Error('Missing DEBUG section');
   const result = [...source.slice(start, end).matchAll(/outstr\s*\[asciz\s*"([^"]*)"\]/gi)].map(match => ({
@@ -94,8 +94,8 @@ export function debugMessages(): { text: string; file: string; line: number }[] 
   return result;
 }
 
-export function scanObjectTable(): { text: string | null; file: string; line: number }[] {
-  const file = 'WARMAC.MAC', source = sourceFile(file);
+export function scanObjectTable(read: (name:string)=>string = sourceFile): { text: string | null; file: string; line: number }[] {
+  const file = 'WARMAC.MAC', source = read(file);
   const end = source.indexOf('\ngetshp:'), marker = source.indexOf('\nobjtbl:');
   const start = source.lastIndexOf('\n\tdmove', marker);
   if (start < 0 || marker < 0 || end < marker) throw new Error('Missing SCAN object table');
@@ -110,18 +110,18 @@ export function scanObjectTable(): { text: string | null; file: string; line: nu
 
 // ROMSPK's anonymous ASCIZ tables in physical order, plus NODNAM. Restrict
 // extraction to this section and verify each table's source-sized row count.
-export function romulanTables() {
-  const file = 'WARMAC.MAC', source = sourceFile(file), start = source.indexOf('\nromspk:');
-  const nodes = source.indexOf('\nnodnam:', start), end = source.indexOf('\n\t0\t', nodes);
+export function romulanTables(read: (name:string)=>string = sourceFile, broadcastOnly=false) {
+  const file = 'WARMAC.MAC', source = read(file), start = source.indexOf('\nromspk:');
+  const nodes = broadcastOnly ? source.indexOf('\nrmcopy:', start) : source.indexOf('\nnodnam:', start), end = broadcastOnly ? nodes : source.indexOf('\n\t0\t', nodes);
   if (start < 0 || nodes < 0 || end < 0) throw new Error('Missing ROMSPK tables');
   const strings = [...source.slice(start, nodes).matchAll(/asciz\s+"([^"]*)"/gi)].map(m => ({
     text: m[1], file, line: source.slice(0, start + m.index).split('\n').length,
   }));
-  if (strings.length !== 29) throw new Error('Unexpected ROMSPK text tables');
+  if (strings.length !== (broadcastOnly ? 21 : 29)) throw new Error('Unexpected ROMSPK text tables');
   const nodeNames = [...source.slice(nodes, end).matchAll(/'([A-Z]{3})',,\[asciz "([^"]*)"\]/g)].map(m => ({
     node: m[1], text: m[2], file, line: source.slice(0, nodes + m.index).split('\n').length,
   }));
-  if (nodeNames.length !== 46) throw new Error('Unexpected NODNAM size');
+  if (nodeNames.length !== (broadcastOnly ? 0 : 46)) throw new Error('Unexpected NODNAM size');
   const masks = [...source.slice(start, nodes).matchAll(/\b([0-7]{6})\s*; (?:all|humans|klingons)/g)].map(m => parseInt(m[1], 8));
   if (masks.length !== 3) throw new Error('Unexpected ROMSPK population masks');
   return { masks, broadcast: strings.slice(0, 4), single: strings.slice(4, 8), adjectives: strings.slice(8, 13),
@@ -129,31 +129,39 @@ export function romulanTables() {
     teams: strings.slice(23, 25), generic: strings.slice(25, 29), nodes: nodeNames };
 }
 
-export function gripeMessages() {
-  const file = 'WARMAC.MAC', source = sourceFile(file), start = source.indexOf('\ngripe:'), end = source.indexOf('\nhelp:', start);
+export function ascilSuffix(read: (name:string)=>string = sourceFile):string {
+  const body=read('WARMAC.MAC').match(/define ascil \(txt\), <([\s\S]*?)\r?\n[ \t]*>/)?.[1];
+  if(body===undefined)throw new Error('Missing ASCIL macro');
+  if(/^\s*asciz `txt`\s*$/.test(body))return '';
+  if(/^\s*asciz `txt\r\n`\s*$/.test(body))return '\r\n';
+  throw new Error('Unrecognized ASCIL expansion');
+}
+
+export function gripeMessages(read: (name:string)=>string = sourceFile) {
+  const file = 'WARMAC.MAC', source = read(file), start = source.indexOf('\ngripe:'), end = source.indexOf('\nhelp:', start);
   if (start < 0 || end < 0) throw new Error('Missing GRIPE section');
   const rows = [...source.slice(start, end).matchAll(/asciz\s+"([^"]*)"|asciz\s+\/([^/]*)\/|ascil\s+<([^>]*)>|warn\s+<([^>]*)>/gi)].map(m => ({
-    text: m[1] ?? m[2] ?? (m[3] !== undefined ? m[3] + '\r\n' : '%' + m[4] + '\r\n'),
+    text: m[1] ?? m[2] ?? (m[3] !== undefined ? m[3] + ascilSuffix(read) : '%' + m[4] + ascilSuffix(read)),
     file, line: source.slice(0, start + m.index).split('\n').length,
   }));
   if (rows.length !== 15) throw new Error('Unexpected GRIPE strings');
   return rows;
 }
 
-export function textCommandMessages(kind: 'help' | 'news') {
-  const file = 'WARMAC.MAC', source = sourceFile(file), start = source.indexOf('\n' + kind + ':');
+export function textCommandMessages(kind: 'help' | 'news', read: (name:string)=>string = sourceFile) {
+  const file = 'WARMAC.MAC', source = read(file), start = source.indexOf('\n' + kind + ':');
   const end = source.indexOf(kind === 'help' ? '\neshp.:' : '\ngripe:', start);
   if (start < 0 || end < 0) throw new Error('Missing text command section');
   const rows = [...source.slice(start, end).matchAll(/asciz\s+"([^"]*)"|asciz\s+\/([^/]*)\/|ascil\s+<([^>]*)>|warn\s+<([^>]*)>/gi)].map(m => ({
-    text: m[1] ?? m[2] ?? (m[3] !== undefined ? m[3] + '\r\n' : '%' + m[4] + '\r\n'),
+    text: m[1] ?? m[2] ?? (m[3] !== undefined ? m[3] + ascilSuffix(read) : '%' + m[4] + ascilSuffix(read)),
     file, line: source.slice(0, start + m.index).split('\n').length,
   }));
   if (rows.length !== (kind === 'help' ? 10 : 3)) throw new Error('Unexpected text command strings');
   return rows;
 }
 
-export function restartBackupBytes() {
-  const file = 'SETMSG.MAC', source = sourceFile(file), match = /^backup::byte \(7\) ([0-7,]+)\r?$/m.exec(source);
+export function restartBackupBytes(read: (name:string)=>string = sourceFile) {
+  const file = 'SETMSG.MAC', source = read(file), match = /^backup::byte \(7\) ([0-7,]+)\r?$/m.exec(source);
   if (!match) throw new Error('Missing BACKUP byte directive');
   const bytes = match[1].split(',').map(s => parseInt(s, 8));
   if (bytes.length !== 10) throw new Error('Unexpected BACKUP byte count');
@@ -162,13 +170,13 @@ export function restartBackupBytes() {
 
 // Only the named output tables below are interpreted. Retain indirections as
 // null rather than pretending they are ASCIZ text or evaluating arbitrary MACRO.
-export function outputTable(name: string, count: number): { text: string | null; line: number }[] {
-  const source = sourceFile('WARMAC.MAC');
+export function outputTable(name: string, count: number, read: (name:string)=>string = sourceFile): { text: string | null; line: number }[] {
+  const source = read('WARMAC.MAC');
   const marker = new RegExp('^' + name + ':', 'm').exec(source);
   if (!marker) throw new Error(`Missing WARMAC table ${name}`);
   const start = marker.index + marker[0].length;
   const rest = source.slice(start);
-  const end = rest.search(/^[a-z][a-z0-9.]*:|\f/m);
+  const end = rest.search(/^[a-z][a-z0-9.]*:|^[ \t]*subttl\b|\f/im);
   if (end < 0) throw new Error(`Missing end of WARMAC table ${name}`);
   let lineNumber = source.slice(0, start).split('\n').length;
   const result: { text: string | null; line: number }[] = [];
@@ -187,8 +195,8 @@ export function outputTable(name: string, count: number): { text: string | null;
 
 // Literal spelling and physical locations only. These FORTRAN OUT arguments
 // still need the compiler's padding/termination contract at runtime.
-export function decwarLiterals() {
-  const file = 'DECWAR.FOR', source = sourceFile(file), rows = source.split('\n');
+export function decwarLiterals(read: (name:string)=>string = sourceFile, startupCount=6) {
+  const file = 'DECWAR.FOR', source = read(file), rows = source.split('\n');
   const calls = statements(source).flatMap(statement => {
     const match = statement.text.match(/^call\s+out\s*\(\s*'((?:[^']|'')*)'\s*,\s*([01])\s*\)$/i);
     return match ? [{ file, line: statement.line, text: match[1].replaceAll("''", "'"), newline: Number(match[2]) }] : [];
@@ -202,6 +210,6 @@ export function decwarLiterals() {
   const end = rows.findIndex(row => /^\s*3810\s+continue/i.test(row)) + 1;
   if (end === 0) throw new Error('Missing DECWAR fatal cleanup label');
   const fatal = starts.map((start, i) => calls.filter(s => s.line >= start && s.line < (starts[i + 1] ?? end)));
-  if (startup.length !== 6 || fatal.some((group, i) => group.length !== [4, 6, 4, 8, 5][i])) throw new Error('DECWAR literal catalog changed');
+  if (startup.length !== startupCount || fatal.some((group, i) => group.length !== [4, 6, 4, 8, 5][i])) throw new Error('DECWAR literal catalog changed');
   return { startup, fatal };
 }

@@ -4,7 +4,7 @@ import type { bindJobStatusRuntime } from './job-status-runtime.ts';
 import { restartStatements } from '../../src/game/restart-statements.ts';
 import type { RestartStatementServices } from '../../src/game/restart-statements.ts';
 import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-call.ts';
-import { messages } from '../../src/generated/source-data.ts';
+import { messages } from '../../src/runtime/variant-values.ts';
 type Host=ReturnType<typeof pregameInputRuntimeFixture>&{free:ReturnType<typeof bindFreeRuntime>;jobStatus:ReturnType<typeof bindJobStatusRuntime>};
 export function bindRestartRuntime(f:Host){
   f.m.map(25800n,Array<bigint>(400).fill(0n));const locals={tteam:f.free.locals.tteam,i:f.free.locals.i,dummy:25404n},header=25800n,lines=25810n,labels={free01:25820n,free02:25850n};

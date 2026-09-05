@@ -1,5 +1,5 @@
 import type { CommonBlock } from '../compat/memory.ts';
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 
 export type RomulanDamageEntry='pharom'|'deadro'|'torom';
 export type RomulanDamageExpression<W>=()=>Generator<W,bigint,void>;

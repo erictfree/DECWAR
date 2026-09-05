@@ -1,6 +1,7 @@
+import { currentVariant } from '../runtime/variant-execution.ts';
 import type { CommonBlock } from '../compat/memory.ts';
 import type { WeaponExpression,WeaponStatementServices } from './weapon-damage-statements.ts';
-import { constants as K,decwarText } from '../generated/source-data.ts';
+import { constants as K,decwarText } from '../runtime/variant-values.ts';
 import type { DecwarLiteral } from './entry.ts';
 
 export type DecwarExitLocals=Record<'i'|'txppn'|'txnm1'|'txnm2'|'txsh1'|'txsh2'|'txtim'|'txwhy'|'txtem'|'txtot',bigint>;
@@ -37,6 +38,6 @@ export function* decwarExitStatements<W>(entry:'fatal'|'leave',high:CommonBlock,
   yield*write(()=>l.txwhy,integer(-1));if(io.logical(low.read('addrck')))yield*write(()=>l.txwhy,integer(0));
   yield*write(()=>l.txtem,{type:'integer',evaluate:()=>io.binary('sub',v(()=>low.read('team')),integer(1))});
   yield*io.points(true);yield*write(()=>l.txtot,v(()=>m.read(total)));
-  yield*io.updsta([l.txppn,l.txnm1,l.txnm2,l.txsh1,l.txsh2,l.txtot,l.txtim,l.txwhy,l.txtem,low.address('who')]);
+  if(currentVariant().definition.id!=='austin')yield*io.updsta([l.txppn,l.txnm1,l.txnm2,l.txsh1,l.txsh2,l.txtot,l.txtim,l.txwhy,l.txtem,low.address('who')]);
   yield*io.free(low.address('who'));yield*write(()=>low.address('who'),integer(0));yield*io.exit();
 }

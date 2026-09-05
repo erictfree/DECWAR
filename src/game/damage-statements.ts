@@ -1,6 +1,7 @@
+import { copiedArgument } from './argument-copy.ts';
 import type { CommonBlock } from '../compat/memory.ts';
 import { add36 } from '../compat/word36.ts';
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 
 export type DamageServices<W>={
   logical(word:bigint):boolean; // Required compiler interpretation of EQUAL's LOGICAL word.
@@ -17,11 +18,11 @@ export type DamageServices<W>={
 // DAMAGE.FOR:31-78. STOKEN is a reference; I/J are explicit compiler-local
 // words. Ordinary integer DO advancement is modeled; exceptional mutation of
 // an active control variable still requires compiler instruction semantics.
-export function* damageStatements<W>(high:CommonBlock,low:CommonBlock,stoken:bigint,locals:{i:bigint;j:bigint},io:DamageServices<W>):Generator<W,void,void>{
+export function* damageStatements<W>(high:CommonBlock,low:CommonBlock,stoken:bigint,locals:{i:bigint;j:bigint;ia?:bigint;ja?:bigint},io:DamageServices<W>):Generator<W,void,void>{
   const m=low.memory,damageAddress=(index:bigint)=>high.address('shpdam',low.read('who'),m.read(index));
   const advance=(index:bigint)=>m.write(index,add36(m.read(index),1n));
   function* row(index:bigint):Generator<W,void,void>{
-    yield*io.odev(index);
+    yield*io.odev(copiedArgument(m,index,index===locals.i?locals.ia:locals.ja,'DECWAR.FOR:800,822'));
     const format=low.read('oflg');
     if(format<0n)yield*io.space();else yield*io.tab(format===0n?10:19);
     yield*io.oflt(damageAddress(index),4);

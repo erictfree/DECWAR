@@ -18,13 +18,16 @@ export type RomulanSpeechServices<W>=FieldStack<W>&{
 // WARMAC.MAC:6228-6348; NODNAM data at 6350-6396. Each table/literal is
 // relocated memory, and TMP is the shared assembler scratch word. No table
 // bounds, destination length, logical-sign or exceptional-index guard is added.
-export function* romulanSpeechRuntime<W>(entry:RomulanSpeechEntry,m:WordMemory,r:MachineRegisters,args:SourceArguments,s:RomulanSpeechSymbols,io:RomulanSpeechServices<W>):Generator<W,void,void>{
+export function* romulanSpeechRuntime<W>(entry:RomulanSpeechEntry,m:WordMemory,r:MachineRegisters,args:SourceArguments,s:RomulanSpeechSymbols,io:RomulanSpeechServices<W>,broadcastOnly=false):Generator<W,void,void>{
+  // Austin WARMAC:4676-4794 removes player-specific routing and RMGPLY,
+  // preserving the shared byte-copy instructions and four random draws.
   const indexed=(base:bigint,index:bigint)=>m.read(rightHalf(base+index));
   const random=function*(n:3|4|5){r.arg=rightHalf(s.iranArgs[n]);yield*io.iran();};
   if(entry==='rmcopy'){
     for(;;){yield*io.ildbP2();if(r.c===0n)return;yield*io.idpbP1();}
   }
   if(entry==='rmgply'){
+    if(broadcastOnly)throw new Error('Austin has no RMGPLY entry');
     yield*random(3);
     if(r.t0===1n){
       yield*io.getlinT1();r.t1=signed36(halfWords(rightHalf(r.t1),0n));r.t2=0n;
@@ -43,14 +46,14 @@ export function* romulanSpeechRuntime<W>(entry:RomulanSpeechEntry,m:WordMemory,r
     yield*io.sos('t1',0n);r.p2=indexed(s.generic,r.t1);return;
   }
   yield*io.pushData(r.arg);
-  if(m.read(s.player)===0n){yield*random(3);r.t1=r.t0;m.write(s.tmp,r.t1);r.t1=indexed(s.masks-1n,r.t1);}
+  if(broadcastOnly||m.read(s.player)===0n){yield*random(3);r.t1=r.t0;m.write(s.tmp,r.t1);r.t1=indexed(s.masks-1n,r.t1);}
   else{r.t1=m.read(s.who);r.t1=indexed(s.bits-1n,r.t1);m.write(s.tmp,0n);}
   m.write(s.dbits,r.t1);r.t1=rightHalf(s.romulan);m.write(s.dispfr,r.t1);
   r.arg=signed36(yield*io.popData());r.p1=args.address(0);r.p1=signed36(halfWords(s.point7,rightHalf(r.p1)));
   yield*random(4);yield*io.sos('t1',0n);r.p2=indexed(s.broadcast,r.t1);
   if(m.read(s.tmp)===0n)r.p2=indexed(s.single,r.t1);yield*io.copy();
   yield*random(5);yield*io.sos('p2',0n);r.p2=indexed(s.adjectives,r.p2);yield*io.copy();
-  if(yield*io.soslP2(s.tmp))yield*io.playerQuip();else r.p2=indexed(s.populations,r.p2);
+  if(yield*io.soslP2(s.tmp)){if(!broadcastOnly)yield*io.playerQuip();}else r.p2=indexed(s.populations,r.p2);
   yield*io.copy();yield*random(5);yield*io.sos('p2',0n);r.p2=indexed(s.objects,r.p2);yield*io.copy();
   r.c=115n;if(m.read(s.tmp)>=0n)yield*io.idpbP1();r.c=33n;yield*io.idpbP1();r.c=0n;yield*io.idpbP1();
 }

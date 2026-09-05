@@ -1,14 +1,14 @@
 import type { pregameRuntimeFixture } from './pregame-runtime.ts';
 import { damageStatements } from '../../src/game/damage-statements.ts';
 import type { DamageServices } from '../../src/game/damage-statements.ts';
-import { messages } from '../../src/generated/source-data.ts';
+import { messages } from '../../src/runtime/variant-values.ts';
 import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-call.ts';
 
 // Reuses the main runtime's loaded DEVICE words, ODEV tables, raw EQUAL,
 // board and output. Only DAMAGE's compiler locals/literals/temporaries are added.
 export function bindMainDamageRuntime(f:ReturnType<typeof pregameRuntimeFixture>){
   f.m.map(48400n,Array<bigint>(400).fill(77n));
-  const locals={i:48400n,j:48401n},s={stoken:48402n,header:48410n,count:48420n,width:48421n,object:48422n,zero:48423n};
+  const locals={i:48400n,j:48401n,ia:48403n,ja:48404n},s={stoken:48402n,header:48410n,count:48420n,width:48421n,object:48422n,zero:48423n};
   const labels={alldok:48500n,units1:48540n,damrep:48580n,dmhdr1:48620n,dmhdr2:48660n};
   for(const key of Object.keys(labels) as (keyof typeof labels)[])f.h.put(labels[key],messages[key].text);
   const events:string[]=[],prepare=(a:bigint[])=>{loadArgumentBlock(f.m,s.header,a);selectArgumentBlock(f.r,s.header);};

@@ -1,10 +1,10 @@
-import { messages as M } from '../generated/source-data.ts';
+import { messages as M } from '../runtime/variant-values.ts';
 import { TerminalOutput } from '../compat/output.ts';
 import { etim, otim } from '../compat/time.ts';
 import type { MonitorClock } from '../compat/time.ts';
 import { add36 } from '../compat/word36.ts';
 import type { CommonBlock } from '../compat/memory.ts';
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 
 export type TimeContext = { who: number; gameStarted: bigint; shipStarted: bigint; shipRunStarted: bigint };
 

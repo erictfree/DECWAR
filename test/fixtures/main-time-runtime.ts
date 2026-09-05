@@ -5,7 +5,7 @@ import type { TimeStatementServices,TimeHeading } from '../../src/game/time-comm
 import { clockRoutine } from '../../src/compat/clock-runtime.ts';
 import type { ClockServices } from '../../src/compat/clock-runtime.ts';
 import { add36 } from '../../src/compat/word36.ts';
-import { messages } from '../../src/generated/source-data.ts';
+import { messages } from '../../src/runtime/variant-values.ts';
 import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-call.ts';
 export function bindMainTimeRuntime(f:ReturnType<typeof pregameRuntimeFixture>){
   f.m.map(48800n,Array<bigint>(400).fill(77n));const s={header:48800n,zero:48810n,value:48811n,d:48812n},labels={} as Record<TimeHeading,bigint>;

@@ -1,4 +1,4 @@
-import { constants as K, messages as M, decwarText } from '../generated/source-data.ts';
+import { constants as K, messages as M, decwarText } from '../runtime/variant-values.ts';
 import type { TokenMemory } from '../compat/command-input.ts';
 import { equal } from '../compat/parser.ts';
 import { add36, multiply36 } from '../compat/word36.ts';

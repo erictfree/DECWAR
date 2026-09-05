@@ -3,7 +3,7 @@ import type { RepairServices } from '../../src/game/repair-statements.ts';
 import { dockStatements } from '../../src/game/dock-statements.ts';
 import type { DockServices } from '../../src/game/dock-statements.ts';
 import { rawLdis } from '../../src/compat/ldis.ts';
-import { messages } from '../../src/generated/source-data.ts';
+import { messages } from '../../src/runtime/variant-values.ts';
 import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-call.ts';
 export function bindMainDockRuntime(f:ReturnType<typeof pregameRuntimeFixture>,numeric:Pick<RepairServices<string>,'logical'|'integer'|'assign'|'equal'|'etim'>){
   f.m.map(49200n,Array<bigint>(400).fill(77n));const locals={v:49200n,ifract:49201n,i:49202n,j:49203n},s={header:49210n,count:49220n,object:49221n,space:49222n,status:49230n,dock01:49300n,dockin:49340n};

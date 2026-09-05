@@ -2,7 +2,7 @@ import { helpListRuntimeFixture } from './help-list-runtime.ts';
 import { helpCommandRuntime } from '../../src/game/help-command-runtime.ts';
 import type { HelpCommandServices } from '../../src/game/help-command-runtime.ts';
 import { eraseTextShip,restoreTextShip } from '../../src/compat/gripe.ts';
-import { commands,helpText,constants as K } from '../../src/generated/source-data.ts';
+import { commands,helpText,constants as K } from '../../src/runtime/variant-values.ts';
 import { add36 } from '../../src/compat/word36.ts';
 import { sourceFile } from '../../tools/source.ts';
 export function helpCommandRuntimeFixture(line='HELP ENERGY',text='\n.ENERGY\r\nBody\n.NEXT'){

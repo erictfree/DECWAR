@@ -1,4 +1,4 @@
-import { commands, pregame } from '../generated/source-data.ts';
+import { commands, pregame } from '../runtime/variant-values.ts';
 import type { CommandWordReader } from '../game/data-initialization.ts';
 import { add36, multiply36, signed36 } from './word36.ts';
 

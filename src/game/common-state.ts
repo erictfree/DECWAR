@@ -1,7 +1,7 @@
 import { CommonBlock, objectArray, wordArray } from '../compat/memory.ts';
 import { PackedBoard } from '../compat/board.ts';
 import { TerminalOutput } from '../compat/output.ts';
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 import { PlayerSlot } from './player.ts';
 import type { Ship } from './ship.ts';
 import { Scores } from './scores.ts';

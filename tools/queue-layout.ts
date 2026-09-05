@@ -2,8 +2,8 @@ import { sourceFile } from './source.ts';
 
 // WARMAC's initial high-segment BLOCK span, not a general MACRO assembler.
 // The supplied link map relocates this module; anonymous headers occupy words.
-export function queueLayout() {
-  const lines = sourceFile('WARMAC.MAC').split('\n');
+export function queueLayout(read:(name:string)=>string=sourceFile, expectedWords=2590) {
+  const lines = read('WARMAC.MAC').split('\n');
   const constants: Record<string, number> = {};
   let radix = 8;
   function evaluate(expression: string): number {
@@ -32,8 +32,8 @@ export function queueLayout() {
     fields[name] = { offset, words, line: i + 1 }; offset += words; index++;
     if (index === expected.length) break;
   }
-  if (index !== expected.length || offset !== 2590) throw new Error('Incomplete queue storage extraction');
-  const map = sourceFile('DECWAR.MAP').split('\n');
+  if (index !== expected.length || offset !== expectedWords) throw new Error('Incomplete queue storage extraction');
+  const map = read('DECWAR.MAP').split('\n');
   const moduleLine = map.findIndex(line => /^WARMAC\s+from/.test(line));
   const mapLine = map.findIndex((line, i) => i > moduleLine && /High segment starts at/.test(line));
   const match = map[mapLine]?.match(/starts at\s+([0-7]+)/);

@@ -1,5 +1,6 @@
+import { currentVariant } from '../runtime/variant-execution.ts';
 import type { LockBlock,UnlockSymbols } from './unlock.ts';
-import { lockLayout } from '../generated/lock-layout.ts';
+import { lockLayout } from '../runtime/variant-values.ts';
 import { add36,halfWords,leftHalf,rightHalf,signed36,packSixbit } from './word36.ts';
 import type { WordMemory } from './memory.ts';
 export type LockRegisters={t0:bigint;t1:bigint;t2:bigint};
@@ -18,7 +19,13 @@ export type LockServices<W>={
 };
 // WARMAC LOCK.:4476-4565. Register values and flags remain live across waits.
 // No host mutex, timeout policy or automatic ENQ retry replaces these branches.
-export function* acquireLock<W>(block:LockBlock,state:LockState,r:LockRegisters,symbols:UnlockSymbols,io:LockServices<W>):Generator<W,void,void>{
+export function* acquireLock<W>(block:LockBlock,state:LockState,r:LockRegisters,symbols:UnlockSymbols,io:LockServices<W>,austinKey:1|2=2):Generator<W,void,void>{
+  // Austin WARMAC:3768-3786 has two fixed global keys and no LOKTAB search.
+  if(currentVariant().definition.id==='austin'){
+    r.t1=BigInt(austinKey);
+    if(yield*io.enq()){state.lkfail=0n;return;}
+    state.lkfail=-1n;r.t1=25n;yield*io.hibernate(r.t1);return;
+  }
   state.lkfail=0n;state.hvLok=0n;r.t1=rightHalf(r.t1);r.t2=BigInt(lockLayout.maximum-1);
   while(r.t1!==block.read('loktab',r.t2)){r.t2=add36(r.t2,-1n);if(r.t2<0n)break;}
   if(r.t2>=0n)return;
@@ -62,8 +69,8 @@ export function* acquireLock<W>(block:LockBlock,state:LockState,r:LockRegisters,
   }
 }
 // WARMAC LOCK:4468-4471 resolves the key address and remembers it first.
-export function* lockArgument<W>(block:LockBlock,r:LockRegisters,address:()=>bigint,lock:()=>Generator<W,void,void>):Generator<W,void,void>{
-  r.t1=rightHalf(address());block.write('locked',r.t1);yield*lock();
+export function* lockArgument<W>(block:LockBlock,r:LockRegisters,address:()=>bigint,lock:(austinKey?:1)=>Generator<W,void,void>):Generator<W,void,void>{
+  r.t1=rightHalf(address());if(currentVariant().definition.id==='austin'){r.t1=1n;yield*lock(1);return;}block.write('locked',r.t1);yield*lock();
 }
 // WARMAC FNDLOK:6423-6439. LOKNAM is read from caller-supplied source memory.
 export function findLockName(memory:WordMemory,r:{t1:bigint;t2:bigint;t3:bigint},symbols:{loknam:bigint;board:bigint;brdsiz:bigint}):void{

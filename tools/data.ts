@@ -10,7 +10,7 @@ function split(text:string):string[]{let depth=0,quoted=false,start=0;const part
     if(c==='(')depth++;if(c===')')depth--;if(c===','&&depth===0){parts.push(text.slice(start,i).trim());start=i+1;}}
   if(depth!==0||quoted)throw new Error('Unbalanced DATA syntax');parts.push(text.slice(start).trim());return parts;
 }
-export function fortranData(constants:Record<string,number|string>,high:CommonLayout):DataWord[]{
+export function fortranData(constants:Record<string,number|string>,high:CommonLayout, read:(name:string)=>string=sourceFile, options:{compileUnits?:readonly string[];statements?:number;words?:number}={}):DataWord[]{
   const number=(s:string,env:Record<string,number>={}):number=>{s=s.trim();if(/^-?\d+$/.test(s))return Number(s);const n=env[s.toLowerCase()]??constants[s.toUpperCase()];if(typeof n!=='number')throw new Error('Unresolved DATA integer '+s);return n;};
   function targets(text:string,env:Record<string,number>={}):{field:string;indices:number[]}[]{
     if(text.startsWith('(')&&text.endsWith(')')){
@@ -26,11 +26,11 @@ export function fortranData(constants:Record<string,number|string>,high:CommonLa
     if(/^"[0-7]+$/.test(text))return{kind:'integer',word:BigInt('0o'+text.slice(1)).toString(),source:text};
     return{kind:'integer',word:String(number(text)),source:text};
   }
-  const declaration=statements(sourceFile('SETUP.FOR')).find(s=>/^dimension precmd\(/i.test(s.text));
+  const declaration=statements(read('SETUP.FOR')).find(s=>/^dimension precmd\(/i.test(s.text));
   const dimensions=declaration?.text.match(/^dimension precmd\(([^)]+)\)$/i);if(!dimensions)throw new Error('Missing PRECMD declaration');
-  const precmd={offset:0,type:declarationScope('SETUP.FOR','XGTCMD').type('precmd').type,dimensions:split(dimensions[1]).map(n=>({lower:1,length:number(n)}))};
-  const units=sourceFile('DECCMP.CMD').trim().split(/[\s,]+/).map(s=>s.toUpperCase());const all:DataWord[]=[];let count=0;
-  for(const unit of units){let source:string;try{source=sourceFile(unit+'.FOR');}catch{continue;}
+  const precmd={offset:0,type:declarationScope('SETUP.FOR','XGTCMD',read).type('precmd').type,dimensions:split(dimensions[1]).map(n=>({lower:1,length:number(n)}))};
+  const units=options.compileUnits??read('DECCMP.CMD').trim().split(/[\s,]+/).map(s=>s.toUpperCase());const all:DataWord[]=[];let count=0;
+  for(const unit of units){let source:string;try{source=read(unit+'.FOR');}catch{continue;}
     for(const s of statements(source)){if(!/^data\s/i.test(s.text))continue;count++;
       const m=s.text.match(/^data\s+(.+?)\s*\/(.*)\/\s*$/i);if(!m)throw new Error('Unsupported DATA statement');
       const names=targets(m[1].trim()),values=split(m[2]).map(value);if(names.length!==values.length)throw new Error(`DATA count mismatch ${unit}:${s.line}`);
@@ -42,7 +42,7 @@ export function fortranData(constants:Record<string,number|string>,high:CommonLa
       }
     }
   }
-  if(count!==12||all.length!==219)throw new Error(`DATA coverage changed: ${count} statements, ${all.length} words`);
+  if(count!==(options.statements??12)||all.length!==(options.words??219))throw new Error(`DATA coverage changed: ${count} statements, ${all.length} words`);
   const seen=new Set<string>();for(const item of all){const key=item.scope+':'+item.offset;if(seen.has(key))throw new Error('Overlapping DATA initialization '+key);seen.add(key);}
   return all;
 }

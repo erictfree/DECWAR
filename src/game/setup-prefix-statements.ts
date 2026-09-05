@@ -1,6 +1,7 @@
+import { currentVariant } from '../runtime/variant-execution.ts';
 import type { CommonBlock } from '../compat/memory.ts';
 import { add36,multiply36 } from '../compat/word36.ts';
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 export type SetupPrefixLabel='setu01'|'setu02'|'setu03'|'setu04'|'setu05'|'setu06'|'setu07'|'nogal1';
 export type SetupPrefixServices<W>={
   logical(word:bigint):boolean;trueWord():bigint;
@@ -46,7 +47,7 @@ export function* setupPrefixStatements<W>(high:CommonBlock,low:CommonBlock,l:{id
     high.write('rom',0n);
     for(m.write(l.j,1n);m.read(l.j)<=2n;m.write(l.j,add36(m.read(l.j),1n)))for(m.write(l.i,1n);m.read(l.i)<=BigInt(K.KNBASE);m.write(l.i,add36(m.read(l.i),1n))){high.write('base',1000n,m.read(l.i),3,m.read(l.j));high.write('base',m.read(l.j),m.read(l.i),4,m.read(l.j));}
     high.write('nbase',10n,1);high.write('nbase',10n,2);yield*io.clear(high.address('alive',1),1n,BigInt(K.KNPLAY));
-    m.write(l.nstar,yield*io.starCount());m.write(l.nhole,yield*io.holeCount());high.write('nplnet',60n);
+    m.write(l.nstar,yield*io.starCount());m.write(l.nhole,yield*io.holeCount());high.write('nplnet',currentVariant().definition.id==='austin'?20n:60n);
     for(m.write(l.i,1n);m.read(l.i)<=BigInt(K.KNBASE);m.write(l.i,add36(m.read(l.i),1n))){
       yield*io.place(()=>add36(BigInt(K.DXFBAS*100),m.read(l.i)),l.one,high.address('base',m.read(l.i),K.KVPOS,1),high.address('base',m.read(l.i),K.KHPOS,1));
       yield*io.place(()=>add36(BigInt(K.DXEBAS*100),m.read(l.i)),l.one,high.address('base',m.read(l.i),K.KVPOS,2),high.address('base',m.read(l.i),K.KHPOS,2));

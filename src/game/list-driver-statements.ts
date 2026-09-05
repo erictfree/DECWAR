@@ -1,6 +1,6 @@
 import type { CommonBlock,WordBlock } from '../compat/memory.ts';
 import { add36 } from '../compat/word36.ts';
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 export type ListEntry='list'|'summar'|'bases'|'planet'|'target';
 export type ListDriverServices<W>={
   clear(from:bigint,last:bigint):Generator<W,void,void>; // BLKSET(from,0,LOCF(last)-LOCF(from)+1).

@@ -6,7 +6,7 @@ import type { PlanetCommandServices } from '../../src/game/planet-commands.ts';
 import { CommandInput } from '../../src/compat/command-input.ts';
 import { locate, LocateLocals } from '../../src/game/locate.ts';
 import { orderedRational as real } from './rational-real.ts';
-import { constants as K } from '../../src/generated/source-data.ts';
+import { constants as K } from '../../src/runtime/variant-values.ts';
 import { removePlanet } from '../../src/game/remove-planet.ts';
 export { done };
 export type Wait = DefenseWait | 'input';

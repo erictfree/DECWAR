@@ -1,4 +1,4 @@
-import { constants as K, messages as M, pregame as table, commands } from '../generated/source-data.ts';
+import { constants as K, messages as M, pregame as table, commands } from '../runtime/variant-values.ts';
 import { equal } from '../compat/parser.ts';
 import { TerminalOutput } from '../compat/output.ts';
 import type { TokenMemory } from '../compat/command-input.ts';

@@ -1,3 +1,4 @@
+import { currentVariant } from '../../src/runtime/variant-execution.ts';
 import assert from 'node:assert/strict';
 import type { checkRuntimeFixture } from './check-runtime.ts';
 import type { bindWaitRuntime } from './wait-runtime.ts';
@@ -5,7 +6,7 @@ import { nextToken,skipTokenBlanks,addTokenNumber } from '../../src/compat/token
 import type { TokenServices } from '../../src/compat/token-runtime.ts';
 import { gtknRuntime } from '../../src/compat/gtkn-runtime.ts';
 import type { GtknServices } from '../../src/compat/gtkn-runtime.ts';
-import { characterBits } from '../../src/generated/character-bits.ts';
+import { characterBits } from '../../src/runtime/variant-values.ts';
 import { inputRuntime } from '../../src/compat/input-runtime.ts';
 import { add36,multiply36,signed36,halfWords,leftHalf,rightHalf,unsigned36,packAscii } from '../../src/compat/word36.ts';
 import { orderedRational as real } from '../support/rational-real.ts';
@@ -20,7 +21,7 @@ export function bindTokenRuntime(f:Host){
   const symbols={tknlst:f.low.address('tknlst',1),typlst:f.low.address('typlst',1),vallst:f.low.address('vallst',1),ptrlst:f.low.address('ptrlst',1),ntok:f.low.address('ntok'),linbuf:f.input.lineAddress,
     cbits:16600n,scale:inputRuntime(f.input).block.address('scale'),point7LeftHalf:f.s.point7LeftHalf,tenLeftHalf:32n,quitWord:16500n,overflow:16510n};
   // A synthetic 10.0 word only for opt-in rational fixtures; not a PDP-10 encoding.
-  f.m.write(symbols.quitWord,packAscii('QUIT'));f.h.put(symbols.overflow,'Too many words -- line ignored\r\n');
+  f.m.write(symbols.quitWord,packAscii('QUIT'));f.h.put(symbols.overflow,'Too many words -- line ignored'+currentVariant().definition.ascilSuffix);
   characterBits.entries.forEach((v,i)=>f.m.write(symbols.cbits+BigInt(i),BigInt(v.value)));
   const io:TokenServices<string>={
     *pushData(w){yield*f.rt.stack.pushData(w);},*popData(){return yield*f.rt.stack.popData();},

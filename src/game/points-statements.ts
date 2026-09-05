@@ -1,6 +1,6 @@
 import type { CommonBlock,WordBlock } from '../compat/memory.ts';
 import type { WeaponExpression,WeaponStatementServices } from './weapon-damage-statements.ts';
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 export const pointsMessages=['poin04','federa','empire','romula','poi11s','poi11l','poi12s','poi12l','poi13s','poi13l','poi14s','poi14l','poi15s','poi15l','poi16s','poi16l','poi17s','poi17l','poi18s','poi18l','poin19','poin20','poin21','poin22','poin23','poi03s','poi03l','poi07s','poi07l','poi05s','poi05l','poi06s','poi06l'] as const;
 export const pointsSwitches=['ME','I','HUMANS','EMPIRE','KLINGONS','ROMULANS','ALL'] as const;
 export type PointsMessage=typeof pointsMessages[number];

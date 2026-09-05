@@ -1,4 +1,4 @@
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 import { equal } from '../compat/parser.ts';
 import type { Token } from '../compat/parser.ts';
 import { add36, multiply36 } from '../compat/word36.ts';

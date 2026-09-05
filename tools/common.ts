@@ -2,7 +2,7 @@ import { sourceFile, statements } from './source.ts';
 import { declarationScope } from './fortran-scope.ts';
 
 type Dimension = { lower: number; length: number };
-type Field = { offset: number; dimensions: readonly Dimension[]; words: number; type: string; line: number; assembly: { name: string; line: number; type: string } };
+type Field = { offset: number; dimensions: readonly Dimension[]; words: number; type: string; line: number; assembly: { name: string; line: number; type: string; absent?:true } };
 export type CommonLayout = { file: string; address: number; words: number; mapLine: number; fields: Record<string, Field> };
 function split(text: string): string[] { let depth=0, start=0;const parts:string[]=[];
   for(let i=0;i<text.length;i++){if(text[i]==='(')depth++;if(text[i]===')')depth--;if(text[i]===','&&depth===0){parts.push(text.slice(start,i).trim());start=i+1;}}
@@ -10,17 +10,17 @@ function split(text: string): string[] { let depth=0, start=0;const parts:string
 }
 // Deliberately scoped to the two supplied interface includes, not a compiler.
 // FORTRAN declarations, assembly macro dimensions and link lengths must agree.
-export function commonLayouts(constants: Record<string,number|string>): Record<'hiseg'|'lowseg',CommonLayout> {
+export function commonLayouts(constants: Record<string,number|string>, read:(name:string)=>string=sourceFile, options:{fortranOnlyTrailingHilst?:boolean}={}): Record<'hiseg'|'lowseg',CommonLayout> {
   const number=(text:string):number=>{text=text.trim();if(/^\d+$/.test(text))return Number(text);const n=constants[text.toUpperCase()];if(typeof n!=='number')throw new Error('Unknown COMMON dimension '+text);return n;};
   const dimension=(text:string):Dimension=>{const bounds=text.split(':');const lower=bounds.length===2?number(bounds[0]):1;return {lower,length:number(bounds.at(-1)!)-lower+1};};
-  const assemblySource=sourceFile('WARMAC.MAC');
+  const assemblySource=read('WARMAC.MAC');
   const assemblyNumber=(text:string):number=>{if(/^\d+$/.test(text))return Number(text);const match=assemblySource.match(new RegExp('^\\s*'+text+'==(?:\\^d)?(\\d+)(?=\\s|;)','im'));if(!match)throw new Error('Unresolved assembly dimension '+text);return Number(match[1]);};
   const assemblyDimension=(text:string):Dimension=>{const bounds=text.split(':');const lower=bounds.length===2?assemblyNumber(bounds[0]):1;return {lower,length:assemblyNumber(bounds.at(-1)!)-lower+1};};
-  const asm=assemblySource.split('\n'), map=sourceFile('DECWAR.MAP').split('\n');
+  const asm=assemblySource.split('\n'), map=read('DECWAR.MAP').split('\n');
   const result={} as Record<'hiseg'|'lowseg',CommonLayout>;
   for(const name of ['hiseg','lowseg'] as const){
-    const scope=declarationScope(name==='hiseg'?'HIGH.FOR':'LOW.FOR');
-    const file=name.toUpperCase()+'.FOR', stmts=statements(sourceFile(file));
+    const scope=declarationScope(name==='hiseg'?'HIGH.FOR':'LOW.FOR',undefined,read);
+    const file=name.toUpperCase()+'.FOR', stmts=statements(read(file));
     const order=stmts.filter(s=>s.text.toLowerCase().startsWith('common /'+name+'/')).flatMap(s=>split(s.text.replace(/^common\s*\/\w+\//i,'')).map(n=>({name:n.toLowerCase(),line:s.line})));
     const declarations=new Map<string,{type:string;dimensions:Dimension[];line:number}>();
     for(const s of stmts){const m=s.text.match(/^(integer|logical|real)\s+(\w+)(?:\(([^)]+)\))?$/i);if(m)declarations.set(m[2].toLowerCase(),{type:m[1].toLowerCase(),dimensions:m[3]?split(m[3]).map(dimension):[],line:s.line});}
@@ -36,6 +36,12 @@ export function commonLayouts(constants: Record<string,number|string>): Record<'
       const dims=m[3]?m[3].replaceAll(/\s/g,'').replaceAll(',:,',':').split(',').map(assemblyDimension):[];
       if(asmName!==expected||JSON.stringify(dims)!==JSON.stringify(f.dimensions)||f.type.replace('implicit-','')!==m[1].toLowerCase())throw new Error(`COMMON declaration disagreement ${name}.${item.name}`);
       f.assembly={name:asmName,line:i+1,type:m[1].toLowerCase()};
+    }
+    // Austin WARMAC comments out its final HI.LST declaration; FORTRAN still
+    // requests HILST. The fresh LINK map confirms the larger COMMON allocation.
+    // Permit precisely this trailing scalar, never a disagreement in live fields.
+    if(options.fortranOnlyTrailingHilst&&name==='hiseg'&&index===order.length-1&&order[index].name==='hilst'&&fields.hilst.words===1){
+      fields.hilst.assembly={name:'hi.lst',line:0,type:'',absent:true};index++;
     }
     if(index!==order.length)throw new Error('Incomplete assembly COMMON comparison');
     const re=new RegExp('\\b'+name+'\\s+([0-7]+)\\s+Common\\s+length\\s+(\\d+)\\.','i');

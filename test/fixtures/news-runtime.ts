@@ -1,7 +1,7 @@
 import { moveRuntimeFixture } from './move-runtime.ts';
 import { newsRuntime } from '../../src/game/news-runtime.ts';
 import type { NewsServices } from '../../src/game/news-runtime.ts';
-import { newsText } from '../../src/generated/source-data.ts';
+import { newsText } from '../../src/runtime/variant-values.ts';
 import { rawEqualStrings } from '../../src/compat/equal.ts';
 import { openFile } from '../../src/compat/files.ts';
 import type { OpenServices } from '../../src/compat/files.ts';

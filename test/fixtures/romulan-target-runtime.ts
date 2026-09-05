@@ -1,6 +1,6 @@
 import type { pregameRuntimeFixture } from './pregame-runtime.ts';
 import { WordBlock } from '../../src/compat/memory.ts';
-import { localLayout } from '../../src/generated/local-layout.ts';
+import { localLayout } from '../../src/runtime/variant-values.ts';
 import { romulanDistanceStatements,romulanStarStatements } from '../../src/game/romulan-target-statements.ts';
 import type { DistanceStatementServices,StarStatementServices } from '../../src/game/romulan-target-statements.ts';
 import { add36,multiply36,divide36 } from '../../src/compat/word36.ts';
@@ -8,7 +8,7 @@ import { rawPdist } from '../../src/compat/pdist.ts';
 import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-call.ts';
 export function bindRomulanTargetRuntime(f:ReturnType<typeof pregameRuntimeFixture>){
   f.m.map(45600n,Array<bigint>(400).fill(77n));f.m.map(BigInt(localLayout.distance.address),Array<bigint>(localLayout.distance.words).fill(77n));
-  const memory=new WordBlock(f.m,localLayout.distance),locals={rv:45600n,rh:45601n,j:45602n,k:45603n,ztem:45604n},starLocals={ivf:45610n,ivl:45611n,ihf:45612n,ihl:45613n,i:45614n,j:45615n};
+  const memory=new WordBlock(f.m,localLayout.distance),locals={rv:45600n,rh:45601n,j:45602n,k:45603n,ztem:45604n},starLocals={ivf:45610n,ivl:45611n,ihf:45612n,ihl:45613n,i:45614n,j:45615n,ia:45616n,ja:45617n};
   const s={header:45630n,ip:45700n,np:45701n,num:45702n,iv:45710n,ih:45711n};const events:string[]=[];
   const prepare=(a:bigint[])=>{loadArgumentBlock(f.m,s.header,a);selectArgumentBlock(f.r,s.header);};
   const io:DistanceStatementServices<string>={logical:f.weapon.io.logical,

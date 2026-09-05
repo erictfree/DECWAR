@@ -1,4 +1,4 @@
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 
 // HISEG.FOR:46,60,66-68,98. Column-major word arrays; construction is a
 // component helper, not the complete START/SETUP initialization sequence.

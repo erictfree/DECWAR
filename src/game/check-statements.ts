@@ -1,5 +1,5 @@
 import type { WordMemory,WordBlock } from '../compat/memory.ts';
-import type { localLayout } from '../generated/local-layout.ts';
+import type { localLayout } from '../runtime/variant-values.ts';
 import { add36 } from '../compat/word36.ts';
 import type { WeaponExpression,WeaponStatementServices,WeaponValueType } from './weapon-damage-statements.ts';
 export type CheckPointServices<W>=Pick<WeaponStatementServices<W>,'binary'|'convert'|'compare'|'assign'|'realLiteral'>&{

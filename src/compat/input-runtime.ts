@@ -1,6 +1,6 @@
 import { CommonBlock,WordBlock } from './memory.ts';
 import type { MemoryCommandInput } from './input-memory.ts';
-import { inputRuntimeLayout } from '../generated/input-runtime-layout.ts';
+import { inputRuntimeLayout } from '../runtime/variant-values.ts';
 
 // WARMAC:641-661 and LOWSEG/WARMAC's INFLAG/INWAIT alias. No initialization;
 // callers supply loaded memory. This block overlaps MemoryCommandInput.

@@ -1,6 +1,7 @@
+import { copiedArgument } from './argument-copy.ts';
 import type { CommonBlock,WordBlock,WordMemory } from '../compat/memory.ts';
 import { add36 } from '../compat/word36.ts';
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 export type TargetExpression<W>=()=>Generator<W,bigint,void>;
 type Predicate<W>=()=>Generator<W,boolean,void>;
 export type TargetCompiler<W>={
@@ -20,7 +21,7 @@ export type DistanceStatementServices<W>=TargetCompiler<W>&{
   pdist(v:bigint,h:bigint,rv:bigint,rh:bigint):Generator<W,bigint,void>;
   iran(max:2):Generator<W,bigint,void>;
 };
-export type StarStatementLocals=Record<'ivf'|'ivl'|'ihf'|'ihl'|'i'|'j',bigint>;
+export type StarStatementLocals=Record<'ivf'|'ivl'|'ihf'|'ihl'|'i'|'j',bigint>&{ia?:bigint;ja?:bigint};
 export type StarStatementServices<W>=TargetCompiler<W>&{dispc(v:bigint,h:bigint):Generator<W,bigint,void>};
 function expressions<W>(m:WordMemory,io:TargetCompiler<W>){
   const value=(f:()=>bigint):TargetExpression<W>=>function*(){return f();};
@@ -78,14 +79,15 @@ export function* romulanDistanceStatements<W>(high:CommonBlock,dist:WordBlock,ar
 // ROMSTR.FOR:24-39. Captures four bounds in source order, then scans including
 // the target cell. IV and IH writes are separate; actual aliases see both.
 export function* romulanStarStatements<W>(m:WordMemory,args:{iv:bigint;ih:bigint},l:StarStatementLocals,io:StarStatementServices<W>):Generator<W,void,void>{
-  const {word,n,op}=expressions(m,io),local=(key:keyof StarStatementLocals)=>word(()=>l[key]),iv=word(()=>args.iv),ih=word(()=>args.ih);
+  const {word,n,op}=expressions(m,io),local=(key:Exclude<keyof StarStatementLocals,'ia'|'ja'>)=>word(()=>l[key]),iv=word(()=>args.iv),ih=word(()=>args.ih);
   yield*io.assign(()=>l.ivf,op('max',op('sub',iv,n(1)),n(1)));yield*io.assign(()=>l.ivl,op('min',op('add',iv,n(1)),n(K.KGALV)));
   yield*io.assign(()=>l.ihf,op('max',op('sub',ih,n(1)),n(1)));yield*io.assign(()=>l.ihl,op('min',op('add',ih,n(1)),n(K.KGALH)));
   const rows=yield*io.bounds(local('ivf'),local('ivl'));m.write(l.i,rows.start);if(!io.enterLoop(rows.start,rows.limit))return;
   do{
     const columns=yield*io.bounds(local('ihf'),local('ihl'));m.write(l.j,columns.start);
     if(io.enterLoop(columns.start,columns.limit))do{
-      if((yield*io.dispc(l.i,l.j))===BigInt(K.DXSTAR)){yield*io.assign(()=>args.iv,local('i'));yield*io.assign(()=>args.ih,local('j'));return;}
+      const ia=copiedArgument(m,l.i,l.ia,'DECWAR.FOR:3409'),ja=copiedArgument(m,l.j,l.ja,'DECWAR.FOR:3410');
+      if((yield*io.dispc(ia,ja))===BigInt(K.DXSTAR)){yield*io.assign(()=>args.iv,local('i'));yield*io.assign(()=>args.ih,local('j'));return;}
       m.write(l.j,add36(m.read(l.j),1n));
     }while(m.read(l.j)<=columns.limit);
     m.write(l.i,add36(m.read(l.i),1n));

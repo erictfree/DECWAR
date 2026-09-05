@@ -13,7 +13,7 @@ import { MessageQueue } from '../../src/game/message-queue.ts';
 import { CommandInput } from '../../src/compat/command-input.ts';
 import { TerminalOutput } from '../../src/compat/output.ts';
 import { packAscii, signed36 } from '../../src/compat/word36.ts';
-import { constants as K } from '../../src/generated/source-data.ts';
+import { constants as K } from '../../src/runtime/variant-values.ts';
 
 export class MonitorExit extends Error {}
 export function finish<T>(r: Generator<unknown, T, void>): T { for (;;) { const n = r.next(); if (n.done) return n.value; } }

@@ -2,7 +2,7 @@ import type { pregameRuntimeFixture } from './pregame-runtime.ts';
 import { usersStatements } from '../../src/game/users.ts';
 import type { UsersStatementServices } from '../../src/game/users.ts';
 import { prlocStatements } from '../../src/game/prloc-statements.ts';
-import { constants as K,messages } from '../../src/generated/source-data.ts';
+import { constants as K,messages } from '../../src/runtime/variant-values.ts';
 import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-call.ts';
 export function bindMainUsersRuntime(f:ReturnType<typeof pregameRuntimeFixture>){
   f.m.map(50500n,Array<bigint>(500).fill(77n));const locals={i:50500n,num:50501n},s={header:50510n,count:50520n,player:50521n,prcflg:50522n,w:50523n,proflg:50524n,tw:50525n},labels={users1:50600n,users2:50700n,users5:50800n};

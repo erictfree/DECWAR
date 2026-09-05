@@ -1,6 +1,6 @@
 import type { CommonBlock,WordBlock } from '../compat/memory.ts';
 import { add36,multiply36,signed36 } from '../compat/word36.ts';
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 export type ListReportLabel='outOfRange'|'builds'|'build3'|'buildAbbreviation'|'known'|'inrang'|'inspra'|'ingame';
 export type ListReportServices<W>={
   or(...terms:(()=>boolean)[]):Generator<W,boolean,void>;and(...terms:(()=>boolean)[]):Generator<W,boolean,void>;

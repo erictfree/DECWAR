@@ -1,5 +1,5 @@
 import type { SourceArguments } from './fortran-call.ts';
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 // WARMAC.MAC:4429-4436. SKIPLE loads T1 even on failure; a rejected vertical
 // coordinate skips the horizontal argument. No compiler call frames here.
 export function* rawIngal<W>(r:{f:bigint;t1:bigint},args:SourceArguments):Generator<W,void,void>{

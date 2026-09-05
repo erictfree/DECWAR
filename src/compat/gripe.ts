@@ -1,11 +1,12 @@
+import { currentVariant } from '../runtime/variant-execution.ts';
 import type { FileBlock } from './files.ts';
 import { cleanupGripe,finishGripeInput,writeGripeFile } from './gripe-file.ts';
 import type { GripeFileRegisters,GripeFileState,GripeFileSymbols,GripeFileServices } from './gripe-file.ts';
 import { initializeGripeBuffer } from './ogch.ts';
 import type { GripeBufferSymbols,GripeOutputRegisters,GripeOutputJob } from './ogch.ts';
 import { add36,halfWords,rightHalf,signed36 } from './word36.ts';
-import { constants as K,gripeText } from '../generated/source-data.ts';
-import { characterBits } from '../generated/character-bits.ts';
+import { constants as K,gripeText } from '../runtime/variant-values.ts';
+import { characterBits } from '../runtime/variant-values.ts';
 
 export type GripeRegisters=GripeFileRegisters&GripeOutputRegisters&{f:bigint;arg:bigint};
 export type GripeState=GripeFileState&{who:bigint;addrck:bigint};
@@ -42,7 +43,7 @@ export function* rawGripe<W>(file:FileBlock,state:GripeState,job:GripeOutputJob,
   r.x1=signed36(halfWords(s.grpfil,s.grpfil));yield*io.seto();yield*io.osts();
   if(state.addrck!==0n){
     if(state.addrck<0n)yield*io.diagnostic();
-    else{r.arg=rightHalf(s.statisticsArgument);yield*io.shosta();}
+    else{r.arg=rightHalf(s.statisticsArgument);if(currentVariant().definition.id!=='austin')yield*io.shosta();}
     yield*writeGripeFile(file,state,job,r,s,io);return;
   }
   r.x2=20n;

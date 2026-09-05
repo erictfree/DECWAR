@@ -1,10 +1,11 @@
+import { copiedArgument } from './argument-copy.ts';
 import type { CommonBlock,WordBlock } from '../compat/memory.ts';
 import { add36 } from '../compat/word36.ts';
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 import type { WeaponExpression as Expr,WeaponStatementServices as Numeric } from './weapon-damage-statements.ts';
 
 export type NovaStatementLocals={d:bigint;i:bigint;jbase:bigint;pteam:bigint};
-export type SupernovaStatementLocals={objptr:bigint;strptr:bigint;v:bigint;h:bigint;object:bigint;thing:bigint};
+export type SupernovaStatementLocals={objptr:bigint;strptr:bigint;v:bigint;h:bigint;object:bigint;thing:bigint;va?:bigint;ha?:bigint};
 export type NovaStatementServices<W>=Pick<Numeric<W>,'logical'|'binary'|'convert'|'realLiteral'|'compare'|'assign'|'assignLogicalZero'|'and'|'or'|'ran'|'jump'|'setdsp'>&{
   iran(max:number):Generator<W,bigint,void>;
   bounds(first:Expr<W>,last:Expr<W>):Generator<W,{start:bigint;limit:bigint},void>;
@@ -132,7 +133,7 @@ export function* novaStatements<W>(high:CommonBlock,low:CommonBlock,path:WordBlo
 // SNLOCL columns, including out-of-row aliases. Only the two pointers reset.
 export function* supernovaStatements<W>(high:CommonBlock,low:CommonBlock,path:WordBlock,stack:WordBlock,l:SupernovaStatementLocals,io:SupernovaStatementServices<W>):Generator<W,void,void>{
   const {m,n,word,add,sub,div,max,cmp,set,score,setLow}=expressions(high,low,io);
-  const local=(key:keyof SupernovaStatementLocals)=>word(()=>l[key]),p=(key:string)=>word(()=>path.address(key));
+  const local=(key:Exclude<keyof SupernovaStatementLocals,'va'|'ha'>)=>word(()=>l[key]),p=(key:string)=>word(()=>path.address(key));
   const obj=(col:number)=>()=>stack.address('objstk',m.read(l.objptr),col),star=(col:number)=>()=>stack.address('strstk',m.read(l.strptr),col);
   const min=(a:Expr<W>,b:Expr<W>):Expr<W>=>({type:'integer',evaluate:()=>io.min(a,b)});
   yield*io.setdsp(path.address('h2'),path.address('v2'),0);yield*set(()=>l.objptr,n(0));yield*set(()=>l.strptr,n(0));
@@ -141,12 +142,13 @@ export function* supernovaStatements<W>(high:CommonBlock,low:CommonBlock,path:Wo
     if(io.enterLoop(rows.start,rows.limit))do{
       const cols=yield*io.bounds(max(n(1),sub(p('v2'),n(1))),min(n(K.KGALH),add(p('v2'),n(1))));m.write(l.h,cols.start);
       if(io.enterLoop(cols.start,cols.limit))do{
-        yield*set(()=>l.object,{type:'integer',evaluate:()=>io.dispc(l.v,l.h)});
+        const va=copiedArgument(m,l.v,l.va,'DECWAR.FOR:3819'),ha=copiedArgument(m,l.h,l.ha,'DECWAR.FOR:3820');
+        yield*set(()=>l.object,{type:'integer',evaluate:()=>io.dispc(va,ha)});
         if(!(yield*io.or(cmp('lt',local('object'),n(1)),cmp('gt',local('object'),n(K.DXEPLN))))){
           yield*set(()=>l.objptr,add(local('objptr'),n(1)));
           yield*set(obj(1),local('v'));yield*set(obj(2),local('h'));yield*set(obj(3),sub(local('v'),p('h2')));yield*set(obj(4),sub(local('h'),p('v2')));
         }else if(!(yield*io.or(cmp('ne',local('object'),n(K.DXSTAR)),cmp('eq',{type:'integer',evaluate:()=>io.iran(5)},n(5))))&&!(yield*cmp('eq',local('strptr'),n(29))())){
-          yield*set(()=>l.strptr,add(local('strptr'),n(1)));yield*set(star(1),local('v'));yield*set(star(2),local('h'));yield*io.setdsp(l.v,l.h,0);
+          yield*set(()=>l.strptr,add(local('strptr'),n(1)));yield*set(star(1),local('v'));yield*set(star(2),local('h'));yield*io.setdsp(va,ha,0);
         }
         m.write(l.h,add36(m.read(l.h),1n));
       }while(m.read(l.h)<=cols.limit);

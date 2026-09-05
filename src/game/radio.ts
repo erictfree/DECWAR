@@ -1,4 +1,4 @@
-import { constants as K, messages as M, ships } from '../generated/source-data.ts';
+import { constants as K, messages as M, ships } from '../runtime/variant-values.ts';
 import { equal } from '../compat/parser.ts';
 import type { Token } from '../compat/parser.ts';
 import { signed36 } from '../compat/word36.ts';

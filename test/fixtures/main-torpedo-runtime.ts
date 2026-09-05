@@ -5,8 +5,8 @@ import { torpedoStatements } from '../../src/game/torpedo-statements.ts';
 import type { TorpedoStatementServices,TorpedoWords,TorpedoMessage } from '../../src/game/torpedo-statements.ts';
 import { romulanDamageStatements } from '../../src/game/romulan-damage-statements.ts';
 import { WordBlock } from '../../src/compat/memory.ts';
-import { localLayout } from '../../src/generated/local-layout.ts';
-import { constants as K,messages } from '../../src/generated/source-data.ts';
+import { localLayout } from '../../src/runtime/variant-values.ts';
+import { constants as K,messages } from '../../src/runtime/variant-values.ts';
 import { rawLdis } from '../../src/compat/ldis.ts';
 import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-call.ts';
 export function bindMainTorpedoRuntime(f:ReturnType<typeof pregameRuntimeFixture>,defenses:ReturnType<typeof bindMainDefensesRuntime>,rom:ReturnType<typeof bindRomulanTorpedoRuntime>){

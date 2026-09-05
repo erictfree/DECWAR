@@ -1,6 +1,6 @@
 import type { CommonBlock } from '../compat/memory.ts';
 import { add36 } from '../compat/word36.ts';
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 import type { EnergyStatementServices } from './energy-statements.ts';
 export type TractorMessage='tract1'|'tract2'|'tract3'|'tract4'|'tract5'|'tract6'|'tract7'|'tract8'|'unkshp'|'noship'|'energ3';
 export type TractorStatementServices<W>=Pick<EnergyStatementServices<W>,'logical'|'equal'|'ldis'|'gtkn'|'crlf'|'makhit'>&{

@@ -3,9 +3,9 @@ import { planetAttackStatements } from '../../src/game/planet-attack-statements.
 import type { PlanetAttackServices } from '../../src/game/planet-attack-statements.ts';
 import { basePhaserRuntimeFixture } from './base-phaser-runtime.ts';
 import { rawLdis } from '../../src/compat/ldis.ts';
-import { constants as K } from '../../src/generated/source-data.ts';
+import { constants as K } from '../../src/runtime/variant-values.ts';
 export function planetAttackRuntimeFixture(){
-  const f=basePhaserRuntimeFixture(),locals={k:13800n,pcode:13801n,pteam:13802n,j:13803n,jtype:13804n,phit:13805n,id:13806n};
+  const f=basePhaserRuntimeFixture(),locals={k:13800n,pcode:13801n,pteam:13802n,j:13803n,jtype:13804n,phit:13805n,id:13806n,ja:13807n};
   const integerDraws:bigint[]=[];
   const io:PlanetAttackServices<string>={...f.io,
     *and(l,r){return (yield*l())&&(yield*r());},*or(l,r){return (yield*l())||(yield*r());},

@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import type { pregameInputRuntimeFixture } from './pregame-input-runtime.ts';
 import { userNameRuntime } from '../../src/compat/user-name-runtime.ts';
 import type { UserNameServices } from '../../src/compat/user-name-runtime.ts';
-import { constants as K } from '../../src/generated/source-data.ts';
-import { characterBits } from '../../src/generated/character-bits.ts';
+import { constants as K } from '../../src/runtime/variant-values.ts';
+import { characterBits } from '../../src/runtime/variant-values.ts';
 import { halfWords,rightHalf,signed36,unsigned36 } from '../../src/compat/word36.ts';
 import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-call.ts';
 export function bindUserNameRuntime(f:ReturnType<typeof pregameInputRuntimeFixture>){

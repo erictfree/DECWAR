@@ -3,7 +3,7 @@ import type { pregameInputRuntimeFixture } from './pregame-input-runtime.ts';
 import type { bindStatisticsRuntime } from './statistics-runtime.ts';
 import { honorRollRuntime,statisticsDateRuntime } from '../../src/compat/honor-roll-runtime.ts';
 import type { HonorRollEntry,HonorRollRuntimeServices } from '../../src/compat/honor-roll-runtime.ts';
-import { honorRollText } from '../../src/generated/source-data.ts';
+import { honorRollText } from '../../src/runtime/variant-values.ts';
 import { add36,packSixbit } from '../../src/compat/word36.ts';
 import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-call.ts';
 type Host=ReturnType<typeof pregameInputRuntimeFixture>&{statistics:ReturnType<typeof bindStatisticsRuntime>};

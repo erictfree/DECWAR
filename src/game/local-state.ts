@@ -1,6 +1,6 @@
 import { WordBlock, objectArray, wordArray } from '../compat/memory.ts';
 import type { WordMemory } from '../compat/memory.ts';
-import { localLayout } from '../generated/local-layout.ts';
+import { localLayout } from '../runtime/variant-values.ts';
 import { ListLocals } from './list-state.ts';
 import { ScanScreen } from './scan-screen.ts';
 import { EntryIdentity } from './pregame.ts';

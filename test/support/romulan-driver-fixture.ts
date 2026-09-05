@@ -18,7 +18,7 @@ import { CommandInput } from '../../src/compat/command-input.ts';
 import { ingal, ldis } from '../../src/compat/board.ts';
 import { orderedRational as real } from './rational-real.ts';
 import type { Rational } from './rational-real.ts';
-import { constants as K } from '../../src/generated/source-data.ts';
+import { constants as K } from '../../src/runtime/variant-values.ts';
 export { done };
 
 export function romulanDriverFixture() {

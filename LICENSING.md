@@ -2,8 +2,9 @@
 
 The current combined DECWAR TypeScript port is distributed under
 **GPL-3.0-or-later**; see [LICENSE](LICENSE). Its game routines and generated
-data were ported from the supplied Compuserve archive. The subsequent import
-of the UT Austin reconstruction has not changed that implementation baseline.
+data were initially ported from the supplied CompuServe archive. The port now
+also implements the UT Austin reconstruction as its default variant. Selecting
+Austin does not change the license of the combined codebase.
 
 At Eric Freeman's request, original project contributions are also offered
 under the [MIT license](LICENSE-MIT), to the extent their copyright holders

@@ -5,7 +5,7 @@ import { buildStatements } from '../../src/game/build-statements.ts';
 import type { BuildServices,BuildMessage } from '../../src/game/build-statements.ts';
 import { prlocStatements } from '../../src/game/prloc-statements.ts';
 import { rawLdis } from '../../src/compat/ldis.ts';
-import { messages } from '../../src/generated/source-data.ts';
+import { messages } from '../../src/runtime/variant-values.ts';
 import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-call.ts';
 export function bindMainBuildRuntime(f:ReturnType<typeof pregameRuntimeFixture>,numeric:Pick<RepairServices<string>,'logical'|'and'|'integer'|'assign'|'etim'>,removal:ReturnType<typeof bindRemovePlanetRuntime>){
   f.m.map(54000n,Array<bigint>(500).fill(77n));const locals={v:54000n,tem:54001n,vloc:54002n,hloc:54003n,c:54004n,i:54005n,j:54006n},s={header:54010n,count:54020n,value:54021n,char:54022n,prcflg:54023n,w:54024n,tw:54025n},labels={} as Record<BuildMessage,bigint>;

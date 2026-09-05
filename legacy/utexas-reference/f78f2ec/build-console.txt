@@ -1,0 +1,362 @@
+Logging to file "/tmp/decwar-austin-reference/console.log"
+Logging to file "/tmp/decwar-austin-reference/console.log" at Sat Sep  5 15:25:00 2026
+/private/tmp/decwar-austin-reference/docker/simh/boot-from-disk.ini-14> at tty -U 127.0.0.1:2030
+%SIM-ERROR: Can't open network port: 127.0.0.1:2030
+/private/tmp/decwar-austin-reference/docker/simh/boot-from-disk.ini-16> set dn rsx20
+%SIM-ERROR: Non-existent device: DN
+/private/tmp/decwar-austin-reference/docker/simh/boot-from-disk.ini-17> at lp20 -n prt.log
+%SIM-INFO: LP20: creating new file: prt.log
+BOOT V3(47)
+
+BOOT>
+[Loading from DSKB:SYSTEM.EXE[1,4]]
+
+KL703 03-19-86
+Why reload: sa
+Date: 03-19-86
+Time: 0000
+
+Startup option: quick
+[Rebuilding the system search list from the HOMe blocks]
+
+[Rebuilding the active swapping list from the HOMe blocks]
+
+[Rebuilding the system dump list from the HOMe blocks]
+
+
+KL703 00:00:00 CTY system 1025
+Connected to Node KL10(1) Line # 106
+.LOGIN 1,2
+.R OPSER
+
+[CCPWFD Waiting for file daemon to start]
+[OPRPAF Processing auto command file]
+?OPRALF LOOKUP failure 0
+*
+Simulation stopped, PC: 000001 (DATAO 774,@35060(14))
+sim> quit
+Goodbye
+Log file closed
+Logging to file "/tmp/decwar-austin-reference/console.log"
+Logging to file "/tmp/decwar-austin-reference/console.log" at Sat Sep  5 15:25:42 2026
+/private/tmp/decwar-austin-reference/docker/simh/boot-from-disk.ini-14> at tty -U 127.0.0.1:2030
+%SIM-INFO: Listening on port 127.0.0.1:2030
+/private/tmp/decwar-austin-reference/docker/simh/boot-from-disk.ini-17> at lp20 -n prt.log
+%SIM-INFO: LP20: creating new file: prt.log
+BOOT V3(47)
+
+BOOT>
+[Loading from DSKB:SYSTEM.EXE[1,4]]
+
+KL703 03-19-86
+Why reload: sa
+Date: 03-19-86
+Time: 0000
+
+Startup option: quick
+[Rebuilding the system search list from the HOMe blocks]
+
+[Rebuilding the active swapping list from the HOMe blocks]
+
+[Rebuilding the system dump list from the HOMe blocks]
+
+
+KL703 00:00:00 CTY system 1025
+Connected to Node KL10(1) Line # 106
+.LOGIN 1,2
+.R OPSER
+
+[CCPWFD Waiting for file daemon to start]
+[OPRPAF Processing auto command file]
+?OPRALF LOOKUP failure 0
+*
+Simulation stopped, PC: 000002 (LUUO00 0,3)
+^C
+%%TTY STOMPER - Starting
+
+.R OPR
+SHOW EXPECT
+
+OPR>
+ 0:00:07        -- Begin auto take file --
+                File: SYS:SYSTEM.CMD[3,3]
+
+ 0:00:07        -- Auto Take error on line 3 --
+                Unrecognized switch or keyword: "IGNORE"
+
+ 0:00:07        -- End auto take file --
+
+ 0:00:07          -- [SYSTEM]CATALOG error --
+                Input error reading DSKB:MTALST.SYS[1,4]; End of file
+
+ 0:00:07          -- [SYSTEM]CATALOG error --
+                Input error reading DSKB:DTALST.SYS[1,4]; End of file
+OPR>
+? Unrecognized switch or keyword: "EXPECT"
+OPR>
+OPR>
+OPR>SET TAPE MTA0 UNAVAILABLE
+Enter text and terminate with ^Z
+
+EXIT
+INSTALLING SOFTWARE
+^Z
+OPR>EXIT
+
+.K/F
+[LGTOUL Other users logged-in under [1,2]]
+Job 3  User OPSER  [1,2]
+Logged-off CTY  at  0:00:23  on 19-Mar-86
+Runtime: 0:00:00, KCS:1, Connect time: 0:00:22
+Disk Reads:312, Writes:0, Blocks saved:0
+.LOGIN 5,30
+Job 3  KL703  CTY
+00:00   19-Mar-86   Wednesday
+
+./private/tmp/decwar-austin-reference/docker/simh/boot-from-disk.ini-22> at TUA0 -r tapes/utexas23-reconstruction.tap
+%SIM-INFO: TUA0: unit is read only
+%SIM-INFO: TUA0: Tape Image 'tapes/utexas23-reconstruction.tap' scanned as SIMH format
+R BACKUP
+
+/TAPE MTA0:
+/REWIND
+/INTER
+/FILES
+/REST [,]*.*=*.*
+! DECFIX        MAC
+ DECWAR FOR
+ DECWAR GRP
+ DECWAR HLP
+ DECWAR NWS
+ EXTERN FOR
+ HIGH   FOR
+ HISEG  FOR
+ LOW    FOR
+ LOWSEG FOR
+ LSTVAR FOR
+ MSG    MAC
+ PARAM  FOR
+ SETEXT FOR
+ SETMSG MAC
+ SETUP  FOR
+ WARMAC MAC
+ ALGEBR FOR
+ ALGEBR MAC
+ DECWAR INI
+ PG21   MAC
+
+"Done
+
+/EXIT
+
+.COMPILE/COMP DECWAR, HIGH, LOW, SETUP, WARMAC, MSG, SETMSG
+FORTRAN: DECWAR
+DECWAR  
+BASBLD  
+BASKIL  
+BASPHA  
+.BLOCK  
+BUILD   
+CAPTUR  
+CHECK   
+CHKPNT  
+CLRBUF  
+DAMAGE  
+DIST    
+DOCK    
+DSHIP   
+ENDGAM  
+ENERGY  
+FREE    
+GETCMD  
+JUMP    
+KQSRCH  
+LIST    
+LOCATE  
+LSTSCN  
+LSTFLG  
+LSTUPD  
+LSTOUT  
+LSTSUM  
+LSTOBJ  
+MOVE    
+NOVA    
+OUTHIT  
+OUTMSG  
+PASWRD  
+PHACON  
+PLACE   
+PLNATK  
+PLNRMV  
+POINTS  
+PRIDIS  
+PRLOC   
+PROMPT  
+RADIO   
+REPAIR  
+ROMDRV  
+ROMSTR  
+ROMTOR  
+SCAN    
+SET     
+SHIELD  
+SNOVA   
+STATUS  
+TELL    
+TIME    
+TORDAM  
+TORP    
+TRACTR  
+TRAP    
+TYPE    
+USERS   
+FORTRAN: HIGH
+HIGH    
+FORTRAN: LOW
+LOW     
+FORTRAN: SETUP
+CC1     
+CC2     
+KILCHK  
+PREGAM  
+SETUP   
+XGTCMD  
+Z       
+MACRO:  WARMAC
+MACRO:  msg
+MACRO:  setmsg
+
+EXIT
+
+.R LINK
+
+*DECWAR/SAVE/MAP/SYFILE
+*LOW/SEG:LOW
+*HIGH/SEG:HIGH
+*DECWAR/SEG:DEF
+*MSG
+*WARMAC
+*SYS:FORLIB/SEA/SEG:DEF
+*SETUP/SEG:LOW
+*SETMSG
+*SYS:FORLIB/SEA/SEG:LOW
+*/G
+
+EXIT
+
+.GET DECWAR
+Job setup
+
+.SSAVE
+DECWAR saved
+
+.PROTECT DECWAR.EXE <055>
+Files renamed:
+DSKB:DECWAR.EXE 
+
+.PROTECT DECWAR.HLP <055>
+Files renamed:
+DSKB:DECWAR.HLP 
+
+.PROTECT DECWAR.NWS <055>
+Files renamed:
+DSKB:DECWAR.NWS 
+
+.PROTECT DECWAR.GRP <000>
+Files renamed:
+DSKB:DECWAR.GRP 
+
+.PROTECT DECWAR.INI <000>
+Files renamed:
+DSKB:DECWAR.INI 
+
+.DEL *.STA
+Files deleted:
+% No file named DSK:*.STA 
+
+.K/F
+Job 3  User DECWAR [5,30]
+Logged-off CTY  at  0:00:41  on 19-Mar-86
+Runtime: 0:00:06, KCS:243, Connect time: 0:00:16
+Disk Reads:6318, Writes:2320, Blocks saved:2010
+.LOGIN 1,2
+Job 2  KL703  CTY
+[LGNJSP Other jobs same PPN]
+[LGNLAS Last access to [1,2] succeeded on  4-Mar-86:17:48:53]
+00:00   19-Mar-86   Wednesday
+
+.ASSIGN GAM: DSKB:[5,30]
+GAM assigned
+.DIR DSKB:[5,30]DECWAR.*
+
+
+DECWAR  FOR   262  <057>   19-Mar-86    DSKB:   [5,30]
+DECWAR  GRP     0  <000>   19-Mar-86
+DECWAR  HLP    85  <055>   19-Mar-86
+DECWAR  NWS     1  <055>   19-Mar-86
+DECWAR  REL   563  <057>   19-Mar-86
+DECWAR  EXE   276  <055>   19-Mar-86
+DECWAR  INI     1  <000>   19-Mar-86
+DECWAR  MAP    75  <057>   19-Mar-86
+DECWAR  SYM    10  <057>   19-Mar-86
+  Total of 1273 blocks in 9 files on DSKB: [5,30]
+
+.
+Simulation stopped, PC: 000001 (DATAO 774,@35060(14))
+sim> detach tua0
+sim> attach tua0 -n /tmp/decwar-austin-reference/reference-output.tap
+%SIM-INFO: TUA0: creating new file: /tmp/decwar-austin-reference/reference-output.tap
+%SIM-INFO: TUA0: Tape Image '/tmp/decwar-austin-reference/reference-output.tap' scanned as SIMH format
+sim> continue
+R BACKUP
+
+/TAPE MTA0:
+REWIND
+INTER
+FILES/
+SAVE DSKB:[5,30]DECWAR.MAP,DECWAR.SYM,DECWAR.EXE
+///!5,30        DSKB
+ DECWAR EXE
+ DECWAR MAP
+ DECWAR SYM
+
+"Done
+
+?BKPHSG Cannot get high segment back
+
+.
+Simulation stopped, PC: 000001 (DATAO 774,@35060(14))
+sim> detach tua0
+sim> continue
+VERSION
+BACKUP 5(614)
+.GET SYS:FORTRA
+VERSION
+Job setup
+
+.FORTRA 6(1144) + 
+.GET SYS:MACRO
+VERSION
+GET SYS:Job setup
+
+.MACRO 53B(1244) + 
+.LINK
+VERSION
+GET SYS:FORLIBJob setup
+
+.LINK 6(2376) + 
+.
+VERSION
+
+?FORLIB.SAV not found
+
+.DIR SYS:FORLIB.REL
+
+
+FORLIB  REL   403  <155>    3-Dec-81    DSKB:   [1,4]
+
+.
+Simulation stopped, PC: 000001 (DATAO 774,@35060(14))
+sim> quit
+Goodbye
+Log file closed

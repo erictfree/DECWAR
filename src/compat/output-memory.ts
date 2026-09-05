@@ -1,7 +1,7 @@
 import { CommonBlock,WordBlock } from './memory.ts';
 import type { FileBlock } from './files.ts';
-import { localLayout } from '../generated/local-layout.ts';
-import { constants as K } from '../generated/source-data.ts';
+import { localLayout } from '../runtime/variant-values.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 import { halfWords,signed36 } from './word36.ts';
 import { machineRegisters } from './registers.ts';
 import type { HeaderSymbols,StatusSymbols } from './status-output.ts';

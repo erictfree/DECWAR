@@ -1,4 +1,4 @@
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 import type { TokenMemory } from '../compat/command-input.ts';
 import { TerminalOutput } from '../compat/output.ts';
 import { scanListGroup } from './list-scan.ts';

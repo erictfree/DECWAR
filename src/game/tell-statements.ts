@@ -1,8 +1,9 @@
+import { currentVariant } from '../runtime/variant-execution.ts';
 import type { CommonBlock } from '../compat/memory.ts';
 import type { WeaponExpression,WeaponStatementServices } from './weapon-damage-statements.ts';
 import type { RadioStatementServices } from './radio-statements.ts';
 import { add36 } from '../compat/word36.ts';
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 export const tellMessages=['tell01','tell02','tell03','tell04','tell05','tell06','tell07','tell08','tell09'] as const;
 export type TellMessage=typeof tellMessages[number];
 export type TellStatementLocals=Record<'sntrom'|'rmspk'|'p'|'i'|'j'|'gm'|'gbits'|'svdb'|'mask'|'iship'|'ph'|'pv'|'ix'|'ir'|'jr'|'local',bigint>;
@@ -37,9 +38,10 @@ export function* tellStatements<W>(high:CommonBlock,low:CommonBlock,l:TellStatem
     if(io.enterLoop(b.start,b.limit))do{if(yield*body())return true;m.write(l[key],add36(m.read(l[key]),1n));}while(m.read(l[key])<=b.limit);
     return false;
   }
-  yield*truth('sntrom',false);
+  const austin=currentVariant().definition.id==='austin';
+  if(!austin)yield*truth('sntrom',false);
   if(io.logical(low.read('player'))){
-    yield*truth('rmspk',false);
+    if(!austin)yield*truth('rmspk',false);
     if(high.read('shpdam',who(),K.KDRAD)>=BigInt(K.KCRIT)){yield*io.out('tell01',1);return;}
     yield*remove(()=>high.address('nomsg'),bit(who));yield*put('p',integer(2));
     if(low.read('ntok')<=1n){yield*io.out('tell02',0);yield*io.gtkn();yield*put('p',integer(1));if(low.read('typlst',1)===BigInt(K.KEOL))return;}
@@ -47,6 +49,7 @@ export function* tellStatements<W>(high:CommonBlock,low:CommonBlock,l:TellStatem
     let aborted=false;
     yield*loop('i',local('p'),lo('ntok'),function*(){
       if(io.logical(yield*io.equal(token(),romulan))){
+        if(currentVariant().definition.id==='austin')return;
         if(!io.logical(high.read('rom'))){yield*io.out('tell07',0);yield*io.out('Romulan',1);return;}
         yield*put('svdb',lo('dbits'));yield*io.romspk(l.local);yield*io.makmsg(l.local);yield*truth('sntrom',true);yield*write(db,local('svdb'));
         if((yield*io.iran(4))>1n)return;
@@ -77,7 +80,7 @@ export function* tellStatements<W>(high:CommonBlock,low:CommonBlock,l:TellStatem
         yield*put('gbits',bits('and',local('gbits'),mask));
       }});yield*write(db,bits('or',lo('dbits'),local('gbits')));
     });if(aborted)return;
-  }else{yield*truth('rmspk',true);yield*io.romspk(l.local);}
+  }else{if(!austin)yield*truth('rmspk',true);yield*io.romspk(l.local);}
   yield*put('mask',integer(1));
   yield*loop('i',integer(1),integer(K.KNPLAY),function*(){
     yield*put('iship',bin('add',integer(K.DXFSHP*100),local('i')));
@@ -86,14 +89,14 @@ export function* tellStatements<W>(high:CommonBlock,low:CommonBlock,l:TellStatem
       if(high.read('shpdam',ii(),K.KDRAD)>=BigInt(K.KCRIT))rejected='tell07';
       else if(!io.logical(high.read('alive',ii())))rejected='tell06';
       else if((yield*bits('and',v(()=>high.read('nomsg')),local('mask')).evaluate())!==0n)rejected='tell07';
-      if(rejected){if(!yes('rmspk')){yield*io.out(rejected,0);yield*io.odisp(local('iship'),0);yield*io.crlf();}yield*remove(db,local('mask'));}
+      if(rejected){if(currentVariant().definition.id==='austin'||!yes('rmspk')){yield*io.out(rejected,0);yield*io.odisp(local('iship'),0);yield*io.crlf();}yield*remove(db,local('mask'));}
     }
     yield*put('mask',bin('mul',local('mask'),integer(2)));
   });
   if(io.logical(low.read('player')))yield*remove(db,bit(who));
   yield*remove(()=>low.address('gagmsg'),lo('dbits'));
-  if(low.read('dbits')===0n){if(yield*io.and(function*(){return !yes('rmspk');},function*(){return !yes('sntrom');}))yield*io.out('tell08',1);return;}
-  if(yes('rmspk'))yield*io.makmsg(l.local);
+  if(low.read('dbits')===0n){if(currentVariant().definition.id==='austin'||(yield*io.and(function*(){return !yes('rmspk');},function*(){return !yes('sntrom');})))yield*io.out('tell08',1);return;}
+  if(austin?!io.logical(low.read('player')):yes('rmspk'))yield*io.makmsg(l.local);
   else{yield*write(()=>low.address('dispfr'),bin('add',lo('who'),bin('mul',lo('team'),integer(100))));yield*io.makmsg();yield*io.crlf();}
   function group(column:number){return low.read('group',jj(),column);}
 }

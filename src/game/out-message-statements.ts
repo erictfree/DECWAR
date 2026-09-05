@@ -2,7 +2,7 @@ import type { CommonBlock,WordBlock } from '../compat/memory.ts';
 import type { WeaponExpression } from './weapon-damage-statements.ts';
 import type { RadioStatementServices } from './radio-statements.ts';
 import { add36 } from '../compat/word36.ts';
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 export type OutMessageLocals={i:bigint;k:bigint};
 export type OutMessageStatementServices<W>=Pick<RadioStatementServices<W>,'assign'|'binary'|'bits'|'bounds'|'enterLoop'|'crlf'>&{
   mod(left:WeaponExpression<W>,right:WeaponExpression<W>):Generator<W,bigint,void>;

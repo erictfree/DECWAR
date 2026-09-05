@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { WordBlock } from '../../src/compat/memory.ts';
 import type { CommonBlock } from '../../src/compat/memory.ts';
-import { localLayout } from '../../src/generated/local-layout.ts';
+import { localLayout } from '../../src/runtime/variant-values.ts';
 import { localState } from '../../src/game/local-state.ts';
 import { rawIngal } from '../../src/compat/ingal.ts';
 import { rawLdis } from '../../src/compat/ldis.ts';

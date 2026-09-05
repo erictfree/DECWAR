@@ -1,6 +1,6 @@
 import type { CommonBlock } from '../compat/memory.ts';
 import { add36 } from '../compat/word36.ts';
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 import type { RepairExpression as Expr,RepairServices } from './repair-statements.ts';
 export type EnergyMessage='ener1s'|'ener1l'|'unkshp'|'begyrp'|'energ7'|'noship'|'energ2'|'energ3'|'ener4s'|'ener4l'|'energ8'|'energ5'|'energ6';
 export type EnergyStatementServices<W>=Pick<RepairServices<W>,'logical'|'and'|'integer'|'assign'|'equal'>&{

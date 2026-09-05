@@ -1,6 +1,6 @@
 import type { CommonBlock } from '../compat/memory.ts';
 import { add36 } from '../compat/word36.ts';
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 import type { RepairExpression as Expr,RepairServices } from './repair-statements.ts';
 export type ScanWords=Record<'dist'|'warn'|'k'|'mod'|'n'|'p'|'d'|'i'|'hpos'|'vpos'|'vmax'|'vmin'|'hmax'|'hmin'|'enemy',bigint>;
 export type ScanStatementServices<W>=Pick<RepairServices<W>,'logical'|'integer'|'assign'|'equal'>&{

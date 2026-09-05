@@ -1,4 +1,4 @@
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 import { add36 } from '../compat/word36.ts';
 
 // BLKDAT.FOR:96-97 initializes only BITS(1:10). HISEG.FOR:28,88-89 places

@@ -1,4 +1,4 @@
-import { constants as K, messages as M, terminalWords, extraHelpWords } from '../generated/source-data.ts';
+import { constants as K, messages as M, terminalWords, extraHelpWords } from '../runtime/variant-values.ts';
 import { equal } from '../compat/parser.ts';
 import type { Token } from '../compat/parser.ts';
 import { TerminalOutput } from '../compat/output.ts';

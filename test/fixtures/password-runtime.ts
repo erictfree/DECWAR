@@ -3,7 +3,7 @@ import type { bindJobStatusRuntime } from './job-status-runtime.ts';
 import { passwordStatements } from '../../src/game/password-statements.ts';
 import type { PasswordStatementServices } from '../../src/game/password-statements.ts';
 import { rawEqual } from '../../src/compat/equal.ts';
-import { constants as K } from '../../src/generated/source-data.ts';
+import { constants as K } from '../../src/runtime/variant-values.ts';
 import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-call.ts';
 
 export function bindPasswordRuntime(f:ReturnType<typeof pregameInputRuntimeFixture>,job:ReturnType<typeof bindJobStatusRuntime>){

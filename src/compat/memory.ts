@@ -1,5 +1,5 @@
 import { rightHalf, signed36 } from './word36.ts';
-import { commonLayout } from '../generated/common-layout.ts';
+import { commonLayout,snapshotVariantValue } from '../runtime/variant-values.ts';
 
 export interface WordMemory { read(address: bigint): bigint; write(address: bigint, value: bigint): void; }
 // Mapping supplied words does not initialize, load or zero them. Different
@@ -44,7 +44,7 @@ type Field={readonly offset:number;readonly dimensions:readonly Dimension[];read
 export type BlockLayout={readonly file:string;readonly address:number;readonly words:number;readonly fields:Readonly<Record<string,Field>>};
 export class WordBlock<L extends BlockLayout=BlockLayout> {
   readonly memory:WordMemory;readonly base:bigint;readonly layout:L;
-  constructor(memory:WordMemory,layout:L,base=BigInt(layout.address)) {this.memory=memory;this.base=base;this.layout=layout;}
+  constructor(memory:WordMemory,layout:L,base=BigInt(layout.address)) {this.memory=memory;this.base=base;this.layout=snapshotVariantValue(layout);}
   field(name:string):Field {const field=(this.layout.fields as Record<string,Field>)[name];if(!field)throw new Error('Unknown COMMON field '+name);return field;}
   address(name:string,...indices:(number|bigint)[]):bigint {
     const field=this.field(name);if(indices.length!==field.dimensions.length)throw new RangeError('COMMON subscript rank mismatch: '+name);
@@ -62,8 +62,10 @@ export class WordBlock<L extends BlockLayout=BlockLayout> {
   // SETUP BLKSET(HFZ,0,LOCF(HLZ)-LOCF(HFZ)+1); DECWAR's LOWSEG clear.
   clear(first:string,last:string):void {const a=this.field(first).offset,b=this.field(last).offset;for(let i=a;i<=b;i++)this.memory.write(this.base+BigInt(i),0n);}
 }
-export class CommonBlock extends WordBlock<typeof commonLayout.hiseg|typeof commonLayout.lowseg> {
-  constructor(memory:WordMemory,name:'hiseg'|'lowseg',base=BigInt(commonLayout[name].address)) {super(memory,commonLayout[name],base);}
+export class CommonBlock extends WordBlock<BlockLayout> {
+  constructor(memory:WordMemory,name:'hiseg'|'lowseg',base?:bigint,layouts:Readonly<Record<'hiseg'|'lowseg',BlockLayout>>=commonLayout) {
+    super(memory,layouts[name],base??BigInt(layouts[name].address));
+  }
 }
 const numeric=(key:PropertyKey):key is string=>typeof key==='string'&&/^-?(0|[1-9]\d*)$/.test(key);
 // Actual array accessors preserve existing port APIs and Array operations.

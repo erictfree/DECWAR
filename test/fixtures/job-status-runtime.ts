@@ -1,3 +1,4 @@
+import { currentVariant } from '../../src/runtime/variant-execution.ts';
 import assert from 'node:assert/strict';
 import { jobStatusRuntime,userProject } from '../../src/compat/job-status-runtime.ts';
 import type { JobStatusServices } from '../../src/compat/job-status-runtime.ts';
@@ -7,11 +8,11 @@ import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-
 type Host=ReturnType<typeof pregameInputRuntimeFixture>;
 export function bindJobStatusRuntime(f:Host){
   f.m.map(21200n,Array<bigint>(400).fill(0n));
-  const symbols={who:f.low.address('who'),hungup:f.low.address('hungup'),ccflg:f.low.address('ccflg'),debflg:f.file.address('debflg'),frebie:f.locks.address('frebie'),jsqwho:f.locks.address('jsqwho'),jsqtab:21280n,usppn:21200n,uscbh:21210n,hand:21220n,tmp:f.file.address('tmp',0),trmopLiteral:21230n,speedTable:21240n,namePrompt:21260n,
+  const symbols={who:f.low.address('who'),hungup:f.low.address('hungup'),ccflg:f.low.address('ccflg'),debflg:f.file.address('debflg'),frebie:f.locks.address('frebie'),jsqwho:f.locks.address('jsqwho'),jsqtab:21280n,usppn:currentVariant().definition.id==='austin'?f.low.address('usppn'):21200n,uscbh:21210n,hand:21220n,tmp:f.file.address('tmp',0),trmopLiteral:21230n,speedTable:21240n,namePrompt:21260n,
     asciiPointer:signed36(halfWords(0o440700n,21210n)),sixbitPointer:signed36(halfWords(0o440600n,21220n)),sixbitEnd:signed36(halfWords(0o000600n,21221n))};
   const header=21300n,args=Array.from({length:6},(_,i)=>21310n+BigInt(i));
   f.m.write(symbols.trmopLiteral,halfWords(2n,21232n));f.m.write(21232n,12345n);f.m.write(21233n,-1n); // Synthetic .TORSP value.
-  for(const [i,n] of [300,50,75,110,134,150,200,300,0,0,600,1200,1800,2400].entries())f.m.write(symbols.speedTable+BigInt(i),BigInt(n)); // WARMAC:3747-3760.
+  for(const [i,n] of (currentVariant().definition.id==='austin'?[300,50,75,110,134,150,200,300,600,1200,1800,2400]:[300,50,75,110,134,150,200,300,0,0,600,1200,1800,2400]).entries())f.m.write(symbols.speedTable+BigInt(i),BigInt(n)); // WARMAC:3747-3760.
   f.h.put(symbols.namePrompt,'\r\nYour name please: ');f.h.put(symbols.uscbh,'PLAYER');
   const events:string[]=[],ppns=[9n,9n],bytes:bigint[]=[],monitor={speed:11n,trmopSkip:true,job:7n,sequenceJob:7n,tty:10n,getppnSkip:false};
   function pointer(reg:'t1'|'t2'){

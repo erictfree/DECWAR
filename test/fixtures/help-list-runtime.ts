@@ -1,7 +1,7 @@
 import { helpRuntimeFixture } from './help-runtime.ts';
 import { searchHelpList,outputHelpList,helpSummary } from '../../src/game/help-list-runtime.ts';
 import type { HelpListServices,OutputHelpListServices } from '../../src/game/help-list-runtime.ts';
-import { helpText,extraHelpWords,constants as K } from '../../src/generated/source-data.ts';
+import { helpText,extraHelpWords,constants as K } from '../../src/runtime/variant-values.ts';
 import { add36,halfWords,rightHalf,signed36,packAscii } from '../../src/compat/word36.ts';
 export function helpListRuntimeFixture(words:readonly string[]=['ALPHA','BETA'],keyword='B',text=''){
   const f=helpRuntimeFixture(text,keyword);f.m.map(19600n,Array<bigint>(500).fill(0n));

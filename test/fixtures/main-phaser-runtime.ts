@@ -4,7 +4,7 @@ import { phaserStatements } from '../../src/game/phaser-statements.ts';
 import type { PhaserStatementServices,PhaserMessage } from '../../src/game/phaser-statements.ts';
 import { weaponDamageStatements } from '../../src/game/weapon-damage-statements.ts';
 import { romulanDamageStatements } from '../../src/game/romulan-damage-statements.ts';
-import { messages } from '../../src/generated/source-data.ts';
+import { messages } from '../../src/runtime/variant-values.ts';
 import { rawPdist } from '../../src/compat/pdist.ts';
 import { signed36 } from '../../src/compat/word36.ts';
 import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-call.ts';

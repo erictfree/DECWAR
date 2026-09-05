@@ -1,4 +1,4 @@
-import { newsText as N, helpText as H } from '../generated/source-data.ts';
+import { newsText as N, helpText as H } from '../runtime/variant-values.ts';
 import { rightHalf } from '../compat/word36.ts';
 import { equal } from '../compat/parser.ts';
 import type { TokenMemory } from '../compat/command-input.ts';

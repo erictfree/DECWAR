@@ -6,7 +6,7 @@ import { getCommandStatements } from '../../src/game/get-command-statements.ts';
 import type { GetCommandLocals,GetCommandMessage,GetCommandStatementServices } from '../../src/game/get-command-statements.ts';
 import { promptStatements } from '../../src/game/prompt-statements.ts';
 import type { PromptStatementServices } from '../../src/game/prompt-statements.ts';
-import { messages } from '../../src/generated/source-data.ts';
+import { messages } from '../../src/runtime/variant-values.ts';
 import { setControlTrap } from '../../src/compat/interrupt.ts';
 import { zapLocks,releaseLock } from '../../src/compat/unlock.ts';
 import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-call.ts';

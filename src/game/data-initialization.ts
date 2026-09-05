@@ -1,5 +1,5 @@
-import { constants as K } from '../generated/source-data.ts';
-import { fortranDataWords } from '../generated/fortran-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
+import { fortranDataWords } from '../runtime/variant-values.ts';
 import type { CommonBlock, WordMemory } from '../compat/memory.ts';
 import { signed36, unpackAscii } from '../compat/word36.ts';
 

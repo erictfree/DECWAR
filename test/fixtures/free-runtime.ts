@@ -4,7 +4,7 @@ import { freeStatements } from '../../src/game/free-statements.ts';
 import type { FreeStatementServices } from '../../src/game/free-statements.ts';
 import { killedSearchStatements } from '../../src/game/killed-search-statements.ts';
 import { WordBlock } from '../../src/compat/memory.ts';
-import { localLayout } from '../../src/generated/local-layout.ts';
+import { localLayout } from '../../src/runtime/variant-values.ts';
 import { clockRoutine } from '../../src/compat/clock-runtime.ts';
 import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-call.ts';
 import { signed36 } from '../../src/compat/word36.ts';

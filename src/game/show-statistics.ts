@@ -1,4 +1,4 @@
-import { honorRollText as T } from '../generated/source-data.ts';
+import { honorRollText as T } from '../runtime/variant-values.ts';
 import { formatInteger, o2dg, ostbx, TerminalOutput } from '../compat/output.ts';
 import { add36, leftHalf, rightHalf, signed36, unsigned36, unpackSixbit, packSixbit } from '../compat/word36.ts';
 import { STATISTICS_ROWS } from './statistics.ts';

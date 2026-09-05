@@ -1,7 +1,7 @@
 import type { pregameRuntimeFixture } from './pregame-runtime.ts';
 import { WordBlock } from '../../src/compat/memory.ts';
-import { localLayout } from '../../src/generated/local-layout.ts';
-import { constants as K,messages } from '../../src/generated/source-data.ts';
+import { localLayout } from '../../src/runtime/variant-values.ts';
+import { constants as K,messages } from '../../src/runtime/variant-values.ts';
 import { listDriverStatements } from '../../src/game/list-driver-statements.ts';
 import type { ListEntry,ListDriverServices } from '../../src/game/list-driver-statements.ts';
 import { listScanStatements,listKeywords } from '../../src/game/list-scan-statements.ts';

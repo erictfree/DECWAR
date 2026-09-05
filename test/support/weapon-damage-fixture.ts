@@ -9,7 +9,7 @@ import { emptyHit } from '../../src/game/hit-queue.ts';
 import type { HitRegisters } from '../../src/game/hit-queue.ts';
 import { PackedBoard, pdist, ldis, ingal } from '../../src/compat/board.ts';
 import { jump, baseKilled, JumpLocals, BaseKilledLocals } from '../../src/game/combat-displacement.ts';
-import { constants as K } from '../../src/generated/source-data.ts';
+import { constants as K } from '../../src/runtime/variant-values.ts';
 
 export const w = (value: bigint) => ({ value });
 export function done<T>(g: Generator<unknown, T, void>): T { const n = g.next(); assert.equal(n.done, true); return n.value; }

@@ -1,6 +1,6 @@
 import type { CommonBlock } from '../compat/memory.ts';
 import { add36 } from '../compat/word36.ts';
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 import type { WeaponExpression as Expr,WeaponStatementServices as Numeric } from './weapon-damage-statements.ts';
 export type RemovePlanetStatementServices<W>=Pick<Numeric<W>,'binary'|'assign'|'compare'|'or'>&{
   baskil(team:bigint):Generator<W,void,void>;

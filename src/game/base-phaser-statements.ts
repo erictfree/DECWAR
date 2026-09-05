@@ -1,6 +1,7 @@
+import { copiedArgument } from './argument-copy.ts';
 import type { CommonBlock } from '../compat/memory.ts';
 import { add36 } from '../compat/word36.ts';
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 
 export type BasePhaserExpression<W>=()=>Generator<W,bigint,void>;
 export type BasePhaserServices<W>={
@@ -20,7 +21,7 @@ export type BasePhaserServices<W>={
   pridis(v:bigint,h:bigint,range:number,flagAddress:bigint|null,zero:0|1):Generator<W,void,void>;
   makhit():Generator<W,void,void>;
 };
-export type BasePhaserLocals={jb:bigint;je:bigint;i:bigint;j:bigint;k:bigint;id:bigint};
+export type BasePhaserLocals={jb:bigint;je:bigint;i:bigint;j:bigint;k:bigint;id:bigint;ka?:bigint};
 // BASPHA.FOR:33-87. Actual compiler-local and COMMON words; ordinary DO
 // advancement. Exceptional DO-control mutation and full CPU/call frames remain
 // separate compiler work. No host floating arithmetic or random draws here.
@@ -57,12 +58,13 @@ export function* basePhaserStatements<W>(high:CommonBlock,low:CommonBlock,locals
             low.write('vto',m.read(ship(K.KVPOS)));low.write('hto',m.read(ship(K.KHPOS)));
             yield*io.assign(()=>low.address('dispto'),binary('add',binary('mul',binary('add',literal(BigInt(K.DXFSHP)),binary('sub',literal(2n),local(locals.i))),literal(100n)),local(locals.k)));
             low.write('iwhat',1n);yield*fromCode();low.write('shjump',0n);yield*distance();
-            yield*io.phadam(binary('sub',literal(3n),local(locals.i)),locals.k,locals.id,power(),false);
+            const ka=copiedArgument(m,locals.k,locals.ka,'DECWAR.FOR:399');
+            yield*io.phadam(binary('sub',literal(3n),local(locals.i)),ka,locals.id,power(),false);
             yield*addScore(K.KPEDAM,read(()=>low.read('ihita')));
             low.write('shstfr',m.read(base(3)));low.write('shcnfr',1n);
             if(low.read('klflg')!==0n)yield*addScore(K.KPEKIL,literal(5000n));
-            yield*io.pridis(ship(K.KVPOS),ship(K.KHPOS),K.KRANGE,low.address('team'),0);
-            yield*io.pridis(ship(K.KVPOS),ship(K.KHPOS),4,null,1);
+            yield*io.pridis(high.address('shpcon',m.read(ka),K.KVPOS),high.address('shpcon',m.read(ka),K.KHPOS),K.KRANGE,low.address('team'),0);
+            yield*io.pridis(high.address('shpcon',m.read(ka),K.KVPOS),high.address('shpcon',m.read(ka),K.KHPOS),4,null,1);
             yield*io.assign(()=>low.address('dbits'),binary('or',read(()=>low.read('dbits')),read(()=>high.read('bits',m.read(locals.k)))));
             yield*io.makhit();
           }

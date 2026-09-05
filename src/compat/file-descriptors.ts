@@ -1,4 +1,4 @@
-import { fileDescriptors as source } from '../generated/file-descriptors.ts';
+import { fileDescriptors as source } from '../runtime/variant-values.ts';
 import type { WordMemory } from './memory.ts';
 import { halfWords,packSixbit,rightHalf,signed36 } from './word36.ts';
 

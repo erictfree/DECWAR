@@ -1,6 +1,6 @@
 import { WordBlock } from './memory.ts';
 import type { WordMemory } from './memory.ts';
-import { fileLayout } from '../generated/file-layout.ts';
+import { fileLayout } from '../runtime/variant-values.ts';
 import { add36,halfWords,leftHalf,rightHalf,signed36,packSixbit,HALF_MASK } from './word36.ts';
 
 export class FileBlock extends WordBlock<typeof fileLayout>{

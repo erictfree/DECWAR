@@ -1,6 +1,6 @@
 import { MemoryCommandInput } from './input-memory.ts';
-import { characterBits } from '../generated/character-bits.ts';
-import { inputLayout } from '../generated/input-layout.ts';
+import { characterBits } from '../runtime/variant-values.ts';
+import { inputLayout } from '../runtime/variant-values.ts';
 import { add36, halfWords, leftHalf, rightHalf, signed36 } from './word36.ts';
 import type { EditedLine } from './gtkn.ts';
 

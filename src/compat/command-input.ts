@@ -1,4 +1,4 @@
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 import { CommandScanner } from './parser.ts';
 import type { ParsedCommand, Token } from './parser.ts';
 import { TerminalOutput } from './output.ts';

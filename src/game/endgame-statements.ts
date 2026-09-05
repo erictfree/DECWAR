@@ -1,6 +1,7 @@
+import { currentVariant } from '../runtime/variant-execution.ts';
 import type { CommonBlock } from '../compat/memory.ts';
 import type { WeaponExpression,WeaponStatementServices } from './weapon-damage-statements.ts';
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 export const endgameMessages=['endgm0','endgm1','endgm3','endgm4','endgm5','endgm6','endgm7','endgm8'] as const;
 export type EndgameLocals=Record<'txppn'|'txnm1'|'txnm2'|'txsh1'|'txsh2'|'whowon'|'txwhy'|'txtim'|'txtem'|'txtot',bigint>;
 export type EndgameStatementServices<W>=Pick<WeaponStatementServices<W>,'logical'|'and'|'compare'|'assign'|'binary'>&{
@@ -44,7 +45,7 @@ export function* endgameStatements<W>(high:CommonBlock,low:CommonBlock,l:Endgame
     yield*write(l.txtim,{type:'integer',evaluate:()=>io.etim(()=>high.address('job',low.read('who'),K.KJOBTM))});
     yield*write(l.txtem,{type:'integer',evaluate:()=>io.binary('sub',lo('team'),integer(1))});
     yield*io.points(true);yield*write(l.txtot,value(()=>m.read(total)));
-    yield*io.updsta([l.txppn,l.txnm1,l.txnm2,l.txsh1,l.txsh2,l.txtot,l.txtim,l.txwhy,l.txtem,low.address('who')]);
+    if(currentVariant().definition.id!=='austin')yield*io.updsta([l.txppn,l.txnm1,l.txnm2,l.txsh1,l.txsh2,l.txtot,l.txtim,l.txwhy,l.txtem,low.address('who')]);
     yield*io.free(low.address('who'));yield*write(low.address('who'),integer(0));
   }
   yield*io.exit();

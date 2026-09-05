@@ -1,6 +1,6 @@
 import type { CommonBlock } from '../compat/memory.ts';
 import { add36 } from '../compat/word36.ts';
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 
 export type StatusItem='shields'|'location'|'condition'|'torpedo'|'energy'|'damage'|'radio';
 export type StatusMessage='stat2m'|'stat2l'|'stat3m'|'stat3l'|'stat6m'|'stat6l'|'stat7m'|'stat7l'|

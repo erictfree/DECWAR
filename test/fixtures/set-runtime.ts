@@ -1,11 +1,11 @@
 import type { pregameInputRuntimeFixture } from './pregame-input-runtime.ts';
 import { setStatements,setSwitches,setMessages } from '../../src/game/set-statements.ts';
 import type { SetStatementServices,SetSymbols } from '../../src/game/set-statements.ts';
-import { messages } from '../../src/generated/source-data.ts';
+import { messages } from '../../src/runtime/variant-values.ts';
 import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-call.ts';
 export function bindSetRuntime(f:ReturnType<typeof pregameInputRuntimeFixture>){
   f.m.map(22300n,Array<bigint>(900).fill(0n));
-  const locals={p:22300n,i:22301n,j:22302n},header=22310n,zero=22320n,lines=22321n;
+  const locals={p:22300n,i:22301n,j:22302n,ia:22303n,ja:22304n},header=22310n,zero=22320n,lines=22321n;
   for(const a of Object.values(locals))f.m.write(a,88n);
   const symbols={} as SetSymbols;
   for(const [i,key] of setSwitches.entries()){symbols[key]=22340n+BigInt(i*8);f.h.put(symbols[key],key);}

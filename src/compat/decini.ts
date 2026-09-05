@@ -1,5 +1,5 @@
 import type { MemoryCommandInput } from './input-memory.ts';
-import { fileDescriptors } from '../generated/file-descriptors.ts';
+import { fileDescriptors } from '../runtime/variant-values.ts';
 import { rightHalf } from './word36.ts';
 
 export type DeciniRegisters={x1:bigint;p1:bigint;t1:bigint};

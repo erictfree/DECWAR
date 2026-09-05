@@ -2,8 +2,8 @@ import { sourceFile } from './source.ts';
 
 // WARMAC:676-738, anchored by public STABUF. Only this declaration grammar
 // is accepted; equates emit no words. No surrounding allocation is inferred.
-export function fileLayout(){
-  const lines=sourceFile('WARMAC.MAC').split('\n'),start=lines.findIndex(l=>/^stabuf::block/.test(l));
+export function fileLayout(read:(name:string)=>string=sourceFile){
+  const lines=read('WARMAC.MAC').split('\n'),start=lines.findIndex(l=>/^stabuf::block/.test(l));
   if(start<0)throw new Error('Missing STABUF declaration');
   const fields:Record<string,{offset:number;words:number;line:number;dimensions:{lower:number;length:number}[]}>= {};
   const aliases:Record<string,{offset:number;line:number}>={};let offset=0,ended=false;
@@ -22,7 +22,7 @@ export function fileLayout(){
     const alias=aliases[name];if(!alias)throw new Error('Missing '+name);
     fields[name]={...alias,words,dimensions:[{lower:0,length:words}]};
   }
-  const map=sourceFile('DECWAR.MAP').split('\n'),pattern=/\bSTABUF\s+([0-7]+)\s+Global\s+Relocatable/;
+  const map=read('DECWAR.MAP').split('\n'),pattern=/\bSTABUF\s+([0-7]+)\s+Global\s+Relocatable/;
   const mapLine=map.findIndex(l=>pattern.test(l)),match=map[mapLine]?.match(pattern);
   if(start<0||!ended||!match)throw new Error('Missing file-state anchor');
   return {file:'WARMAC.MAC',address:parseInt(match[1],8),words:offset,mapLine:mapLine+1,fields};

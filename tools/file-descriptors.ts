@@ -1,8 +1,8 @@
 import { sourceFile } from './source.ts';
 import { queueLayout } from './queue-layout.ts';
 
-export function fileDescriptors(){
-  const source=sourceFile('WARMAC.MAC'),lines=source.split('\n'),queue=queueLayout();
+export function fileDescriptors(read:(name:string)=>string=sourceFile, queueWords=2590, initialization:'experience'|'automatic'='experience'){
+  const source=read('WARMAC.MAC'),lines=source.split('\n'),queue=queueLayout(read,queueWords);
   const expected=['ttyfil','inibeg','iniint','iniexp','nwsfil','hl1fil','hl2fil','grpfil','stared','staupd','stfred','stfupd'];
   const blocks:Record<string,{offset:number;words:number;line:number}>={};
   const words:({kind:'sixbit';text:string;line:number}|{kind:'expression';expression:string;line:number}|{kind:'byte9';values:number[];line:number})[]=[];
@@ -31,7 +31,17 @@ export function fileDescriptors(){
   const ppn=source.match(/^sysppn==([0-7]+),,([0-7]+)/m);if(!ppn)throw new Error('Missing SYSPPN');
   const constants={sysppn:ppn[1]+',,'+ppn[2]};
   const match=/decin0:\s*skipn\s+hungup\s+outstr\s+\[asciz "([\s\S]*?)"\]/.exec(source);
-  if(!match)throw new Error('Missing DECINI prompt');
+  let prompt:{text:string;line:number},missingInitialization:{text:string;line:number}|undefined;
+  if(initialization==='experience'){
+    if(!match)throw new Error('Missing DECINI prompt');
+    prompt={text:match[1],line:source.slice(0,match.index).split('\n').length};
+  }else{
+    const first=source.indexOf('\ndecini:'),last=source.indexOf('\niich.:',first);
+    if(first<0||last<first)throw new Error('Missing automatic DECINI section');
+    const rows=[...source.slice(first,last).matchAll(/outstr\s*\[asciz\s*"([^"]*)"\]/gi)].map(m=>({text:m[1],line:source.slice(0,first+m.index).split('\n').length}));
+    if(rows.length!==2)throw new Error('Automatic DECINI needs exactly two messages');
+    [prompt,missingInitialization]=rows;
+  }
   return {file:'WARMAC.MAC',address:queue.address+queue.words,mapLine:queue.mapLine,blocks,channels,constants,words,
-    prompt:{text:match[1],line:source.slice(0,match.index).split('\n').length}};
+    prompt,...(missingInitialization?{missingInitialization}:{})};
 }

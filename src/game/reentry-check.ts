@@ -1,4 +1,4 @@
-import { constants as K, messages as M, restartBackup } from '../generated/source-data.ts';
+import { constants as K, messages as M, restartBackup } from '../runtime/variant-values.ts';
 import { add36 } from '../compat/word36.ts';
 import { equal } from '../compat/parser.ts';
 import { etim, otim } from '../compat/time.ts';

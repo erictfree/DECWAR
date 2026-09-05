@@ -1,6 +1,6 @@
 import type { WordMemory } from './memory.ts';
 import { add36,halfWords,leftHalf,rightHalf,signed36 } from './word36.ts';
-import { characterBits } from '../generated/character-bits.ts';
+import { characterBits } from '../runtime/variant-values.ts';
 export type EditorState={hungup:bigint;echflg:bigint;iniflg:bigint;blank:bigint;bufptr:bigint;chrcnt:bigint;rptflg:bigint};
 export type EditorRegisters={f:bigint;c:bigint;t1:bigint};
 export type EditorSymbols={cbits:bigint;linbuf:bigint;maxcnt:bigint;newline:bigint;caret:bigint};
@@ -71,3 +71,11 @@ export function* editInput<W>(m:WordMemory,state:EditorState,r:EditorRegisters,s
 // Both linked entries immediately POPJ (WARMAC.MAC:1313,1324); unreachable
 // echo-changing code is not enabled. The caller still owns call-frame effects.
 export function echoControl(_entry:'echon'|'echoff'):void{}
+
+// Austin WARMAC:1145-1157 enables the formerly unreachable ECHON/ECHOFF.
+// OPEN/HALT remain monitor services; assignment follows even a resumed HALT.
+export function* austinEchoControl<W>(entry:'echon'|'echoff',state:{echflg:bigint},
+  io:{openTTY(echo:boolean):Generator<W,boolean,void>;halt():Generator<W,void,void>}):Generator<W,void,void>{
+  if(!(yield*io.openTTY(entry==='echon')))yield*io.halt();
+  state.echflg=entry==='echon'?0n:-1n;
+}

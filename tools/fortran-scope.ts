@@ -12,8 +12,8 @@ export function splitDeclarations(text: string): string[] {
 
 // Follow the selected routine's includes before resolving implicit types.
 // This is declaration extraction for this archive, not expression compilation.
-export function declarationScope(file: string, routine?: string) {
-  const selected = statements(sourceFile(file));
+export function declarationScope(file: string, routine?: string, read: (name:string)=>string = sourceFile) {
+  const selected = statements(read(file));
   const start = routine ? selected.findIndex(s => new RegExp('^subroutine\\s+' + routine + '(?:\\b|\\s*\\()', 'i').test(s.text)) : 0;
   if (start < 0) throw new Error('Missing FORTRAN routine ' + routine);
   const end = selected.findIndex((s, i) => i >= start && /^end$/i.test(s.text));
@@ -23,7 +23,7 @@ export function declarationScope(file: string, routine?: string) {
       const include = s.text.match(/^include\s+'(\w+)(?:\/nolist)?'$/i);
       if (!include) return [{ ...s, file }];
       const child = include[1].toUpperCase() + '.FOR';
-      return expand(child, statements(sourceFile(child)), [...stack, file]);
+      return expand(child, statements(read(child)), [...stack, file]);
     });
   }
   const expanded = expand(file, selected.slice(start, end < 0 ? undefined : end), []);

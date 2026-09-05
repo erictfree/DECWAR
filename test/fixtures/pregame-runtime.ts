@@ -28,10 +28,10 @@ import { pregameInputRuntimeFixture } from './pregame-input-runtime.ts';
 import { pregameStatements } from '../../src/game/pregame-statements.ts';
 import type { PregameStatementServices,PregameStatementMessage } from '../../src/game/pregame-statements.ts';
 import { pregameLiterals } from '../../src/game/pregame.ts';
-import { localLayout } from '../../src/generated/local-layout.ts';
+import { localLayout } from '../../src/runtime/variant-values.ts';
 import { localState } from '../../src/game/local-state.ts';
-import { sourceFile } from '../../tools/source.ts';
-import { messages } from '../../src/generated/source-data.ts';
+import { sourceAsset } from '../../src/runtime/source-assets.ts';
+import { messages } from '../../src/runtime/variant-values.ts';
 import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-call.ts';
 export function pregameRuntimeFixture(lines=['PREGAME','ACTIVATE']){
   const f=pregameInputRuntimeFixture();f.m.map(20700n,Array<bigint>(500).fill(0n));f.m.map(BigInt(localLayout.local.address),Array<bigint>(localLayout.local.words).fill(0n));
@@ -39,11 +39,11 @@ export function pregameRuntimeFixture(lines=['PREGAME','ACTIVATE']){
   f.m.write(locals.n,77n);f.editor.bytes.length=0;for(const line of lines)f.editor.feed(line+'\n');f.input.pointer=-1n;
   for(const key of ['HONORROLL','HELP','PREGAME'] as const)f.h.put(symbols[key],key);
   const labels={} as Record<PregameStatementMessage,bigint>;
-  for(const [i,key] of (['strtup','pgame1','honorInstruction','documentInstruction','documentInstructionEnd','documentMessage'] as const).entries()){
-    labels[key]=20800n+BigInt(i*40);f.h.put(labels[key],key==='strtup'||key==='pgame1'?messages[key].text:pregameLiterals[key].text);
+  for(const [i,key] of (['strtup','pgame1','honorInstruction','documentInstruction','documentInstructionEnd','documentMessage','documentBlank'] as const).entries()){
+    labels[key]=20800n+BigInt(i*40);f.h.put(labels[key],key==='documentBlank'?'     ':key==='strtup'||key==='pgame1'?messages[key].text:pregameLiterals[key].text);
   } // Explicit packed literal fixture, including the continued documentation text.
   const filop=f.news.openIO.filop;
-  f.news.openIO.filop=function*(){const ok=yield*filop();if(ok&&f.r.x1===f.news.symbols.nwsfil){const text=sourceFile('DECWAR.NWS');f.ini.load(text.slice(0,200));f.ini.refills.length=0;for(let i=200;i<text.length;i+=200)f.ini.refills.push({text:text.slice(i,i+200)});f.ini.refills.push({eof:true});}return ok;};
+  f.news.openIO.filop=function*(){const ok=yield*filop();if(ok&&f.r.x1===f.news.symbols.nwsfil){const text=sourceAsset('DECWAR.NWS');f.ini.load(text.slice(0,200));f.ini.refills.length=0;for(let i=200;i<text.length;i+=200)f.ini.refills.push({text:text.slice(i,i+200)});f.ini.refills.push({eof:true});}return ok;};
   const prepare=(a:bigint[])=>{loadArgumentBlock(f.m,symbols.header,a);selectArgumentBlock(f.r,symbols.header);},events:string[]=[];
   const jobStatus=bindJobStatusRuntime(f);
   const password=bindPasswordRuntime(f,jobStatus);

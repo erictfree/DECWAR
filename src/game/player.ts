@@ -1,4 +1,4 @@
-import { constants as K, ships } from '../generated/source-data.ts';
+import { constants as K, ships } from '../runtime/variant-values.ts';
 import { packAscii, signed36 } from '../compat/word36.ts';
 import { initialShip } from './ship.ts';
 import type { CommandPlayer } from './get-command.ts';

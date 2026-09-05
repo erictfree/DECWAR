@@ -13,38 +13,50 @@ Connect a Telnet client:
 telnet 127.0.0.1 2323
 ```
 
-The server binds localhost. Multiple connections share the galaxy. This is a
-playable alpha using the original command and game routines with the explicit
-repairs in [playable decisions](playable-decisions.md). It is not a claim of
-exact historical compiler or terminal parity.
+The default is **Austin reconstruction**, a playable eighteen-player game based
+on the pinned supplied sources. The server binds localhost. Connections share
+a galaxy. This is a playable alpha with [documented repairs](playable-decisions.md),
+not a claim of exact historical compiler or terminal parity.
 
 ## First captain
 
-A tested startup sequence is:
+1. Enter a short captain name at `Your name please:`.
+2. Press Enter at the HELP/PREgame prompt.
+3. Press Enter to select a regular game.
+4. Answer `YES` or `NO` to the Romulan question.
+5. Answer `YES` or `NO` to the black-hole question.
+6. Enter `FEDERATION` or `EMPIRE`.
+7. Choose an available ship.
+8. After DECWAR.INI executes its startup commands, enter `STATUS`.
 
-1. Enter `EXPERT` at `Which?`.
-2. Enter a short captain name at `Your name please:` (for example `Eric`).
-3. Press Enter at the HELP/PREgame prompt.
-4. Press Enter to select a regular game.
-5. Answer `YES` or `NO` to the Romulan question.
-6. Answer `YES` or `NO` to the black-hole question.
-7. Enter `FEDERATION` or `EMPIRE`.
-8. Choose one of the available ships, such as `LEXINGTON` or `COBRA`.
-9. Enter `STATUS`.
+Later captains enter their name, a blank line, side and available ship; they skip
+the game-option questions. Austin has no Beginner/Intermediate/Expert dialogue.
+Its saved initialization file sets an informative prompt, both coordinate forms,
+medium output, then runs TARGETS and SRSCAN 2 W.
 
-A later captain skips the game-option questions: choose experience, name,
-blank line, side and an available ship. Federation also has NIMITZ, SAVANNAH,
-VULCAN and YORKTOWN; Empire also has DEMON, HAWK, JACKAL and WOLF.
+| Federation | Empire |
+| --- | --- |
+| Excalibur | Buzzard |
+| Farragut | Cobra |
+| Intrepid | Demon |
+| Lexington | Goblin |
+| Nimitz | Hawk |
+| Savannah | Jackal |
+| Trenton | Manta |
+| Vulcan | Panther |
+| Yorktown | Wolf |
 
-The original raw name reader does not echo characters in this host. Use a
-short, nonempty name and Enter from a client sending LF or CRLF. The reader's
-historical editing, empty-name and overflow behavior is not yet modernized.
+The raw name reader does not echo characters in this host. Use a short, nonempty
+name and Enter from a client sending LF or CRLF. Historical name editing,
+empty-name and overflow behavior remains incompletely verified.
 
 ## Playing
 
 `HELP` lists topics. `HELP MOVE`, `HELP PHASERS`, `HELP TORPEDO`, `HELP DOCK`
-and other topic commands read the supplied documentation. The executable
-source remains the rule authority where its help disagrees.
+and other topic commands read the selected source's documentation. Austin's
+served DECWAR.HLP describes eighteen ships. Its older DECWAR.RNH formatter source
+still describes ten, but is not the file served to players. The executable
+source governs where documentation disagrees.
 
 Useful commands include `STATUS`, `SCAN`, `USERS`, `BASES`, `PLANETS`,
 `POINTS`, `MOVE ABSOLUTE <vertical> <horizontal>`, `SHIELD DOWN`,
@@ -52,59 +64,80 @@ Useful commands include `STATUS`, `SCAN`, `USERS`, `BASES`, `PLANETS`,
 modes are retained; use explicit ABSOLUTE coordinates while learning the game.
 
 `SCAN` (or `SC`) defaults to ten sectors in each direction; `SRSCAN` defaults
-to seven, clipped at galaxy edges. Startup uses the original RESET's 80-column
-terminal width. `SCAN 10` supplies the range explicitly.
+to seven, clipped at galaxy edges. RESET starts with an 80-column terminal width.
+`SCAN 10` supplies the range explicitly. The startup scan has its own explicit
+range of two from DECWAR.INI. Scan spacing also depends on the selected terminal width.
 
 Ctrl-C at an empty `Coordinates:` prompt returns to the command prompt. At the
-main command prompt it follows the original quit/alert handling; a normal quit
-asks for confirmation. Both Telnet IP and raw Ctrl-C (ETX) invoke the interrupt
-handler. The client must actually send the control to the server. The source
-ignores further interrupts while its previous interrupt flag is still pending;
-processing another command rearms it. Already entered partial coordinates retain
-the original parser behavior and can produce a coordinate-count error.
+main prompt it follows the original quit/alert handling; normal quit asks for
+confirmation. Both Telnet IP and raw Ctrl-C (ETX) invoke the interrupt handler.
+The client must send the control to the server. Source ignores further interrupts
+while its previous flag is pending; processing another command rearms it.
+Partial coordinates retain source parser behavior and can produce an error.
 
-Enter `QUIT` and answer `YES` to save eligible final statistics and release
-from the game. A disconnected captain is also cleaned up. Another captain can
-reuse the released ship. When a galaxy is full, new arrivals follow the source
-reload into another galaxy while existing captains retain their current one.
+Enter `QUIT` and answer `YES` to show final points and leave. Disconnect also
+runs cleanup. Another captain can reuse the ship. When a galaxy is full, arrivals
+follow source reload into a new galaxy; existing captains retain their old one.
 
-## Persistence and shutdown
-
-Press Ctrl-C in the server console to stop the host. This is forced host
-shutdown; connected players should use in-game QUIT first to record their
-final scores. The live galaxy is in memory and is recreated on host restart.
-
-Source game numbers, commissions and eligible final scores persist under
-`data/`. The original code omits final-statistics updates for missions shorter
-than one second. It selects DECWAR.STA or DECWAF.STA; both are stored as
-`.words` files preserving all 36 bits. GRIPE reports are stored similarly.
-
-The console prints the diagnostic log path. That JSON-lines log records
-connections, reloads, completion, failures and shutdown; it does not record
-player input or passwords. Implementation progress is in WORK_LOG.md.
-
-Only one server can own a data directory. Normal shutdown removes `.host.lock`.
-After a crash, confirm the recorded process is no longer running before
-removing a stale lock. Use a different data directory for independent servers.
+## Variant selection and persistence
 
 ```sh
-npm start -- --port 2324 --data data-other --log logs/other-game.log
+npm start -- --variant austin
+npm start -- --variant compuserve
 ```
+
+CompuServe retains ten ships, sixty initial planets, experience selection before
+the captain-name prompt, and persistent standings. At `Which?`, enter `EXPERT`
+for the previously tested startup sequence. Its Federation roster is Lexington,
+Nimitz, Savannah, Vulcan and Yorktown; Empire is Cobra, Demon, Hawk, Jackal and Wolf.
+
+New hosts use `data/austin` or `data/compuserve`. A variant.json marker prevents
+accidental cross-variant reuse. Austin does not read or update CompuServe
+commissions/standings. GRIPE word files belong to the selected host directory.
+CompuServe stores game numbers, commissions and eligible scores in DECWAR.STA or
+DECWAF.STA `.words` files, preserving all 36 bits. Missions shorter than one second
+are excluded by source. The live galaxy is in memory and resets on host restart.
+
+To reuse the existing pre-variant CompuServe data, stop its old host first, then:
+
+```sh
+npm start -- --variant compuserve --data data
+```
+
+This validates existing records and adds host metadata; it does not convert
+records or move them. An incompatible marker or malformed record rejects startup.
+Only one host may own a data directory. Normal shutdown removes `.host.lock`.
+After a crash, confirm the recorded process is dead before removing a stale lock.
+
+To run both variants at once, use different ports and data directories:
+
+```sh
+npm start -- --variant austin --port 2323
+npm start -- --variant compuserve --port 2324
+```
+
+Press Ctrl-C in the server console to stop it. This is forced shutdown; connected
+players should QUIT first. Host diagnostics print the selected variant, mode,
+log and data paths. The JSON-lines log records source identity, connections,
+reloads, completion, failures and shutdown, without player input/passwords.
+Implementation progress is recorded in WORK_LOG.md.
 
 ## Historical diagnostic mode
 
 ```sh
-npm start -- --strict --port 2324 --data data-strict
+npm start -- --variant austin --strict --port 2325 --data data/austin-strict
+npm start -- --variant compuserve --strict --port 2326 --data data/compuserve-strict
 ```
 
-This mode deliberately retains unresolved final POINTS, TRACTR's missing
-argument, LIST's uninitialized SHIP word and the pending-hangup GETCMD loop.
-It is useful for source-fidelity work, not the default playable experience.
-It can stop before cleanup and leave a reserved ship behind.
+Variant and repair policy are independent. Strict mode deliberately retains
+unresolved POINTS, TRACTR's missing argument, LIST's uninitialized SHIP word and
+the pending-hangup GETCMD loop. It can stop before cleanup and is intended for
+fidelity work. It does not certify historical parity.
 
-Both modes currently reuse the source compositions under test/fixtures and
-selected monitor/compiler services: native 36-bit arithmetic, synthetic memory
-addresses, cooperative host scheduling, UTC clocks, a virtual shared-image
-catalog and modern word-file persistence. Original instruction timing, Telnet
-monitor negotiation, every malformed input path and long-running load behavior
-remain unverified. See decisions.md and platform-manuals.md for details.
+Both variants share native 36-bit arithmetic and modern host services:
+cooperative scheduling, UTC clocks, word-file persistence and a virtual
+shared-image catalog. Austin shared bases come from the preserved native link;
+compiler scratch/literals still use documented host addresses. Original timing,
+all malformed inputs and exhaustive monitor/compiler equivalence remain
+unverified. See [Austin implementation](austin-implementation.md),
+[decisions](decisions.md) and [platform manuals](platform-manuals.md).

@@ -2,7 +2,7 @@ import type { pregameRuntimeFixture } from './pregame-runtime.ts';
 import type { bindMainLoopRuntime } from './main-loop-runtime.ts';
 import { initializeDecwarStatements,runDecwarStatements } from '../../src/game/entry-statements.ts';
 import type { EntryStatementServices } from '../../src/game/entry-statements.ts';
-import { decwarText,messages } from '../../src/generated/source-data.ts';
+import { decwarText,messages } from '../../src/runtime/variant-values.ts';
 import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-call.ts';
 export function bindEntryRuntime(f:ReturnType<typeof pregameRuntimeFixture>,main:ReturnType<typeof bindMainLoopRuntime>){
   f.m.map(71000n,Array<bigint>(1000).fill(77n));const s={header:71000n,count:71020n,zero:71021n,decver:71100n,BEGINNER:71040n,INTERMEDIATE:71045n,EXPERT:71050n};f.h.put(s.decver,messages.decver.text);for(const key of ['BEGINNER','INTERMEDIATE','EXPERT'] as const)f.h.put(s[key],key);

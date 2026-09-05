@@ -3,7 +3,7 @@ import type { bindRadioRuntime } from './radio-runtime.ts';
 import type { bindMakeMessageRuntime } from './make-message-runtime.ts';
 import { tellStatements,tellMessages } from '../../src/game/tell-statements.ts';
 import type { TellStatementServices,TellStatementLocals,TellMessage } from '../../src/game/tell-statements.ts';
-import { messages } from '../../src/generated/source-data.ts';
+import { messages } from '../../src/runtime/variant-values.ts';
 import { signed36 } from '../../src/compat/word36.ts';
 import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-call.ts';
 import { rawIngal } from '../../src/compat/ingal.ts';

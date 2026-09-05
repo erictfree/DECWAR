@@ -1,8 +1,8 @@
 import type { CommonBlock } from '../compat/memory.ts';
 import type { WeaponExpression,WeaponStatementServices } from './weapon-damage-statements.ts';
 import type { RadioStatementServices } from './radio-statements.ts';
-import type { messages } from '../generated/source-data.ts';
-import { constants as K } from '../generated/source-data.ts';
+import type { messages } from '../runtime/variant-values.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 export type OutHitMessage=Extract<keyof typeof messages,`outh${string}`>|'star02'|'displc'|'units1'|'destry'|'tormis';
 export type OutHitLocals={nplcf:bigint;nplct:bigint};
 export type OutHitStatementServices<W>=Pick<RadioStatementServices<W>,'assign'|'binary'|'bits'|'crlf'>&Pick<WeaponStatementServices<W>,'and'|'or'>&{

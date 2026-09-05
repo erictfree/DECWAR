@@ -1,4 +1,4 @@
-import { constants as K, messages as M, terminalWords } from '../generated/source-data.ts';
+import { constants as K, messages as M, terminalWords } from '../runtime/variant-values.ts';
 import { PackedBoard } from '../compat/board.ts';
 import { equal } from '../compat/parser.ts';
 import type { Token } from '../compat/parser.ts';

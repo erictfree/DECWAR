@@ -5,7 +5,7 @@ import type { LocateStatementServices,LocateMessage } from '../../src/game/locat
 import { rawEqual } from '../../src/compat/equal.ts';
 import { TerminalOutput } from '../../src/compat/output.ts';
 import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-call.ts';
-import { constants as K,messages as M } from '../../src/generated/source-data.ts';
+import { constants as K,messages as M } from '../../src/runtime/variant-values.ts';
 import { packAscii } from '../../src/compat/word36.ts';
 // Shared-memory adapter; numeric/DO policies and GTKN/PAUSE remain explicit
 // fixtures. EQUAL, INGAL, DISP and each OUT use their raw routine bodies.

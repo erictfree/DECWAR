@@ -1,4 +1,4 @@
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 import { LinkedQueue, publish, remove, reserve, search } from '../compat/queue.ts';
 import type { QueueServices } from '../compat/queue.ts';
 import { add36, HALF_MASK, halfWords, leftHalf, rightHalf, signed36, unpackAscii, unsigned36 } from '../compat/word36.ts';
@@ -7,7 +7,7 @@ import { CommandInput } from '../compat/command-input.ts';
 import { installEditedLine, type EditedLine } from '../compat/gtkn.ts';
 import { objectArray, wordArray } from '../compat/memory.ts';
 import type { QueueLinkMemory } from '../compat/queue.ts';
-import { queueLayout } from '../generated/queue-layout.ts';
+import { queueLayout } from '../runtime/variant-values.ts';
 
 export type MessageQueueMemory = QueueLinkMemory & { dataAddress: bigint; readBits(index: number): bigint };
 

@@ -1,7 +1,7 @@
 import { newsRuntimeFixture } from './news-runtime.ts';
 import { helpFileRuntime } from '../../src/game/help-runtime.ts';
 import type { HelpFileServices } from '../../src/game/help-runtime.ts';
-import { helpText } from '../../src/generated/source-data.ts';
+import { helpText } from '../../src/runtime/variant-values.ts';
 export function helpRuntimeFixture(text='\n.ENERGY\nBody\n.NEXT',keyword='Energy    '){
   const f=newsRuntimeFixture(text.slice(0,200));f.m.map(19300n,Array<bigint>(300).fill(0n));
   const symbols={...f.news.symbols,pasflg:f.low.address('pasflg'),hl1fil:19300n,hl2fil:19320n,keyword:19340n,warning:19360n,missing:19380n,point7LeftHalf:f.s.point7LeftHalf};

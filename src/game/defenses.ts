@@ -1,4 +1,4 @@
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 import { add36, divide36, multiply36, signed36 } from '../compat/word36.ts';
 import type { WordReference } from './lifecycle.ts';
 import type { HitRegisters } from './hit-queue.ts';

@@ -2,7 +2,7 @@ import type { pregameRuntimeFixture } from './pregame-runtime.ts';
 import type { RepairServices } from '../../src/game/repair-statements.ts';
 import { shieldStatements } from '../../src/game/shield-statements.ts';
 import type { ShieldStatementServices,ShieldMessage } from '../../src/game/shield-statements.ts';
-import { messages } from '../../src/generated/source-data.ts';
+import { messages } from '../../src/runtime/variant-values.ts';
 import { signed36 } from '../../src/compat/word36.ts';
 import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-call.ts';
 export function bindMainShieldRuntime(f:ReturnType<typeof pregameRuntimeFixture>,numeric:Pick<RepairServices<string>,'logical'|'integer'|'assign'|'equal'>){

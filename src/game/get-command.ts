@@ -1,4 +1,4 @@
-import { constants as K, messages as M } from '../generated/source-data.ts';
+import { constants as K, messages as M } from '../runtime/variant-values.ts';
 import { CommandInput } from '../compat/command-input.ts';
 import { resolveCommand } from '../compat/parser.ts';
 import { TerminalOutput } from '../compat/output.ts';

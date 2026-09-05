@@ -1,6 +1,6 @@
 import type { CommonBlock,WordBlock } from '../compat/memory.ts';
 import { add36,divide36,multiply36,signed36 } from '../compat/word36.ts';
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 export type ListFlagLabel='lstf01'|'lstf02'|'lstf03'|'lstf04'|'lstf05'|'lstf06'|'lstf07'|'lstf08'|'lstf09'|'lstf10'|'lstf11'|'lstf12'|'lstf13'|'lstf14'|'lstf15'|'lstf16'|'lstf17'|'known'|'ingame'|'inrang'|'inspra'|'type06'|'inactiveShip';
 export type ListFlagServices<W>={
   logical(word:bigint):boolean;and(...terms:(()=>boolean)[]):Generator<W,boolean,void>;

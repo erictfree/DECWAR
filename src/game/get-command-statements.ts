@@ -1,8 +1,9 @@
+import { currentVariant } from '../runtime/variant-execution.ts';
 import type { CommonBlock } from '../compat/memory.ts';
 import type { WeaponExpression,WeaponStatementServices } from './weapon-damage-statements.ts';
 import type { RadioStatementServices } from './radio-statements.ts';
 import { add36 } from '../compat/word36.ts';
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 export type GetCommandLocals=Record<'i'|'txppn'|'txnm1'|'txnm2'|'txsh1'|'txsh2'|'txtim'|'txwhy'|'txtem'|'txtot',bigint>;
 export type GetCommandMessage='beep'|'noquit'|'ambcom'|'unkcom'|'forhlp'|'main02';
 export type GetCommandStatementServices<W>=Pick<RadioStatementServices<W>,'assign'|'binary'|'logical'|'bounds'|'enterLoop'|'equal'|'crlf'>&Pick<WeaponStatementServices<W>,'and'|'or'>&{
@@ -26,6 +27,7 @@ export function* getCommandStatements<W>(cmd:bigint,high:CommonBlock,low:CommonB
   const who=()=>low.read('who'),ship=(c:number)=>high.read('shpcon',who(),c),yes=(key:string)=>io.logical(low.read(key));
   const condition=(read:()=>boolean)=>function*(){return read();};
   function* notifications(){yield*io.ttyon();if(high.read('hitflg',who())!==0n)yield*io.outhit();yield*io.ttyon();if(high.read('msgflg',who())!==0n)yield*io.outmsg();}
+  if(currentVariant().definition.id==='austin')yield*io.zaplok();
   yield*notifications();yield*io.prgnam('DECWSL');yield*io.dmpbuf();yield*io.cctrap();if(!yes('pasflg'))yield*io.pause(low.address('ptime'));yield*write(()=>low.address('ptime'),integer(0));
   let pc=100;
   for(;;)switch(pc){
@@ -67,7 +69,7 @@ export function* getCommandStatements<W>(cmd:bigint,high:CommonBlock,low:CommonB
       for(const [key,col] of [['txppn',K.KPPN],['txnm1',K.KNAM1],['txnm2',K.KNAM2]] as const)yield*write(()=>l[key],v(()=>high.read('job',who(),col)));
       yield*write(()=>l.txsh1,v(()=>high.read('names',who(),1)));yield*write(()=>l.txsh2,v(()=>high.read('names',who(),2)));
       yield*write(()=>l.txtim,{type:'integer',evaluate:()=>io.etim(()=>high.address('job',who(),K.KJOBTM))});yield*write(()=>l.txwhy,integer(0));yield*write(()=>l.txtem,bin('sub',lo('team'),integer(1)));
-      yield*io.points(true);yield*write(()=>l.txtot,word(()=>total));yield*io.updsta([l.txppn,l.txnm1,l.txnm2,l.txsh1,l.txsh2,l.txtot,l.txtim,l.txwhy,l.txtem,low.address('who')]);yield*io.free(low.address('who'));yield*write(()=>low.address('who'),integer(0));return;
+      yield*io.points(true);yield*write(()=>l.txtot,word(()=>total));if(currentVariant().definition.id!=='austin')yield*io.updsta([l.txppn,l.txnm1,l.txnm2,l.txsh1,l.txsh2,l.txtot,l.txtim,l.txwhy,l.txtem,low.address('who')]);yield*io.free(low.address('who'));yield*write(()=>low.address('who'),integer(0));return;
     default:throw new Error('unreachable GETCMD label');
   }
 }

@@ -1,8 +1,8 @@
 import type { pregameInputRuntimeFixture } from './pregame-input-runtime.ts';
 import { endgameStatements,endgameMessages } from '../../src/game/endgame-statements.ts';
 import type { EndgameLocals,EndgameStatementServices } from '../../src/game/endgame-statements.ts';
-import { localLayout } from '../../src/generated/local-layout.ts';
-import { messages } from '../../src/generated/source-data.ts';
+import { localLayout } from '../../src/runtime/variant-values.ts';
+import { messages } from '../../src/runtime/variant-values.ts';
 import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-call.ts';
 export function bindEndgameRuntime(f:ReturnType<typeof pregameInputRuntimeFixture>){
   f.m.map(23300n,Array<bigint>(500).fill(0n));f.m.map(BigInt(localLayout.points.address),Array<bigint>(localLayout.points.words).fill(0n));

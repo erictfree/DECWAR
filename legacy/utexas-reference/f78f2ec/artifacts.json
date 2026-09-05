@@ -1,0 +1,143 @@
+{
+  "repository": "https://github.com/decwarorg/utexas",
+  "sourceCommit": "f78f2ec733999617e4281ba3ed967bff8cd5d8f8",
+  "hostBuildDate": "2026-09-05",
+  "guestDate": "1986-03-19 (scripted simulator clock, not historical provenance)",
+  "files": [
+    {
+      "file": "DECWAR.EXE",
+      "bytes": 176640,
+      "sha256": "6989a5977ecb4b395b0e4f6651b7824d9628e178c0b8a88fc03774127188a1a3",
+      "format": "BACK10 -C core-dump: 5 host bytes per 36-bit word"
+    },
+    {
+      "file": "DECWAR.INI",
+      "bytes": 80,
+      "sha256": "e005f93ad747f35994f04951e90302df9bc963c83e801b26b6914f19e2a374c5",
+      "format": "source text or terminal/build transcript; preserved bytes"
+    },
+    {
+      "file": "DECWAR.MAP",
+      "bytes": 47459,
+      "sha256": "44cddec8376e50670bb7222f9c0b1e054564a0ec35edcf8e2eb1a3aeb91947d4",
+      "format": "ASCII, original CR/LF/form feeds"
+    },
+    {
+      "file": "DECWAR.SYM",
+      "bytes": 6395,
+      "sha256": "50fb8542db4a820b1f2ddbc787d7b5414a16c76c8d77129ab137fb2a38007cfd",
+      "format": "BACK10 -C core-dump: 5 host bytes per 36-bit word"
+    },
+    {
+      "file": "README.md",
+      "format": "documentation or isolated launch script",
+      "bytes": 4314,
+      "sha256": "6e138ceb15010ce52964bd94a3878c8ceff445bbab299ed320b092d5eb2b3394"
+    },
+    {
+      "file": "boot-reference.do",
+      "format": "documentation or isolated launch script",
+      "bytes": 398,
+      "sha256": "64c8e7d0edcc628338553bf23c27a7fa85fd606ae0902e975a45613739e60a66"
+    },
+    {
+      "file": "boot-reference.ini",
+      "format": "documentation or isolated launch script",
+      "bytes": 466,
+      "sha256": "752035e8ea9186d334ba5bc6ff2d4eb0ab1da07c1ec5cf65f74bc68097805b62"
+    },
+    {
+      "file": "build-console.txt",
+      "bytes": 7113,
+      "sha256": "a261c2d83289934534dac21e99bf2ebe7bff915551fc24ce3ae36ead33bfa40d",
+      "format": "source text or terminal/build transcript; preserved bytes"
+    },
+    {
+      "file": "commands.txt",
+      "format": "documentation or isolated launch script",
+      "bytes": 3292,
+      "sha256": "f1dc09b886b524061c66a22c5aecc2470516c252314c6c208683bac88a6062ae"
+    },
+    {
+      "file": "first-boot-diagnostic.txt",
+      "bytes": 1171,
+      "sha256": "019fb0d2d58d181afa20446fe3db65cb895ffb217ca4a25f8923643b69a5331b",
+      "format": "source text or terminal/build transcript; preserved bytes"
+    },
+    {
+      "file": "launch-changes.diff",
+      "bytes": 1306,
+      "sha256": "8cbea827dd8ed4fb14efc604ab2cf033913be564bcbe02abce07411afc3e37c2",
+      "format": "source text or terminal/build transcript; preserved bytes"
+    },
+    {
+      "file": "native-back10-build.txt",
+      "bytes": 126,
+      "sha256": "8a623488e688719f1a8bbf41f3040eccbd3e0386e11aa3e1db713fabbe041527",
+      "format": "source text or terminal/build transcript; preserved bytes"
+    },
+    {
+      "file": "native-emulator-build.txt",
+      "bytes": 12495,
+      "sha256": "6b42ca63e6b8e0723e58e18d92929c11ae8d00a5f5a35edc6eadd1c35fed1ed8",
+      "format": "source text or terminal/build transcript; preserved bytes"
+    },
+    {
+      "file": "reference-output.tap",
+      "bytes": 261896,
+      "sha256": "dfc8d9763daef82800eb454dfa66d403dc9adf40966f1f13d84b0ab08bc711e7",
+      "format": "SIMH tape image with TOPS-10 BACKUP records"
+    },
+    {
+      "file": "source-tape-listing.txt",
+      "bytes": 869,
+      "sha256": "9360487158fb3562609642df71fa3df4575cfe1e20d03461216d826a9b4640b4",
+      "format": "source text or terminal/build transcript; preserved bytes"
+    },
+    {
+      "file": "wolf-session.txt",
+      "bytes": 1919,
+      "sha256": "7c43361bb2beae0c8dd3592e3d1616b45a23797a824d2dcc0b9064dca36a6253",
+      "format": "source text or terminal/build transcript; preserved bytes"
+    },
+    {
+      "file": "yorktown-session.txt",
+      "bytes": 4003,
+      "sha256": "5a26a9e05fb82ac737c0a2513ef30e0d34665e3f599cb7000621cbb754caeefd",
+      "format": "source text or terminal/build transcript; preserved bytes"
+    }
+  ],
+  "toolchain": {
+    "link": "6(2376)",
+    "fortran": "6(1144)",
+    "macro": "53B(1244)",
+    "monitor": "KL703 system 1025",
+    "forlib": "SYS:FORLIB.REL[1,4]; linked MAX. module created 3-Dec-1981 10:22:00",
+    "emulatorBuild": "Native macOS from bundled SIMH sources; host Apple clang17"
+  },
+  "validation": {
+    "sourceFilesVerified": 39,
+    "hisegWords": 3122,
+    "lowsegWords": 129,
+    "captainSlotsTested": [
+      9,
+      18
+    ],
+    "scenarios": [
+      "Yorktown admission",
+      "DECWAR.INI commands",
+      "SCAN10",
+      "STATUS",
+      "zero-point final score/QUIT",
+      "Wolf admission/STATUS/QUIT"
+    ],
+    "scope": "Basic reconstructed-game smoke; not full gameplay/18-concurrent-player parity verification",
+    "transcriptFormat": "Telnet-client terminal transcript, not raw network packet capture"
+  },
+  "preservationNotes": [
+    "Guest clock1986 is scripted; actual build host date2026-09-05.",
+    "Game source unchanged; launch/diagnostic/map-output changes in launch-changes.diff.",
+    "BACKUP emitted Cannot get high segment back after reporting Done; all three files listed/extracted from tape and MAP has complete end marker.",
+    "Binary EXE/SYM extracted with BACK10 -C, not default ASCII mode. Raw tape retained."
+  ]
+}

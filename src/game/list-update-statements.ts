@@ -1,6 +1,6 @@
 import type { CommonBlock,WordBlock } from '../compat/memory.ts';
 import { add36,signed36 } from '../compat/word36.ts';
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 export type ListUpdateServices<W>={logical(word:bigint):boolean;pdist(v:bigint,h:bigint,ov:bigint,oh:bigint):Generator<W,bigint,void>};
 // LSTUPD.FOR:31-64. Arguments are actual words and may all alias DUMMY.
 // Bit assignments reread their operands after each preceding store.

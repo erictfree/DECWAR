@@ -1,4 +1,4 @@
-import { constants as K, outputTables as T } from '../generated/source-data.ts';
+import { constants as K, outputTables as T } from '../runtime/variant-values.ts';
 import { formatInteger, TerminalOutput } from '../compat/output.ts';
 import { signed36 } from '../compat/word36.ts';
 

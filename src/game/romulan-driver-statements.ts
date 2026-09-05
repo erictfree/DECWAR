@@ -1,6 +1,7 @@
+import { currentVariant } from '../runtime/variant-execution.ts';
 import type { CommonBlock,WordBlock } from '../compat/memory.ts';
 import { add36 } from '../compat/word36.ts';
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 import type { BasePhaserExpression } from './base-phaser-statements.ts';
 // A plain expression needs a compiler temporary; an address-bearing expression
 // denotes a source variable actual and must preserve that reference at calls.
@@ -58,7 +59,7 @@ export function* romulanDriverStatements<W>(_phit:bigint,id:bigint,high:CommonBl
     yield*sh('erom',op('add',()=>io.iran(200),n(200)));yield*sh('numrom',op('add',hi('numrom'),n(1)));
     yield*sw('iwhat',n(11));yield*sw('dispfr',n(500));yield*sw('vfrom',rV);yield*sw('hfrom',rH);yield*io.pridis(rV,rH,K.KRANGE,n(0),0);
     if(io.logical(low.read('pasflg')))yield*sw('dbits',op('or',lo('dbits'),v(()=>high.read('bits',low.read('who')))));yield*io.makhit();
-    if((yield*io.iran(10))===1n)yield*io.tell();yield*dist();if(m.read(l.numsec)>BigInt(K.KRANGE)){yield*early();return;}
+    if((yield*io.iran(currentVariant().definition.id==='austin'?5:10))===1n)yield*io.tell();yield*dist();if(m.read(l.numsec)>BigInt(K.KRANGE)){yield*early();return;}
   }else{
     yield*dist();if(m.read(l.numsec)>1n){
       yield*loadTarget();
@@ -104,7 +105,7 @@ export function* romulanDriverStatements<W>(_phit:bigint,id:bigint,high:CommonBl
       yield*sw('iwhat',n(10));yield*sw('dispto',op('add',op('mul',local('nplc'),n(100)),local('iplace')));yield*sw('vto',local('i'));yield*sw('hto',local('j'));yield*announce();yield*io.makhit();
     }
   }
-  if((yield*io.iran(50))<=1n)yield*io.tell();yield*early();
+  if((yield*io.iran(currentVariant().definition.id==='austin'?10:50))<=1n)yield*io.tell();yield*early();
   yield*io.debugLine('timin','BASPHA');yield*io.baspha();yield*io.debugLine('timout','BASPHA');
   yield*io.debugLine('timin','PLNATK');yield*io.plnatk();yield*io.debugLine('timout','PLNATK');
   yield*io.debugLine('timin','BASBLD');yield*io.basbld();yield*io.debugLine('timout','BASBLD');

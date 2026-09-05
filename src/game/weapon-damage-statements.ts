@@ -1,6 +1,6 @@
 import type { CommonBlock } from '../compat/memory.ts';
 import { add36 } from '../compat/word36.ts';
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 
 export type WeaponValueType='integer'|'real';
 export type WeaponExpression<W>={type:WeaponValueType;evaluate:()=>Generator<W,bigint,void>};

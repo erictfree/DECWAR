@@ -1,11 +1,12 @@
+import { copiedArgument } from './argument-copy.ts';
 import type { CommonBlock } from '../compat/memory.ts';
 import { add36 } from '../compat/word36.ts';
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 import type { WeaponExpression,WeaponStatementServices } from './weapon-damage-statements.ts';
 export const setSwitches=['NAME','OUTPUT','TTYTYPE','PROMPT','SCANS','ICDEF','OCDEF','ROMOPT','ENDFLG','BHREMV'] as const;
 export const setMessages=['set001','set002','set003','set004','set005','set006','set007','set008','set009','set010','ttys00','shtfrm','medfrm','lngfrm','normal','inform','absfrm','relfrm','bthfrm'] as const;
 export type SetMessage=typeof setMessages[number];
-export type SetLocals={p:bigint;i:bigint;j:bigint};
+export type SetLocals={p:bigint;i:bigint;j:bigint;ia?:bigint;ja?:bigint};
 export type SetSymbols=Record<typeof setSwitches[number]|SetMessage,bigint>;
 export type SetStatementServices<W>=Pick<WeaponStatementServices<W>,'logical'|'assign'>&{
   not(word:bigint):boolean;
@@ -48,7 +49,7 @@ export function* setStatements<W>(high:CommonBlock,low:CommonBlock,l:SetLocals,s
   if(option==='ROMOPT'){yield*io.assignTrue(()=>high.address('romopt'));return;}
   if(option==='ENDFLG'){yield*io.assignTrue(()=>high.address('endflg'));yield*io.endgam();return;}
   if(option==='BHREMV'){
-    yield*loop(l.i,K.KGALV,function*(){yield*loop(l.j,K.KGALH,function*(){if((yield*io.dispc(l.i,l.j))===BigInt(K.DXBHOL))yield*io.setdsp(l.i,l.j,0);});});return;
+    yield*loop(l.i,K.KGALV,function*(){yield*loop(l.j,K.KGALH,function*(){const ia=copiedArgument(m,l.i,l.ia,'DECWAR.FOR:3729'),ja=copiedArgument(m,l.j,l.ja,'DECWAR.FOR:3730');if((yield*io.dispc(ia,ja))===BigInt(K.DXBHOL))yield*io.setdsp(ia,ja,0);});});return;
   }
   const prompt=({OUTPUT:'set003',TTYTYPE:'set008',PROMPT:'set004',SCANS:'set005',ICDEF:'set006',OCDEF:'set007'} as const)[option];
   let forcePrompt=false;

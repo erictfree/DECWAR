@@ -1,4 +1,4 @@
-import { constants as K, messages as M } from '../generated/source-data.ts';
+import { constants as K, messages as M } from '../runtime/variant-values.ts';
 import { add36 } from '../compat/word36.ts';
 import { TerminalOutput } from '../compat/output.ts';
 import type { Ship } from './ship.ts';

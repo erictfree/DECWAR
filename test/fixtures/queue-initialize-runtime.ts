@@ -1,7 +1,7 @@
 import type { pregameInputRuntimeFixture } from './pregame-input-runtime.ts';
 import type { queueState } from '../../src/game/queue-state.ts';
 import { queueInitializeRuntime } from '../../src/compat/queue-initialize-runtime.ts';
-import { queueLayout } from '../../src/generated/queue-layout.ts';
+import { queueLayout } from '../../src/runtime/variant-values.ts';
 import { halfWords } from '../../src/compat/word36.ts';
 type Host=Pick<ReturnType<typeof pregameInputRuntimeFixture>,'m'|'r'|'cpu'>;
 export function bindQueueInitializeRuntime(f:Host,queues:ReturnType<typeof queueState>){

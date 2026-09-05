@@ -1,5 +1,6 @@
+import { currentVariant } from '../runtime/variant-execution.ts';
 import type { CommonBlock } from '../compat/memory.ts';
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 export type EntryStatementServices<W>={
   clearLow(first:bigint,last:bigint):Generator<W,void,void>;
   startupText():Generator<W,void,void>;gtkn():Generator<W,void,void>;
@@ -12,7 +13,7 @@ export type EntryStatementServices<W>={
 // DECWAR.FOR:30-85. VALLST and EQUAL are separate terms of a compiler AND.
 // No extra validity/interrupt checks, retry, low clear or preferences on re-entry.
 export function* initializeDecwarStatements<W>(high:CommonBlock,low:CommonBlock,io:EntryStatementServices<W>):Generator<W,void,void>{
-  yield*io.clearLow(low.address('lfz'),low.address('llz'));high.write('versio',24n);low.write('oflg',BigInt(K.MEDIUM));yield*io.startupText();yield*io.gtkn();
+  yield*io.clearLow(low.address('lfz'),low.address('llz'));high.write('versio',24n);low.write('oflg',BigInt(K.MEDIUM));if(currentVariant().definition.id==='austin')return;yield*io.startupText();yield*io.gtkn();
   for(const [n,key] of [[1,'BEGINNER'],[2,'INTERMEDIATE'],[3,'EXPERT']] as const){
     const skip=yield*io.and(function*(){return low.read('vallst',1)!==BigInt(n);},function*(){return (yield*io.equal(low.address('tknlst',1),key))===0n;});if(skip)continue;
     if(n===1){low.write('scnflg',BigInt(K.LONG));low.write('oflg',BigInt(K.MEDIUM));low.write('prtype',0n);low.write('icflg',BigInt(K.KABS));}

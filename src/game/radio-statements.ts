@@ -2,7 +2,7 @@ import type { CommonBlock } from '../compat/memory.ts';
 import type { WeaponExpression,WeaponStatementServices } from './weapon-damage-statements.ts';
 import type { FreeStatementServices } from './free-statements.ts';
 import { add36 } from '../compat/word36.ts';
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 export const radioMessages=['radio0','radio2','unkshp','radgag','radung','radoff','radon0'] as const;
 export type RadioMessage=typeof radioMessages[number];
 export type RadioLocals={index:bigint;gagtyp:bigint;i:bigint;iteam:bigint};

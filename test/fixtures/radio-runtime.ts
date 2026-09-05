@@ -1,7 +1,7 @@
 import type { pregameInputRuntimeFixture } from './pregame-input-runtime.ts';
 import { radioStatements,radioMessages } from '../../src/game/radio-statements.ts';
 import type { RadioStatementServices,RadioMessage,RadioSymbols } from '../../src/game/radio-statements.ts';
-import { messages,ships } from '../../src/generated/source-data.ts';
+import { messages,ships } from '../../src/runtime/variant-values.ts';
 import { halfWords,signed36 } from '../../src/compat/word36.ts';
 import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-call.ts';
 export function bindRadioRuntime(f:ReturnType<typeof pregameInputRuntimeFixture>){

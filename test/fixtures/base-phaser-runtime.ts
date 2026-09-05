@@ -12,7 +12,7 @@ import { rawLdis } from '../../src/compat/ldis.ts';
 import { rawPdist } from '../../src/compat/pdist.ts';
 import { add36,multiply36,divide36,signed36,MIN_INTEGER } from '../../src/compat/word36.ts';
 import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-call.ts';
-import { constants as K } from '../../src/generated/source-data.ts';
+import { constants as K } from '../../src/runtime/variant-values.ts';
 import { statusRuntimeFixture } from './status-runtime.ts';
 import { boardRuntimeFixture } from './board-runtime.ts';
 import { powerRuntimeFixture } from './power-runtime.ts';
@@ -28,7 +28,7 @@ export function basePhaserRuntimeFixture(){
   for(let i=1;i<=K.KNPLAY;i++)f.high.write('bits',1n<<BigInt(i-1),i);
   Object.assign(high.players[1].ship,{v:10,h:20,energy:50000n,damage:0n,shieldCondition:-1n});high.players[1].alive=-1n;high.board.setdsp(10,20,101);
   const base=(team=2,index=1,v=12,h=20,strength=1000n)=>{Object.assign(high.bases[team][index],{v,h,strength});f.high.write('nbase',1n,team);};base();
-  const locals={jb:13000n,je:13001n,i:13002n,j:13003n,k:13004n,id:13005n},events:string[]=[],calls:bigint[][]=[],queued:(typeof hit)[]=[];
+  const locals={jb:13000n,je:13001n,i:13002n,j:13003n,k:13004n,id:13005n,ka:13006n},events:string[]=[],calls:bigint[][]=[],queued:(typeof hit)[]=[];
   const queue=new HitQueue(),priority=priorityDistanceRuntimeFixture(f,f.high,f.low);
   const prepare=(words:bigint[])=>{loadArgumentBlock(f.m,13500n,words);selectArgumentBlock(f.r,13500n);};
   const ref=(address:bigint)=>({get value(){return f.m.read(address);},set value(w:bigint){f.m.write(address,w);}});

@@ -1,4 +1,4 @@
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 import { ldis, PackedBoard } from '../compat/board.ts';
 import type { WordReference } from './lifecycle.ts';
 

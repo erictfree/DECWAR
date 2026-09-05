@@ -1,7 +1,7 @@
 import type { WordMemory } from './memory.ts';
 import type { FieldStack } from './field-output.ts';
 import { add36,halfWords,leftHalf,rightHalf,signed36 } from './word36.ts';
-import { characterBits } from '../generated/character-bits.ts';
+import { characterBits } from '../runtime/variant-values.ts';
 // WARMAC.MAC:594-600, radix eight. These are token flags, not CF.* bits.
 export const tokenFlags={num:0o1n,nnm:0o2n,eol:0o4n,chr:0o10n,sgn:0o20n,pnt:0o40n,neg:0o100n} as const;
 export type TokenRegisters={f:bigint;c:bigint;t1:bigint;t2:bigint;x1:bigint;x2:bigint;x3:bigint;p1:bigint};

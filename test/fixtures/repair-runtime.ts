@@ -7,7 +7,7 @@ import { MemoryCommandInput } from '../../src/compat/input-memory.ts';
 import { add36,multiply36,divide36,packAscii,MAX_INTEGER } from '../../src/compat/word36.ts';
 import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-call.ts';
 import { TerminalOutput } from '../../src/compat/output.ts';
-import { constants as K,messages as M } from '../../src/generated/source-data.ts';
+import { constants as K,messages as M } from '../../src/runtime/variant-values.ts';
 import { damageRuntimeFixture } from './damage-runtime.ts';
 export function repairRuntimeFixture(format:number=K.SHORT){
   const f=damageRuntimeFixture(format),locals={v:11300n,l:11301n,repsiz:11302n,ntoken:11303n,maxd:11304n,i:11305n},il=11306n,symbols={all:12500n,damage:12510n};

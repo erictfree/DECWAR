@@ -1,4 +1,4 @@
-import { constants as K, messages } from '../generated/source-data.ts';
+import { constants as K, messages } from '../runtime/variant-values.ts';
 
 export type PromptState = {
   prtype: number;

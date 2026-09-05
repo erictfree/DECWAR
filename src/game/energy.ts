@@ -1,4 +1,4 @@
-import { constants as K, messages as M, ships } from '../generated/source-data.ts';
+import { constants as K, messages as M, ships } from '../runtime/variant-values.ts';
 import { equal } from '../compat/parser.ts';
 import { ldis } from '../compat/board.ts';
 import { add36, divide36, multiply36, signed36 } from '../compat/word36.ts';

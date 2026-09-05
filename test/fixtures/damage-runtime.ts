@@ -3,8 +3,8 @@ import type { DamageServices } from '../../src/game/damage-statements.ts';
 import { rawEqual } from '../../src/compat/equal.ts';
 import { CommonBlock } from '../../src/compat/memory.ts';
 import { PackedBoard } from '../../src/compat/board.ts';
-import { commonLayout } from '../../src/generated/common-layout.ts';
-import { constants as K,messages as M,outputTables as T,deviceKeys } from '../../src/generated/source-data.ts';
+import { commonLayout } from '../../src/runtime/variant-values.ts';
+import { constants as K,messages as M,outputTables as T,deviceKeys } from '../../src/runtime/variant-values.ts';
 import { packAscii,rightHalf } from '../../src/compat/word36.ts';
 import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-call.ts';
 import { outputRuntimeFixture } from './output-runtime.ts';
@@ -24,7 +24,7 @@ export function damageRuntimeFixture(format:number=K.SHORT){
   f.m.write(f.s.object.lngdsp+1n,(1n<<22n)|(2n<<18n)|rightHalf(f.s.status.lngshp-1n));
   f.m.write(f.s.object.shtdsp+1n,(2n<<18n)|12399n);T.shtshp.forEach((x,i)=>f.h.put(12400n+BigInt(i),x.text));
   const labels={alldok:10000n,units1:10100n,damrep:10200n,dmhdr1:10300n,dmhdr2:10400n};for(const name of Object.keys(labels) as (keyof typeof labels)[])f.h.put(labels[name],M[name].text);
-  const locals={i:11000n,j:11001n},stoken=11002n;f.m.write(stoken,2n);
+  const locals={i:11000n,j:11001n,ia:11003n,ja:11004n},stoken=11002n;f.m.write(stoken,2n);
   const prepare=(words:bigint[])=>{loadArgumentBlock(f.m,10600n,words);selectArgumentBlock(f.r,10600n);};
   const events:string[]=[],eq=equalServices(f),rawBoard=boardRuntimeFixture(f,high,low);
   const io:DamageServices<string>={logical:w=>w<0n,enterTokenLoop:(start,limit)=>start<=limit,

@@ -1,4 +1,4 @@
-import { debugText as T, messages as M } from '../generated/source-data.ts';
+import { debugText as T, messages as M } from '../runtime/variant-values.ts';
 import { add36, divide36, leftHalf, multiply36, packAscii, rightHalf, signed36, unpackAscii } from '../compat/word36.ts';
 import { TerminalOutput } from '../compat/output.ts';
 

@@ -1,6 +1,6 @@
 import type { CommonBlock } from '../compat/memory.ts';
 import { add36 } from '../compat/word36.ts';
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 import type { WeaponExpression as E,WeaponStatementServices } from './weapon-damage-statements.ts';
 import type { CommandReturn } from './maintenance.ts';
 export type PhaserMessage='phacn0'|'erloc1'|'error1'|'error2'|'phacn1'|'phacn2'|'phacn4'|'phacn5'|'phacn7'|'phacn8'|'phacn9';

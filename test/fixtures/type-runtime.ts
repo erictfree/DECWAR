@@ -1,7 +1,7 @@
 import type { pregameInputRuntimeFixture } from './pregame-input-runtime.ts';
 import { typeStatements,typeMessages } from '../../src/game/type-statements.ts';
 import type { TypeStatementServices,TypeMessage } from '../../src/game/type-statements.ts';
-import { messages } from '../../src/generated/source-data.ts';
+import { messages } from '../../src/runtime/variant-values.ts';
 import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-call.ts';
 export function bindTypeRuntime(f:ReturnType<typeof pregameInputRuntimeFixture>){
   f.m.map(21700n,Array<bigint>(600).fill(0n));

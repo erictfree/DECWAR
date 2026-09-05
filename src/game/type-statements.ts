@@ -1,6 +1,6 @@
 import type { CommonBlock } from '../compat/memory.ts';
 import type { WeaponExpression,WeaponStatementServices } from './weapon-damage-statements.ts';
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 
 export const typeMessages=['ambswi','type01','type02','shtfrm','medfrm','lngfrm','type03','inform','normal','type04','type05','relfrm','bthfrm','absfrm','type08','type09','set008','decver','setu06','type06','setu07','type07'] as const;
 export type TypeMessage=typeof typeMessages[number];

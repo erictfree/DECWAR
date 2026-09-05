@@ -1,6 +1,6 @@
 import { TerminalOutput } from '../compat/output.ts';
 import { signed36 } from '../compat/word36.ts';
-import { gripeText as T } from '../generated/source-data.ts';
+import { gripeText as T } from '../runtime/variant-values.ts';
 
 export type GripeCore = {
   jbff: number; jbrel: number; flff: number;

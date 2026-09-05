@@ -15,7 +15,7 @@ import { add36,multiply36,divide36,signed36 } from '../../src/compat/word36.ts';
 import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-call.ts';
 export function bindMainDefensesRuntime(f:ReturnType<typeof pregameRuntimeFixture>){
   f.m.map(44400n,Array<bigint>(600).fill(0n));
-  const baseLocals={jb:44400n,je:44401n,i:44402n,j:44403n,k:44404n,id:44405n},planetLocals={k:44420n,pcode:44421n,pteam:44422n,j:44423n,jtype:44424n,phit:44425n,id:44426n},buildLocals={ib:44440n,ie:44441n,n:44442n,j:44443n,i:44444n};
+  const baseLocals={jb:44400n,je:44401n,i:44402n,j:44403n,k:44404n,id:44405n,ka:44406n},planetLocals={k:44420n,pcode:44421n,pteam:44422n,j:44423n,jtype:44424n,phit:44425n,id:44426n,ja:44427n},buildLocals={ib:44440n,ie:44441n,n:44442n,j:44443n,i:44444n};
   const s={header:44500n,range:44510n,kind:44511n,power:44512n,ship:44513n,priorityRange:44514n,priorityZero:44515n,literalZero:44516n};
   const events:string[]=[],calls:bigint[][]=[],hits:(typeof f.hit)[]=[];
   const prepare=(a:bigint[])=>{loadArgumentBlock(f.m,s.header,a);selectArgumentBlock(f.r,s.header);};

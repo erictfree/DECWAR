@@ -1,6 +1,6 @@
 import { pregameRuntimeFixture } from './pregame-runtime.ts';
 import { bindMainLoopRuntime } from './main-loop-runtime.ts';
-import { constants as K } from '../../src/generated/source-data.ts';
+import { constants as K } from '../../src/runtime/variant-values.ts';
 function done<T>(g:Generator<string,T,void>):T{for(let i=0;i<4000;i++){const n=g.next();if(n.done)return n.value;}throw new Error('test schedule exhausted');}
 export function mainCommandFixture(line:string,format:number=K.SHORT,commandCount=1){
   const f=pregameRuntimeFixture([]),main=bindMainLoopRuntime(f),b=main.damageReport;main.policy.debug='omit';main.policy.movement=function*(alive){return alive()<0n?'repair':'leave';};

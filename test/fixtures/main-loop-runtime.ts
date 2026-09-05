@@ -3,7 +3,7 @@ import { bindSetupAdmissionRuntime } from './setup-admission-runtime.ts';
 import type { pregameRuntimeFixture } from './pregame-runtime.ts';
 import { commandLoopStatements,dispatchCommandStatements,quitStatements } from '../../src/game/command-loop-statements.ts';
 import type { MainLoopServices,StatementCommandCall } from '../../src/game/command-loop-statements.ts';
-import { messages,constants as K } from '../../src/generated/source-data.ts';
+import { messages,constants as K } from '../../src/runtime/variant-values.ts';
 import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-call.ts';
 import { moveStatements } from '../../src/game/move-statements.ts';
 import { repairStatements } from '../../src/game/repair-statements.ts';

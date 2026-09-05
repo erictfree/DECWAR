@@ -1,0 +1,29 @@
+Pinned upstream f78f2ec733999617e4281ba3ed967bff8cd5d8f8 extracted from existing tarball into /tmp/decwar-austin-reference.
+Host compile (no downloads needed):
+  cd /tmp/decwar-austin-reference/docker/sims
+  make pdp10-kl
+  cd /tmp/decwar-austin-reference/docker
+  cc back10.c -o back10
+The make output records complete compiler flags. Apple clang17.0.0; Makefile native build instead of unavailable Docker daemon/CMake.
+Bundled disk ZIP extracted unchanged then copied to docker/dsk. Original source and msc staged exactly as msc/tape.py --simple does, using Pythonstdlib shutil instead of importing unused pexpect dependency.
+  ./back10 -cf ./tapes/utexas23-reconstruction.tap ./tmp/*
+  ./back10 -lf ./tapes/utexas23-reconstruction.tap
+  ./sims/BIN/pdp10-kl simh/boot-from-disk.ini
+Launch changes in launch-instrumentation.diff (logging, localhost listener, disabled optionalNI tap/no DNdevice, startup prompt accommodation, LINK/map/syfile).
+First sandboxed boot could not bind socket; stopped and restored fresh disk copies before approved localhost-bind run.
+OPR startup asynchronous notices required manual intervention: Ctrl-E to advance interrupted SIMH expect continuation; SHOW EXPECT was inadvertently delivered to OPR and rejected; explicit EXIT then resumed original restore/compile/link sequence. This is recorded, not a fully unattended reproduction claim.
+Guest link module order preserved. Compile COMPILE/COMP DECWAR,HIGH,LOW,SETUP,WARMAC,MSG,SETMSG. First LINK line DECWAR/SAVE/MAP/SYFILE. Remaining lines unchanged.
+Guest directories verified DECWAR.MAP75blocks, SYM10blocks, EXE276blocks.
+At SIMH: detach tua0; attach tua0 -n /tmp/decwar-austin-reference/reference-output.tap; continue.
+At TOPS10: R BACKUP; TAPE MTA0:; REWIND; INTER; FILES; SAVE DSKB:[5,30]DECWAR.MAP,DECWAR.SYM,DECWAR.EXE.
+BACKUP listed all three, printed Done, then ?BKPHSG Cannot get high segment back. Tape detached, listed and successfully extracted; raw tape retained.
+  cd /tmp/decwar-austin-reference/export
+  ../docker/back10 -xvf ../reference-output.tap decwar
+Default format is ASCII packing. Use MAP from this directory only.
+  cd /tmp/decwar-austin-reference/export-core
+  ../docker/back10 -Cxvf ../reference-output.tap decwar.exe decwar.sym
+-C preserves binary words in five-byte core-dump format (36bits perword, lowfourbits finalbyte).
+Tool identities queried by GET SYS:FORTRA; VERSION; GET SYS:MACRO; VERSION; GET SYS:LINK; VERSION. FORTRA6(1144), MACRO53B(1244), LINK6(2376); FORLIB.REL403blocks dated3-Dec-81. GET SYS:FORLIB cannot load a REL as SAV; no claim FORLIB is executable. VERSION on BACKUP reported5(614).
+Guest time forced to19-Mar-1986 by upstream boot. Actual host build2026-09-05; map timestamp is not evidence of historic build date.
+Terminal captures use macOS script+Telnet client, not raw network captures. Yorktown slot9 and Wolf slot18 admitted, INI read, SCAN10 (Yorktown), STATUS, QUIT/YES. Both returned monitor and logged off. Yorktown rerun reused ship via killqueue, observed behavior without source change. No combat/multiplayer parity claim.
+Isolated emulator initially stopped cleanly, then user requested leave available. Boot-existing restart uses simh/boot-reference.ini + boot-reference.do, does not restore or recompile; writes console-restart.log.

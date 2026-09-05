@@ -1,6 +1,6 @@
 import type { CommonBlock,WordBlock } from '../compat/memory.ts';
 import { add36,signed36 } from '../compat/word36.ts';
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 export const listKeywords=['&','AND','ROMULAN','SHIPS','BASES','PLANETS','PORTS','FRIENDLY','ENEMY','TARGETS','FEDERATION','HUMAN','EMPIRE','KLINGON','NEUTRAL','CAPTURED','ALL','CLOSEST','LIST','SUMMARY'] as const;
 export type ListKeyword=typeof listKeywords[number];
 export type ListScanStatementServices<W>={

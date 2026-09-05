@@ -5,7 +5,7 @@ import type { bindPointsRuntime } from './points-runtime.ts';
 import { outHitStatements } from '../../src/game/out-hit-statements.ts';
 import type { OutHitMessage,OutHitStatementServices } from '../../src/game/out-hit-statements.ts';
 import { prlocStatements } from '../../src/game/prloc-statements.ts';
-import { constants as K,messages,outputTables as T } from '../../src/generated/source-data.ts';
+import { constants as K,messages,outputTables as T } from '../../src/runtime/variant-values.ts';
 import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-call.ts';
 type Host=ReturnType<typeof pregameInputRuntimeFixture>&{getHit:ReturnType<typeof bindGetHitRuntime>;getCommand:ReturnType<typeof bindGetCommandRuntime>;points:ReturnType<typeof bindPointsRuntime>};
 export function bindOutHitRuntime(f:Host){

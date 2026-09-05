@@ -9,8 +9,8 @@ import { writeGripeDiagnostic,octalStackOutput } from '../../src/compat/gripe-di
 import { openFile,closeFile } from '../../src/compat/files.ts';
 import type { OpenServices,CloseServices } from '../../src/compat/files.ts';
 import { descriptorAddresses,installFileDescriptors } from '../../src/compat/file-descriptors.ts';
-import { constants as K,gripeText } from '../../src/generated/source-data.ts';
-import { localLayout } from '../../src/generated/local-layout.ts';
+import { constants as K,gripeText } from '../../src/runtime/variant-values.ts';
+import { localLayout } from '../../src/runtime/variant-values.ts';
 import { add36,halfWords,leftHalf,rightHalf,signed36,unsigned36,unpackAscii } from '../../src/compat/word36.ts';
 type Host=ReturnType<typeof pregameInputRuntimeFixture>&{honorRoll:ReturnType<typeof bindHonorRollRuntime>;statistics:ReturnType<typeof bindStatisticsRuntime>;getHit:ReturnType<typeof bindGetHitRuntime>};
 export function bindGripeRuntime(f:Host){

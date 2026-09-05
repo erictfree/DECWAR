@@ -8,7 +8,7 @@ import { interceptApr,setAprTrap } from '../../src/compat/apr.ts';
 import type { AprServices } from '../../src/compat/apr.ts';
 import { decwarExitStatements } from '../../src/game/fatal-statements.ts';
 import type { DecwarExitLocals,DecwarExitServices } from '../../src/game/fatal-statements.ts';
-import { decwarText } from '../../src/generated/source-data.ts';
+import { decwarText } from '../../src/runtime/variant-values.ts';
 import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-call.ts';
 import { halfWords,leftHalf,rightHalf,signed36 } from '../../src/compat/word36.ts';
 type Host=ReturnType<typeof pregameInputRuntimeFixture>&{gripe:ReturnType<typeof bindGripeRuntime>;getCommand:ReturnType<typeof bindGetCommandRuntime>;tell:ReturnType<typeof bindTellRuntime>;endgame:ReturnType<typeof bindEndgameRuntime>};

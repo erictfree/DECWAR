@@ -3,8 +3,8 @@ import { inputLayout } from './input-layout.ts';
 
 // WARMAC:641-661. Extend the existing public anchor by checking every emitted
 // word in this span; do not infer allocation before ECHFLG or after IC.
-export function inputRuntimeLayout(){
-  const anchor=inputLayout(),lines=sourceFile('WARMAC.MAC').split('\n');
+export function inputRuntimeLayout(read:(name:string)=>string=sourceFile){
+  const anchor=inputLayout(read),lines=read('WARMAC.MAC').split('\n');
   const start=lines.findIndex(l=>/^echflg:\s*block\s+1\b/.test(l));
   const end=lines.findIndex(l=>/^ic:\s*pushj\s+p,ichr\./.test(l));
   const expected=[['echflg','block 1',1],['iniflg','block 1',1],['scale','block 1',1],

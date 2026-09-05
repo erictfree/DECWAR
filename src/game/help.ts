@@ -1,4 +1,4 @@
-import { commands, constants as K, extraHelpWords, helpText as T } from '../generated/source-data.ts';
+import { commands, constants as K, extraHelpWords, helpText as T } from '../runtime/variant-values.ts';
 import { equal } from '../compat/parser.ts';
 import type { TokenMemory } from '../compat/command-input.ts';
 import { PackedBoard } from '../compat/board.ts';

@@ -5,7 +5,7 @@ import { captureStatements } from '../../src/game/capture-statements.ts';
 import type { CaptureServices,CaptureMessage } from '../../src/game/capture-statements.ts';
 import { weaponDamageStatements } from '../../src/game/weapon-damage-statements.ts';
 import { prlocStatements } from '../../src/game/prloc-statements.ts';
-import { messages } from '../../src/generated/source-data.ts';
+import { messages } from '../../src/runtime/variant-values.ts';
 import { rawPdist } from '../../src/compat/pdist.ts';
 import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-call.ts';
 export function bindMainCaptureRuntime(f:ReturnType<typeof pregameRuntimeFixture>,build:ReturnType<typeof bindMainBuildRuntime>,defenses:ReturnType<typeof bindMainDefensesRuntime>){

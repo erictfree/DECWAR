@@ -1,5 +1,5 @@
 import type { CommonBlock } from '../compat/memory.ts';
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 import type { RepairExpression as Expr,RepairServices } from './repair-statements.ts';
 export type ShieldMessage='shld01'|'shld02'|'shld03'|'shld04'|'shld05'|'shld06'|'shld07'|'shld08'|'shld09';
 export type ShieldSymbols=Record<'transfer'|'up'|'down'|'yes',bigint>;

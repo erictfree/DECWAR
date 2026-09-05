@@ -1,4 +1,4 @@
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 import { pdist } from '../compat/board.ts';
 import { add36, signed36 } from '../compat/word36.ts';
 

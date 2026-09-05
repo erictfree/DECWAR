@@ -6,25 +6,33 @@ documented, narrow repairs in a playable profile; retain the historical
 diagnostic profile for fidelity work. Do not block playable completion on
 missing compiler artifacts or describe the playable profile as exact parity.
 
-Use only the supplied `legacy/compuserve` archive as evidence about DECWAR. Do not
-browse for implementations, game rules, historical descriptions, or transcripts.
-Keep the archive byte-for-byte unchanged. Run `npm run audit:check` to verify it.
+Use the supplied `legacy/compuserve` and pinned `legacy/utexas` archives as the
+game-logic authorities for their respective variants. The user also authorized
+the full decwarorg/utexas repository and an isolated reference build; its map,
+symbols, executable, initialization and transcripts are preserved in
+legacy/utexas-reference/f78f2ec. Do not browse other implementations, game rules,
+historical descriptions or transcripts. Keep both archives byte-for-byte
+unchanged. Run `npm run audit:check` to verify the source/generated evidence.
 
 The user explicitly authorized importing decwarorg/utexas's
 utexas23-reconstruction directory into legacy/utexas on 2026-09-05. Preserve
 that snapshot and its provenance in legacy/README.md and legacy/utexas-manifest.json.
-This import does not switch the running port's baseline to UT Austin or authorize
-merging its game behavior without a subsequent instruction.
+The user subsequently selected Austin reconstruction as the default and approved
+implementation of docs/austin-default-plan.md. Implement Austin and retain an
+explicit CompuServe variant. Preserve the running CompuServe behavior while
+introducing variant support; switch the default only after Austin is playable
+and verified. Source variant and playable/diagnostic mode are separate choices.
 
 On 2026-09-05 the user authorized CPU/compiler manuals solely to resolve
 PDP-10 arithmetic and FORTRAN runtime/compiler behavior. This does not authorize
 external DECWAR implementations, game rules or transcripts. Record manual
 edition, pages, applicability and unresolved version differences in
-docs/platform-manuals.md; legacy/compuserve remains the only game-logic authority.
+docs/platform-manuals.md; manuals do not define either variant's game logic.
 
-The baseline is the supplied, modified distribution, selected by DECCMP.CMD and
-CAN1.CMD. The directory name is not a version claim. Do not silently restore
-older behavior or fix apparent source bugs. Record conflicts in
+The CompuServe baseline is the supplied, modified distribution selected by
+DECCMP.CMD and CAN1.CMD. Austin uses the pinned reconstruction and recorded
+reference build. Neither directory name establishes a pristine historical
+release. Do not silently combine variants or fix apparent source bugs. Record conflicts in
 `docs/compatibility.md`, with file names and line numbers.
 
 Preserve integer scaling, evaluation order, truncation, command abbreviations,

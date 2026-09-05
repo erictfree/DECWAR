@@ -1,4 +1,4 @@
-import { gripeText as T } from '../generated/source-data.ts';
+import { gripeText as T } from '../runtime/variant-values.ts';
 import { add36, rightHalf, unsigned36 } from '../compat/word36.ts';
 import { TerminalOutput } from '../compat/output.ts';
 

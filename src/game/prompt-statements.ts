@@ -1,6 +1,6 @@
 import type { CommonBlock } from '../compat/memory.ts';
 import type { WeaponStatementServices } from './weapon-damage-statements.ts';
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 export type PromptStatementServices<W>=Pick<WeaponStatementServices<W>,'logical'|'or'>&{
   outNormal():Generator<W,void,void>;odec(address:bigint,zero:0):Generator<W,void,void>;
   outc(literal:'L'|'S'|'D'|'E'):Generator<W,void,void>;outEnd():Generator<W,void,void>;

@@ -15,8 +15,8 @@ import type { UnlockServices } from '../../src/compat/unlock.ts';
 import { acquireLock,lockArgument } from '../../src/compat/lock.ts';
 import type { LockServices } from '../../src/compat/lock.ts';
 import { lockState } from '../../src/compat/lock-state.ts';
-import { lockLayout } from '../../src/generated/lock-layout.ts';
-import { constants as K,messages as M } from '../../src/generated/source-data.ts';
+import { lockLayout } from '../../src/runtime/variant-values.ts';
+import { constants as K,messages as M } from '../../src/runtime/variant-values.ts';
 import { add36 } from '../../src/compat/word36.ts';
 import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-call.ts';
 export function moveRuntimeFixture(line='MOVE 12 20',format:number=K.MEDIUM){
@@ -44,7 +44,7 @@ export function moveRuntimeFixture(line='MOVE 12 20',format:number=K.MEDIUM){
     *iran(n){events.push('iran:'+n);return f.damage.io.iran(BigInt(n));},
     *locate(entry,n){events.push(entry);f.m.write(location.n,BigInt(n));return yield*location.run(entry);},
     *check(args){events.push('check');yield*checkStatements(f.m,f.out,args,f.locals,f.io);},
-    *lock(address){events.push(`lock:${address}`);yield*lockArgument(locks,f.r,()=>address,()=>acquireLock(locks,state,f.r,symbols,lockIO));},
+    *lock(address){events.push(`lock:${address}`);yield*lockArgument(locks,f.r,()=>address,key=>acquireLock(locks,state,f.r,symbols,lockIO,key));},
     *unlock(address){events.push(`unlock:${address}`);yield*unlockArgument(locks,f.r,()=>address,()=>releaseLock(locks,state,f.r,symbols,unlockIO));},
     *disp(v,h){return yield*f.io.disp(v,h);},
     *setdsp(v,h,code){const addresses:bigint[]=[];for(const [i,arg] of [v,h,code].entries()){if(typeof arg==='bigint')addresses.push(arg);else{const a=14350n+BigInt(i);f.m.write(a,yield*arg.evaluate());addresses.push(a);}}

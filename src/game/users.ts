@@ -1,4 +1,4 @@
-import { constants as K, messages as M, outputTables as T, pregameIdentityLabel } from '../generated/source-data.ts';
+import { constants as K, messages as M, outputTables as T, pregameIdentityLabel } from '../runtime/variant-values.ts';
 import { add36, leftHalf, rightHalf, signed36, unpackSixbit } from '../compat/word36.ts';
 import { formatInteger, TerminalOutput } from '../compat/output.ts';
 import { prloc } from './format.ts';

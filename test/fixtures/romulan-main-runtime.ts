@@ -8,7 +8,7 @@ import { weaponDamageStatements } from '../../src/game/weapon-damage-statements.
 import { rawIngal } from '../../src/compat/ingal.ts';
 import { prlocStatements } from '../../src/game/prloc-statements.ts';
 import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-call.ts';
-import { constants as K,messages } from '../../src/generated/source-data.ts';
+import { constants as K,messages } from '../../src/runtime/variant-values.ts';
 import { add36,multiply36,signed36,MIN_INTEGER } from '../../src/compat/word36.ts';
 import { bindRomulanTargetRuntime } from './romulan-target-runtime.ts';
 import { bindPlaceRuntime } from './place-runtime.ts';

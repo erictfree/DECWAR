@@ -1,6 +1,6 @@
 import type { CommonBlock,WordBlock } from '../compat/memory.ts';
 import { add36 } from '../compat/word36.ts';
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 import type { WeaponExpression as Expr,WeaponStatementServices as Numeric } from './weapon-damage-statements.ts';
 export type RomulanTorpedoStatementLocals=Record<'misfir'|'tpaus'|'id'|'idis'|'aran'|'nplc'|'j'|'iob'|'num99'|'iv2'|'ih2'|'i'|'pteam'|'d'|'idum',bigint>;
 export type RomulanTorpedoStatementServices<W>=Pick<Numeric<W>,'binary'|'convert'|'compare'|'assign'|'logical'|'and'|'or'|'ran'|'realLiteral'>&{

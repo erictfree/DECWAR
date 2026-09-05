@@ -1,8 +1,8 @@
 import { sourceFile } from './source.ts';
 
 // WARMAC FLGBIT:164-168 and CBITS:948-1101; deliberately only this grammar.
-export function characterBits() {
-  const source=sourceFile('WARMAC.MAC');
+export function characterBits(read:(name:string)=>string=sourceFile) {
+  const source=read('WARMAC.MAC');
   if(!/mnemonic==bit\.\.\s+bit\.\.==bit\.\._1/.test(source))throw new Error('Changed FLGBIT definition');
   const lines=source.split('\n'), start=lines.findIndex(l=>/subttl\s+Character type bits/.test(l));
   const flags:Record<string,number>={}, entries:{value:number;line:number}[]=[];

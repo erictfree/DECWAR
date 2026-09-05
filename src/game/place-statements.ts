@@ -1,6 +1,6 @@
 import type { CommonBlock } from '../compat/memory.ts';
 import { add36 } from '../compat/word36.ts';
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 export type PlaceExpression<W>=()=>Generator<W,bigint,void>;
 export type PlaceStatementArguments={object:bigint;n:bigint;v:bigint;h:bigint};
 export type PlaceStatementLocals={k:bigint;i:bigint;pteam:bigint};

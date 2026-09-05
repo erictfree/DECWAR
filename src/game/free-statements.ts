@@ -1,7 +1,7 @@
 import type { CommonBlock,WordBlock } from '../compat/memory.ts';
 import type { WeaponExpression,WeaponStatementServices } from './weapon-damage-statements.ts';
 import { add36 } from '../compat/word36.ts';
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 export type FreeLocals={tteam:bigint;d:bigint;kindex:bigint;i:bigint};
 export type FreeStatementServices<W>=Pick<WeaponStatementServices<W>,'logical'|'and'|'binary'|'assign'>&{
   not(word:bigint):boolean;

@@ -1,6 +1,7 @@
+import { currentVariant } from '../runtime/variant-execution.ts';
 import type { CommonBlock } from '../compat/memory.ts';
 import { add36,divide36,signed36 } from '../compat/word36.ts';
-import { constants as K } from '../generated/source-data.ts';
+import { constants as K } from '../runtime/variant-values.ts';
 import type { setupLiterals,setupGroupNames } from './setup.ts';
 export type AdmissionLabel=keyof typeof setupLiterals|'setu11'|'setu12'|'setu13'|'setu14'|'setu15'|'setu16'|'setu17'|'stu17a'|'setu18';
 export type AdmissionServices<W>={
@@ -60,9 +61,9 @@ export function* setupAdmissionStatements<W>(high:CommonBlock,low:CommonBlock,l:
       if(who()<m.read(l.ibeg)||who()>m.read(l.iend))continue;if(high.read('alive',who())>0n)break;yield*io.out('setu15',1);
     }
   }
-  yield*io.unlock();yield*io.updcap(low.address('who'));
+  yield*io.unlock();if(currentVariant().definition.id!=='austin')yield*io.updcap(low.address('who'));
   for(m.write(l.i,1n);m.read(l.i)<=B(K.KNPOIN);m.write(l.i,add36(m.read(l.i),1n)))high.write('score',0n,m.read(l.i),who());high.write('alive',io.trueWord(),who());
-  for(const [n,name,bits] of [[1,'ALL',0o1777n],[2,'KLINGON',0o1740n],[3,'EMPIRE',0o1740n],[4,'HUMAN',0o37n],[5,'FEDERATION',0o37n],[6,'FRIENDLY',null],[7,'ENEMY',null]] as const){low.write('group',io.groupWord(name),n,1);low.write('group',bits??low.read('group',n===6?add36(5n,-team()):add36(2n,team()),2),n,2);}
+  for(const [n,name,bits] of [[1,'ALL',0o1777n],[2,'KLINGON',0o1740n],[3,'EMPIRE',0o1740n],[4,'HUMAN',0o37n],[5,'FEDERATION',0o37n],[6,'FRIENDLY',null],[7,'ENEMY',null]] as const){low.write('group',io.groupWord(name),n,1);low.write('group',bits===null?low.read('group',n===6?add36(5n,-team()):add36(2n,team()),2):BigInt(currentVariant().definition.groupMasks[n-1].mask),n,2);}
   yield*io.cctrap('clrbuf');yield*io.jobsta([K.KJOB,K.KNAM1,K.KNAM2,K.KPPN,K.KTTYN,K.KTTYSP].map(k=>high.address('job',who(),k)));
   high.write('job',low.read('ttytyp'),who(),K.KTTYTP);const day=yield*io.daytim(l.d);high.write('job',day,who(),K.KJOBTM);const runtime=yield*io.runtim(l.d);high.write('job',runtime,who(),K.KRUNTM);
   for(m.write(l.i,1n);m.read(l.i)<=10n;m.write(l.i,add36(m.read(l.i),1n)))high.write('shpcon',0n,who(),m.read(l.i));

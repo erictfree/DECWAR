@@ -1,4 +1,4 @@
-import { scanObjects, outputTables as T } from '../generated/source-data.ts';
+import { scanObjects, outputTables as T } from '../runtime/variant-values.ts';
 import { HALF_MASK, add36, signed36 } from '../compat/word36.ts';
 import { PackedBoard, ingal } from '../compat/board.ts';
 import { o2db, TerminalOutput } from '../compat/output.ts';

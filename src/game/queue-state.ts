@@ -1,6 +1,6 @@
 import type { WordMemory } from '../compat/memory.ts';
 import { rightHalf } from '../compat/word36.ts';
-import { queueLayout } from '../generated/queue-layout.ts';
+import { queueLayout } from '../runtime/variant-values.ts';
 import { HitQueue } from './hit-queue.ts';
 import { MessageQueue } from './message-queue.ts';
 

@@ -2,7 +2,7 @@ import type { pregameRuntimeFixture } from './pregame-runtime.ts';
 import type { RepairServices } from '../../src/game/repair-statements.ts';
 import { energyStatements } from '../../src/game/energy-statements.ts';
 import type { EnergyStatementServices,EnergyMessage } from '../../src/game/energy-statements.ts';
-import { messages } from '../../src/generated/source-data.ts';
+import { messages } from '../../src/runtime/variant-values.ts';
 import { rawLdis } from '../../src/compat/ldis.ts';
 import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-call.ts';
 export function bindMainEnergyRuntime(f:ReturnType<typeof pregameRuntimeFixture>,numeric:Pick<RepairServices<string>,'logical'|'and'|'integer'|'assign'|'equal'>){

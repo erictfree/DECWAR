@@ -1,3 +1,4 @@
+import { currentVariant } from '../runtime/variant-execution.ts';
 import type { SourceArguments } from './fortran-call.ts';
 import type { FieldStack } from './field-output.ts';
 import { halfWords,rightHalf,signed36 } from './word36.ts';
@@ -37,19 +38,19 @@ export function* reacquireRuntime<W>(state:Pick<WaitRuntimeState,'svlock'|'lkfai
 // The duration is dereferenced three times, and raw MSTIME has no midnight fix.
 export function* pauseRuntime<W>(state:Pick<WaitRuntimeState,'locked'|'svlock'|'lkfail'>,r:WaitRuntimeRegisters,args:SourceArguments,io:PauseRuntimeServices<W>):Generator<W,void,void>{
   if(args.read(0)<=0n)return;
-  r.t1=state.locked;state.svlock=r.t1;if(r.t1!==0n)yield*io.unlo();
+  if(currentVariant().definition.id!=='austin'){r.t1=state.locked;state.svlock=r.t1;if(r.t1!==0n)yield*io.unlo();}
   r.t1=args.read(0);
   if(r.t1>0n){
     if(r.t1>10000n)r.t1=10000n;
     yield*io.mstime('t3');yield*io.addT3();
     r.t1=args.read(0);if(r.t1>10000n)r.t1=10000n;
     for(;;){
-      if(!(yield*io.hiber()))yield*io.halt();
+      if(!(yield*io.hiber())&&currentVariant().definition.id!=='austin')yield*io.halt();
       yield*io.mstime('t2');r.t1=1000n;
       if(r.t2>=r.t3)break;
     }
   }
-  yield*reacquireRuntime(state,r,io);
+  if(currentVariant().definition.id!=='austin')yield*reacquireRuntime(state,r,io);
 }
 // WARMAC.MAC:3874-3901. HB.RTC's HRLI value is a required relocated/assembled
 // symbol, not a chosen monitor bit. INPUT has no PAUSE cap and masks its duration
@@ -59,10 +60,10 @@ export function* inputWaitRuntime<W>(state:WaitRuntimeState,r:WaitRuntimeRegiste
   else{
     r.t1=args.read(0);
     if(r.t1>0n){
-      r.t1=state.locked;state.svlock=r.t1;if(r.t1!==0n)yield*io.unlo();
+      if(currentVariant().definition.id!=='austin'){r.t1=state.locked;state.svlock=r.t1;if(r.t1!==0n)yield*io.unlo();}
       r.t1=args.read(0);r.t1=signed36(halfWords(wakeInputLeftHalf,rightHalf(r.t1)));
-      if(!(yield*io.hiber()))yield*io.halt();
-      yield*reacquireRuntime(state,r,io);
+      if(!(yield*io.hiber())&&currentVariant().definition.id!=='austin')yield*io.halt();
+      if(currentVariant().definition.id!=='austin')yield*reacquireRuntime(state,r,io);
     }
     r.f=0n;
     if(state.hungup!==0n)r.f=-1n;

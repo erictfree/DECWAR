@@ -2,7 +2,7 @@ import type { pregameRuntimeFixture } from './pregame-runtime.ts';
 import type { bindMainEnergyRuntime } from './main-energy-runtime.ts';
 import { tractorStatements } from '../../src/game/tractor-statements.ts';
 import type { TractorStatementServices,TractorMessage } from '../../src/game/tractor-statements.ts';
-import { messages } from '../../src/generated/source-data.ts';
+import { messages } from '../../src/runtime/variant-values.ts';
 import { signed36 } from '../../src/compat/word36.ts';
 import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-call.ts';
 export function bindMainTractorRuntime(f:ReturnType<typeof pregameRuntimeFixture>,energy:ReturnType<typeof bindMainEnergyRuntime>){

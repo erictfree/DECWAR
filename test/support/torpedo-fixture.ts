@@ -12,7 +12,7 @@ import { ldis, ingal } from '../../src/compat/board.ts';
 import { damageRomulan } from '../../src/game/romulan-damage.ts';
 import { orderedRational as real } from './rational-real.ts';
 import type { Rational } from './rational-real.ts';
-import { constants as K } from '../../src/generated/source-data.ts';
+import { constants as K } from '../../src/runtime/variant-values.ts';
 export { done };
 export type Wait = NovaWait | 'input' | 'pause';
 
