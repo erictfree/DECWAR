@@ -1,7 +1,7 @@
 # CompuServe amendments
 
 Status: selected amendments reviewed against both archives. This appendix is
-incomplete; pending assembly, combat and persistence details remain in the
+incomplete; pending assembly, output and persistence details remain in the
 coverage record. It is not a second independently defined core language.
 
 ## C-1 — Applying the appendix
@@ -17,8 +17,9 @@ called routines, aliasing or monitor bindings.
 Use ten player slots, five per side, and sixty initial planets/planet slots.
 Federation slots 1–5 are Lexington, Nimitz, Savannah, Vulcan and Yorktown; Empire
 slots 6–10 are Cobra, Demon, Hawk, Jackal and Wolf. Name resolution and iteration
-use this order. Radio groups and recipient sets use the corresponding five-member
-sides. Galaxy dimensions, ten base slots per side and maximum range 10 are unchanged.
+use this order. Ordinary radio groups use the corresponding five-member sides;
+autonomous speech retains different masks under C-8. Galaxy dimensions, ten base
+slots per side and maximum range 10 are unchanged.
 
 **Evidence:** [C PARAM](../../legacy/compuserve/fortran%201978/PARAM.FOR#L25),
 [C names](../../legacy/compuserve/fortran%201978/BLKDAT.FOR#L84),
@@ -227,10 +228,10 @@ restriction and rejection output. The abstract account/privilege binding remains
 U-MONITOR; these source identifiers are not an instruction to introduce accounts
 into every future user interface.
 
-CompuServe movement uses the source's per-board-word lock keys. Austin's public
-lock maps requests to a common key and its unlock releases the session's locks.
-The completed execution appendix must specify resulting interleavings and failed
-attempt effects without requiring packed board storage from new implementations.
+CompuServe uses distinct exclusion keys and releases individual keys; C-10
+specifies their scope, movement ordering and wait behavior. Austin's public
+lock instead maps requests to a common key and its unlock releases all the
+session's locks.
 
 **Evidence:** [C PASWRD](../../legacy/compuserve/fortran%201978/PASWRD.FOR#L30),
 [Austin PASWRD](../../legacy/utexas/DECWAR.FOR#L2626),
@@ -244,28 +245,194 @@ uses `I(5)=1`. At the later speech test, CompuServe uses `I(50)<=1` where Austin
 uses `I(10)<=1`. Preserve the changed bounds and their positions in the random
 sequence; they are not merely output-frequency settings.
 
-Player TELL to ROMULAN has an additional CompuServe response/relocation path.
-For a present Romulan it generates a response, preserves the existing recipient
-set and tests `I(4)`. On result 1 it draws an offset `I(10)−5` and searches nearby
-legal empty positions using the source's nested order. Austin skips ROMULAN
-recipient tokens without invoking that exchange. Full CompuServe TELL parsing,
-relocation bounds, duplicate-label source ambiguity and message effects still
-require a dedicated clause before conformance is claimed.
+### Player TELL ROMULAN
+
+Initialize a sent-to-Romulan flag false. Player TELL retains the radio gate,
+automatic radio enablement and ordinary ship/group parsing of GAME-RADIO. A
+ROMULAN match is processed before the repeat-command rejection. If the Romulan
+is absent, emit `fragment(tell07)` followed by `"Romulan"` and unconditional
+CR/LF, then continue with later recipient tokens.
+
+For a present Romulan, preserve the accumulated ordinary recipient set, generate
+a direct Romulan reply to the acting captain, and immediately submit that body
+to the message queue. Set the sent-to-Romulan flag and restore the ordinary
+recipient set. This reply precedes the later ordinary-recipient filter and any
+acquisition of the player's own message body. Each repeated ROMULAN recipient
+can perform another reply; later invalid recipients do not undo earlier replies.
+
+Next draw `I(4)`. Results 2–4 finish this recipient. On result 1, draw
+`I(10)−5`, giving a starting offset from −4 through 5. Search H offsets from
+that start through 10; for each, search V offsets from the same start through
+10. Select the first in-galaxy cell whose board value is exactly zero. Clear
+the Romulan's old cell, replace its coordinates, and write Romulan code 500 at
+the selected cell. No arrival notification, exclusion request, shortest-distance
+selection or energy charge appears in this path. If no cell qualifies, leave
+the position unchanged. The search is relative to the acting captain's position,
+not the Romulan's old position.
+
+After recipient processing, filter ordinary recipients as in GAME-RADIO and
+remove the sender. If none remain, suppress the no-recipient diagnostic when
+a Romulan reply was attempted through the present-Romulan path; otherwise emit
+it. If recipients remain, acquire and publish the player's body normally.
+
+### Autonomous speech and recipient-mask effects
+
+Autonomous TELL generates its body before recipient validation and suppresses
+the unoccupied/broken/off-radio and no-recipient diagnostics. It still removes
+unavailable recipients among the ten roster slots, clears gag selections for
+remaining recipients, and queues a nonempty selection. Player TELL ROMULAN's
+immediate reply is addressed only to that captain and bypasses this later filter.
+
+For autonomous speech, the body choices and four draws are TERM-13's choices,
+but the source retains octal masks 777777, 000777 and 777000. These select slots
+1–18, 1–9 and 10–18 respectively, despite the ten-slot roster. The validation
+loop visits only slots 1–10. Thus the second choice can include Empire slots
+6–9 while calling them human; the third includes slot 10 and nonexistent slots
+11–18. Do not replace these masks with the ordinary five-member radio groups.
+
+Publication increments a message flag for every remaining bit without a
+ten-slot bound. Under both supplied declarations the ten message flags are
+immediately followed by the ten hit flags. Consequently publication for bits
+11–18 also increments hit flags for captains 1–8, without creating corresponding
+hit entries. This alias effect is expressible as state changes in an independent
+implementation; preserving an out-of-bounds memory write is not required. The
+nonexistent recipients also remain in queue membership until removed by queue
+eviction or reinitialization. Their effects must not be silently normalized away.
+
+### Direct reply construction
+
+A player-triggered reply skips the group-selection draw, selects the captain
+as recipient and uses these `I(4)` openings in order: `"You have aroused my wrath, "`,
+`"You will witness my vengence, "`, `"May you be attacked by a slime-devil, "`,
+`"I will reduce you to quarks, "`. Retain the spelling `vengence`.
+Then draw the TERM-13 adjective with `I(5)`, choose a qualifier as below, and
+draw the TERM-13 noun with `I(5)`. Append `!` without the broadcast plural `s`.
+
+Qualifier selection first draws `I(3)`. Result 1 attempts the source's terminal
+node lookup and special-prefix handling; exact host-code conversion and the
+special-prefix tests remain U-C-NODE. If that path finds a qualifier, use it
+without another random choice. Other results, and an unsuccessful lookup,
+draw `I(5)`: choices 1–4 are `"sub-Romulan "`, `"vertebrate "`,
+`"endo-skeletal "`, `"soft-skinned "`; choice 5 is `"human "` for a Federation
+captain and `"klingon "` for an Empire captain. The subsequent relocation draws
+occur after this complete body generation and queue submission.
 
 **Evidence:** [C ROMDRV first test](../../legacy/compuserve/fortran%201978/ROMDRV.FOR#L64),
 [C later test](../../legacy/compuserve/fortran%201978/ROMDRV.FOR#L123),
 [Austin first test](../../legacy/utexas/DECWAR.FOR#L3259),
 [Austin later test](../../legacy/utexas/DECWAR.FOR#L3306),
 [C TELL](../../legacy/compuserve/fortran%201978/TELL.FOR#L54),
+[C direct response and relocation](../../legacy/compuserve/fortran%201978/TELL.FOR#L87),
+[C ROMSPK](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L6229),
+[C qualifier lookup](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L6307),
+[C publication flags](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L3600),
+[C adjacent flags](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L417),
+[C FORTRAN flags](../../legacy/compuserve/fortran%201978/HISEG.FOR#L53),
 [Austin TELL](../../legacy/utexas/DECWAR.FOR#L3997).
 
 ## C-9 — Matters that are not established amendments
 
 Both FORTRAN PARAM files set restart wait to zero, unlike the assembly value
 120000; this is not a variant change. All 324 named message literals match, but
-inline strings, macro-added newlines and complete transcripts require separate
-comparison. Argument-copy changes need analysis of their alias effects.
+other inline strings and complete transcripts require separate comparison. C-11
+specifies the ASCIL newline difference. Argument-copy changes still need analysis
+of their alias effects.
 
 **Evidence:** [C PARAM wait](../../legacy/compuserve/fortran%201978/PARAM.FOR#L50),
 [Austin PARAM wait](../../legacy/utexas/PARAM.FOR#L30),
 [documented source comparison](../legacy-comparison.md).
+
+## C-10 — Exclusion and waiting (amends EXEC-9/10 and GAME-MOVE)
+
+Use distinct resource keys for the named protected areas. Board keys protect
+groups of three consecutive H cells in one V row: `(1–3)`, `(4–6)`, through
+`(73–75)`. Sharing a cell is not required for two movements to contend for the
+same board key. Other protected areas retain their source identity, including
+the planet records, free/admission state, message links and statistics updates.
+
+Ordinary key namespaces also include the low six bits of the world game serial.
+The free/admission and statistics-update keys instead use namespace zero across
+worlds. Thus world serials differing by 64 share an ordinary namespace; do not
+replace it with an unbounded unique world identifier in a strict binding.
+
+Track up to twenty locally registered keys. A repeated request for a registered
+key returns without adding a nesting count. New requests register the key before
+the host acquisition completes. Registry exhaustion attempts the source's fatal
+memory access; exact trap/continuation behavior remains U-C-LOCK. Public release
+removes the named key and clears the remembered last public lock; internal
+release removes the named key without clearing that remembered value. Releasing
+one key does not release other registered keys. The explicit release-all paths
+walk the local registry.
+
+For a successful immediate host acquisition, clear the failure indication and
+return. The selected source's busy-resource path waits, checks a grant indicator,
+and reports a lockup after its monitor deadline. It then unconditionally jumps
+back to the error-dispatch label, without restoring the error register used
+there. Further waiting versus fatal exit depends on that retained register.
+The control-flag test immediately before that jump is
+commented out, leaving the following release-and-failure-return instructions
+unreachable by ordinary fallthrough. Do not specify a working Ctrl-C cancellation
+or an automatic failed return merely because those later instructions remain
+in the file. The grant-indicator handler is also commented out; the precise
+delayed-grant/monitor outcome remains U-C-LOCK.
+
+The busy path requests 100 monitor hibernation units, clears both control flags,
+obtains the source UCT clock plus 12 ticks as its deadline, then requests 5000
+units. Earlier wakeups can cause further 1000-unit requests. A host
+out-of-memory acquisition error requests 1000 units and retries acquisition;
+other non-busy errors take the fatal monitor-exit path. These are monitor-boundary
+requests, not an assertion that every historical host interprets them as the
+same clock or resumes fairly.
+
+Positive PAUSE and waiting INPUT temporarily release and subsequently reacquire
+the remembered last public lock. Fresh-line token acquisition does the same
+around the line reader. They do not automatically release every registered key.
+PAUSE retains EXEC-10's ten-second request cap and extra-second wakeup checks.
+Its release/reacquisition is active in CompuServe and removed in Austin.
+
+Movement computes its path and charges energy before attempting exclusion.
+For a changed destination, request its board-group key first, then the source
+board-group key if different. The caller's failure branch for the first request
+returns by the alternate path with energy already spent; for failure of the
+second, release the destination key before that return. Those branches describe
+the caller's response to a failed-return indication, not proof that the selected
+busy-lock implementation reaches such a return.
+
+Once acquired, clear the old cell, write the destination and update actor
+coordinates. Release source key if different, then destination key. Perform any
+towing updates after those releases. There is no destination recheck after
+acquisition: path selection occurred earlier. Two moves whose paths select the
+same initially empty cell can therefore still overwrite it in succession even
+though their writes exclude one another. Neither the packed board layout nor a
+modern mutex supplies a collision rule absent from this sequence.
+
+**Evidence:** [C key acquisition](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L4466),
+[C busy/failure paths](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L4506),
+[C release](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L4592),
+[C inactive grant handler](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L6491),
+[C INPUT](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L3872),
+[C PAUSE](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L4010),
+[C token acquisition](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L1679),
+[C movement](../../legacy/compuserve/fortran%201978/MOVE.FOR#L117).
+
+## C-11 — Queue and literal amendments (amends EXEC-6/7 and TERM-7)
+
+The active assembly hit service uses 400 entries, forty per commissioning slot,
+instead of Austin's 720. The FORTRAN parameter 64 does not size the assembly
+service's arrays or search loops. Retain EXEC-6's allocation, overwrite, decoding
+and retrieval rules with this capacity and ten-slot roster.
+
+CompuServe MAKMSG retries reservation when the reservation service returns a
+failed-lock indication; Austin returns without publishing on that branch. The
+underlying CompuServe lock's actual failure-return limits are C-10. Short-message
+and pre-reservation cancellation cleanup still require U-MESSAGE-EDGE.
+
+CompuServe's ASCIL macro appends CR/LF to its literal body. Replace TERM-7's
+Austin-specific no-suffix rule for calls using this macro. For example the
+`No message sent` cleanup literal includes this ending before later caller
+output. This does not add a newline to every ASCIZ or named catalogue fragment.
+
+**Evidence:** [C queue capacities](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L245),
+[C MAKMSG](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L3559),
+[C ASCIL](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L51),
+[Austin MAKMSG](../../legacy/utexas/WARMAC.MAC#L3011).

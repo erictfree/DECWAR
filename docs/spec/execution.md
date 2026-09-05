@@ -172,7 +172,9 @@ check the receiving session's gag set against the sender identity. A gagged mess
 has already been removed from the queue and produces no text. Otherwise display
 sender and the original recipient initials in roster order, then the body.
 Zero-sender messages use the body path without that heading. Gag filtering is a
-delivery-time choice; recipient filtering at send time is GAME-RADIO.
+delivery-time choice; recipient filtering at send time is GAME-RADIO. TERM-14
+specifies exact composition, retained-body output after a failed retrieval and
+the Romulan index-zero gag lookup's U-ROM-GAG limitation.
 
 Message acquisition uses an explicit supplied string, raw text after the first
 semicolon in the existing line, or a `Msg: ` prompt. The copy loop scans through

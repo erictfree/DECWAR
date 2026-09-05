@@ -228,7 +228,13 @@ report no recipient and return; otherwise acquire the body and enqueue it.
 
 An invalid or cancelled TELL may therefore already have turned radio on. Do not
 roll back that effect. Delivery-time gag handling and queue exhaustion are
-separate from recipient selection and remain to be specified in EXEC's queue rules.
+separate from recipient selection and follow EXEC-7's queue rules.
+
+Austin autonomous TELL constructs TERM-13's Romulan broadcast before filtering
+recipients. It performs the same unavailable-radio/ship diagnostics and emits
+the no-recipient diagnostic if none remain. It does not remove the acting session
+as sender when the autonomous player flag is false. Player ROMULAN recipient
+tokens are skipped before repeat rejection and contribute no recipient.
 
 **Evidence:** [RADIO](../../legacy/utexas/DECWAR.FOR#L3129),
 [TELL](../../legacy/utexas/DECWAR.FOR#L3977).

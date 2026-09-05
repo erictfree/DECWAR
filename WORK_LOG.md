@@ -1538,3 +1538,49 @@ port/tool attribution remain separate.
   finite arithmetic/compiler boundaries, fuller adversarial interactions,
   CompuServe TELL and synchronization/alias amendments, and persistence failures.
   This checkpoint does not establish full native or implementation conformance.
+
+### 2026-09-05 — Specification radio, CompuServe speech and exclusion
+
+- Prior goal turn classified as progress: 9ab39bc published combat output,
+  randomness and standings. Rechecked the clean worktree before continuing.
+- Added TERM-13/14: exact Austin Romulan phrase choices/draw order, radio/TELL
+  diagnostics, delivered message headings/markers and body line endings. Recorded
+  the retained-body output after no-match retrieval. Added U-ROM-GAG for BITS(0),
+  which aliases the final roster-marker word when sender code is 500; the exact
+  gag mask still requires compiled character-padding evidence.
+- Expanded C-8 with present/absent/repeated ROMULAN recipients, direct reply
+  ordering, asymmetric relocation search, autonomous diagnostic suppression and
+  generic direct-reply text choices. Removed the earlier unsupported suggestion
+  of a duplicate label after reading the selected TELL file directly.
+- Derived the retained 18-bit CompuServe speech masks and their ten-player
+  consequences from ROMSPK, TELL, MAKMSG and both HISEG declarations. Bits 11–18
+  survive filtering and increment hit flags 1–8 through adjacent flag storage;
+  the specification expresses this as abstract state changes. Node-derived reply
+  qualifiers remain U-C-NODE; no generic host location was invented.
+- Added C-10 exclusion keys, three-cell board groups, six-bit world namespace,
+  local key registration/release, active wait-time release/reacquisition and
+  movement's charge-before-lock/no-recheck/tow-after-release sequence. The busy
+  timeout jumps back to error dispatch after its control test was commented out;
+  it does not ordinarily reach the retained failed-return path. Delayed-grant,
+  retained-register and trap behavior is U-C-LOCK, not a claimed working timeout.
+- Added C-11: 400-entry assembly hit service, message-reservation retry and ASCIL's
+  added CR/LF. Austin's distinct capacity, failed-reservation return and macro
+  expansion remain core rules.
+- Added sixteen source-derived scenarios, bringing the total to 106. Cases
+  include speech masks/flag aliases, duplicate replies, relocation order, lock
+  namespace collisions, two preselected moves overwriting one destination,
+  stale-body output and exact radio heading bytes. None is a native test run.
+- Validation passed: 14 chapters/appendices, 337 local links, 324 named Austin
+  fragments, 106 parsed scenario rows, source audit and whitespace checks.
+  Logs: logs/spec-build.log, logs/spec-check.log, logs/spec-audit-check.log.
+  A clause-reference review found and corrected GAME-SNOVA to GAME-NOVA;
+  the reviewed identifier scan has no unmatched references. Initial candidate
+  output and final results are preserved in logs/spec-clause-reference-review-*
+  and logs/spec-clause-reference-review.log; example-ID substrings were excluded
+  from clause matching. This textual scan is not semantic completeness evidence.
+- Rendered the expanded 87-page PDF and inspected contact sheets and full-size
+  speech, radio, scenario and exclusion pages (logs/spec-radio-render.log).
+  The final clause-name correction was rendered separately. No runtime, source
+  archive, native state or server changes. Goal remains active: remaining report
+  output, numeric/compiler boundaries, persistence failures, node text, other
+  aliases and deeper conformance work still require review.

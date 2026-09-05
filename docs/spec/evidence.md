@@ -97,9 +97,9 @@ identifies missing-argument and no-ship limitations. The initial HELP/PREGAME/em
 | Randomness | Generator, seeding, placement order, command/helper draw ledger and exact generator vectors | Compound-condition evaluation, abnormal bounds and full seeded interaction traces |
 | Session | Admission, options, team/ship selection, release and termination drafted | Raw-name boundaries, identity, reentry and concurrency details |
 | Gameplay | Resources, scans, traversal, combat, installations, novas, Romulan, LIST and reports drafted | Numeric execution and final scoring; review failure effects |
-| Terminal | Prompts, fields, scans, utilities, all 15 hit-notification types, ordinary score tables and 324 exact named fragments drafted | Remaining inline literals and command assembly, extreme fields and controls |
-| Conformance | Claim boundaries and 90 source-derived scenarios drafted | Deeper failure/interaction cases, native comparisons and a reusable verifier |
-| CompuServe appendix | Nine amendment/scope clauses including commission records, standings ranking, honor-roll fields and DOCUMENT | Persistence failure paths and literal catalogue, TELL and locking/alias effects; align with remaining core clauses |
+| Terminal | Prompts, fields, scans, utilities, all 15 hit-notification types, ordinary score tables, generated Romulan speech and 324 exact named fragments drafted | Remaining inline literals and command assembly, extreme fields and controls |
+| Conformance | Claim boundaries and 106 source-derived scenarios drafted | Deeper failure/interaction cases, native comparisons and a reusable verifier |
+| CompuServe appendix | Eleven clauses including standings, DOCUMENT, TELL replies/relocation, speech-mask aliases, queue differences and exclusion/wait behavior | Persistence failures and literal catalogue, node-derived speech, monitor lock limits and other argument aliases |
 
 The draft cannot support a complete game implementation yet. Compilation into
 one document verifies document structure; it does not establish semantic completeness.

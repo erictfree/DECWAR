@@ -197,3 +197,47 @@ resolved its uninitialized-loop behavior. Account identities are nonzero.
 
 **Evidence:** [CompuServe persistence amendment](compuserve.md#c-6--persistence-extends-session-4).
 These expectations have not been exercised against a native CompuServe build.
+
+## CONF-9 — Speech, variant masks and exclusion scenarios
+
+These source-derived examples distinguish generated speech, queue publication
+and delivery. Supplied draw results are test inputs to the relevant abstract
+draw operations; they are not a claim that an arbitrary sequence corresponds
+to a chosen native seed. Assume nonoverflowing counters, successful queue space
+and host services except where a scenario names another condition.
+
+| ID | Conditions and input | Expected observation |
+| --- | --- | --- |
+| EX-ROM-SPEECH-01 | Austin speech generator; four draw results all 1 | Select all eighteen slots and generate `Death to mindless sub-Romulan mutants!` before TELL filtering. |
+| EX-C-ROM-01 | CompuServe autonomous speech; group draw 2; all ten ships live with working radios on | Select recipients 1–9, including Empire slots 6–9; body qualifier is `human `. |
+| EX-C-ROM-02 | Same, group draw 3; all message/hit flags initially zero; observe after publication | Slot 10 message flag becomes 1 and hit flags 1–8 become 1. No matching hit entries are created. Membership retains slots 11–18. |
+| EX-C-ROM-03 | CompuServe player with working radio; TELL ROMULAN, Romulan present; relocation test returns 2 | Queue its direct reply, omit no-recipient diagnostic, leave Romulan position unchanged; no player message-body prompt. |
+| EX-C-ROM-04 | Same, TELL ROMULAN ROMULAN; both relocation tests return 2 | Submit two generated replies in recipient-token order. |
+| EX-C-ROM-05 | CompuServe actor at 50–50; present Romulan; relocation I(4)=1, I(10)=6; cell 51–51 occupied, 52–51 empty | Relocate to 52–51, the next V offset under H offset 1; do not choose another closer empty cell. |
+| EX-C-ROM-06 | CompuServe player TELL ROMULAN with Romulan absent and no other recipients | Absent-Romulan diagnostic followed by no-recipient diagnostic; no reply-generation or relocation draws. |
+| EX-C-LOCK-01 | CompuServe board locations 20–1, 20–3 and 20–4 | First two share a board exclusion key; third uses the next key. |
+| EX-C-LOCK-02 | Same ordinary resource key in world serials 1 and 65 | Share the six-bit namespace and contend; distinct full serials do not isolate them. |
+| EX-C-LOCK-03 | Successfully acquire the same CompuServe key twice, then release it once | One registration, no nesting count; the single release removes it. |
+| EX-C-LOCK-04 | Two CompuServe moves independently select the same empty destination before either acquires its board key; A completes writes/releases, then B acquires | B does not recheck the destination and overwrites its cell; both ship records can retain that destination. |
+| EX-C-LOCK-05 | CompuServe holds two keys, second remembered as last public lock; positive PAUSE | Temporarily release and reacquire only the second key; retain the first throughout. |
+| EX-C-QUEUE-01 | CompuServe MAKMSG short-message cleanup reaches its ASCIL diagnostic | Its literal emits `"No message sent\r\n"`; Austin's corresponding bare ASCIZ macro expansion lacks that appended ending. |
+
+**Evidence:** [Austin speech](terminal.md#term-13--generated-romulan-speech),
+[CompuServe speech](compuserve.md#c-8--romulan-changes-amends-game-rom-action-and-game-radio),
+[exclusion](compuserve.md#c-10--exclusion-and-waiting-amends-exec-910-and-game-move)
+and [queue amendments](compuserve.md#c-11--queue-and-literal-amendments-amends-exec-67-and-term-7).
+These examples have not been executed against either native image.
+
+## CONF-10 — Radio output scenarios
+
+These source-derived cases assume short verbosity, no intervening activity and
+the source's ordinary output buffer behavior. Quoted strings use JSON escapes.
+
+| ID | Conditions and input | Expected observation |
+| --- | --- | --- |
+| EX-MESSAGE-02 | Austin receiver has no gag bits; valid queued message from code 101 to original recipients 1 and 2; body `hello` followed by CR/LF and NUL | Emit `"\r\nMessage from E to  E F\r\nhello\r\n\r\n"`. |
+| EX-MESSAGE-03 | Retained body buffer is `old` followed by CR/LF and NUL; message flag 1 but retrieval finds no matching entry | Clear message flag and emit `"old\r\n\r\n"` without a heading. |
+| EX-RADIO-03 | RADIO GAG names the actor's own ship; cursor at left margin after a blank line | No gag change and no output after the suppressed initial break. |
+
+**Evidence:** [radio output recipes](terminal.md#term-14--radio-commands-and-delivered-messages).
+These cases do not resolve U-ROM-GAG or malformed message-buffer contents.

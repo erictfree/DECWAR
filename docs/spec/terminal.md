@@ -459,3 +459,83 @@ display; do not calculate an unrestricted decimal average and round it for print
 [totals and averages](../../legacy/utexas/DECWAR.FOR#L2997),
 [nonmutating OFLT](../../legacy/utexas/WARMAC.MAC#L1939),
 [score fragments](messages.md).
+
+## TERM-13 — Generated Romulan speech
+
+Austin generates a broadcast with four draws in this order: `I(3)` chooses the
+recipient group, `I(4)` an opening, `I(5)` an adjective and `I(5)` a noun.
+The group choices are all eighteen roster slots, Federation slots 1–9, and
+Empire slots 10–18. Subsequent TELL filtering can remove unavailable recipients.
+The source object is Romulan. Build the body by concatenating the chosen opening,
+adjective, group qualifier, noun, `s!`, and a terminating NUL. The queue service
+then applies its own body termination rules under EXEC-7.
+
+| Selection | Alternatives in draw order |
+| --- | --- |
+| Opening | `"Death to "`, `"Destruction to "`, `"I will crush "`, `"Prepare to die, "` |
+| Adjective | `"mindless "`, `"worthless "`, `"ignorant "`, `"idiotic "`, `"stupid "` |
+| Group qualifier | `"sub-Romulan "`, `"human "`, `"klingon "`, corresponding to the recipient-group draw |
+| Noun | `"mutant"`, `"cretin"`, `"toad"`, `"worm"`, `"parasite"` |
+
+Preserve case, spaces and pluralization. The single-player openings retained
+inside this routine are not selected by Austin's active entry path; player TELL
+ROMULAN does not invoke it. CompuServe changes both entry selection and recipient
+masks under C-8. Speech generation is distinct from eventual radio delivery.
+
+**Evidence:** [ROMSPK](../../legacy/utexas/WARMAC.MAC#L4672),
+[TELL filtering](../../legacy/utexas/DECWAR.FOR#L4023).
+
+## TERM-14 — Radio commands and delivered messages
+
+RADIO begins with `break`. A missing or unrecognized operation prompts
+`fragment(radio0)`; an empty response returns, otherwise apply `break` before
+dispatching that response. ON emits `fragment(radon0,1)` after enabling radio;
+OFF emits `fragment(radoff,1)` after disabling it. GAG/UNGAG requests a missing
+ship through `fragment(radio2)`. An unknown ship emits `fragment(unkshp,1)`;
+selecting the actor itself returns without a success diagnostic or gag change.
+For another ship, update the gag state, emit `fragment(radgag)` or
+`fragment(radung)`, then `object(ship,0)` and `break`.
+
+Player TELL's radio-damage rejection emits `fragment(tell01,1)`. Its missing
+recipient prompt is `fragment(tell02)`. Repeat rejection uses
+`fragment(tell09,1)`. Unknown and ambiguous recipients use `tell03` and `tell04`
+respectively, followed by the token's retained word up to its first NUL (at most
+five characters) and `break`.
+Selecting self emits `fragment(tell05,1)` immediately, before its later removal.
+Unavailable and unreachable recipients use `tell06` and `tell07`, then their
+object with no trailing space and `break`. These diagnostics construct the
+ship code as 100 plus roster slot, even for Empire slots; TERM-8 still selects
+the name by that roster slot. No remaining recipient emits
+`fragment(tell08,1)`. Body prompting and copying follow EXEC-7. The player path
+applies `break` after returning from body submission.
+
+For delivered radio output, first clear the local sender and recipient set.
+Return if the message flag is zero; otherwise retrieve the next message. If the
+sender is nonzero, test the gag mask before any heading. An accepted nonzero
+sender emits `fragment(mess01)`, `object(sender,1)`, `fragment(mess02)`, then
+the two-character roster marker for every original recipient in ascending slot
+order. Each marker is one space followed by the roster initial. Apply `break`.
+Then emit the body up to its NUL and one unconditional CR/LF. Repeat until the
+message flag is zero. The queued body's own CR/LF remains, so normal body
+delivery ends with an additional blank line.
+
+A zero sender bypasses both gag testing and the heading, proceeding directly
+to body output. Failed/no-match retrieval clears sender, recipients and the
+message flag without clearing the retained body buffer. If the output loop
+entered on a positive flag, it can therefore print a previously retained body
+once through this zero-sender path. Do not replace that path with an implicit
+empty body or an early return.
+
+The gag lookup for nonzero sender uses the sender code modulo 100 as an index
+into the identity-bit table. Romulan code 500 therefore reads index zero,
+which under both supplied declarations aliases the final roster-marker word
+immediately preceding the table. Its character padding determines which gag
+bits can suppress a Romulan message (U-ROM-GAG). Do not infer that Romulan
+messages are always immune to gagging because RADIO has no Romulan ship slot.
+
+**Evidence:** [RADIO](../../legacy/utexas/DECWAR.FOR#L3129),
+[TELL](../../legacy/utexas/DECWAR.FOR#L3977),
+[OUTMSG](../../legacy/utexas/DECWAR.FOR#L2599),
+[GETMSG failure path](../../legacy/utexas/WARMAC.MAC#L3036),
+[roster markers](../../legacy/utexas/DECWAR.FOR#L489),
+[adjacent marker/bit declarations](../../legacy/utexas/HISEG.FOR#L68).

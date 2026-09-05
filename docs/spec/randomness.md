@@ -136,7 +136,7 @@ the prior-misfire flag. A failed planet exclusion does not consume its `I(4)`.
 | Nova damage to a ship | Nine `R()` draws in device order; `I(1000)` for hit magnitude; `R()` for energy loss; `I(100)` for shield loss only if shields remain raised after device damage. Displacement itself adds no draw. |
 | Nova damage to a base | `I(1000)` for hit magnitude, then `I(100)` for shield loss. |
 | Nova damage to Romulan or planet | No direct random draw in NOVA; the commented Romulan-death test is inactive. |
-| Nova propagation | Visit adjacent cells in GAME-SNOVA order. The compound star-selection expression contains `I(5)` (RNG-5). This test precedes the pending-star capacity check. Victims and pending stars subsequently run in their specified stack order. |
+| Nova propagation | Visit adjacent cells in GAME-NOVA order. The compound star-selection expression contains `I(5)` (RNG-5). This test precedes the pending-star capacity check. Victims and pending stars subsequently run in their specified stack order. |
 | Placement | `I(75)` for V, then `I(75)` for H, repeated for every rejected placement attempt. |
 | Planet attack | The per-planet neutral-selection expression contains `I(2)` (RNG-5), before the friendly-planet skip. Any attack then consumes its nested phaser-damage draws. |
 | Romulan appearance | The appearance-delay expression contains `I(5)` (RNG-5); successful appearance then runs placement and consumes `I(200)` for initial energy. |
