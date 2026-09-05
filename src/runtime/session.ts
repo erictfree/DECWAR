@@ -11,6 +11,8 @@ export interface SessionTerminal{
   runtimeMilliseconds():bigint;
   write(bytes:Uint8Array):void;
   readonly disconnected:boolean;
+  // A source monitor binding can suppress negotiated keyboard echo.
+  echoAllowed?:()=>boolean;
 }
 export type SessionResult={reason:'completed'}|{reason:'failed';error:unknown}|{reason:'cancelled'};
 // A deliberate source MONRT/monitor exit is completion, not a host fault.

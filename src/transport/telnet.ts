@@ -3,6 +3,7 @@
 // claim about TOPS-10 negotiation or monitor echo.
 const IAC = 255, DONT = 254, DO = 253, WONT = 252, WILL = 251, SB = 250, SE = 240, IP = 244;
 const TIMING_MARK = 6;
+const ECHO = 1, SUPPRESS_GO_AHEAD = 3;
 export type TelnetResult = { data: Buffer; reply: Buffer; interrupts: number };
 
 export class TelnetCodec {
@@ -11,16 +12,31 @@ export class TelnetCodec {
   private afterCR = false;
   private refusedLocal = new Set<number>();
   private refusedRemote = new Set<number>();
+  private localOptions = new Map<number, 'offered' | 'enabled'>();
 
-  // Conservative codec: refuse options until the corresponding terminal policy
-  // is implemented. Repeated offers do not trigger a refusal loop.
+  private readonly keyboardLines: boolean;
+  constructor(keyboardLines = false) { this.keyboardLines = keyboardLines; }
+
+  // D-172: this host supplies character delivery and monitor-style echo.
+  // Standalone codecs retain literal NVT CR decoding; the game endpoint opts
+  // into translating a keyboard CR, CR-NUL or CR-LF to one application LF.
+  begin(): Buffer {
+    const offer:number[]=[];
+    for(const option of [SUPPRESS_GO_AHEAD,ECHO])if(!this.localOptions.has(option)){
+      this.localOptions.set(option,'offered');offer.push(IAC,WILL,option);
+    }
+    return Buffer.from(offer);
+  }
+  get echoEnabled(): boolean { return this.localOptions.get(ECHO)==='enabled'; }
+
+  // Unsupported options are refused without repeated-response loops.
   feed(input: Uint8Array): TelnetResult {
     const data: number[] = [], reply: number[] = [];
     let interrupts = 0;
     const applicationByte = (byte: number) => {
-      if (this.afterCR && byte === 0) { this.afterCR = false; return; }
+      if (this.afterCR && (byte === 0 || (this.keyboardLines && byte === 10))) { this.afterCR = false; return; }
       this.afterCR = byte === 13;
-      data.push(byte);
+      data.push(this.keyboardLines && byte === 13 ? 10 : byte);
     };
     for (const byte of input) {
       switch (this.state) {
@@ -36,6 +52,17 @@ export class TelnetCodec {
           else if (byte === IP) interrupts++;
           break;
         case 'option':
+          if ((byte===ECHO||byte===SUPPRESS_GO_AHEAD) && (this.verb===DO||this.verb===DONT)) {
+            const state=this.localOptions.get(byte);
+            if(this.verb===DO){
+              if(state===undefined)reply.push(IAC,WILL,byte);
+              this.localOptions.set(byte,'enabled');
+            }else{
+              if(state==='enabled')reply.push(IAC,WONT,byte);
+              this.localOptions.delete(byte);
+            }
+            this.state='data';break;
+          }
           // A client uses each DO TIMING-MARK to finish suppressing output
           // after IP. It is a fresh request, not a repeated option offer.
           // Refuse every request; caching this refusal freezes later ^Cs.

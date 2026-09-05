@@ -37,6 +37,7 @@ function composeLiveSession(terminal:SessionTerminal,mode:'initialize'|'full'='i
   const f=pregameRuntimeFixture([]),main=bindMainLoopRuntime(f),entry=bindEntryRuntime(f,main);
   for(let a=f.high.address('hfz');a<=f.high.address('hlz');a++)f.m.write(a,0n);
   f.high.write('tim0',-1n);f.editor.bytes.length=0;f.input.pointer=-1n;
+  terminal.echoAllowed=()=>f.editor.state.echflg>=0n;
   // WARMAC RESET:1137-1138 initializes TERWID before FORTRAN entry. It lies
   // beyond LLZ (LOWSEG.FOR:27-28), so entry's BLKSET must preserve it.
   f.low.write('terwid',80n);

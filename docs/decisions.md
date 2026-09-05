@@ -37,17 +37,12 @@ negotiation implementation. A streaming codec therefore separates Telnet IAC
 commands from application bytes, escapes outgoing IAC, preserves CRLF, handles
 CR NUL, and reports interrupt-process separately.
 
-Current scope: options are refused; subnegotiations are discarded without
-buffering arbitrary payloads; no login banner, user-authentication dialogue,
-terminal emulation, remote shell, or game service is invented. This prototype
-is tested across packet boundaries. It is not an accepted reproduction of the
-original monitor's Telnet policy. Echo, terminal type, dimensions, paging, and
-conversion of a client's Enter key remain to be implemented and documented.
-
-The codec preserves CR NUL as CR. The game editor ignores CR, so a client that
-only sends CR NUL will not yet submit a line. Do not silently convert every CR
-to LF: that would erase the distinction the application source makes. Resolve
-the monitor boundary before integrating a playable Telnet service.
+The initial adapter refused options and preserved CR-NUL as literal CR, which
+the source reader ignores. D-172 supersedes that game-endpoint policy with
+negotiated character delivery, echo and an explicit keyboard Enter binding.
+The standalone codec's default still preserves literal NVT CR. Unsupported
+subnegotiations are discarded without accumulating arbitrary payloads. The
+adapter is not a claim to reproduce the original monitor's whole Telnet policy.
 
 ## D-004 — Explicit suspension replaces blocking GTKN
 
@@ -4293,3 +4288,54 @@ Ctrl-C; caching the first refusal made later interrupts suppress all game output
 Other unsupported options retain bounded refusal handling. This is an observed
 modern transport correction, not recovered DECWAR protocol logic. See
 logs/ctrl-c-real-client-probe.log for the real-terminal reproduction.
+
+## D-172 — Character delivery and keyboard echo
+
+**Source behavior.** Austin WARMAC.MAC INLI./NXCH. (lines 1552–1615) handles
+ESC as a complete input event. First-character ESC repeats the retained line;
+later ESC terminates the new line. No additional Enter is required. The source
+line editor and command-repeat path are unchanged by this correction.
+
+**Problem.** The old transport refused SUPPRESS-GO-AHEAD and ECHO. In a real PTY
+check, the installed Homebrew Telnet client retained ESC locally until Enter;
+requesting character mode was also refused. A raw socket test already showed
+that the game repeated STATUS immediately upon receiving byte 27. The defect
+was the modern monitor boundary, not an absent game feature or a change in Telnet.
+
+**Binding.** The server now offers WILL SUPPRESS-GO-AHEAD and WILL ECHO. It echoes
+only after the client acknowledges ECHO, and only as keyboard characters are
+consumed, rather than echoing queued typeahead ahead of source prompts. Austin’s
+ECHOFF state suppresses that echo until the source enables it again, including
+the killed-player reentry input path. Ordinary
+characters and tabs are echoed; backspace/DEL erase one retained echoed character;
+LF echoes CR/LF. ESC is not printed as a caret sequence. Source handlers continue
+to perform repeat, line cancellation, redisplay and command interpretation.
+Declining ECHO leaves echo to the client. Unsupported options retain bounded
+refusal behavior, and each timing-mark request still receives its own reply.
+
+The game endpoint explicitly maps keyboard CR, CR-NUL and CR-LF to a single LF,
+including across TCP packet boundaries. LF is also accepted. Character-mode
+Telnet sends CR-NUL for Enter in the observed client; without this mapping the
+source reader would ignore Enter. The default standalone NVT codec continues
+to decode CR-NUL as literal CR. This is an explicit keyboard binding at the game
+endpoint, not a change to the source's distinction between CR and LF.
+
+**Limits.** These choices provide a modern character terminal, not a recovery
+of every TOPS-10 echo rule. Full-width wrapping, tab erasure, exceptional input
+lengths and raw-name editing remain terminal fidelity work. The game source
+continues to determine output; terminal type and width negotiation are not
+introduced by this change.
+
+**Verification.** The negotiated Austin socket test covers Enter as CR-NUL,
+standalone ESC twice, backspace, Ctrl-U, Ctrl-R, ETX/IP, shared messages and
+18-player admission. Transport tests cover fragmented negotiation and line endings,
+refusal loops and timing marks. The installed Telnet client was separately used
+against a disposable Austin galaxy: name/admission, STATUS, two bare ESC repeats,
+backspace, Ctrl-U, Ctrl-R, later ESC termination, BUILD cancellation with Ctrl-C,
+subsequent STATUS and ordinary QUIT all completed. This is a modern-port check,
+not a native PDP-10 differential transcript. Logs: logs/escape-character-mode-check-2.log,
+logs/escape-character-mode-typecheck-final.log, logs/escape-character-mode-final.log
+and logs/escape-real-client-check.json. The full audit/typecheck/4565-test suite
+passed before the final echo-suppression refinement; the final 31 focused tests
+and typecheck passed afterward.
+Existing live servers require a restart to adopt the new adapter.

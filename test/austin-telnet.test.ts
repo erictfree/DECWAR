@@ -19,19 +19,39 @@ test('Austin Telnet startup, interrupts, ship reuse and eighteen concurrent capt
   },()=>worlds.monitor.releaseJob(id));},onSessionEnd(id,result){worlds.monitor.releaseJob(id);ends.set(id,result);events.emit('end:'+id);}});
   t.after(()=>host.close());host.server.listen(0,'127.0.0.1');await once(host.server,'listening');const address=host.server.address();assert.ok(address&&typeof address!=='string');
   const port=address.port;
-  async function client(name:string,ship:string,fresh=false,team='FEDERATION'){
+  async function client(name:string,ship:string,fresh=false,team='FEDERATION',characterMode=false){
     const socket=connect(port,'127.0.0.1'),decoder=new TelnetCodec(),data=new EventEmitter();let text='',closed=false;
     t.after(()=>socket.destroy());socket.on('data',bytes=>{text+=decoder.feed(Buffer.from(bytes)).data.toString('latin1');data.emit('change');});socket.on('end',()=>{closed=true;data.emit('change');});
     async function until(pattern:string,start=0){while(!text.slice(start).includes(pattern)){if(closed)throw new Error('Connection ended before '+pattern+': '+text);await once(data,'change');}}
-    async function request(input:string,pattern:string){const start=text.length;socket.write(input+'\r\n');await until(pattern,start);}
+    async function request(input:string,pattern:string){const start=text.length;socket.write(input+(characterMode?'\r\0':'\r\n'));await until(pattern,start);}
     async function quit(){await request('QUIT','Do you really want to quit? ');const end=once(socket,'end');socket.write('YES\r\n');await end;}
-    await once(socket,'connect');await until('Your name please: ');assert.ok(text.startsWith('DECWAR, Edit     0\r\n'));
+    await once(socket,'connect');if(characterMode)socket.write(Buffer.from([255,253,3,255,253,1]));
+    await until('Your name please: ');assert.ok(text.startsWith('DECWAR, Edit     0\r\n'));
     await request(name,'line: ');await request('\r\n'+(fresh?'\r\nNO\r\nNO\r\n':'')+team+'\r\n'+ship,'> srscan 2 w');
     await until('\r\n> ',text.indexOf('> srscan 2 w')+1);await request('STATUS','Radio  On');
     return {socket,request,quit,until,text:()=>text};
   }
-  const first=await client('Alpha','YORKTOWN',true),second=await client('Beta','VULCAN');
+  const first=await client('Alpha','YORKTOWN',true,'FEDERATION',true),second=await client('Beta','VULCAN');
   assert.equal(runtimes.get(1)!.f.low.read('who'),9n);assert.equal(runtimes.get(2)!.f.low.read('who'),8n);
+  // WARMAC INLI.: a first ESC repeats the retained line immediately, without LF.
+  for(let repeat=0;repeat<2;repeat++){
+    const before=first.text().length;first.socket.write(Buffer.from([27]));
+    await first.until('Radio  On',before);
+    assert.equal(runtimes.get(1)!.f.input.rawLine,'STATUS');
+    assert.equal(runtimes.get(1)!.f.editor.state.rptflg,-1n);
+  }
+  const editing=first.text().length;
+  await first.request('STATUX\bS','Radio  On');
+  assert.ok(first.text().slice(editing).includes('STATUX\b \bS\r\n'));
+  await first.request('WRONG\x15STATUS','Radio  On');
+  assert.equal(runtimes.get(1)!.f.input.rawLine,'STATUS');
+  await first.request('STA\x12TUS','Radio  On');
+  assert.equal(runtimes.get(1)!.f.input.rawLine,'STATUS');
+  // Austin ECHOFF (e.g. killed-player reentry) suppresses negotiated echo.
+  const quiet=first.text().length;runtimes.get(1)!.f.editor.state.echflg=-1n;
+  await first.request('STATUS','Radio  On');
+  assert.equal(first.text().slice(quiet).includes('STATUS'),false);
+  assert.equal(runtimes.get(1)!.f.editor.state.echflg,0n);
   for(const control of [Buffer.from([3]),Buffer.from([255,244,255,253,6])]){
     await first.request('BUILD','Coordinates: ');const before=first.text().length;first.socket.write(control);await first.until('> ',before);await first.request('STATUS','Radio  On');
   }

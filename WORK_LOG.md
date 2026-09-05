@@ -1724,3 +1724,42 @@ port/tool attribution remain separate.
   spec-pure-semantics-review.log under logs/.
 - Specification goal remains active. Finite numeric domains, remaining behavioral
   edge cases, variant details and conformance coverage still require review.
+
+## 2026-09-05 — Restore immediate ESC delivery through Telnet
+
+- Investigated the reported ESC behavior against Austin WARMAC INLI./NXCH.
+  First-character ESC itself repeats the acquired line; no Enter is required.
+  Added an isolated Austin socket regression which passed before transport edits,
+  demonstrating that the game handler already worked when byte 27 arrived.
+- Reproduced the defect with the installed Homebrew Telnet client in a PTY:
+  the old adapter refused character-mode negotiation and the client retained ESC
+  until Enter. Corrected the explanation to distinguish this adapter limitation
+  from original behavior. An SGA-only experiment exposed changed Enter/echo
+  behavior; the final correction treats character delivery, echo and Enter
+  together. Existing running galaxies were untouched during these probes.
+- Added SUPPRESS-GO-AHEAD/ECHO offers and bounded negotiation. Echo occurs only
+  after acknowledgement and as input is consumed; source ECHOFF can suppress it.
+  Added an explicit keyboard endpoint mapping CR, CR-NUL and CRLF to one LF,
+  preserving the standalone codec's literal NVT default. The source editor,
+  repeat handler, gameplay rules and archives remain unchanged. D-172 records
+  the modern binding, tested behavior and remaining terminal fidelity limits.
+- Verified an actual Telnet session in a disposable Austin world: admission,
+  STATUS, two standalone ESC repeats without Enter, backspace, Ctrl-U, Ctrl-R,
+  later ESC termination, BUILD/Ctrl-C cancellation, continued STATUS and QUIT.
+  The probe was then shut down. Captured later actions and labeled earlier
+  observations are in logs/escape-real-client-check.json; this is not a native
+  PDP-10 transcript.
+- Validation: npm run check passed audit, typecheck and all 4565 tests. After
+  adding the source echo-suppression guard, all 31 focused transport/session tests
+  and typecheck passed. Relevant logs: escape-full-check.log,
+  escape-character-mode-final.log and escape-character-mode-typecheck-final.log.
+  Initial localhost sandbox denials and unsupported TypeScript parameter-property
+  syntax were resolved; failed logs were retained. No auto-review rejection.
+- User explicitly approved restarting Austin on 2324 despite its active player.
+  Verified the old process identity, stopped it gracefully, waited for its data
+  lock release and restarted with the same data/log settings. Verified character
+  and echo offers plus the original banner/name prompt without commissioning a
+  ship; the probe exited normally. logs/escape-restart-check.log and
+  logs/austin-live-host.log record this. Port 2323 was not restarted or changed.
+- Updated running/status guidance. Immediate ESC is now available on the restarted
+  Austin listener; the specification goal continues independently.

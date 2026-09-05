@@ -46,9 +46,9 @@ medium output, then runs TARGETS and SRSCAN 2 W.
 | Vulcan | Panther |
 | Yorktown | Wolf |
 
-The raw name reader does not echo characters in this host. Use a short, nonempty
-name and Enter from a client sending LF or CRLF. Historical name editing,
-empty-name and overflow behavior remains incompletely verified.
+The server offers character mode and server echo. Use a short, nonempty captain
+name; Enter may send CR, CR-NUL, CRLF or LF. Historical name editing, empty-name
+and overflow behavior remains incompletely verified.
 
 ## Playing
 
@@ -62,6 +62,14 @@ Useful commands include `STATUS`, `SCAN`, `USERS`, `BASES`, `PLANETS`,
 `POINTS`, `MOVE ABSOLUTE <vertical> <horizontal>`, `SHIELD DOWN`,
 `SHIELD UP`, and `TELL <ship>; <message>`. Original abbreviations and coordinate
 modes are retained; use explicit ABSOLUTE coordinates while learning the game.
+
+At an empty command prompt, ESC immediately repeats the previous acquired line;
+no Enter is required. ESC after other input ends that new line instead.
+Interactive answers can become the retained line, and TELL rejects repeated
+input. Character delivery, Enter, backspace, Ctrl-U, Ctrl-R and standalone ESC
+were checked with the installed Homebrew Telnet client. Clients that refuse
+character mode can still buffer input locally. See the [terminal binding
+decision](decisions.md#d-172--character-delivery-and-keyboard-echo).
 
 `SCAN` (or `SC`) defaults to ten sectors in each direction; `SRSCAN` defaults
 to seven, clipped at galaxy edges. RESET starts with an 80-column terminal width.

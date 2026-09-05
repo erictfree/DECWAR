@@ -17,7 +17,7 @@ identify the repairs enabled for ordinary play.
 | CompuServe | 10 player ships, 5 per side, 60 initial planets; experience selection and persistent standings retained. |
 | Gameplay | Command parsing/abbreviations, scans and reports, movement, phasers/torpedoes, shields, repair, energy, tractor beams, radio/messages, capture, construction, docking and scoring are connected to the session runtime. |
 | Multiplayer lifecycle | Shared galaxies, full-galaxy rollover, normal quit, death, disconnect cleanup, ship reuse and game-over. |
-| Terminal | Streaming Telnet adapter, source application output, raw Ctrl-C and Telnet IP handling. See the documented client/echo limitations below. |
+| Terminal | Streaming Telnet adapter, negotiated character delivery and echo, immediate ESC repeat, source application output, raw Ctrl-C and Telnet IP handling. See terminal fidelity limits below. |
 | Storage | Separate default directories and variant/format markers; CompuServe word-file statistics and GRIPE persistence. Live galaxies are not saved across host restart. |
 | Source evidence | Both supplied archives, independent generated variant data, and a pinned native Austin reference build are preserved. |
 
@@ -65,8 +65,9 @@ comparison between the native game and the port.
   LIST's uninitialized word and pending control flow use documented policies.
   Diagnostic mode can stop before cleanup or leave a reserved ship.
 - **Terminal fidelity:** the source defines TTY calls, not a complete Telnet wire
-  policy. Echo negotiation, raw-name editing and all malformed/partial-input
-  paths are not exhaustively verified. Clients should send LF or CRLF for Enter.
+  policy. Character delivery and echo are explicit modern monitor bindings;
+  raw-name editing and all malformed/partial-input paths are not exhaustively
+  verified. CR, CR-NUL, CRLF and LF keyboard Enter forms are supported.
 - **Concurrency:** tests are bounded. Long-duration load, adversarial lock
   contention and interrupt delivery at every possible instruction are unverified.
 - **Host bindings:** scheduling, clocks, monitor resources, persistence and some

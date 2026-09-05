@@ -15,13 +15,34 @@ export function createTelnetServer(options:TelnetServerOptions):{server:Server;c
   let nextId=1;
   const sessions=new Map<number,GameSession>(),sockets=new Set<Socket>();
   const server=createServer({allowHalfOpen:true},socket=>{
-    const id=nextId++,decoder=new TelnetCodec(),encoder=new TelnetEncoder();
+    const id=nextId++,decoder=new TelnetCodec(true),encoder=new TelnetEncoder();
     sockets.add(socket);socket.setNoDelay(true);
+    socket.write(decoder.begin());
+    const write=(bytes:Uint8Array)=>{
+      const data=encoder.encode(bytes);if(data.length&&!socket.destroyed)socket.write(data);
+    };
     let session:GameSession;
     try{
-      session=new GameSession(terminal=>options.createSession(terminal,{id,remoteAddress:socket.remoteAddress}),bytes=>{
-        const data=encoder.encode(bytes);if(data.length&&!socket.destroyed)socket.write(data);
-      });
+      session=new GameSession(terminal=>{
+        // Echo consumed keyboard input, not queued typeahead. Source INLI still
+        // owns line editing, ESC repeat, redisplay and all command semantics.
+        const read=terminal.read;let characters=0;
+        terminal.read=function*(){
+          const byte=yield*read();
+          if(byte!==null&&decoder.echoEnabled&&(terminal.echoAllowed?.()??true)){
+            if(byte>=32&&byte<127){write(Uint8Array.of(byte));characters++;}
+            else if(byte===9){write(Uint8Array.of(byte));characters++;}
+            else if(byte===8||byte===127){if(characters>0){write(Buffer.from('\b \b'));characters--;}}
+            else if(byte===10){write(Buffer.from('\r\n'));characters=0;}
+            else if(byte===11||byte===12){write(Uint8Array.of(byte));characters=0;}
+            else if(byte===0||byte===21||byte===26||byte===27)characters=0;
+          }
+          return byte;
+        };
+        const clear=terminal.clearInput;
+        terminal.clearInput=()=>{characters=0;clear();};
+        return options.createSession(terminal,{id,remoteAddress:socket.remoteAddress});
+      },write);
     }catch(error){options.onSessionEnd?.(id,{reason:'failed',error});socket.destroy();sockets.delete(socket);return;}
     sessions.set(id,session);
     socket.on('data',bytes=>{
