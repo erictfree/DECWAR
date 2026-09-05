@@ -1345,3 +1345,13 @@ The subsequent staged check passes. All 17 reference artifact manifest hashes
 were verified; both original source archives remain unstaged and unchanged.
 Checkpoint commit: "Add Austin-default DECWAR variant and preserve reference evidence".
 This turn creates a local commit on main; no push is included.
+
+## Port and source attribution
+
+Added the user's requested attribution prominently in README.md and in the
+legacy source overview: Eric Freeman created the TypeScript port working with
+OpenAI GPT-6 Astra, based on Noah Smith's UT Austin DECWAR reconstruction and
+sources preserved on a legacy CompuServe tape. This credit follows the provenance
+provided by the user; original archive notices and license terms are unchanged.
+Documentation-only edit; checked the diff and whitespace before committing and
+pushing under the user's instruction to publish ready changes to main.

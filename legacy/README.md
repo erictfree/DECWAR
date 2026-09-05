@@ -1,5 +1,10 @@
 # Legacy DECWAR sources
 
+Eric Freeman created the TypeScript port working with OpenAI GPT-6 Astra,
+using Noah Smith's reconstruction of the UT Austin DECWAR codebase and sources
+preserved on a legacy CompuServe tape. The archives below retain their original
+attribution and license notices.
+
 ## Compuserve
 
 `compuserve/fortran 1978/` contains the 135-file archive originally supplied in

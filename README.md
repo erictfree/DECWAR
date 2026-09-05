@@ -14,6 +14,12 @@ behavior of its supplied source code: the command language, terminal output,
 game rules, and the arithmetic and memory conventions that made it work on a
 PDP-10.
 
+This TypeScript port was created by **Eric Freeman**, working with
+**OpenAI GPT-6 Astra**. It is based on **Noah Smith's reconstruction of the
+UT Austin DECWAR codebase** and DECWAR sources preserved on a **legacy
+CompuServe tape**. See [source provenance](legacy/README.md) for the archived
+codebases and their attribution.
+
 **Status: playable alpha.** Multiplayer combat, movement, messaging, planet
 capture and construction, docking, scoring and session cleanup are connected.
 Exact historical parity remains a work in progress. The default playable profile
