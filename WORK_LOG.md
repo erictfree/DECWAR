@@ -982,3 +982,21 @@ Import verification: logs/legacy-import-verification.log. Source-index
 regeneration: logs/legacy-relocation-audit.log. Full archive/generated audit,
 strict TypeScript and all 4,536 tests pass in logs/legacy-layout-full-check.log
 (35.9 seconds). Git recognizes all 135 baseline files as unchanged renames.
+
+## MIT permission for original project contributions
+
+User requested MIT licensing for our work based on the imported MIT snapshot.
+Verified the existing provenance: the current port was developed from the
+Compuserve archive carrying GPL-3.0-or-later notices; the separate UT Austin
+snapshot has an upstream MIT license but has not replaced that baseline.
+Consulted FSF license compatibility guidance, not external DECWAR game logic.
+
+Added LICENSE-MIT granting MIT permission for original project contributions
+to the extent the contributors control those rights. Added LICENSING.md and
+updated NOTICE/README to make the scope explicit. Retained the original root
+GPL license, package GPL-3.0-or-later metadata, and all legacy source notices.
+This is not an MIT-only relicensing of the combined port or a determination that
+every derived TypeScript file can be reused under MIT alone. A broader change
+requires establishing the underlying rights/provenance first. No code changed.
+Source/generated-data audit passes in logs/mit-contributions-audit.log. License
+and documentation changes only; the previously passing game suite was not rerun.

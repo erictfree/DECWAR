@@ -462,3 +462,8 @@ and assembly section. It is a navigation aid, not a completed semantic audit.
 The supplied source carries GPL-3.0-or-later notices. See
 [the supplied license](legacy/compuserve/fortran%201978/COPYING). The port retains that
 license and preserves the archive unchanged.
+
+Our original contributions are additionally offered under [MIT](LICENSE-MIT),
+within the scope explained in [Licensing](LICENSING.md). The current combined
+port remains GPL-3.0-or-later; the separately imported UT Austin snapshot retains
+its upstream MIT license.

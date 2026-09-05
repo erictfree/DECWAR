@@ -12,6 +12,11 @@ This port is distributed under GPL version 3 or, at your option, any later
 version, consistent with the supplied source. See LICENSE and the original
 COPYING file.
 
+Original project contributions are additionally offered under the MIT license
+in LICENSE-MIT, only to the extent their copyright holders control those rights.
+This does not relicense third-party or GPL-derived material. See LICENSING.md
+for the scope of that grant and the current combined distribution's GPL terms.
+
 The separately imported legacy/utexas snapshot comes from decwarorg/utexas,
 commit f78f2ec733999617e4281ba3ed967bff8cd5d8f8, directory
 utexas23-reconstruction. Its upstream MIT license and copyright notice are
