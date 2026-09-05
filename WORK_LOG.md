@@ -1355,3 +1355,7 @@ sources preserved on a legacy CompuServe tape. This credit follows the provenanc
 provided by the user; original archive notices and license terms are unchanged.
 Documentation-only edit; checked the diff and whitespace before committing and
 pushing under the user's instruction to publish ready changes to main.
+
+Added the user-provided https://decwar.org link beside the README attribution
+for readers interested in the overall DECWAR effort. Documentation-only update;
+no external implementation research or game changes. Whitespace check passed.

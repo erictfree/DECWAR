@@ -20,6 +20,8 @@ UT Austin DECWAR codebase** and DECWAR sources preserved on a **legacy
 CompuServe tape**. See [source provenance](legacy/README.md) for the archived
 codebases and their attribution.
 
+For more on the overall DECWAR effort, visit [decwar.org](https://decwar.org).
+
 **Status: playable alpha.** Multiplayer combat, movement, messaging, planet
 capture and construction, docking, scoring and session cleanup are connected.
 Exact historical parity remains a work in progress. The default playable profile
