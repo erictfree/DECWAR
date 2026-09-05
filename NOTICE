@@ -6,8 +6,13 @@ Copyright 1979, 2011 Bob Hysick, Jeff Potter, The University of Texas
 Computation Center and Harris Newman.
 
 The archive also records modifications by DrForbin / Merlyn Cousins.
-Original files and notices remain under old_source/fortran 1978.
+Original files and notices remain under legacy/compuserve/fortran 1978.
 
 This port is distributed under GPL version 3 or, at your option, any later
 version, consistent with the supplied source. See LICENSE and the original
 COPYING file.
+
+The separately imported legacy/utexas snapshot comes from decwarorg/utexas,
+commit f78f2ec733999617e4281ba3ed967bff8cd5d8f8, directory
+utexas23-reconstruction. Its upstream MIT license and copyright notice are
+preserved in legacy/utexas-LICENSE. See legacy/README.md for provenance.

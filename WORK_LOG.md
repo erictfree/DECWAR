@@ -955,3 +955,30 @@ audit passes (logs/github-initial-audit.log); latest complete verification remai
 Created the public repository at https://github.com/erictfree/DECWAR and linked
 it as origin. The initial main-branch publication contains 698 files, including
 all 135 byte-preserved archive files.
+
+## Legacy source layout and UT Austin import
+
+User requested moving old_source to legacy/compuserve and importing the contents
+of decwarorg/utexas's utexas23-reconstruction into legacy/utexas. Kept the original
+fortran 1978 subdirectory inside compuserve. All 135 original files still match
+their pre-move hashes; regenerated only the source index's links, with no changes
+to generated TypeScript data or the original source manifest.
+
+Imported 39 upstream files at commit f78f2ec733999617e4281ba3ed967bff8cd5d8f8.
+Verified every byte against upstream Git blob hashes and recorded paths, sizes,
+modes, SHA-256 and Git blob hashes in legacy/utexas-manifest.json. Retained the
+upstream repository MIT license as legacy/utexas-LICENSE and documented provenance
+in legacy/README.md. No upstream build scripts were executed. The port continues
+using compuserve; no UT Austin game behavior has been merged into it.
+
+Updated tools/source.ts, tools/audit.ts, source-reading tests, README, NOTICE,
+AGENTS.md and documentation references. AGENTS explicitly records the user's
+authorization for this import. Kept an ignored local old_source symlink because
+the currently running server cached the old path for HELP/NEWS and source reads.
+It points to legacy/compuserve and is not part of the repository; it can be removed
+after the next server restart. No active game was interrupted.
+
+Import verification: logs/legacy-import-verification.log. Source-index
+regeneration: logs/legacy-relocation-audit.log. Full archive/generated audit,
+strict TypeScript and all 4,536 tests pass in logs/legacy-layout-full-check.log
+(35.9 seconds). Git recognizes all 135 baseline files as unchanged renames.

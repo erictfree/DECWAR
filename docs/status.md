@@ -22,6 +22,11 @@ output. Raw ETX also invokes the source interrupt handler. Verified with isolate
 network regressions and the installed Telnet client; full check:
 logs/build-interrupt-full-check.log. Existing server processes require restart.
 
+Legacy sources now live under `legacy/`: the original archive is in
+`compuserve/fortran 1978`, and the user-requested UT Austin reconstruction is
+in `utexas` with a pinned commit, file manifest and upstream license. The port
+and source audit still use the Compuserve baseline.
+
 ## Evidence levels
 
 - **Inventoried:** file hash, routine/section locations, or extracted tables.
@@ -331,7 +336,7 @@ End-to-end fresh-game QUIT exposes final POINTS entering an uninitialized DO
 continuation and dividing by zero ship/turn counts. Tests preserve these cases;
 no invented zero averages or suppressed runtime diagnostics were added.
 The user authorized CPU/compiler manuals only to resolve these platform
-semantics. DECWAR logic remains sourced exclusively from old_source.
+semantics. DECWAR logic remains sourced exclusively from legacy/compuserve.
 
 
 ## D-148–D-149: documented machine arithmetic and DO policy

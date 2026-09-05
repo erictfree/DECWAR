@@ -1,8 +1,10 @@
 # DECWAR: source-faithful TypeScript port
 
 This project is porting the supplied PDP-10 FORTRAN/MACRO-10 implementation in
-`old_source/fortran 1978`. That archive is the only source of DECWAR behavior.
-No outside implementations, descriptions, or game rules have been consulted.
+`legacy/compuserve/fortran 1978`. That archive defines the current port's DECWAR behavior.
+The separately requested UT Austin reconstruction is preserved in `legacy/utexas`;
+its provenance and license are documented in [legacy sources](legacy/README.md).
+That import has not changed the port's game logic.
 The user authorized CPU/compiler manuals on September 5, 2026, solely to
 resolve platform behavior; those references do not define DECWAR game logic.
 
@@ -458,5 +460,5 @@ The [source index](docs/source-index.md) maps every file, FORTRAN routine/entry,
 and assembly section. It is a navigation aid, not a completed semantic audit.
 
 The supplied source carries GPL-3.0-or-later notices. See
-[the supplied license](old_source/fortran%201978/COPYING). The port retains that
+[the supplied license](legacy/compuserve/fortran%201978/COPYING). The port retains that
 license and preserves the archive unchanged.

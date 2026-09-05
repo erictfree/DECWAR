@@ -1,0 +1,281 @@
+{
+  "repository": "https://github.com/decwarorg/utexas",
+  "commit": "f78f2ec733999617e4281ba3ed967bff8cd5d8f8",
+  "upstreamDirectory": "utexas23-reconstruction",
+  "localDirectory": "legacy/utexas",
+  "files": [
+    {
+      "file": "DECWAR.COM",
+      "bytes": 6787,
+      "sha256": "2af7d81ad4b468c876caf5f9eecccd0c7b236a3e66979a7340ac12fc2e522626",
+      "gitBlob": "854270686ec160994a1916d05eb08594609a36a2",
+      "mode": "100644"
+    },
+    {
+      "file": "DECWAR.FOR",
+      "bytes": 167127,
+      "sha256": "51edd574f41fc33e7e2ab3b26b69737c73c83f294f3835fbdaa579a82989fafb",
+      "gitBlob": "adbe16258dc90d5d4ac0fd4675690b29155833f7",
+      "mode": "100644"
+    },
+    {
+      "file": "DECWAR.TAP",
+      "bytes": 1256,
+      "sha256": "2d5e477639a073b5dcc14c679dddc99ac314164306d3342eedb2ed70bdc84707",
+      "gitBlob": "77c6d151687ec8d7827e5afc3933cd0fbbb27a9a",
+      "mode": "100644"
+    },
+    {
+      "file": "EXTERN.FOR",
+      "bytes": 14009,
+      "sha256": "9f6a1cdc2869af29fa2d6e8d4b17cbd4426277f2d65d066882f55d07851cfe6a",
+      "gitBlob": "bb226529a452f02228cd17fd47f615bd250786ee",
+      "mode": "100644"
+    },
+    {
+      "file": "HIGH.FOR",
+      "bytes": 130,
+      "sha256": "42c117bacbb7064073d43f268592b4c6dfe23f54c974b98d849b5ea29e1e7ed2",
+      "gitBlob": "bd1419b1bdb3c0b1d8540eaf32c74985a1af08db",
+      "mode": "100644"
+    },
+    {
+      "file": "HISEG.FOR",
+      "bytes": 3447,
+      "sha256": "5727cd57ce15c0b62fb945e50c1bd648beda1a7e461e8b1e997f11f43f51f036",
+      "gitBlob": "da61aa8d5bdd2d7622246804eed0429d1e932ddd",
+      "mode": "100644"
+    },
+    {
+      "file": "HLP/DECNWS.RNO",
+      "bytes": 6825,
+      "sha256": "5eb1ab2a43fc2ea4a51768f3c98a2dda094868625acb8eae537fa94ede27d601",
+      "gitBlob": "bd7945d55030fd8680352e0ce8427b59d376338e",
+      "mode": "100644"
+    },
+    {
+      "file": "HLP/DECWAR.GRP",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gitBlob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "mode": "100644"
+    },
+    {
+      "file": "HLP/DECWAR.HLP",
+      "bytes": 54390,
+      "sha256": "fc45711a53edb99c46eea6e56ace296c69096867f196af056339eab9edd47955",
+      "gitBlob": "c2a8c274ff831a141ae2fa64c2124c240a72f5e9",
+      "mode": "100644"
+    },
+    {
+      "file": "HLP/DECWAR.IMP",
+      "bytes": 2693,
+      "sha256": "e7f28d1bb396207e3e30611750b9d78d3a3ff2f4f2c1ad5daf55566b9a83f022",
+      "gitBlob": "8c3dd6ce51dc98b949f050533d1c3cef1642c2de",
+      "mode": "100644"
+    },
+    {
+      "file": "HLP/DECWAR.LTR",
+      "bytes": 1547,
+      "sha256": "17cf05799c9776211a5b7758e477c7a539be6b401bf8c967274c9fd682b8cb1a",
+      "gitBlob": "268e0844588bd7c032769ecf4438c7c1d8157408",
+      "mode": "100644"
+    },
+    {
+      "file": "HLP/DECWAR.NWS",
+      "bytes": 370,
+      "sha256": "7793d90b75e56490d99d0e44275b4b818716eb87df74739af16f961da0996238",
+      "gitBlob": "0ea3634696eccdd735e8cce941ec1fac3888b24c",
+      "mode": "100644"
+    },
+    {
+      "file": "HLP/DECWAR.RNH",
+      "bytes": 51066,
+      "sha256": "53c3d8b66898206ccc912ee10b74344c76116d736886310f0a6f5ce801f2c804",
+      "gitBlob": "ef533d2d9426eafeda784ad6408958c10af6ae05",
+      "mode": "100644"
+    },
+    {
+      "file": "HLP/DEFINE.HLP",
+      "bytes": 608,
+      "sha256": "024ffcee9dfc31f76c669513d38ea368b6dc8161d1163d88bebd9b5b16277c39",
+      "gitBlob": "a49000367f840e0b5bfed0561086a9987912b5a1",
+      "mode": "100644"
+    },
+    {
+      "file": "HLP/HLP.COM",
+      "bytes": 1072,
+      "sha256": "d197663c97114013ed2b1de5785ed3be68b82d582b347bf254409b9a1b509eb8",
+      "gitBlob": "eb1faac96ae30fed00531895ef7dd363a407f524",
+      "mode": "100644"
+    },
+    {
+      "file": "HLP/MAKHLP.MIC",
+      "bytes": 95,
+      "sha256": "8c86d859304811b11cad661d51a5aaafb514b35a4a8de2d1a2f1d349af87be23",
+      "gitBlob": "e8572303adb68d5d954b40f47af89ec0893c9aac",
+      "mode": "100644"
+    },
+    {
+      "file": "HLP/MAKNWS.MIC",
+      "bytes": 41,
+      "sha256": "d673293f352fbd903964ac0add265ca1d12b306acda29447c025de2d973097ba",
+      "gitBlob": "314dd8058fe088a2dd0b5bb812af6cbe10aa93cc",
+      "mode": "100644"
+    },
+    {
+      "file": "L.MIC",
+      "bytes": 1264,
+      "sha256": "fbe33096ebe785c9ac69adfe14cf8389cb02232ee7997ad860f5063186a8f6fc",
+      "gitBlob": "10e400cbafe848239a222fda2a5a8c88197178d9",
+      "mode": "100644"
+    },
+    {
+      "file": "LOW.FOR",
+      "bytes": 89,
+      "sha256": "b6b99ee2afc2e6047574fca4cb174c8d5e4d5ec1bed8cbdcde326b1d85b3d062",
+      "gitBlob": "7edd8817a5eefdb8712f28b6cfe4a129c46b170a",
+      "mode": "100644"
+    },
+    {
+      "file": "LOWSEG.FOR",
+      "bytes": 3038,
+      "sha256": "80aad69aa6c887d20892313e389aa1ced3ba79b7be7e617d18341feba6e737ef",
+      "gitBlob": "e844029f7d8950f0bbe773d7827b870b48143848",
+      "mode": "100644"
+    },
+    {
+      "file": "LSTVAR.FOR",
+      "bytes": 1866,
+      "sha256": "8b43d0ef4438ebda4735bfc54e1fa07909f3c6c4d359a759dde769bb30e84d92",
+      "gitBlob": "201991a3b0690e4faef8072716eeb8e425b74e59",
+      "mode": "100644"
+    },
+    {
+      "file": "MSC/DEFINE.FOR",
+      "bytes": 2472,
+      "sha256": "b2d5c4cf558775426019f6348ef5ba3e9f0f89ef9d9bfc51102fca4ade65d0a8",
+      "gitBlob": "d3b9db85ae484b5fa50d07a10f925f1684fc4d52",
+      "mode": "100644"
+    },
+    {
+      "file": "MSC/MSC.COM",
+      "bytes": 593,
+      "sha256": "9ee46798d56b564b7c0bd495994b62488ca31bb74dbb09cc8d522de2fd4ed525",
+      "gitBlob": "eb56c0ac9cd973ccd1866cb3dcdd12f71ebb70a1",
+      "mode": "100644"
+    },
+    {
+      "file": "MSC/OUTHDB.FOR",
+      "bytes": 1879,
+      "sha256": "a6ca12ab3a4184380bc0b0c229ab92d5e9a46932dbfa3b895d567af6a34362a8",
+      "gitBlob": "684ac39f64f228ddf3714d92c9662c51c98c75bc",
+      "mode": "100644"
+    },
+    {
+      "file": "MSC/TTY.MAC",
+      "bytes": 2687,
+      "sha256": "f647384713f8ba158d70591133324be69d2187458d20c940a60c75165f8510fa",
+      "gitBlob": "0010730eed0c21ecc6eb7354aaee81a500f22774",
+      "mode": "100644"
+    },
+    {
+      "file": "MSG.MAC",
+      "bytes": 12945,
+      "sha256": "57ab0f5e6288c66134173de68ba642f6370659faee4aaf543acb5bd801dfd9f1",
+      "gitBlob": "6709757cf4818688612ec63b293c1007ab00b3ef",
+      "mode": "100644"
+    },
+    {
+      "file": "PARAM.FOR",
+      "bytes": 5913,
+      "sha256": "12bdfdcad236f488d414dc38c98ec760921398d1ad6ea47eac42912bd9b0a1af",
+      "gitBlob": "116002c05f67fa2c97fa437e029dd2add2553b36",
+      "mode": "100644"
+    },
+    {
+      "file": "SETEXT.FOR",
+      "bytes": 1501,
+      "sha256": "105688e450b227355263c8faeea3b83b8048ac22f99635c8e7e30b00b2459f92",
+      "gitBlob": "9c41e2ac9123edf24ce508a05aac3a9be607a352",
+      "mode": "100644"
+    },
+    {
+      "file": "SETMSG.MAC",
+      "bytes": 1318,
+      "sha256": "f73619bfa2ebb527b65a85e9f76b06ab8184a0d50e259d863678b2064e86e090",
+      "gitBlob": "7748bbb63495ea1e0be4c14e04b69dc508b847d7",
+      "mode": "100644"
+    },
+    {
+      "file": "SETUP.FOR",
+      "bytes": 14934,
+      "sha256": "c0516c28c7ec6c71704f28df423b12777c90b0ffd8b111accd65a9674131ad6a",
+      "gitBlob": "40a4a310439ee957ddd40e471cdab58c29248b0c",
+      "mode": "100644"
+    },
+    {
+      "file": "TEC/EXTERN.TEC",
+      "bytes": 232,
+      "sha256": "b9305cdf43ec3cbb68386e4c3fd94fe71dda90d562a71f198e386e85ab65ed55",
+      "gitBlob": "f600273fcbbf88519bf2858c8025decc53e9de09",
+      "mode": "100644"
+    },
+    {
+      "file": "TEC/HISEG.TEC",
+      "bytes": 493,
+      "sha256": "10e8f7d4bc8f8d897d5db7d2119f3b707f1c101b0b5a30546859d2a9cfcbb70c",
+      "gitBlob": "3053ded85f86e2d0d44382db029118ecf942cf2d",
+      "mode": "100644"
+    },
+    {
+      "file": "TEC/LOWSEG.TEC",
+      "bytes": 478,
+      "sha256": "9c51553e0e055246cc9a40d584fd50541bcef6fe449302cae20d440e2018a6e9",
+      "gitBlob": "a8549b73c9e162da46467bfa05d8760f3fb9a25a",
+      "mode": "100644"
+    },
+    {
+      "file": "TEC/NDX.TEC",
+      "bytes": 331,
+      "sha256": "23e1a7cf2156d8eb8e4b6a58da0334bdfa7a5cc6907326e6b5501ff90b70b245",
+      "gitBlob": "755f8b39baaa120c5975deb02feed404dc80353b",
+      "mode": "100644"
+    },
+    {
+      "file": "TEC/PAGE.TEC",
+      "bytes": 347,
+      "sha256": "6ddb8b257607f7464ae91e6ebf3779f62633b91510c55dadef77c9ec3cf22904",
+      "gitBlob": "1dbe38100142b208ff1b9934d1c3e002bdc2f9af",
+      "mode": "100644"
+    },
+    {
+      "file": "TEC/PARAM.TEC",
+      "bytes": 491,
+      "sha256": "7da8c191a31e6b1f7618a2d3a9a15897cbdd8c4172ff5b274610d3a78449415b",
+      "gitBlob": "d5fc9a430b29df38f17a74c8d2eaabd46f7653b0",
+      "mode": "100644"
+    },
+    {
+      "file": "TEC/SETEXT.TEC",
+      "bytes": 235,
+      "sha256": "2ac7ac4260c01463a26ab745e4fae2702a4d4224a166f1a979c8222ab0a71f73",
+      "gitBlob": "3a9c63b61e98ff5335bf7e55897647694aa76d3c",
+      "mode": "100644"
+    },
+    {
+      "file": "TEC/TECSAV.INF",
+      "bytes": 69,
+      "sha256": "96e03d17b7c050b5baca68f1abde1b99c1463a16c4f02ce25db29c612688e422",
+      "gitBlob": "1a155d5a1c3ce7539f3facc940fffce78c5305f0",
+      "mode": "100644"
+    },
+    {
+      "file": "WARMAC.MAC",
+      "bytes": 135242,
+      "sha256": "d916fed061d92e12036a0458e138ae99ed2c2f78cc68ad9a82d6016934b31598",
+      "gitBlob": "b2a8505f9e62e69ffb6399f0905c7dcf98d3b340",
+      "mode": "100644"
+    }
+  ]
+}

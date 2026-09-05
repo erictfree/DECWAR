@@ -6,15 +6,21 @@ documented, narrow repairs in a playable profile; retain the historical
 diagnostic profile for fidelity work. Do not block playable completion on
 missing compiler artifacts or describe the playable profile as exact parity.
 
-Use only the supplied `old_source` archive as evidence about DECWAR. Do not
+Use only the supplied `legacy/compuserve` archive as evidence about DECWAR. Do not
 browse for implementations, game rules, historical descriptions, or transcripts.
 Keep the archive byte-for-byte unchanged. Run `npm run audit:check` to verify it.
+
+The user explicitly authorized importing decwarorg/utexas's
+utexas23-reconstruction directory into legacy/utexas on 2026-09-05. Preserve
+that snapshot and its provenance in legacy/README.md and legacy/utexas-manifest.json.
+This import does not switch the running port's baseline to UT Austin or authorize
+merging its game behavior without a subsequent instruction.
 
 On 2026-09-05 the user authorized CPU/compiler manuals solely to resolve
 PDP-10 arithmetic and FORTRAN runtime/compiler behavior. This does not authorize
 external DECWAR implementations, game rules or transcripts. Record manual
 edition, pages, applicability and unresolved version differences in
-docs/platform-manuals.md; old_source remains the only game-logic authority.
+docs/platform-manuals.md; legacy/compuserve remains the only game-logic authority.
 
 The baseline is the supplied, modified distribution, selected by DECCMP.CMD and
 CAN1.CMD. The directory name is not a version claim. Do not silently restore

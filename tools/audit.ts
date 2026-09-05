@@ -117,7 +117,7 @@ artifact('src/generated/source-data.ts', '// Generated from the local archive by
 const totalLines = inventory.reduce((sum, file) => sum + file.lines, 0);
 artifact('docs/source-index.md', `# Local source index\n\nGenerated from ${files.length} files (${totalLines.toLocaleString('en-US')} lines). This is a navigational inventory, not a claim of semantic review.\n\n` +
   `Baseline build: DECCMP.CMD / CAN1.CMD. Only files marked **yes** are direct compile units. Includes still contribute to the executable. Direct CALL lists are lexical aids: they exclude function references, do not resolve ENTRY control flow, and do not evaluate conditional compilation.\n\n` +
-  '| File | Lines | Compile unit |\n|---|---:|---|\n' + inventory.map(file => `| [${file.file}](../old_source/fortran%201978/${file.file}) | ${file.lines} | ${file.compiled ? '**yes**' : ''} |`).join('\n') +
+  '| File | Lines | Compile unit |\n|---|---:|---|\n' + inventory.map(file => `| [${file.file}](../legacy/compuserve/fortran%201978/${file.file}) | ${file.lines} | ${file.compiled ? '**yes**' : ''} |`).join('\n') +
   '\n\n## FORTRAN routines and entries\n\n| Routine | Source | Kind | Direct CALL mentions following declaration |\n|---|---|---|---|\n' +
   routines.map(r => `| ${r.name} | ${r.file}:${r.line} | ${r.kind} | ${r.calls.join(', ')} |`).join('\n') +
   '\n\n## Assembly sections\n\n' + inventory.filter(file => file.sections.length).map(file => `### ${file.file}\n\n` + file.sections.map(section => `- Line ${section.line}: ${section.title}`).join('\n')).join('\n\n') + '\n');

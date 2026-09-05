@@ -5,3 +5,5 @@ coverage/
 *.log
 tmp/pdfs/
 data/
+# Local compatibility link for a server started before the archive relocation.
+/old_source

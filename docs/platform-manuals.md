@@ -2,7 +2,7 @@
 
 The user authorized **CPU/compiler manuals only** on 2026-09-05. All DECWAR
 rules, source control flow, random sequences and output still come exclusively
-from `old_source`. These manuals explain the platform beneath that code.
+from `legacy/compuserve`. These manuals explain the platform beneath that code.
 
 The supplied `DECWAR.MAP:1-3` identifies a `/KI` executable linked on
 19-May-1982; routine entries identify FORTRAN `/KI`. It does not identify the

@@ -1,6 +1,6 @@
 # Compatibility findings and unresolved dependencies
 
-All evidence is local to `old_source/fortran 1978`. "Preserved" below means
+All evidence is local to `legacy/compuserve/fortran 1978`. "Preserved" below means
 implemented in a focused module and tested from source-derived expectations;
 it does not mean compared against a running PDP-10 executable.
 

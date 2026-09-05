@@ -22,7 +22,7 @@ test('archive data: command order, original spellings, roster and banner', () =>
   assert.equal(messages.decver.text, '[DECWAR Version 2.3, 20-Nov-81]');
   assert.equal(messages.sure00.text, '\r\nDo you really want to quit? ');
   for (const message of Object.values(messages)) {
-    const source = readFileSync(new URL('../old_source/fortran 1978/' + message.file, import.meta.url), 'latin1');
+    const source = readFileSync(new URL('../legacy/compuserve/fortran 1978/' + message.file, import.meta.url), 'latin1');
     assert.ok(source.includes(message.text));
     assert.doesNotMatch(message.text, /(?<!\r)\n/);
   }

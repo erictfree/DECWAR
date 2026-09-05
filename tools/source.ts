@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
-export const sourceRoot = fileURLToPath(new URL('../old_source/fortran 1978/', import.meta.url));
+export const sourceRoot = fileURLToPath(new URL('../legacy/compuserve/fortran 1978/', import.meta.url));
 export function sourceFile(name: string): string { return readFileSync(sourceRoot + name, 'latin1'); }
 export type Statement = { line: number; text: string };
 
