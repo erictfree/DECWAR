@@ -3976,3 +3976,18 @@ logs/spec-movement-responses-build.log and final -build-2.log after quote notati
 Inspected PDF physical pages 155,165–166: notation and response clause readable.
 No gameplay/archive changes. Special zero-item retry, concurrent relocation and
 other full-specification obligations remain open; goal active.
+
+### Specification: variant response inheritance and movement refusal
+
+Compared ten executable command routines and 95 message fragments between
+Austin and CompuServe; matches support ordinary response inheritance with variant
+services/names retained. MOVE differs in relocation coordination. Added its
+charged, silent-at-command-level RelocationRefused path, including second-request
+release behavior, without inventing per-sector grouping. Added EX-COMP-49.
+
+Validation: logs/spec-variant-response-comparison.log preserves the exact
+comparison/diff and 16-unit example arithmetic plus alternate-return evidence.
+Final build logs/spec-variant-response-inheritance-build-2.log passed 663
+scenarios, 100 productions, 324 fragments, 14 chapters and 609 links. Inspected
+PDF physical pages 234–236: example and amendment readable. No gameplay/archive
+changes; movement resource grouping and the full goal remain open.

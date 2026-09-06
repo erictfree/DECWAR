@@ -30,6 +30,44 @@ Autonomous Romulan speech audiences remain part of the communication amendment.
 [roster names](../../legacy/compuserve/fortran%201978/BLKDAT.FOR#L84),
 [USERS roster order](../../legacy/compuserve/fortran%201978/USERS.FOR#L42).
 
+## Direct command responses and movement refusal
+
+The ordinary [terminal response recipes](presentation.md#shield-command-responses)
+for SHIELDS, RADIO, ENERGY, DOCK, REPAIR, TRACTOR, BUILD, CAPTURE, PHASERS and
+TORPEDOS also apply to CompuServe. Use this variant's roster, preferences,
+coordination and notice-delivery rules when evaluating their conditions and
+formatting selected entities. Shared wording does not imply identical admission,
+waiting or delivery behavior. The movement response strings also remain the same,
+subject to the additional early return below.
+
+Amending [movement relocation](commands.md#traversal-resource-cost-and-relocation),
+CompuServe Move can additionally return RelocationRefused. This is a semantic
+outcome, not command syntax or a new terminal message. When a required relocation
+coordination request fails, stop without changing the actor's sector or moving
+its tractor partner. Preserve the energy charge, departure effects and any
+overheating damage already applied. Move adds no direct response after the failed request and performs no movement
+turn completion or automatic repair. Any output from coordination itself remains
+subject to that service's rules. In particular, the
+later collision-averted report is not reached on this path.
+
+The destination resource is requested first. If a distinct source resource is
+also required and that second request fails, release the destination resource
+before returning RelocationRefused. A failed request is not retried by Move.
+The [coordination amendment](#coordination-amendments) governs entry and release;
+it does not define a new probability of refusal. No relocation request is made
+when the traced last-clear position equals the actor's current position.
+
+**OPEN QUESTION:** The abstract grouping of movement resources remains unresolved.
+These failure effects apply when the required request fails; they do not imply
+independent per-sector coordination or establish which simultaneous moves conflict.
+Interrupted requests and state changes by other actors retain the corresponding
+multiplayer limits.
+
+**Source basis:** [CompuServe movement](../../legacy/compuserve/fortran%201978/MOVE.FOR#L120),
+[shared command strings](../../legacy/compuserve/fortran%201978/MSG.MAC#L12),
+[ordinary shield responses](../../legacy/compuserve/fortran%201978/SHIELD.FOR#L21),
+[ordinary phaser responses](../../legacy/compuserve/fortran%201978/PHACON.FOR#L24).
+
 ## Initial preferences
 
 Amends [startup and pregame](session-rules.md#startup-and-pregame) and the

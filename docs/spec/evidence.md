@@ -668,3 +668,27 @@ with numerical normalization. No repair schedule is inferred from that number.
 MOVE10 is a fixed collision-averted line, not an object/location report, and
 clear traversal prints no direct success. Added these recipes from MSG.MAC
 131–145, preserving embedded CRLFs and quote characters. No gameplay change.
+
+### CompuServe response inheritance and relocation refusal
+
+Compared stripped executable-line text, preserving case and internal whitespace,
+for SHIELD, RADIO, ENERGY, DOCK, REPAIR, TRACTR, BUILD, CAPTUR, PHACON and TORP:
+all ten match their Austin routines. MOVE differs only in relocation coordination
+entry/release statements in this comparison. Separately compared 95 applicable
+MSG fragments byte-for-byte, including CRLF: all match. Detailed inventory and
+MOVE diff: logs/spec-variant-response-comparison.log. This supports ordinary
+response inheritance with variant roster, helpers and service semantics retained;
+it is not end-to-end execution equivalence.
+
+CompuServe MOVE.FOR 120–143 charges before relocation requests. Destination
+failure returns alternate immediately; distinct source failure releases the
+destination then returns alternate. Neither retries, moves the ship/partner,
+sets normal completion time, nor reaches the later obstruction response. Added
+RelocationRefused with those retained effects. Resource grouping remains open
+because BOARD keys cover three sectors; no per-sector lock is invented.
+
+EX-COMP-49 supplies a clear two-sector move and failed destination entry. Its
+16-unit charge follows 4*d^2 with both multipliers1; departure clears docking
+and sets GREEN before the refusal. CompuServe DECWAR.FOR 140 transfers alternate
+return to 49/50 (77–81), bypassing movement turn completion. The example stops
+before subsequent command acquisition and makes no claim of silent coordination.
