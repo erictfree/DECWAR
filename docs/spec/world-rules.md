@@ -397,8 +397,10 @@ for (each endpoint in b.endpoints) {
 }
 ```
 
-Both former endpoints receive the tractor-release notification. The outcome is
-Released. Neither endpoint's position, energy, shields, device damage, docking,
+After removing the association and clearing both endpoint references, publish
+TractorEvent { value: BROKEN } to the two former endpoints under the combat-notice
+rules. The outcome is Released. Publication does not promise immediate display;
+later reception does not change the released association again. Neither endpoint's position, energy, shields, device damage, docking,
 condition nor stardate changes. Release has no turn completion of its own.
 Commands and combat rules specify when they invoke it; TRACTOR OFF with no beam
 is handled by the command and does not invoke this operation.
@@ -411,8 +413,11 @@ operation FollowTractorBeam(moving: ShipId, step: SectorVector): Followed { part
 
 After a ship actually changes sector while associated with a beam, the other
 endpoint follows. The moving ship must still have an established beam. Let s be
-`ship(game, moving)`, let b be its beam, and let r be the ship identified by the
-other member of b.endpoints. The step is the PathResult.step of that movement.
+`ship(game, moving)`. Its optional tractorBeam value is present; let beamId be
+that contained TractorBeamId and let b be `tractorBeam(game, beamId)`. Let r be
+`ship(game, partner)`, where partner is the other member of b.endpoints. The
+position values used below must be present. The step is the PathResult.step of
+that movement.
 Define the trailing sector:
 
 ```text

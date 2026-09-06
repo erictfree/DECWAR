@@ -387,3 +387,10 @@ an invalid lookup. RemovePlanet's absent-target outcome precedes lookup; empty
 sectors remain valid Optional results. This makes existing signatures explicit
 without adding diagnostics or default records. Concurrent check/use cases remain
 an operation-level obligation; a full query-use audit is still required.
+
+
+Tractor query-use review now unwraps the beam identity before querying endpoints
+and states release-notice publication after state changes. OFF without a beam
+remains a command-level result. Delayed reception is not guaranteed immediate
+output or a second state transition. Following's crowded and boundary cases
+remain explicit gaps; no new movement policy was added.

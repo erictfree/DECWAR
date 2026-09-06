@@ -387,3 +387,17 @@ its existing BUILD, RemoveWeaponDestroyedBase and RemovePlanet contracts:
 world.bases retains inactive records, while world.planets loses removed records.
 This corrects a contradictory membership statement without prescribing arrays,
 reusing historical numeric indices as identities, or changing gameplay.
+
+
+## Tractor lookup and publication consistency
+
+ReleaseTractorBeam already requires an established association; TRACTOR OFF
+without one is handled before calling it. TRCOFF (DECWAR.FOR 4505–4510) saves
+the two-recipient audience, clears both endpoint links, then invokes MAKHIT.
+The shared release wording now states publication after those changes rather
+than promising reception. This agrees with the combat-notice delayed-delivery
+contract and introduces no extra event. FollowTractorBeam now explicitly unwraps
+the optional beam identity and queries the record before reading endpoints;
+it no longer treats an identity as a record. Existing following normalization,
+including a partner whose resulting sector equals its former sector, is retained.
+Crowded/out-of-galaxy following and concurrent invalidation remain unresolved.

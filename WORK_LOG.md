@@ -3705,3 +3705,16 @@ membership/removal clauses; logs/spec-query-domains-build.log passed 659 scenari
 100 productions, 324 fragments, 14 chapters and 546 links. Inspected PDF physical
 pages 8–9: readable table and operation context. Full query-use and lifecycle
 audit remains; goal stays active.
+
+### Specification: tractor lookup and notice ordering
+
+Made FollowTractorBeam's Optional ID unwrap and record lookup explicit.
+Changed release's delivery wording to publication after both endpoint references
+are cleared, consistent with delayed combat notices and TRCOFF. Existing OFF
+guard and following normalization retained; no new collision policy.
+
+Validation: logs/spec-tractor-contract-review.log checks source ordering and
+existing clauses. logs/spec-tractor-contract-build.log passed 659 scenarios,
+100 productions, 324 fragments, 14 chapters and 546 links. Inspected PDF physical
+pages 99–100: readable release and following contracts. No gameplay/archive
+changes. Concurrent and crowded following remains unresolved; goal stays active.
