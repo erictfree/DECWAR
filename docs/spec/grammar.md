@@ -316,9 +316,10 @@ A torpedo burst normally supplies a count from 1 through 3 followed by up to
 three targets, also bounded by ammunition. With only a count, a continuation
 requests up to twice the count in coordinate items. Fewer target pairs reuse the
 last supplied pair for later torpedoes. The source does not implement a uniformly
-strict odd-item-count check on the original command line: malformed even counts
-and empty target continuations need separate boundary analysis. The production
-above describes normal forms, not the entire accepted/error language.
+strict odd-item-count check on the original command line. The command chapter
+defines fully determined four- and six-item cases as well as remaining missing-
+component cases. The production above describes normal forms; its ordered
+acceptance rules must also be applied to other original-line input shapes.
 
 Extra supplied pairs beyond the burst count are checked by the location reader,
 then ignored when selecting the burst's aims. Own-sector and ten-sector checks
@@ -326,8 +327,9 @@ visit those selected aims in order and stop on their first failure. The distinct
 outcomes and state effects are defined by [FireTorpedoes](commands.md#torpedos).
 
 **Evidence:** [PHACON](../../legacy/utexas/DECWAR.FOR#L2647),
-[TORP](../../legacy/utexas/DECWAR.FOR#L4228). **OPEN QUESTION:** malformed torpedo forms are
-recorded in the coverage matrix; they must not be silently rejected by a new parser.
+[TORP](../../legacy/utexas/DECWAR.FOR#L4228). **OPEN QUESTION:** remaining missing-component and Empty target-continuation
+forms are recorded in the coverage matrix; they must not be silently rejected
+by a new parser.
 
 ## GRAM-6 — Scans
 

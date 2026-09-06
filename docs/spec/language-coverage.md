@@ -65,7 +65,7 @@ remaining dependencies below still limit end-to-end conformance claims.
 | BUILD | [BUILD](commands.md#build): ADT operation contract. | Planet-update availability, conversion/world-end ordering and responses. |
 | CAPTURE | [CAPTURE](commands.md#capture): explicit ADT operation contract. | Coordination entry-failure binding, racing targets, final lifecycle and responses; refusal is explicitly tied to failed phase entry. |
 | PHASERS | [PHASERS](commands.md#phasers): ADT operation contract. | Concurrent target changes, random distributions and complete delivery/presentation. |
-| TORPEDOS | [TORPEDOS](commands.md#torpedos): ADT operation contract. | Original-line missing count/incomplete targets, zero-item target continuation, concurrent target changes and complete delivery/presentation. |
+| TORPEDOS | [TORPEDOS](commands.md#torpedos): ADT operation contract. | Original-line missing target components and zero-item target continuation; complete four-/six-item cases specified. Concurrent target changes and complete delivery/presentation remain. |
 | LIST, SUMMARY, BASES, PLANETS, TARGETS | [Galaxy reports](commands.md#list-summary-bases-planets-and-targets): ADT operation contract. | Exhaustive selector-order coverage, concurrent reporting, interrupted output, terrain presentation; section boundaries and absence-message recipes are specified. |
 | POINTS | [POINTS](commands.md#points): ADT operation contract. | Zero-denominator presentation and concurrent counts; ordinary headings, rows and field formatting are specified. |
 | TYPE | [TYPE](commands.md#type): ADT operation contract. | Unselected terminal profile, concurrent observations and full terminal controls. |
@@ -296,3 +296,9 @@ Terrain retains kind and query position; its prefix is specified. The remaining
 suffix is a reviewed source-to-model ambiguity, with evidence in evidence.md:
 it must not create terrain energy/shields or acquire a guessed replacement.
 Complete terminal conformance for that suffix remains open.
+
+Original TORPEDOS input now distinguishes fully determined even-item forms
+(four items/count one; six items/count one or two) from absent-component cases.
+Location resolution precedes first-item count interpretation and count rejection.
+The source is not replaced by an odd-item-only parser. EX-MODEL-596–598 cover
+selected targets, count-error precedence and the narrower unresolved boundary.

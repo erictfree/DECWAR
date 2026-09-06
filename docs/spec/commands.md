@@ -1444,12 +1444,51 @@ preference. Neither ABSOLUTE nor COMPUTED on the count line forces that mode on
 the later target line. No preference changes. A computed-mode delay or a
 location diagnostic occurs before the caller applies these item-count rules.
 
-**OPEN QUESTION — acceptance cases:** a missing count or incomplete pair on the
-original command line can leave the command without a complete count-and-target
-value, and a mode-only reply at the target prompt can return Empty. Those
-paths remain outside the completed acceptance contract; they do not authorize
-manufacturing coordinates or silently substituting a new rejection rule. This
-exception concerns zero resulting items, not the zero-token reply that cancels.
+### Original-line even item counts
+
+The normal-form grammar above is not an instruction to reject every other
+shape. After successful resolution of the original command arguments, consider
+the resulting numeric items in order: the scalar, when present, followed by
+each position's vertical and horizontal components. The first item is interpreted
+as the burst count even when it came from the first position's vertical
+component. Apply the ordinary count checks before selecting any aim.
+
+For an even item count, there was no scalar in LocationValues. The shared
+location reader has already treated all input as positions, including relative
+conversion or computed-name resolution and galaxy-bound checks. Do not undo
+that interpretation or validate the first raw token as a count before resolution.
+The following cases have complete count-and-target values after those checks:
+
+| Resolved items on the original line | Accepted count for a fully determined burst | Selected targets |
+| --- | --- | --- |
+| Four items a, b, c, d | a == 1 | One target (b,c); d is not used in firing. |
+| Six items a, b, c, d, e, f | a == 1 | One target (b,c); d, e and f are not used in firing. |
+| Six items a, b, c, d, e, f | a == 2 | Targets (b,c) and (d,e); f is not used in firing. |
+
+These are resolved absolute values. They need not preserve the location reader's
+original pair boundaries. The ordinary own-sector and ten-sector validation,
+wait, firing and completion rules apply to these selected targets. Even an
+unused value must have passed location resolution earlier. The burst prompt's
+even-count reprompt rule is unchanged; this extra acceptance is confined to the
+original command arguments.
+
+For example, with sufficient ammunition and functioning tubes, original input
+`TORPEDOS ABSOLUTE 1 20 21 22` selects one target at (20,21). Changing its first
+value to 4 reaches InvalidBurstCount and the inventory report before any target
+is selected. A blanket odd-item requirement would change both source behaviors.
+
+**OPEN QUESTION — missing target components:** With two resolved items and a
+valid burst count, four items with count 2 or 3, or six items with count 3, the
+source does not supply all components needed by its selected aims. A mode-only
+reply at the target prompt can likewise return Empty without a target value.
+These paths remain outside the completed acceptance contract; they do not
+permit manufacturing a missing coordinate, repeating a previous complete pair,
+or silently substituting a new rejection rule. A zero-token continuation still
+cancels as specified above. Ordinary location errors and count rejection take
+precedence before this unresolved target selection is reached.
+
+**Source basis:** [location resolution](../../legacy/utexas/DECWAR.FOR#L1410),
+[original-line count and aim selection](../../legacy/utexas/DECWAR.FOR#L4247).
 
 ### Operation and result types
 

@@ -1672,3 +1672,14 @@ in evidence.md explains why LSTFLG/LSTOBJ's inherited range flag and Romulan
 reading cannot be silently recast as terrain semantics. The earlier unresolved
 terrain item is now supported by a concrete source-to-ADT analysis; a full
 terrain suffix remains unresolved, not normalized into a label-only line.
+
+### Austin original-line torpedo item interpretation
+
+ResolveLocations preserves its scalar/position distinction. TORP nevertheless
+interprets the first resolved numeric item as count on the original line without
+an odd-item guard. Express the observable reinterpretation using ordered
+numeric values, not VALLST storage. Four-item/count-one and six-item/count-one
+or count-two forms yield complete selected aims; retain those forms. Cases
+that consume an absent final component remain unresolved rather than assigning
+zero, previous input, or a new error. The burst prompt's even-item reprompt is
+separate. Source DECWAR.FOR LOCATE 1410–1497 and TORP 4247–4279.

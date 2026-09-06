@@ -3497,3 +3497,20 @@ logs/spec-austin-terrain-review-build.log passed: 643 scenarios, 100 productions
 324 fragments, 14 chapters and 540 links. Inspected PDF physical pages 67 and
 163: readable ADT and scoped presentation text. This is a reviewed ambiguity,
 not completed terrain terminal parity. The full goal remains active.
+
+### Specification: Austin even-item TORPEDOS input
+
+Reviewed LOCATE and TORP original-line versus continuation paths. Defined the
+complete four-item/count-one and six-item/count-one-or-two cases using resolved
+numeric values, retaining location validation before count interpretation.
+Narrowed unresolved cases to actual absent target components and Empty target
+continuations rather than rejecting all even forms. Added EX-MODEL-596–598;
+updated grammar, command contract, normalization and coverage. No gameplay edits.
+
+Validation: logs/spec-austin-torpedo-even-review.log checks source branches and
+all nine even-item/burst-count selection combinations. This is source derivation,
+not a native torpedo run or an assignment to missing values. Full build in
+logs/spec-austin-torpedo-even-build.log passed: 646 scenario rows, 100 productions,
+324 source fragments, 14 chapters and 542 links. Inspected physical PDF pages
+61–62 and 214–215, with readable contract tables and examples. Remaining
+missing-component, interruption and cross-chapter review keeps the goal active.
