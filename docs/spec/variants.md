@@ -979,6 +979,34 @@ One ordinary release ends that resource's held state. This rule does not establi
 successful reentrant acquisition of a request that is still pending, nor does
 it make a whole command atomic.
 
+### Named resources and wait selection
+
+The following resources are distinct. Sharing one resource does not imply
+sharing another, and entering one does not exclude operations that do not enter
+that resource.
+
+| Resource | Operations using it | Scope | Selects the resource remembered across waits |
+| --- | --- | --- | --- |
+| Admission and commission changes | Admission, commission release and conditional restoration | Shared across galaxies in the same service | Yes |
+| Planet changes | BUILD conversion, CAPTURE, and planet impacts from player torpedoes, Romulan torpedoes and nova activity | One galaxy | Yes |
+| Delivery | Capacity reservation, publication, search and recipient removal for queued messages and events | One galaxy | No |
+| Standings updates | Captain-count allocation and score-record updates | Shared across galaxies in the same service | No |
+
+For the entries marked Yes, selecting the resource precedes the attempt to
+enter it. Selection alone is not evidence that entry succeeded. Ordinary release
+by these operations clears the remembered choice; it does not choose another
+resource still held by the session. Delivery and standings entry and release
+leave that choice unchanged. Thus entering and releasing delivery coordination
+inside a planet-change phase does not replace the remembered planet resource
+with delivery coordination.
+
+These resource scopes describe coordination within a service hosting multiple
+galaxies; they do not require separate installations to share a service or their
+records. They also do not make each listed operation a single coordinated phase:
+its uncoordinated checks and work outside entry/release retain their ordering.
+Movement resource grouping and administrative statistics clearing are not
+covered by this table.
+
 ### Waiting and fresh input
 
 An operation can designate one coordinated resource to remember across waits.
@@ -1019,17 +1047,18 @@ The requested input or delay can finish while reacquisition still waits. These
 rules impose no finite total wait, fairness or automatic rollback guarantee.
 They amend Austin's rule that waiting alone retains coordination.
 
-**OPEN QUESTION:** The complete resource-to-operation mapping, remembered-resource
-selection, pending/reentrant requests, environment failures and interrupted
+**OPEN QUESTION:** Movement and administrative resource mapping, pending/reentrant
+requests, environment failures and interrupted
 reacquisition still require review. A stopped or interrupted acquisition must
-not be treated as a successful coordinated phase by assumption. Cross-galaxy
-resource scope also remains part of the full binding. These limits do not
+not be treated as a successful coordinated phase by assumption. Environment binding beyond the resource scopes above remains open. These limits do not
 replace the ordinary sequences above with Austin's release-all behavior.
 
 **Source basis:** [CompuServe waiting](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L4010),
 [fresh input](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L1679),
 [input readiness](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L3871),
-[entry and repeated entry](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L4468),
+[entry, selection and scope](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L4468),
+[delivery entry](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L3127),
+[standings entry](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L5589),
 [targeted and explicit release-all paths](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L4594).
 
 ## Remaining amendments

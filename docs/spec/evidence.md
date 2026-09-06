@@ -527,3 +527,21 @@ BOARD groups containing three horizontal sectors, not individual sectors.
 A platform-independent mapping must explicitly resolve that grouping rather
 than silently claim per-sector coordination. No such normalization is selected
 by this readiness clarification.
+
+### CompuServe named coordination resources
+
+Mapped FRELOK to admission/commission changes (SETUP.FOR 231,444; FREE.FOR
+40,95,105,135), PLNLOK to planet changes (BUILD.FOR 60–79; CAPTUR.FOR 49–68;
+TORP.FOR 218–228; ROMTOR.FOR 119–130; NOVA.FOR 161–178), QUELOK to delivery
+(WARMAC.MAC 3127,3188,3227,3265), and STAUPD to captain/score updates
+(WARMAC.MAC 5590,5701). Public LOCK selects LOCKED; public UNLOCK clears it.
+Those FORTRAN callers use the public entries. Delivery and standings use
+internal LOCK./UNLO., which do not change LOCKED. The named-resource table
+states this selection distinction without importing addresses or the lock table.
+
+LOCK. 4493–4497 and UNLO. 4629–4634 select the same cross-galaxy namespace for
+FRELOK and STAUPD, with the galaxy number retained for the other keys. This
+supports shared-service scope, not a requirement that independent installations
+share records. MOVE's three-sector grouping and STAZAP's distinct STABUF key
+remain outside the mapped ordinary operations. Pending/reentrant records and
+interrupted selection remain unresolved; the table does not assert atomicity.

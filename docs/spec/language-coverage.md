@@ -434,6 +434,8 @@ CompuServe ordinary coordination now specifies targeted release, repeated entry
 for successfully held resources, positive-wait release/reacquisition and the
 fresh-versus-existing-input distinction. Input-readiness waiting now separately
 covers buffered/initialization input bypass, nonpositive polling, positive wait
-release/reacquisition and readiness tests. Complete resource mapping, remembered
-selection, pending/interrupted acquisition and environment failures remain open.
+release/reacquisition and readiness tests. Admission, planet, delivery and
+standings resources now have explicit scope and remembered-resource selection
+rules. Movement/admin mapping, pending/interrupted acquisition and environment
+failures remain open.
 The amendment no longer leaves the entire ordinary wait sequence undescribed.

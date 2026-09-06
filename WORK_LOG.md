@@ -3817,3 +3817,18 @@ and absence of PAUSE timing logic. logs/spec-comp-input-readiness-build.log
 passed 662 scenarios, 100 productions, 324 fragments, 14 chapters and 548 links.
 Inspected PDF physical page 244: readable complete waiting section. No gameplay
 or archive changes. Full mapping and interrupted entry remain open; goal active.
+
+### Specification: CompuServe named coordination resources
+
+Mapped admission/commission, planet, delivery and standings resources to their
+ordinary operations, distinguishing galaxy-local from shared-service scope.
+Specified which entry/release paths select or clear the resource remembered
+across waits, including nested delivery preserving a planet selection. Kept
+movement grouping, administration and pending/interrupted entry explicitly open.
+
+Validation: logs/spec-comp-resource-map-review.log checks caller keys, public
+selection, internal entry and symmetric scope selection. Build log
+logs/spec-comp-resource-map-build.log passed 662 scenarios, 100 productions,
+324 fragments, 14 chapters and 550 links. Inspected PDF physical pages 244–245;
+table and continued waiting rules are readable. No gameplay/archive changes.
+The full goal remains active; this does not complete multiplayer conformance.
