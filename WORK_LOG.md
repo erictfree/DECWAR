@@ -2983,3 +2983,34 @@ remaining responses, lifecycle/concurrency and CompuServe amendments remain.
 
 No game code, running servers or immutable archives changed. Preserved concurrent
 WORK_LOG/docs/status changes and experiments without staging them.
+
+
+## 2026-09-05 — Define shared grammar vocabulary and check references
+
+Defined twelve grammar terminal/input categories, including Integer versus the
+mathematical integer domain, candidate names versus resolved identities, End
+versus EmptyInput/NULL, and raw name/message fragments. Standardized the older
+synopses' names, made inline SET NAME text optional consistently with its existing
+prompt rule, replaced report-modifier placeholders with their actual report
+selectors, and supplied ordinary Location and complete ReportSelector alternatives.
+Ordered command checks, per-verb restrictions and exceptional continuations remain
+normative; this is not permission to replace them with generic parser rejection.
+Completed NoMatches's named payload fields without adding data.
+
+Added tools/spec/grammar.ts to the document build. It checks duplicate/undefined
+production names and balanced EBNF grouping against explicitly declared terminal
+categories. Current result: 96 productions, 12 categories, no undefined names.
+A valid cross-reference/literal/comment fixture and six negative fixtures pass:
+logs/spec-grammar-reference-fixtures.log. TypeScript checking passes:
+logs/spec-grammar-vocabulary-typecheck.log. This checker verifies document
+references, not input acceptance, parse ambiguity or game semantics.
+
+Source review: Austin WARMAC GTKN/NXTT/ANUM; DECWAR LOCATE, LSTSCN, SET,
+TELL/PASWRD; existing command and creation contracts. The production-name edits
+are recorded in logs/spec-grammar-vocabulary-review.log. Final book build passes
+14 chapters, 418 links, 563 scenarios and 324 source fragments:
+logs/spec-grammar-vocabulary-build-final.log. Reviewed PDF pages 23–24 and 60;
+vocabulary table and expanded report grammar are readable without overflow.
+The working draft is 196 pages. Full acceptance, definition order, invariant,
+response, lifecycle/concurrency and variant work remains. No game, server or
+archive changes; unrelated worktree edits preserved.

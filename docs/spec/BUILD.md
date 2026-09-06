@@ -13,7 +13,7 @@ The first build was verified with Pandoc 2.12 and TeX Live 2025. The document
 build is separate from the game: playing DECWAR does not require Pandoc or TeX.
 
 ```sh
-npm run spec:check   # Validate chapter links and Austin command-table coverage
+npm run spec:check   # Validate links, grammar references and command-table coverage
 npm run spec:build   # Produce a single LaTeX document, PDF, HTML and Markdown
 npm run spec:html    # Produce HTML/Markdown/LaTeX without invoking XeLaTeX
 ```
@@ -65,6 +65,12 @@ which files are authoritative. The current output remains explicitly marked a
 working draft.
 
 ## Validation
+
+A build checks every EBNF production's referenced names against the book's
+productions and the terminal categories explicitly defined in GRAM-1. It rejects
+duplicate definitions, undefined references and unbalanced grouping. This is a
+document-integrity check: it does not parse player input, establish acceptance
+equivalence or verify the ordered command semantics.
 
 A successful build is not proof that the game semantics are complete. Check the
 [language conversion coverage](language-coverage.md) separately. The command-table

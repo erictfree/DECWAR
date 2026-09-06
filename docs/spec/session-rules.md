@@ -116,7 +116,7 @@ create a ship position merely to satisfy such a contract.
 ## Startup and pregame
 
 ```text
-StartupReply ::= empty | "HELP" | "PREGAME"
+StartupReply ::= EmptyInput | "HELP" | "PREGAME"
 ActivateCommand ::= "ACTIVATE"
 
 operation StartSession(captain: CaptainId): Pregame | AdmissionStarted | SessionEnded
@@ -392,8 +392,8 @@ require a particular lock or whole-dialogue transaction.
 ## Galaxy creation and placement
 
 ```text
-GameKindReply ::= empty | "REGULAR" | "TOURNAMENT" [TournamentKey]
-OptionReply   ::= empty | "YES" | "NO"
+GameKindReply ::= EmptyInput | "REGULAR" | "TOURNAMENT" [TournamentKey]
+OptionReply   ::= EmptyInput | "YES" | "NO"
 
 operation CreateGalaxy(): Unit
 ```

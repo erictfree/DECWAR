@@ -13,18 +13,84 @@ Productions use extended BNF over the tokens defined by the lexical chapter.
 group alternatives. A quoted keyword such as `"MOVE"` means a keyword match
 under LEX-6, including its permitted abbreviations; it does not require the
 player to type quotation marks or the full spelling. Quoted punctuation has
-its stated token meaning. `integer` means an integer-category token.
+its stated token meaning. Names such as Integer refer to the categories below,
+not words that a player types.
 
 The command entries use the same notation. Order in a displayed alternative
 list is not a generic matching-precedence rule; prose establishes branch order
 where it matters. Productions describe the external input form, while typed
 operations and contracts describe its meaning.
 
-`end` means the command-input operation's end sentinel. A physical line can
+`End` means the command-input operation's end boundary. A physical line can
 supply more than one command through slash. Commands need not reject every
 unused trailing token: only a stated end check requires complete consumption.
 Missing arguments may cause another input operation rather than a syntax error.
 Interactive continuations have their own token origin and are part of the language.
+
+### Shared grammar vocabulary
+
+The grammar is over acquired input, after the lexical rules have identified
+tokens and boundaries. The following are terminal categories or named input
+fragments, not new game commands or abstract-state types.
+
+| Name | Meaning |
+| --- | --- |
+| `Integer` | One token whose category is INTEGER. Its numeric value follows LEX-5; an integral REAL, such as `2.0`, does not belong to this category. |
+| `NameToken` | One token whose category is ALPHANUMERIC. Its retained text follows LEX-4. This category alone does not establish that the name is recognized. |
+| `TokenInput` | One acquired token of any category, including NULL. It excludes End. |
+| `End` | The current command-input boundary described by LEX-3 and LEX-7. It consumes no further argument. It is distinct from a NULL-category token. |
+| `EmptyInput` | No tokens before End. A reply with a NULL token is not necessarily EmptyInput. |
+| `ShipName` | A NameToken offered as a ship-name candidate. Resolve it against the roster under the consuming command's matching rule; recognition and availability are semantic checks. |
+| `CommandName` | A NameToken offered as a command-name topic. HELP applies its visible-command set and ambiguity rules. This does not include every name that an operating environment might recognize. |
+| `TerminalName` | A NameToken offered as a terminal-profile candidate. SET TTYTYPE applies the profile list and retry rules. |
+| `PasswordToken` | A TokenInput offered to *PASSWORD. There is no implicit ALPHANUMERIC restriction or prefix-password rule. |
+| `TournamentKey` | A TokenInput whose retained text supplies a tournament key. It is not required to be an integer. Empty key replies follow the separate creation dialogue. |
+| `NameText` | The raw name fragment selected by SET NAME, including its retained spaces. The name reader's start position, twelve-character limit and transformation are defined by SET, not by ordinary token concatenation. |
+| `MessageText` | The raw message body selected by TELL. Its case, spaces and punctuation are not command tokens; acquisition and retention limits follow TELL. |
+
+The distinction between a candidate and its successful resolution matters.
+For example, an unknown ShipName can produce a ship-name diagnostic after
+earlier command checks or a prompt. The grammar does not authorize a new parser
+to reject it before those checks. Likewise, a form outside a command's ordinary
+production follows its documented error or continuation path; a production is
+not an instruction to replace all such paths with a generic syntax error.
+
+In a type declaration, lowercase `integer` instead denotes a mathematical
+value domain. Integer in a command production denotes a token category. These
+are deliberately different concepts: the token `2.0` has the value two but
+cannot satisfy an Integer argument.
+
+For example, `2`, `+2` and `-2` each satisfy Integer. `2.0` has REAL category;
+`1E2` has ALPHANUMERIC category and can be a NameToken candidate; a lone `+`
+has NULL category and can be a TokenInput but not an Integer or NameToken.
+These classifications do not imply that a particular command accepts each
+candidate or skips its normal diagnostics.
+
+The following common productions name ordinary complete location forms and
+TELL's recipient groups. Location does not replace the shared reader's item
+count, range, prompt or error rules in GRAM-3. In particular, mode-only input
+and malformed torpedo continuations retain their separately stated treatment.
+
+```text
+Location ::= NumericLocation | ComputedLocation
+NumericLocation ::= ["ABSOLUTE" | "RELATIVE"] Integer Integer
+ComputedLocation ::= "COMPUTED" TargetName
+GroupName ::= "ALL" | "KLINGON" | "EMPIRE" | "HUMAN"
+            | "FEDERATION" | "FRIENDLY" | "ENEMY"
+```
+
+TargetName is defined with the coordinate forms in GRAM-3. StatusItem,
+DeviceSelector, HelpTopic and Group are defined in their respective command
+entries. References in a synopsis retain those definitions; they do not
+introduce another grammar with different rules.
+
+**Source basis:** [token categories and boundaries](../../legacy/utexas/WARMAC.MAC#L1377),
+[numeric interpretation](../../legacy/utexas/WARMAC.MAC#L1508),
+[location reader](../../legacy/utexas/DECWAR.FOR#L1404),
+[SET and name acquisition](../../legacy/utexas/DECWAR.FOR#L3624),
+[TELL](../../legacy/utexas/DECWAR.FOR#L3977),
+[password comparison](../../legacy/utexas/DECWAR.FOR#L2626),
+[galaxy creation](../../legacy/utexas/SETUP.FOR#L169).
 
 ## GRAM-2 — Command selection
 
@@ -64,9 +130,9 @@ The initial startup dialogue accepts HELP, PREGAME or empty input separately.
 ### Accepted forms and result types
 
 ```text
-numeric-locations ::= ["ABSOLUTE" | "RELATIVE"] {integer}
-computed-locations ::= "COMPUTED" [integer] {target-name}
-target-name ::= ship-name | "ROMULAN"
+numeric-locations ::= ["ABSOLUTE" | "RELATIVE"] {Integer}
+computed-locations ::= "COMPUTED" [Integer] {TargetName}
+TargetName ::= ShipName | "ROMULAN"
 
 type LocationLimit = Exactly { count: positive integer } | AtMost { count: positive integer }
 
@@ -213,10 +279,10 @@ resolution also requires the multiplayer ordering contract.
 ## GRAM-4 — Movement, capture and construction
 
 ```
-move ::= "MOVE" [locations-producing-two-items]
-impulse ::= "IMPULSE" [locations-producing-two-items]
-capture ::= "CAPTURE" [locations-producing-two-items]
-build ::= "BUILD" [locations-producing-two-items]
+move ::= "MOVE" [Location]
+impulse ::= "IMPULSE" [Location]
+capture ::= "CAPTURE" [Location]
+build ::= "BUILD" [Location]
 ```
 
 Missing locations request a coordinates continuation. Empty continuation aborts;
@@ -233,12 +299,12 @@ a valid target or successful completion.
 
 ```
 phasers ::= "PHASERS" [phaser-target]
-phaser-target ::= ["ABSOLUTE" | "RELATIVE"] [integer] pair
-              | "COMPUTED" [integer] target-name
+phaser-target ::= ["ABSOLUTE" | "RELATIVE"] [Integer] pair
+              | "COMPUTED" [Integer] TargetName
 torpedoes-normal-form ::= "TORPEDOS" [count-and-targets]
-count-and-targets ::= ["ABSOLUTE" | "RELATIVE"] integer [pair [pair [pair]]]
-                  | "COMPUTED" integer [target-name [target-name [target-name]]]
-pair ::= integer integer
+count-and-targets ::= ["ABSOLUTE" | "RELATIVE"] Integer [pair [pair [pair]]]
+                  | "COMPUTED" Integer [TargetName [TargetName [TargetName]]]
+pair ::= Integer Integer
 ```
 
 Phasers accept two location items with default strength 200 or a scalar strength
@@ -266,7 +332,7 @@ recorded in the coverage matrix; they must not be silently rejected by a new par
 ## GRAM-6 — Scans
 
 ```
-scan ::= ("SCAN" | "SRSCAN") [direction] [integer [integer]] ["WARNING"] end
+scan ::= ("SCAN" | "SRSCAN") [direction] [Integer [Integer]] ["WARNING"] End
 direction ::= "UP" | "DOWN" | "RIGHT" | "LEFT" | "CORNER"
 ```
 
@@ -293,11 +359,11 @@ zero extent on both sides of that axis.
 ## GRAM-7 — Ship resources
 
 ```
-shields ::= "SHIELDS" ["UP" | "DOWN" | "TRANSFER" [integer]]
-energy ::= "ENERGY" [ship-name integer]
-repair ::= "REPAIR" [integer | "ALL"] ["DAMAGE" {report-modifier}]
-dock ::= "DOCK" ["STATUS" {report-modifier} | "ALL"]
-tractor ::= "TRACTOR" ["OFF" | ship-name]
+shields ::= "SHIELDS" ["UP" | "DOWN" | "TRANSFER" [Integer]]
+energy ::= "ENERGY" [ShipName Integer]
+repair ::= "REPAIR" [Integer | "ALL"] ["DAMAGE" {DeviceSelector}]
+dock ::= "DOCK" ["STATUS" {StatusItem} | "ALL"]
+tractor ::= "TRACTOR" ["OFF" | ShipName]
 ```
 
 SHIELDS prompts for an unrecognized/missing switch. Empty switch continuation
@@ -332,16 +398,16 @@ release follow the [TRACTOR operation contract](commands.md#tractor).
 
 ```
 set ::= "SET" [setting]
-setting ::= "NAME" name-input
+setting ::= "NAME" [NameText]
         | "OUTPUT" ("SHORT" | "MEDIUM" | "LONG")
-        | "TTYTYPE" terminal-name
+        | "TTYTYPE" TerminalName
         | "PROMPT" ("NORMAL" | "INFORMATIVE")
         | "SCANS" ("SHORT" | "LONG")
         | "ICDEF" ("ABSOLUTE" | "RELATIVE")
         | "OCDEF" ("ABSOLUTE" | "RELATIVE" | "BOTH")
         | privileged-setting
 privileged-setting ::= "ROMOPT" | "ENDFLG" | "BHREMV"
-radio ::= "RADIO" ["ON" | "OFF" | ("GAG" | "UNGAG") ship-name]
+radio ::= "RADIO" ["ON" | "OFF" | ("GAG" | "UNGAG") ShipName]
 ```
 
 SET checks switches in the production's order. Missing/unrecognized switches
@@ -376,7 +442,7 @@ the execution model; QUIT syntax alone does not define their behavior.
 status ::= "STATUS" {status-item}
 status-item ::= "SHIELDS" | "LOCATION" | "CONDITION" | "TORPEDO"
             | "ENERGY" | "DAMAGE" | "RADIO"
-damages ::= "DAMAGES" {device-token}
+damages ::= "DAMAGES" {DeviceSelector}
 points ::= "POINTS" {points-item}
 points-item ::= "ME" | "I" | "FEDERATION" | "HUMANS" | "EMPIRE"
             | "KLINGONS" | "ROMULANS" | "ALL"
@@ -422,8 +488,8 @@ parse an argument list; do not invent an extra-token syntax error for them.
 
 ```
 list-family ::= ("LIST" | "SUMMARY" | "BASES" | "PLANETS" | "TARGETS")
-              [group] {group-end group}
-group-end ::= "AND" | "&"
+              [Group] {Group-End Group}
+Group-End ::= "AND" | "&"
 ```
 
 Each group is an ordered series of selectors. AND and `&` terminate a group
@@ -499,9 +565,9 @@ with an unordered filter-object parser.
 ## GRAM-12 — TELL and text-reading utilities
 
 ```
-tell ::= "TELL" [recipient {recipient}] [semicolon message-body]
-recipient ::= ship-name | group-name | "ROMULAN"
-help ::= "HELP" {topic | "*"}
+tell ::= "TELL" [recipient {recipient}] [";" MessageText]
+recipient ::= ShipName | GroupName | "ROMULAN"
+help ::= "HELP" {HelpTopic | "*"}
 news ::= "NEWS"
 gripe ::= "GRIPE"
 ```
@@ -537,7 +603,7 @@ asset and message-length edge behavior remains in terminal/queue coverage.
 ## GRAM-13 — Starred commands
 
 ```
-password ::= "*PASSWORD" [password-token]
+password ::= "*PASSWORD" [PasswordToken]
 debug ::= "*DEBUG"
 zap ::= "*ZAP"                  ; pregame only
 ```

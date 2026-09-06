@@ -17,6 +17,7 @@ type Node = { t: string; c?: any };
 type Document = { 'pandoc-api-version': number[]; meta: Record<string, unknown>; blocks: Node[] };
 const entries = [...book.chapters, ...book.appendices] as string[];
 execFileSync(process.execPath, [resolve(root, 'tools/spec/messages.ts'), '--check'], { cwd: root, stdio: 'inherit' });
+execFileSync(process.execPath, [resolve(root, 'tools/spec/grammar.ts'), '--check'], { cwd: root, stdio: 'inherit' });
 const coverage = JSON.parse(readFileSync(resolve(source, 'coverage.json'), 'utf8'));
 function sourceCommands(file: string, marker: string): string[] {
   const text = readFileSync(resolve(root, file), 'utf8');

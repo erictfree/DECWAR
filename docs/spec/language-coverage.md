@@ -64,7 +64,7 @@ coverage does not establish lifecycle, concurrency or terminal conformance.
   updated guide uses C-family blocks, colon return types, named variant fields,
   assignment =, equality ==, and requires/ensures/invariant contracts. Failure
   aliases preserve the declared rejection and cancellation paths. Full definition
-  order, grammatical metavariables and invariant coverage remain under review. World
+  order and invariant coverage remain under review. World
   collections now distinguish unordered identity sets from the ordered planet
   sequence, with identity uniqueness and stable surviving planet order. Mapping/property notation,
   the nine device states and their distinction from hull damage and shield state
@@ -80,7 +80,11 @@ coverage does not establish lifecycle, concurrency or terminal conformance.
   categories drafted; full lifecycle remains.
 - Lexical and command grammar: ResolveLocations/ReadLocations now define typed
   scalar/position results, arity/type/range precedence, computed target validation
-  and speed delay, including blank versus mode-only continuations. Malformed
+  and speed delay, including blank versus mode-only continuations. Shared grammar
+  vocabulary distinguishes token categories, candidate names, raw text fragments
+  and input boundaries. All 96 current productions reference defined productions
+  or one of 12 explicit terminal categories; the build checks this and grouping.
+  That reference check does not establish complete input acceptance. Malformed
   torpedo forms and exceptional zero-item caller paths still need complete rules.
 - Turns: CompleteTurn, CommitPendingScore, automatic-repair selection, DefenseContext
   and life-support observations now use explicit contracts. Completion classes, pacing, base and planet

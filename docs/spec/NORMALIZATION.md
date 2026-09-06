@@ -1305,3 +1305,29 @@ World collection and EBNF notation changes described above are included in this
 editorial pass. Full type-definition order, grammar metavariable definitions,
 invariant coverage and unresolved lifecycle/concurrency behavior remain separate
 review work. Readable notation is not evidence of semantic completeness.
+
+
+## Shared grammar names
+
+Common input names now have explicit definitions. Integer is an INTEGER-category
+token, distinct from the mathematical integer domain; name candidates retain the
+consuming command's matching and diagnostic order. End, EmptyInput and a NULL
+token remain distinct. NameText and MessageText denote their raw input fragments,
+without adding string quoting or token concatenation. Password and tournament
+key candidates retain their original lack of a numeric/name-category restriction.
+Ordinary Location forms name the already specified numeric and computed forms;
+the shared reader's exceptional empty/malformed paths remain separately open.
+
+Replaced report-modifier shorthand with StatusItem for DOCK and DeviceSelector
+for REPAIR. SET NAME's overview now shows optional inline text, consistent with
+its existing prompt rule and command entry. Expanded the prose ReportSelector
+placeholder into its numeric/name/keyword alternatives; per-verb permissions,
+pair-before-range selection, group boundaries and ordered conflicts still apply.
+Normalized grammar identifier spellings without altering quoted keywords. The
+remaining mixed positional/named NoMatches payload now names group, scope and
+knownQualifier. These are editorial corrections, not new input or output rules.
+
+Source: WARMAC.MAC GTKN/NXTT/ANUM 1377–1540; DECWAR.FOR LOCATE 1404,
+LSTSCN 1530–1750, SET 3624, TELL 3977, PASWRD 2626; existing command derivations
+remain the authority for prompts and diagnostics. The grammar-reference checker
+verifies definitions and grouping only, not acceptance equivalence.

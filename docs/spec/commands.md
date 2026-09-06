@@ -1226,9 +1226,8 @@ need their final shared-rule contracts.
 PhasersCommand ::= "PHASERS" [PhaserTarget]
 PhaserTarget   ::= NumericPhaserTarget | ComputedPhaserTarget
 NumericPhaserTarget ::= ["ABSOLUTE" | "RELATIVE"]
-                        [integer] integer integer
-ComputedPhaserTarget ::= "COMPUTED" [integer] TargetName
-TargetName ::= ship-name | "ROMULAN"
+                        [Integer] Integer Integer
+ComputedPhaserTarget ::= "COMPUTED" [Integer] TargetName
 ```
 
 The final pair denotes a location; the optional preceding integer is strength.
@@ -1358,10 +1357,10 @@ apply, including ABSOLUTE, RELATIVE and COMPUTED forms.
 
 ```text
 TorpedoCommand ::= "TORPEDOS" [CountAndTargets]
-CountAndTargets ::= ["ABSOLUTE" | "RELATIVE"] integer
+CountAndTargets ::= ["ABSOLUTE" | "RELATIVE"] Integer
                     [Pair [Pair [Pair]]]
-                  | "COMPUTED" integer [TargetName [TargetName [TargetName]]]
-Pair ::= integer integer
+                  | "COMPUTED" Integer [TargetName [TargetName [TargetName]]]
+Pair ::= Integer Integer
 ```
 
 The count is a scalar; it is not offset in relative mode. A burst requests one
@@ -1578,7 +1577,13 @@ The commands share ordered selection groups, but have different defaults.
 ReportCommand ::= ReportVerb [Group] {GroupEnd Group}
 ReportVerb ::= "LIST" | "SUMMARY" | "BASES" | "PLANETS" | "TARGETS"
 GroupEnd ::= "AND" | "&"
-Group ::= one or more selectors accepted for the chosen ReportVerb
+Group ::= ReportSelector {ReportSelector}
+ReportSelector ::= Integer Integer | Integer | ShipName | "ROMULAN"
+                 | "SHIPS" | "BASES" | "PLANETS" | "PORTS"
+                 | "FRIENDLY" | "ENEMY" | "TARGETS"
+                 | "FEDERATION" | "HUMAN" | "EMPIRE" | "KLINGON"
+                 | "NEUTRAL" | "CAPTURED" | "ALL" | "CLOSEST"
+                 | "LIST" | "SUMMARY"
 ```
 
 The complete selector inventory, recognition order and conflicts are specified
@@ -1696,7 +1701,8 @@ type GalaxyReportObservation = Detail { value: ReportDetail }
     | Terrain { kind: TerrainKind } | Summary { value: ReportSummary }
     | ShipAbsent { ship: ShipId } | RomulanDisabled | RomulanAbsent
     | SensorRangeExceeded { position: Position } | NoObjectAt { verb: ReportVerb, position: Position }
-    | NoMatches(ReportGroup, ReportScopeLabel, knownQualifier: Boolean)
+    | NoMatches { group: ReportGroup, scope: ReportScopeLabel,
+                  knownQualifier: Boolean }
 ```
 
 OutOfRange replaces both position and strength for a ship or Romulan.
