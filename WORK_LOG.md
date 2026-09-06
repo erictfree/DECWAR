@@ -4270,3 +4270,17 @@ logs/spec-repeat-scope-build.log records successful build (100 productions,
 671 scenarios, 667 links, 324 fragments). PDF pages 25–26 visually reviewed
 without clipping/overlap. git diff --check passed. No runtime/archive change;
 full control-delivery and whole-book review remain active.
+
+
+## Ordinary line-editor output contract — 2026-09-06
+
+Specified Austin redisplay encoding, Ctrl-U output, lack of reader-owned
+Backspace/DEL erase text and echo-sensitive completion CR/LF. Kept initialization
+input, physical echo and disconnect delivery distinct. Checked all 128 redisplay
+codes using the source compare/skip sequence; no native parity claim.
+
+logs/spec-line-editor-output-review.log records branch/source scope;
+logs/spec-line-editor-output-build.log records successful build (100 productions,
+671 scenarios, 671 links, 324 fragments). PDF page 159 visually reviewed without
+clipping/overlap; git diff --check passed. No runtime/archive changes. Complete
+variant echo-helper and asynchronous-control review remains outstanding.

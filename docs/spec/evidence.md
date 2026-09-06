@@ -928,3 +928,17 @@ RELOC likewise acquires continuations through GTKN. The lexical clause now
 states that repetition recalls the latest ordinary acquired line and restarts
 its command sequence, not a command-only history. Separate startup-name input
 is not added to that history. No initial stale-buffer value is invented.
+
+### Ordinary editor output requests
+
+INLI 1574–1582 always requests CR on its normal completion path. Initialization
+input bypasses the generated LF; interactive input bypasses it when cf.ff remains
+set. NXCH 1608–1614 clears echo-related flags when echo is disabled. CBITS assigns
+cf.ff to LF/VT/FF/Ctrl-Z/Ctrl-C; Ctrl-O is not a completion character. Repeated
+ESC and capacity completion reach the same epilogue. DISP 1619–1637 emits raw
+codes 7–13 and codes at least 32, caret-encoding other low controls; it has no
+suffix after the retained text. Ctrl-U emits direct CRLF, while Backspace/DEL
+only alter count in the reader. The terminal clause states these requests without
+inventing physical echo, tab stops or guaranteed delivery after hangup. This is
+Austin evidence; CompuServe's existing Ctrl-G amendment remains applicable and
+complete echo-helper comparison remains a separate review.

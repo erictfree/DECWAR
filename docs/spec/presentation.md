@@ -245,6 +245,51 @@ prevent a claim of complete terminal conformance to this draft.
 [conditional blank line](../../legacy/utexas/WARMAC.MAC#L1696),
 [character output](../../legacy/utexas/WARMAC.MAC#L1309).
 
+## Ordinary line-editor output
+
+These rules describe output requested by the ordinary line reader when it reaches
+its editing or completion path. They do not require a client to echo a character
+twice, or replace the command-specific interrupt rules with ordinary completion.
+The terminal binding identifies whether input echo is enabled and whether input
+comes from the initialization resource or interactive input.
+
+Redisplay, requested by Ctrl-R or Austin Ctrl-G, emits `"\r\n"` and enables
+echo if it was disabled, then emits the retained characters in order. For a
+retained character with code c, the redisplayed text is:
+
+```text
+query RedisplayCharacter(c: integer in 0..127): Text
+    if (c < 32 and not (7 <= c and c <= 13)) {
+        return "^" + character with code (c + 64);
+    }
+    return character with code c;
+```
+
+No line ending follows the redisplayed text. This notation describes character
+output, not a requirement to store characters as integers. Tab is therefore
+emitted as tab; this clause does not select terminal tab stops. When disconnection
+has already been detected, suppress the redisplay's CRLF and character output.
+
+Ctrl-U clears the retained line and emits `"\r\n"`, unless disconnection has
+already been detected. Enable echo if it was disabled, then continue input.
+Backspace and DEL remove the last retained character but add no game-generated
+erase sequence of their own; any terminal echo of those keys is separate.
+
+When ordinary acquisition completes, emit CR. Append LF for interactive input
+unless echo was enabled and the delivered terminator is LF, vertical tab,
+form feed, Ctrl-Z or Ctrl-C, whose classification accounts for an already echoed
+line advance. For initialization-resource input, do not append LF through this
+completion step. Enable echo if disabled. A terminating ESC and a line completed
+by reaching the eighty-character limit therefore produce CRLF in interactive
+input. First-character ESC reuse passes through this same completion path.
+These completion characters are output requests subject to the binding's output
+and disconnect behavior, not a guarantee of receipt after connection loss.
+
+**Source basis:** [ordinary acquisition and completion](../../legacy/utexas/WARMAC.MAC#L1551),
+[echo-sensitive classification and redisplay](../../legacy/utexas/WARMAC.MAC#L1608),
+[echo enablement](../../legacy/utexas/WARMAC.MAC#L1145),
+[character classes](../../legacy/utexas/WARMAC.MAC#L838).
+
 ## HELP command lists and topic diagnostics
 
 For a visible command-list request, first request a conditional blank line,
