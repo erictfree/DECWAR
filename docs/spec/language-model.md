@@ -736,6 +736,29 @@ back simply because a later phase cannot begin. In particular, a failed fifth
 BUILD conversion does not imply that its earlier build and score changes never
 occurred. A blocked relocation does not refund the already paid movement cost.
 
+### Failed entry
+
+Failure to enter a coordinated phase is an execution outcome supplied by the
+coordination binding. It has no common command-level recovery rule. The
+following outcomes apply before any effects inside the requested phase:
+
+| Requested phase | Continuation after failed entry |
+| --- | --- |
+| Admission | Check interruption or disconnection and exit when required; otherwise retry entry before consuming a participant place. |
+| MOVE or IMPULSE relocation | Retry entry with the selected destination and movement cost already paid. The retry does not repeat path selection or charge that cost again. |
+| Fifth BUILD conversion | Report that the construction crew is busy and reject the conversion attempt. Retain the fifth build and its ordinary pending build credit; no base is installed. |
+| CAPTURE update | Report surrender refusal and reject capture without its ownership, resource or score changes. |
+| Player torpedo planet update | End the burst with PlanetUpdateRefused and the prescribed tube-empty report. Retain shots already consumed, including this shot. No planet damage choice, readiness-deadline update or turn completion follows this refusal. |
+| Romulan torpedo planet update | Skip this planet's damage and hit report, then continue the burst without retargeting. |
+| Nova planet update | Return PlanetUpdateRefused for this impact without changing the planet or publishing its hit. The enclosing explosion continues its remaining impacts. |
+
+These outcomes describe the operation's response to failure, not the conditions
+under which the binding must fail. In particular, the refusal messages do not
+introduce a random surrender rule, an additional construction resource, or a
+claim that ammunition became zero. Effects completed before the attempted entry
+remain in force. The phase-boundary and nested-release rules still apply after
+successful entry.
+
 ### Nested operations and waiting
 
 Coordination belongs to the session, not to a nested call. Ending any coordinated

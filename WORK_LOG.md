@@ -3594,3 +3594,17 @@ branch checks; logs/spec-displacement-boundary-build.log passed with 658 scenari
 100 productions, 324 fragments, 14 chapters and 546 links. Inspected PDF physical
 pages 105 and 219 for readable changed prose and examples. No gameplay/archive
 changes. Concurrent sector query/update ordering remains open; goal stays active.
+
+### Specification: coordinated-entry failure continuations
+
+Added a central seven-path table for admission, relocation, fifth BUILD,
+CAPTURE, player/Romulan torpedo planet updates and nova planet updates.
+Distinguished retry, refusal and skip outcomes and retained earlier effects.
+Cross-checked existing operation clauses; no failure probability or timeout
+was invented. Environment failure causes and remaining callers stay open.
+
+Validation: logs/spec-coordination-failures-review.log passed source-branch
+checks; logs/spec-coordination-failures-build.log passed 658 scenarios,
+100 productions, 324 fragments, 14 chapters and 546 links. Inspected PDF pages
+20 and 21: readable table and phase context. No gameplay or archive changes.
+Full goal remains active.

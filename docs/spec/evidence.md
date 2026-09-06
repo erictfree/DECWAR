@@ -298,3 +298,23 @@ normalization, not a new rounding rule. EX-MODEL-609–610 cover occupied and
 out-of-galaxy rejection. This review does not establish atomicity against a
 concurrent sector change between the query and update; multiplayer ordering
 remains a separate obligation.
+
+
+## Austin coordinated-entry failure continuations
+
+The core coordination chapter now groups the caller-specific failure paths.
+SETUP.FOR 163–165 checks hangup/control-C before retrying admission; DECWAR.FOR
+2234–2235 retries relocation after the cost and destination are established.
+BUILD 551–555 and CAPTURE 618–621 return their respective refusals. Player TORP
+4387–4388 branches to 2800 (4424–4425), reporting empty tubes and returning
+without the ordinary burst completion. ROMTOR 3496–3497 branches to the burst
+loop's 800 continuation, skipping the hit and retargeting branch. NOVA
+2375–2376 returns before planet damage and publication. These are source-defined
+continuations. WARMAC.MAC 3768–3790 supplies a failure indication and retry delay;
+it does not itself select the caller's retry, refusal or skip outcome.
+
+The documented table is not an exhaustive inventory of every coordination
+caller: commission release, resume and shared-service operations retain their
+separate clauses. Reentrant entry, interruption while entering and environment
+failure causes remain unresolved. No universal timeout or new failure
+probability was added.

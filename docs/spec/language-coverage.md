@@ -348,3 +348,11 @@ occupied/boundary rejection and the distinct empty-sector and black-hole state
 effects against JUMP. Existing examples cover swallowed ship/base/Romulan
 results; EX-MODEL-609–610 add blocked and boundary outcomes. This closes the
 local displacement choice-order check, not concurrent query/update ordering.
+
+
+The coordination chapter now states seven caller-specific failed-entry
+continuations together: admission, relocation, fifth BUILD, CAPTURE, player and
+Romulan torpedo planet hits, and nova planet hits. The table was checked against
+active source branches, including player TORP's misleading tube-empty report.
+This resolves no environment failure causes or reentrancy semantics; those and
+the remaining shared-service/resume paths still need complete review.
