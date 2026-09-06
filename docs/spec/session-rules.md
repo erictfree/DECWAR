@@ -563,8 +563,8 @@ and flush pending output. Then honor previousDelay unless the captain is
 privileged, using [WaitElapsed](turns.md#elapsed-waiting). Consume that prior delay
 once; retries within this acquisition do not apply it again.
 
-Before each prompt, request a conditional blank line and check the participating
-sessions' continued availability. Then apply these checks in order:
+Before each prompt, request a conditional blank line. Then apply these checks
+in order:
 
 1. If the actor's hull damage is at least 2500 damage units, perform final score
    reporting and release its commission; return CommissionReleased.
@@ -580,9 +580,10 @@ sessions' continued availability. Then apply these checks in order:
 The low-energy assignment can replace RED with YELLOW at this boundary. It does
 not raise low energy, repair damage or change shield state. No prompt check or
 input wait completes a turn or invokes periodic defenses merely because time
-has passed. Final-report failure and session-availability checks still require
-their complete environment/lifecycle bindings; a prompt does not certify an
-atomic snapshot of all sessions.
+has passed. This boundary does not test other sessions for continued availability
+or release their ships merely because their connections have disappeared.
+Final-report failure still requires its complete environment/lifecycle binding;
+a prompt does not certify an atomic snapshot of all sessions.
 
 ### Waiting and ordinary input
 
@@ -641,6 +642,7 @@ replace the already-pending path with an invented automatic quit or timeout.
 **Source basis:** [entry, prompting and wait boundaries](../../legacy/utexas/DECWAR.FOR#L1184),
 [ready-input and interrupt paths](../../legacy/utexas/DECWAR.FOR#L1230),
 [final score/release](../../legacy/utexas/DECWAR.FOR#L1258),
+[inactive availability check](../../legacy/utexas/WARMAC.MAC#L3078),
 [QUIT operation](../../legacy/utexas/DECWAR.FOR#L134),
 [readiness interval](../../legacy/utexas/PARAM.FOR#L31),
 [token acquisition](../../legacy/utexas/WARMAC.MAC#L1385).

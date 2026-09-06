@@ -175,3 +175,9 @@ token acquisition from an already-pending interrupt/disconnect at the wait
 boundary. Nested delivery, read-time disconnect, environment availability and
 final-report failures remain explicit binding questions. This does not import
 the playable host's control repair into the Austin contract.
+
+The prompt-boundary availability review resolves one previously listed gap:
+Austin CHKSEQ returns without scanning or releasing sessions (WARMAC.MAC
+3078–3079). The session chapter and EX-MODEL-592 now state that absence of an
+automatic availability check. Broader admission, resume and release contracts
+remain separate review items.

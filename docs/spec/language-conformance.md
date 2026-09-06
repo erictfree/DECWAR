@@ -602,6 +602,7 @@ defense phases. Other ships and installations do not alter the stated result.
 | EX-MODEL-589 | WaitElapsed requested zero or a negative duration | Return immediately with no suspension request and no game turn, repair, random draw or coordination release. |
 | EX-MODEL-590 | WaitElapsed requested 20000 ms; continuous clock; initial suspension returns at the established deadline | Request 10000 ms initially and return after the deadline check. Do not require an additional ten-second wait. |
 | EX-MODEL-591 | WaitElapsed requested 2000 ms; initial clock zero; suspension returns early at 1500 ms, next return is at 2500 ms | Request 2000 ms, then 1000 ms, and finish after the second return. No fractional second request is substituted to force an exact deadline. |
+| EX-MODEL-592 | Actor reaches a main-command prompt; another session has disappeared but its ship remains associated | The prompt boundary does not itself reclaim the other ship or certify that session as available. Other lifecycle operations retain their own contracts. |
 
 EX-MODEL-06 deliberately uses fractional shield strength. Historical loss of
 that fraction is excluded by the numerical normalization policy. The grammar,

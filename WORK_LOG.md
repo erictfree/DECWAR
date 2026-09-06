@@ -3173,3 +3173,15 @@ checked at physical pages 112, 138–140, 203–204 and 213 for the changed sect
 Scenario validation is structural, not original-executable behavioral parity.
 Remaining work includes availability/reentry, output contracts, concurrency and
 whole-specification consistency review.
+
+### Specification correction: inactive Austin availability scan
+
+Following CHKSEQ into WARMAC.MAC 3078–3079 shows an immediate unconditional
+return. Removed the implied prompt-boundary availability scan and added
+EX-MODEL-592: this boundary does not automatically reclaim a disappeared
+session's ship. Unreachable cleanup statements do not define a game operation.
+Source review: `logs/spec-prompt-availability-source-review.log`. Build passed
+in `logs/spec-prompt-availability-build-reviewed.log` with 616 structural scenario
+rows and 489 links; physical PDF pages 139 and 204 were visually checked.
+The first build caught a separated table row; fixed the separator and retained
+`logs/spec-prompt-availability-build.log`. Runtime and archives unchanged.

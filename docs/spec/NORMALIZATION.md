@@ -1480,3 +1480,11 @@ no-release-during-wait rule: positive PAUSE and fresh GTKN acquisition release
 and reacquire the remembered resource. This does not complete the CompuServe
 resource selection, failed suspension or reacquisition binding. Source:
 CompuServe WARMAC.MAC 1679–1690 and 4010–4042.
+
+### Austin prompt availability check
+
+The pinned `WARMAC.MAC` entry `chkseq` returns immediately at line 3079. Its
+subsequent job-sequence scan and ship-release statements are unreachable from
+that entry. Main-command acquisition therefore does not specify an availability
+scan or stale-session reclamation. This is a correction from executable source,
+not a new cleanup policy or a missing binding to be supplied by an implementer.
