@@ -138,9 +138,9 @@ HONORROLL requests the stored mission standings, independently of the current
 galaxy's POINTS report. It is available directly from startup and as a pregame
 command; either caller returns to its own prompt after the report. Trailing
 arguments are not standings selectors. It has no player-turn or resource effect.
-Standings selection, record lifetime, ranking and complete output are specified
-by the forthcoming persistence amendment; this command does not imply that
-Austin keeps the same records.
+The following clauses define standings selection, records, ranking and update
+effects, with remaining presentation and environment limits identified. Austin
+does not implicitly acquire this standings service.
 
 
 The environment identifies which service class the session is using. This is
@@ -346,10 +346,93 @@ first. Within either group, a markedMissing record retains its rank.
 the complete faction-order rule is not established by this abstract value.
 The source compares the leading primary score fields without an empty-group
 substitute. This draft does not invent zero for an absent record or use a
-memorial score instead. Complete interruption placement, damaged source records,
-heading whitespace and row formatting also remain under review.
+memorial score instead. Pending-interrupt observation points and heading literals are defined below.
+Asynchronous control transfer, damaged source records and complete row formatting
+remain under review.
 
 **Source basis:** [faction comparison and group display](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L5922).
+
+### Honor Roll headings and interruption boundaries
+
+These rules describe an explicit HONORROLL request whose output is delivered
+normally. Literal strings use `\r\n` for one unconditional carriage-return and
+line-feed pair. The strings are concatenated as written; do not replace their
+leading blank lines with conditional blank-line requests.
+
+For a nonempty source, the overall heading is:
+
+```text
+"\r\n\r\n\r\n--------------\r\n\r\n"
+"The DECWAR Honor Roll\r\n\r\n"
+"(* indicates Missing in Action)\r\n\r\n"
+```
+
+Immediately after it, a NON_PAYING source adds:
+
+```text
+"(**** non-paying users ****)\r\n\r\n"
+```
+
+The introductions for nonempty groups, in the previously specified order, are:
+
+```text
+Federation PRIMARY:
+"\r\nThe Federation has awarded the\r\n"
+"following Captains the Emerald\r\n"
+"Star Cluster for outstanding\r\nservice:\r\n\r\n"
+
+Federation MEMORIAL:
+"\r\n\r\nThe Golden Galaxy Medal has been\r\n"
+"awarded in memory of these brave\r\nCaptains:\r\n\r\n"
+
+Empire PRIMARY:
+"\r\n\r\nThe following Captains have served\r\n"
+"their Empire well:\r\n\r\n"
+
+Empire MEMORIAL:
+"\r\n\r\nThe Distinguished Service Cross\r\n"
+"has been posthumously awarded\r\n"
+"to the following Captains for\r\n"
+"their outstanding service:\r\n\r\n"
+```
+
+After each group introduction, check for a pending interrupt. If one is pending,
+omit that group's column heading and records. Otherwise emit the column heading:
+
+```text
+"\r\nCaptain        Service # Credits Ship        Runtm Date"
+```
+
+Then request a conditional line ending and emit the group's records in order,
+requesting a conditional line ending after each row. The explicit HONORROLL
+heading includes Ship, Runtm and Date even when the report's terminal-width
+binding is less than 80 columns and its rows omit those three fields. At 80
+columns or more the rows include them. Do not infer a changed width from a
+screenshot or silently remove heading labels to align a narrow report. The
+terminal binding supplies the width; this rule does not add a WIDTH command.
+Complete row-value and spacing rules remain under review.
+
+The group row traversal has no additional pending-interrupt check between
+records. An interrupt that becomes pending during the rows does not by itself
+request an immediate stop there. After a PRIMARY group's traversal, check again:
+a pending interrupt omits that faction's MEMORIAL group. This return does not
+skip the other faction's processing. A nonempty group introduction in the other
+faction can consequently be emitted before its pending-interrupt check omits
+the column heading and rows. If that faction's PRIMARY list is empty, its
+MEMORIAL introduction can be reached directly. At the source-completion boundary,
+consume the pending interrupt and return as specified above, without attempting
+a second statistics source.
+
+These are report-level observation points, not a guarantee that every output
+request survives a disconnect or an interrupt that transfers control out of
+the report. No per-row cancellation, new prompt, rollback of printed text or
+whole-report atomicity is implied.
+
+**Source basis:** [overall heading](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L5901),
+[group introductions and return checks](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L5944),
+[column heading and row traversal](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L6002),
+[width selection](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L6045),
+[conditional line ending](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L2053).
 
 ### Commission numbering
 

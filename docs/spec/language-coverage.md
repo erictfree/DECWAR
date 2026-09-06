@@ -277,3 +277,9 @@ sequence, pre-reservation ordering and final write-opening failure. The two
 intermediate NON_PAYING failure continuations remain explicitly outside the
 ordinary-completion contract; no successful reservation is inferred from a
 mission count. Examples EX-COMP-39–41 cover this distinction.
+
+Honor Roll presentation now gives exact overall/group/column heading literals,
+explicit-call narrow-versus-wide row selection, and report-level pending-interrupt
+observation points. Row values/spacing and asynchronous control transfer remain
+open. Examples EX-COMP-42–44 distinguish heading selection from row selection
+and group interruption from immediate per-row cancellation.

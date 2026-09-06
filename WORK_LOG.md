@@ -3446,3 +3446,20 @@ Inspected PDF physical pages 217 and 224–225: readable contract, types and
 examples with no clipping. No archive edits; the existing archive audit remains
 applicable. Remaining work includes full terminal output and environment failure
 bindings, and the full cross-chapter audit. Goal remains active.
+
+### Specification: Honor Roll headings and pending interrupts
+
+Defined exact CompuServe overall/source/group/column heading recipes and explicit
+HONORROLL width behavior. Pending-interrupt checks are at group entry,
+post-primary traversal and source completion; no per-row check was invented.
+Reviewed WARMAC.MAC 5885–6103, CRLF 2053, OCHR/OSTR and SETUP explicit callers.
+Updated stale forthcoming-amendment prose and added EX-COMP-42–44.
+
+Validation: logs/spec-comp-honor-headings-review.log checks seven heading recipes
+against source literals and the row traversal's separate width/no-interrupt-test
+properties. This is source evidence, not native terminal execution. Full build
+logs/spec-comp-honor-headings-build.log passed: 639 scenarios, 100 productions,
+324 fragments, 14 chapters, 534 links. Visually reviewed PDF physical pages 217
+and 223–225; no clipping or unreadable text. No gameplay or archive changes.
+Row numeric conversion, account/ship padding and date binding remain under
+review, alongside the full specification's other open work. Goal stays active.

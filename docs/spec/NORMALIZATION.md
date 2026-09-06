@@ -1626,3 +1626,15 @@ branch; those failure continuations remain environment-dependent. Mission
 numbering precedes ship reservation (SETUP 444–449) and has no elapsed threshold.
 The specification defines observed numbers without guaranteeing storage or
 completed admission. Source: WARMAC.MAC 5589–5667.
+
+### CompuServe Honor Roll headings and interrupt observations
+
+The explicit HONORROLL caller selects the extended column heading irrespective
+of row width; row extension is tested separately at 80 columns. Express that
+as a report rule without exposing the sign of the historical caller argument.
+Literal heading line breaks remain unconditional, whereas DSPSTA row endings
+use CRLF's conditional behavior. Group-entry and post-primary checks preserve
+pending-interrupt traversal without inventing per-row cancellation. Source:
+WARMAC.MAC 5885–6103 and explicit callers in SETUP.FOR. Numeric row conversion,
+account padding, short ship-name padding and date binding are separate review
+items; headings do not settle those fields.
