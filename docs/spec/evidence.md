@@ -847,3 +847,17 @@ ambiguity phrase, Could be phrase and names with comma-space separators;
 OSTB 1781–1798 suppresses name padding. Austin ASCIL adds no ending; CompuServe
 HLPALL/SLST uses the CRLF-bearing expansion, now explicitly amended. The recipes
 make no claim about resource-error diagnostics or every help-section control.
+
+### Austin explicit world-end checks
+
+Enumerated all executable CALL ENDGAM statements in the supplied Austin FORTRAN:
+DECWAR.FOR 1210,1229,2889,3724 and SETUP.FOR 60. The core now lists their guards
+and preceding phases. GETCMD's pending-notice branch returns through label 100;
+its no-notice branch calls directly at 350. PLNRMV calls after count/sequence
+updates. The countdown checks only after INPUT is false and ENDFLG is set.
+ENDGAM's two nonending guards return, while the terminating path performs final
+reports/release and calls EXIT. Propagation therefore abandons the suspended
+caller after session exit, retaining earlier effects; no whole-operation rollback
+or universal post-update check is introduced. logs/spec-world-end-sites-review.log
+preserves the direct-call inventory. Environment exit failures, interrupted
+reporting and cross-session observation times are not established by that count.

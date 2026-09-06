@@ -4163,3 +4163,20 @@ logs/spec-help-list-build.log records successful build (100 productions, 671
 scenarios, 641 links, 324 fragments). PDF pages 159 and 240 visually checked
 without clipping/overlap. git diff --check passed. No runtime/archive edits.
 Help-resource failures and full section-control behavior remain separate review.
+
+
+## Explicit world-termination check sites — 2026-09-06
+
+Enumerated all five executable Austin CALL ENDGAM sites and specified their
+phase/guard: active prompt, command wait, planet removal, forced SET and restart
+countdown. Clarified that a terminating session exit does not return to the
+suspended command or roll back earlier effects. No added per-update check or
+simultaneous termination guarantee. Runtime/archive files unchanged.
+
+logs/spec-world-end-sites-review.log records the corrected column-one comment
+scan and all call sites. The initial scanner rejected indented CALL lines and
+was corrected before editing. logs/spec-world-end-sites-build-2.log is the final
+successful build: 100 productions, 671 scenarios, 643 links, 324 fragments.
+PDF page 152 visually checked without clipping/overlap; git diff --check passed.
+Admission races, interrupted final reports and environment exit failures remain
+separate limits. The full goal remains active.

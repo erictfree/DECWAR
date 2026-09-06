@@ -815,14 +815,35 @@ session without a ship report or commission release. Other captains observe
 the ended galaxy when they reach a world-end check; the triggering check does
 not require their sessions to disappear simultaneously.
 
-World-end checks occur before the active command prompt and while awaiting
-input, as well as at the command-specific checks stated elsewhere. Fatal-ship
-handling can precede a world-end check and has its own reentry behavior.
+The explicit world-end check sites are:
 
-**OPEN QUESTION:** Complete command-specific check placement, forced termination during
-admission, final-report failures and the exact timing of other sessions' end
-observations remain to be closed with the multiplayer and control contracts.
+| Site | When the check is reached |
+| --- | --- |
+| Active command acquisition | After fatal hull/energy handling and condition reporting, before printing the command prompt. |
+| Active command wait | When the wait path reaches its no-pending-notice continuation. Pending notices instead lead back through the pre-prompt checks. |
+| Planet removal | After updating the surviving planet sequence, its count and affected sector identities. The check also occurs when other planets remain; the ordinary end predicate then governs return. |
+| SET ENDFLG | Immediately after setting the ended condition. |
+| Restart countdown | After an input wait returns without input, and only when the ended condition is already set. Ready input follows its own continuation first. |
+
+A check returning Continues resumes its caller. Once the check ends the viewer's
+session, that caller does not resume: no later weapon, conversion, report or
+turn-completion step in its suspended invocation is implied. Earlier completed
+effects are not rolled back. Final reporting and commission release precede
+session exit as described above; failures during those actions retain their
+unresolved contracts.
+
+These sites do not insert a check after every state update or immediately stop
+all other participants. A changed end condition and a viewer's observation of
+it are distinct events. Fatal-ship handling can precede a world-end check and
+has its own reentry behavior.
+
+**OPEN QUESTION:** Forced termination during admission, final-report failures
+and the exact timing of other sessions' end observations remain to be closed
+with the multiplayer and control contracts. The site inventory does not define
+new checks inside interrupted operations or an environment's exit behavior.
 
 **Source basis:** [ENDGAM](../../legacy/utexas/DECWAR.FOR#L961),
 [active command acquisition](../../legacy/utexas/DECWAR.FOR#L1184),
-[SET ENDFLG](../../legacy/utexas/DECWAR.FOR#L3719).
+[SET ENDFLG](../../legacy/utexas/DECWAR.FOR#L3719),
+[planet-removal check](../../legacy/utexas/DECWAR.FOR#L2889),
+[restart countdown](../../legacy/utexas/SETUP.FOR#L59).
