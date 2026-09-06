@@ -3718,3 +3718,16 @@ existing clauses. logs/spec-tractor-contract-build.log passed 659 scenarios,
 100 productions, 324 fragments, 14 chapters and 546 links. Inspected PDF physical
 pages 99–100: readable release and following contracts. No gameplay/archive
 changes. Concurrent and crowded following remains unresolved; goal stays active.
+
+### Specification: Romulan base-group eligibility
+
+Added DIST's omitted maintained-base-count guard before faction base scanning.
+The guard is independent of record strength and sector presence, which matters
+in unfinished installation transitions. Added EX-MODEL-612 and source evidence;
+updated current coverage count. No new target fallback or pursuit radius.
+
+Validation: logs/spec-target-base-count-review.log checks source guard order
+and example range. logs/spec-target-base-count-build.log passed 660 scenarios,
+100 productions, 324 fragments, 14 chapters and 546 links. Inspected PDF physical
+pages 123 and 222; readable rule and example. No gameplay/archive changes.
+No-target/all-distant and concurrent selection remain open; goal stays active.

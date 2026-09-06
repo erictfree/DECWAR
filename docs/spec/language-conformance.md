@@ -701,6 +701,7 @@ defense phases. Other ships and installations do not alter the stated result.
 | EX-MODEL-609 | Displace a docked green ship from (37,37) by step (1,0); candidate (38,37) contains a star and other adjacent sectors are empty | Return Stayed with position, sector contents, docking and condition unchanged. Consume no random event and do not select an alternative sector. |
 | EX-MODEL-610 | Displace a ship at (75,37) by step (1,0) | The candidate is outside the galaxy. Return Stayed without moving, wrapping, damage, scoring or a random choice. |
 | EX-MODEL-611 | Receiver has one unread published message; ReceiveMessage fails to enter the search phase | Return NoMessage with no observation or consumption. The message and its remaining-recipient set are unchanged; the result does not establish an empty unread set. |
+| EX-MODEL-612 | Romulan at (10,10); eligible Federation ship at (15,10); positive-strength Federation base at (11,10) with nonempty sector, but maintained Federation base count zero during an unfinished transition; no other eligible candidates | Select the ship with range 5. Skip the entire Federation base group despite the nearby base record. Do not replace the maintained-count guard with a fresh count of surviving records. |
 
 EX-MODEL-06 deliberately uses fractional shield strength. Historical loss of
 that fraction is excluded by the numerical normalization policy. The grammar,

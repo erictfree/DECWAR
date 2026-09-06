@@ -103,7 +103,11 @@ Form four candidate groups in order: Federation ships, Empire ships, Federation
 bases, Empire bases. A Federation ship requires an active commission, a recorded
 position and a nonempty sector at that position. An Empire ship requires a
 recorded position and nonempty sector but has no separate commission test here.
-A base requires positive strength and a nonempty sector at its position.
+A faction's base group is considered only when its maintained
+world(game).baseCounts[faction] is positive. Within that group, a base requires
+positive strength and a nonempty sector at its position. The maintained-count
+check is separate from counting eligible records; it is not replaced by such a
+count during an unfinished installation transition.
 A nonempty sector need not identify the same entity being considered; temporary
 BlackHoleObject interaction during HELP or GRIPE does not exclude the ship.
 An empty group contributes no candidate to the result.

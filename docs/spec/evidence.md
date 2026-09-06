@@ -401,3 +401,18 @@ the optional beam identity and queries the record before reading endpoints;
 it no longer treats an identity as a record. Existing following normalization,
 including a partner whose resulting sector equals its former sector, is retained.
 Crowded/out-of-galaxy following and concurrent invalidation remain unresolved.
+
+
+## Romulan target-group maintained-count guard
+
+DIST (DECWAR.FOR 865–867) checks NBASE(k) before scanning that faction's base
+records. Positive record strength and nonempty sector are additional checks,
+not substitutes. The target-selection clause omitted this group guard; it now
+uses the already-declared maintained baseCounts field. EX-MODEL-612 distinguishes
+a skipped base group from a nearby positive-strength record during an unfinished
+installation transition. Ordinary settled states agree with the prior prose,
+but intermediate-state selection no longer silently recounts bases.
+
+The same review reconfirmed the initialized squared-distance bound and undefined
+candidate data when no group installs a winner. It does not resolve the existing
+no-target/all-distant outcome by inventing inactivity or a pursuit radius.
