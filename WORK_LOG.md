@@ -3301,3 +3301,16 @@ specification examples, not claims of executing the original program.
 and marker choice. `logs/spec-comp-standings-callers-build.log` passes; physical
 PDF pages 212 and 217 were visually inspected. Other exit status, counters,
 persistence and report formatting remain unfinished. Runtime/archive unchanged.
+
+### Specification checkpoint: Honor Roll groups
+
+Added primary/memorial standings collections and group observations. Defined
+faction ordering from leading primary scores when both primary lists are
+present, Federation on ties, and primary-before-memorial ordering. Empty-primary
+ordering remains explicit: an absent record is not silently assigned score zero.
+Group award descriptions are report headings, not new game resources.
+
+`logs/spec-comp-standings-groups-source-review.log` checks the source comparison
+and group calls. `logs/spec-comp-standings-groups-build.log` passes; physical
+PDF pages 217–218 were visually reviewed. Persistence, remaining domains and
+complete terminal/interruption behavior remain active work. Runtime unchanged.

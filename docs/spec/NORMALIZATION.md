@@ -1561,3 +1561,12 @@ This record attribute does not stand for a universal physical-destruction event.
 The marker is described independently of packed status flags. These callers read
 elapsed time before final POINTS, then update standings before FREE; failure
 continuations and the separate ordinary/fatal-exit caller remain unfinished.
+
+### Honor Roll group ordering
+
+Primary and memorial lists are distinct abstract record sequences. Faction
+ordering compares the leading primary scores, with Federation on ties; memorial
+scores do not participate. Empty-primary score storage has no automatic meaning
+in a list ADT, so that domain is explicitly unresolved rather than normalized
+to zero. Group headings do not create new awards in game state. Source-order
+and update rules remain distinct from terminal row formatting.

@@ -280,6 +280,62 @@ not reclassify a losing commission as a destroyed physical ship.
 [ten-entry limit](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L231),
 [elapsed-time caller](../../legacy/compuserve/fortran%201978/GETCMD.FOR#L114).
 
+
+### Honor Roll group observations
+
+```text
+enum StandingsGroupKind = PRIMARY | MEMORIAL
+
+type CompuServeStandings = {
+    primary: Map<Team, List<CompuServeStanding>>;
+    memorial: Map<Team, List<CompuServeStanding>>;
+};
+
+type StandingsGroup = {
+    team: Team;
+    kind: StandingsGroupKind;
+    records: List<CompuServeStanding>;
+};
+
+query OrderStandingsGroups(value: CompuServeStandings): List<StandingsGroup>
+    requires both primary lists are nonempty
+```
+
+Each of the four lists contains at most ten records. PRIMARY and MEMORIAL name
+report groups, not a test of whether a captain currently has a ship. In
+particular markedMissing records can appear in PRIMARY under the update rule.
+Records in one group retain their source order; display does not sort them
+again or merge records from different groups.
+
+Within the query's domain, compare the first primary record's score for each
+faction. Federation comes first when its score is at least Empire's, including
+a tie; otherwise Empire comes first. For the first faction emit its nonempty
+PRIMARY group and then its nonempty MEMORIAL group. Then do the same for the
+other faction. Omit empty groups. Neither elapsed time nor a memorial score
+changes this faction ordering. The query reads only the supplied standings
+value and changes no game or stored record.
+
+Each nonempty group has its own introductory text: Federation PRIMARY describes
+the Emerald Star Cluster, Federation MEMORIAL the Golden Galaxy Medal, Empire
+PRIMARY service to the Empire, and Empire MEMORIAL the Distinguished Service
+Cross. These are Honor Roll headings, not newly awarded game-state resources.
+A missing group contributes no introduction or row heading. The overall Honor
+Roll heading is governed by the earlier source-selection rule.
+
+For example, Federation primary score 100 and Empire primary score 90 place
+Federation's primary and memorial groups first even if Empire's memorial group
+contains a score of 1000. If the primary scores tie, Federation still comes
+first. Within either group, a markedMissing record retains its rank.
+
+**OPEN QUESTION:** When either primary list is empty but memorial records remain,
+the complete faction-order rule is not established by this abstract value.
+The source compares the leading primary score fields without an empty-group
+substitute. This draft does not invent zero for an absent record or use a
+memorial score instead. Complete interruption placement, damaged source records,
+heading whitespace and row formatting also remain under review.
+
+**Source basis:** [faction comparison and group display](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L5922).
+
 ## Ctrl-G during command input
 
 Amends [line acquisition and editing](lexical.md#lex-2--line-acquisition-and-editing).
