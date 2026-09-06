@@ -4086,3 +4086,19 @@ logs/spec-romulan-domain-build.log records a successful build (100 productions,
 671 scenarios, 617 links and 324 source fragments). PDF page 123 visually checked
 with no clipping/overlap. git diff --check passed. No-target outcomes and
 concurrent selection remain explicitly unspecified; the full goal remains active.
+
+
+## Coordinated-execution conformance criteria — 2026-09-06
+
+Added evidence requirements for assessing multiplayer traces: successful versus
+pending/failed entry, domain ownership, variant release scope, intermediate
+effects and uncoordinated observations. Rechecked Austin entry/release wrapper;
+criteria reference existing semantic contracts and add no scheduling policy.
+Single-session/sequential checks are explicitly insufficient for overlap claims;
+retries do not prove fairness or bounded waiting.
+
+logs/spec-coordination-assessment-review.log records review scope;
+logs/spec-coordination-assessment-build.log records successful build (100
+productions, 671 scenarios, 618 links, 324 fragments). PDF pages 183–184 visually
+reviewed without clipping or overlap. git diff --check passed. No gameplay or
+archive edits; unresolved reentrancy/interruption domains remain outside claims.

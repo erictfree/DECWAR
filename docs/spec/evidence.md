@@ -786,3 +786,15 @@ idle action or diagnostic. The condition is nonvacuous: opposite galaxy corners
 have squared distance 10952. Absence and all-distant states therefore cannot be
 silently assumed impossible from position bounds alone. Historical sentinel
 and retained-storage details remain in this companion, outside the book.
+
+### Coordinated-execution assessment criteria
+
+Added conformance criteria for traces exercising the existing coordination
+contracts: distinguish request/success/failure, track domain ownership and
+release scope, preserve before-entry effects and avoid whole-command/snapshot
+claims. These are evidence requirements derived from the existing phase table,
+not an additional scheduling algorithm. Rechecked Austin WARMAC.MAC 3768–3799:
+public and internal entry choose separate fixed domains; failure returns a
+flag after a delay; release requests all locks held by the job. Existing
+caller-specific continuations remain unchanged. A host's reentrancy or fairness
+policy cannot fill the draft's unresolved source/environment domains by default.

@@ -77,6 +77,34 @@ does not establish exact terminal correspondence.
 These criteria organize evidence and claims. They add no command, gameplay
 operation, scoring rule, scheduling policy or required implementation architecture.
 
+## Assessing coordinated executions
+
+A multiplayer assessment identifies the participating sessions and the ordered
+operations, observations and environment outcomes in its evidence. A trace may
+record these as abstract events; no thread, lock or storage representation is
+required. For every coordinated phase exercised by that trace, establish:
+
+| Evidence | Required assessment |
+| --- | --- |
+| Successful entry | Identify the session, coordination domain and operation phase. No other session may occupy that same domain during the interval the phase retains coordination. |
+| Failed or pending entry | Distinguish the request from successful entry. Apply the caller's specified continuation, including effects completed before the request; a pending request is not evidence of a refusal. |
+| Release | Identify the boundary that ends coordination and its scope. In Austin, a nested phase ending releases all domains held by that session; returning to its caller does not reacquire them. Apply CompuServe's amendment when assessing that variant. |
+| Intermediate effects | Check the ordering of resource payment, shared-state changes, publication and observations against their own clauses. Do not move effects into a phase simply because they belong to the same command. |
+| Uncoordinated observations | Identify the state observed at the relevant step. A completed multirow report does not by itself establish a single simultaneous snapshot. |
+
+An assessment must identify which entry failures, interruptions and scheduling
+conditions were actually exercised. A single-session run cannot establish
+exclusion between sessions. Two successful commands run one after the other
+cannot establish behavior under overlapping requests. Nor does a successful
+retry prove fairness, a maximum wait or eventual completion for every request.
+
+The [coordination contract](language-model.md#coordination-and-overlapping-operations)
+and command-specific boundaries govern these comparisons. Reentrant entry,
+cross-galaxy scope and unresolved interruption paths cannot be certified merely
+by supplying a host's default policy. Such behavior must remain identified as
+outside the assessed domain where this edition supplies no rule. These evidence
+requirements introduce no new ordering or recovery behavior.
+
 ## Semantic examples
 
 The examples below use the abstract model and ordinary game-unit arithmetic.
