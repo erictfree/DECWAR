@@ -4297,3 +4297,20 @@ scenario rows, 14 chapters, 676 links; logs/spec-comp-editor-build.log. These
 are structural checks, not executed semantic scenarios. Rendered and inspected
 PDF page 254; no clipping or overfull/undefined LaTeX warnings. Whole-book
 semantic and concurrency review remains outstanding.
+
+## Specification: modern-guide completion review
+
+Re-read the supplied Markdown guide and checked the model's introductory
+contracts/notation and SHIELDS against it and Austin SHIELD. Recorded a concrete
+remaining issue: the guide asks for declarations before use, while the model
+currently permits forward references and uses entity/query and Capture outcome
+types before their detailed definitions. Earlier nominal-name checks do not
+close that reading-order requirement. Added guide-specific completion evidence
+and limits to language-coverage; refreshed its stale ordinary-output coverage
+to include the completed HELP/NEWS/GRIPE and editor reviews. Across all 14 book
+units, a bounded notation scan found no ===, non-grammar :=, or inconsistent
+Array/ReadonlyArray/Record collection spellings; logs/spec-guide-notation-review.log
+records scope and the initial grammar false positives. No normative or gameplay
+change; no PDF rebuild needed. Next: improve declaration/introduction order and
+continue whole-book operation/domain review, without treating lexical checks as
+semantic verification.

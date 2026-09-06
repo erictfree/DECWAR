@@ -25,7 +25,7 @@ correct or complete semantic contract.
 | Multiplayer ordering and timing | coordination domains; communication operations; turn and elapsed-wait rules; main-command acquisition | Phase boundaries, nested release, thirteen caller-specific failed-entry continuations and multiplayer-trace assessment criteria are specified. Reentrancy, racing claims, interrupted operations and full delivery bindings remain incomplete. |
 | Session/configuration/lifecycle | session-rules admission, preferences, release, history, world end and SavedShipCondition | Both variants’ five explicit world-end check sites and ordinary non-returning propagation are reviewed; CompuServe’s standings-before-release difference is represented. Saved values do not establish a working continuation; concurrent admission, final-report failure and interrupted lifecycle remain. |
 | Randomness and reproducibility | world-rules RandomEvent, distributions, conditional draws and tournament mapping | Replay validation, retained direct impact draws and finite-source disclosure are specified. Distribution qualification, complete nested draw/context ordering and interrupted replay remain unverified; no universal approximation tolerance is selected. |
-| Observable output | presentation; information; 324 named fragments verified against Austin | Ordinary resource, weapon, movement, SET and player TELL responses, HELP lists and topic diagnostics are reviewed, with specific CompuServe amendments. Terrain suffixes, complete terminal editing/transport, help/resource failures and interrupted output still prevent a complete terminal claim. |
+| Observable output | presentation; information; 324 named fragments verified against Austin | Ordinary resource, weapon, movement, SET and player TELL responses, HELP/NEWS/GRIPE diagnostics, repetition scope and ordinary line-editor output are reviewed, with specific CompuServe amendments including echo behavior. Terrain suffixes, full transport/control delivery, interrupted output and resource cleanup failures still prevent a complete terminal claim. |
 | Conformance examples and claims | language-conformance has 671 scenario rows at this checkpoint; README limits claims | Examples present. Builder checks table structure and duplicate IDs, not their expected results. Claim domains and evidence requirements are defined; final scenario coverage and complete domain review are still needed. |
 | Single assembled publication and attribution | manifest metadata; builder; output PDF/Markdown/LaTeX | Build mechanism and credited draft exist; recent changed pages were visually checked. Final whole-document editorial/layout review remains required after substantive edits finish. |
 | Evidence, normalization and runtime preservation | source links; NORMALIZATION; WORK_LOG; source audit | Current generated-data audit passes; the complete Austin archive separately matches all 39 manifest entries, lengths and hashes. Recent changes are documentation only. These preservation checks are not semantic proof; verify the final publication diff and remaining review gates. |
@@ -509,3 +509,22 @@ This closes the direct check-site inventory and ordinary caller propagation;
 it does not close interrupted final reporting, persistence failures, admission
 races or the time at which another session reaches its check. Evidence:
 logs/spec-world-end-sites-review.log and logs/spec-comp-world-end-review.log.
+
+## Modern specification guide review
+
+The supplied September 5 Markdown guide requires EBNF for external syntax,
+modern typed records and unions, and typed C-family behavior with explicit
+contracts. Its final quality checks apply to the entire assembled book.
+
+| Guide check | Verified evidence and remaining review |
+| --- | --- |
+| Consistent notation | All 14 manifest units contain no JavaScript `===`, assignment `:=`, or Array/ReadonlyArray/Record collection spellings. EBNF `::=` is intentionally excluded. This is a lexical check only; logs/spec-guide-notation-review.log records it. |
+| Introduce types and operations before use | Not yet satisfied literally: the opening GameState queries refer to ShipId and Ship before their declarations, and the illustrative Capture signature refers to its later command outcome. The model permits named forward references, but the guide asks for definitions before use. Review the reading order and introductions, including mutually dependent records, rather than interpreting the existing name scan as proof. |
+| Explicit optional values and failure results | Optional and Result, query domains, rejection without rollback, and result-tag scope are defined in language-model. Every operation still needs its local bindings, optional reads and outcome payloads checked against these definitions. |
+| State changes and frame conditions | The notation states that an operation leaves unmentioned state unchanged by its own effects; concurrent actors are separate. SHIELDS provides explicit postconditions and untouched fields. This establishes the convention, not its correct application to every operation. |
+| Ordering and atomicity | Before/after is scoped to a named event and does not imply an atomic command. The SHIELDS confirmation interval remains explicitly open; do not interpret its E/S snapshots as a proven concurrent implementation contract. Review other delayed operations under the same criterion. |
+| Examples and unresolved behavior | Scenario rows are structurally checked, not executed. Review expected values against general rules and source; retain OPEN QUESTION boundaries where evidence cannot select an outcome. |
+
+The initial inspection covered the model's notation/query/contract introductions
+and SHIELDS through its examples, against Austin SHIELD's transfer and confirmation
+branches. It is not a whole-book semantic review. No new game behavior was chosen.
