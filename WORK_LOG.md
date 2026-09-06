@@ -4006,3 +4006,20 @@ logs/spec-response-examples-build.log: 671 scenarios, 100 productions, 324
 fragments, 14 chapters and 609 links. Inspected PDF physical pages 182,229–230;
 scope and examples readable. These are source-derived expectations, not native
 transcripts. No gameplay/archive changes; full goal remains active.
+
+
+## Specification nested-field and pregame-domain review — 2026-09-06
+
+Checked 18 nested command member forms against their declared ADTs. Moved the
+existing pregame COUNT-only report exception ahead of optional origin/team use;
+active report rules continue to follow Austin DECWAR.FOR 1922–1954. Reconciled
+the early SET NAME normalization paragraph with its later active-commission-only
+scope. No gameplay or archive changes.
+
+Validation: logs/spec-nested-fields-review.log passed its bounded member-name,
+exception-order and stale-text checks. logs/spec-nested-fields-build.log records
+a successful build: 100 grammar productions, 671 scenario rows, 14 chapters,
+609 links and 324 source message fragments. Visually inspected PDF page 73:
+legible text and code, no clipping or overlap. git diff --check passed. These
+checks do not establish all optional lifetimes, units or concurrent behavior;
+the specification goal remains active.

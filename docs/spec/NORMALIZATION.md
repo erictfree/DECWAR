@@ -182,11 +182,14 @@ invent a capture-induced discovery change.
 
 ## Preferences and message identities
 
-SET NAME updates the captain's abstract display name, including before
-commissioning. The source's pregame use of an unset ship index does not prescribe
-an unrelated JOB-field overwrite. Twelve-character retention, printable-character
-case transformation, whitespace handling and the one additional prompt remain
-language rules. Packed six-bit encoding does not determine meanings for embedded
+SET NAME updates the captain's abstract display name during an active commission.
+Pregame assignment remains unspecified; it neither updates the entry name nor
+supplies a safe display-name assignment for an absent commission. This is the
+scope established in [entry names and administrative statistics](#entry-names-and-administrative-statistics),
+which supersedes the earlier blanket pregame assignment. The source's unset
+ship index does not prescribe an unrelated JOB-field overwrite. Twelve-character
+retention, printable-character case transformation, whitespace handling and the
+one additional prompt remain language rules. Packed six-bit encoding does not determine meanings for embedded
 nonprinting input; that lexical edge case remains unresolved.
 
 TTYTYPE's ordered matching retains the first matching profile during an ambiguous

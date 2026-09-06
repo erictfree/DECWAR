@@ -1939,6 +1939,11 @@ operation AdmitReportEntity(context: ReportContext, group: ReportGroup,
 ```
 
 The candidate has already passed kind, affiliation and presence selection.
+The pregame whole-galaxy COUNT-only case admits COUNT directly, with both
+Boolean admission properties false; no absent origin or team is read.
+For the remaining path, context.origin and context.team must be present.
+Use their contained Position and Team values for distance and knowledge queries.
+This requirement does not select a fictitious pregame position or faction.
 Within this operation let c be captain(game, context.viewer) and w be world(game).
 Use its Ship.position/team, Base.position/team, Planet.position/owner, or
 the current Romulan.position and ROMULAN affiliation. A neutral planet has
@@ -1957,9 +1962,8 @@ BaseEntity { base: id }:   id in w.knowledge[context.team].knownBases
 PlanetEntity { planet: id }: id in w.knowledge[context.team].knownPlanets
 ```
 
-The pregame whole-galaxy COUNT-only case admits
-COUNT directly; no absent origin or team is read. Admission changes no game
-state. A CLOSEST search uses this eligibility, then applies its tie rule.
+Admission changes no game state. A CLOSEST search uses this eligibility,
+then applies its tie rule.
 
 For CLOSEST, an eligible candidate at a distance equal to the current nearest
 distance replaces it. Thus ties choose the last eligible object in the candidate

@@ -692,3 +692,21 @@ EX-COMP-49 supplies a clear two-sector move and failed destination entry. Its
 and sets GREEN before the refusal. CompuServe DECWAR.FOR 140 transfers alternate
 return to 49/50 (77–81), bypassing movement turn completion. The example stops
 before subsequent command acquisition and makes no claim of silent coordination.
+
+### Nested command fields and pregame report domains
+
+Checked direct nested s/c/w member forms in commands.md against Shields,
+DeviceState, RadioSettings, TeamKnowledge and RomulanActivity. Literal Device
+keys are declared; dynamic d/device keys come from Device iteration or matching
+DeviceSelector. This resolves member-name availability, not all unit or lifetime
+proofs. ReportContext.team is Optional<Team>; moved its existing pregame COUNT
+exception before distance/knowledge use and explicitly required contained origin
+and team values for the remaining path. No new pregame report behavior was added.
+LSTUPD 1922–1954 remains the ordinary active-report source basis, with the existing
+pregame whole-galaxy abstraction retained.
+
+Removed a stale early NORMALIZATION statement claiming SET NAME updates the
+captain before commissioning. Its later entry-name section and normative
+session/command clauses already restrict assignment to an active commission and
+leave pregame assignment unspecified. This reconciles the decision record with
+the current specification; it is not a new repair or a gameplay change.
