@@ -140,8 +140,9 @@ coverage does not establish lifecycle, concurrency or terminal conformance.
   feedback records drafted; complete headers and storage-failure bindings remain.
 - CompuServe appendix: population, names, explicit initial preferences and selection,
   startup versus pregame matching, DOCUMENT effects, HONORROLL entry/continuation,
-  Ctrl-G behavior and the two speech probabilities are specified. Full standings,
-  Romulan direct replies/audiences, privilege, lifecycle/concurrency and presentation
+  Ctrl-G behavior, speech probabilities, autonomous audiences and their silent
+  validation are specified. Full standings, Romulan direct replies, privilege,
+  lifecycle/concurrency and presentation
   amendments remain. Separate CompuServe examples cover the new clauses.
 - Examples: resources, scans/reports, tractor, movement, construction, capture,
   phaser, torpedo, nova, defense, report visibility, knowledge, scoring, preferences

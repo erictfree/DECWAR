@@ -26,7 +26,8 @@ radio faction groups contain the five ships of their faction. Iteration over
 the roster uses this same order; the USERS faction separator precedes Cobra.
 Autonomous Romulan speech audiences remain part of the communication amendment.
 
-**Source basis:** [roster names](../../legacy/compuserve/fortran%201978/BLKDAT.FOR#L84),
+**Source basis:** [population](../../legacy/compuserve/fortran%201978/PARAM.FOR#L25),
+[roster names](../../legacy/compuserve/fortran%201978/BLKDAT.FOR#L84),
 [USERS roster order](../../legacy/compuserve/fortran%201978/USERS.FOR#L42).
 
 ## Initial preferences
@@ -181,14 +182,65 @@ weapon changes. The speech event itself can consume its own choices.
 **Source basis:** [appearance speech test](../../legacy/compuserve/fortran%201978/ROMDRV.FOR#L64),
 [post-weapon speech test](../../legacy/compuserve/fortran%201978/ROMDRV.FOR#L123).
 
+## Autonomous speech audiences
+
+Amends [autonomous Romulan speech](communication.md#autonomous-romulan-speech).
+The audience choice selects one of the following three values with equal
+probability. The qualifier belongs to the selected value; it is not another
+random choice.
+
+```text
+type SpeechAudience = {
+    candidates: Set<ShipId>;
+    qualifier: Text;
+};
+```
+
+| Choice | Candidate ship identities | Qualifier |
+| --- | --- | --- |
+| 1 | All ten ships in the CompuServe roster. | `sub-Romulan ` |
+| 2 | Lexington, Nimitz, Savannah, Vulcan, Yorktown, Cobra, Demon, Hawk and Jackal. | `human ` |
+| 3 | Wolf. | `klingon ` |
+
+These are speech audiences. Ordinary TELL faction groups retain their five-ship
+membership. In particular, the word `human ` in a speech body does not assert
+that every recipient belongs to the Federation.
+
+Choose the audience, opening, adjective and noun in that order. Use the core
+opening, adjective and noun alternatives and concatenate opening, adjective,
+selected qualifier, noun and `s!`. These four choices occur even when the
+chosen audience ultimately has no available recipients.
+
+For each candidate, retain it exactly when its ship is commissioned, its radio
+damage is below 300 damage units, and its captain's radio is enabled. Exclude
+unavailable candidates silently: CompuServe emits neither the individual
+recipient-validation diagnostics nor NoRecipients for this autonomous event.
+Do not exclude the triggering captain's ship merely because it triggered the
+event. The event neither enables that captain's radio nor requires its radio
+to be undamaged.
+
+Let c be the triggering captain and recipients the retained set. Remove
+recipients from c.radio.gaggedSenders, then publish the body with sender ROMULAN
+if recipients is nonempty. An empty audience produces no publication. Other
+captains' gag settings are unchanged. The ungagging precedes publication and is not contingent on its completion.
+Silent recipient validation does not suppress an independent publication or
+transport diagnostic.
+
+**OPEN QUESTION:** CompuServe's complete publication waiting and failure contract
+remains part of its concurrency amendment. The publication caller retries initial
+capacity admission on an unavailable result, unlike Austin's immediate
+NotPublished result at that point. This does not establish that every busy
+publication eventually returns, or that Ctrl-C cancels it. The rules above specify
+audience selection and body construction without assuming either outcome.
+
+**Source basis:** [audience and body choices](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L6225),
+[autonomous validation and publication](../../legacy/compuserve/fortran%201978/TELL.FOR#L127),
+[roster identities](../../legacy/compuserve/fortran%201978/BLKDAT.FOR#L84),
+[publication admission retry](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L3560).
+
 ## Remaining amendments
 
-Romulan communication, standings persistence, concurrency and other differences
+Direct Romulan replies, standings persistence, concurrency and other differences
 still require language-level descriptions. The earlier [CompuServe source
 analysis](compuserve.md) retains the derivations. Packed representations and
 machine side effects in that analysis are not requirements of this appendix.
-
-**Source basis:** [population](../../legacy/compuserve/fortran%201978/PARAM.FOR#L25),
-[names](../../legacy/compuserve/fortran%201978/BLKDAT.FOR#L84),
-[initial dialogue](../../legacy/compuserve/fortran%201978/DECWAR.FOR#L30),
-[pregame commands](../../legacy/compuserve/fortran%201978/SETUP.FOR#L505).

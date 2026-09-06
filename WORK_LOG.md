@@ -3034,3 +3034,29 @@ pages 195–200 for layout and legibility; checked scenario identifiers on page
 records structural source checks, not execution. Source audit passed in
 `logs/spec-compuserve-startup-audit.log` (135 hashes, 83 declarations). No gameplay
 or immutable archive changes. The specification remains incomplete.
+
+
+## Specification checkpoint: CompuServe autonomous audiences
+
+Defined SpeechAudience as explicit ship identities and a text qualifier; added
+all three audience sets, four-choice body order, silent recipient validation,
+triggering-captain ungagging and four examples. The single-ship Wolf audience
+retains plural wording. Ordinary faction radio groups remain unchanged. Kept
+source encoding and phantom identities out of the normative book.
+
+Source review found CompuServe publication's initial admission retry differs
+from Austin. Kept its unresolved waiting/return contract explicit instead of
+claiming the shared failure behavior applies unchanged. Next source review is
+TELL ROMULAN direct replies and the publication/relocation ordering, including
+the incomplete underlying wait/error path. Recommended high for that concrete
+concurrency/source ambiguity; no app setting was changed.
+
+Validation: `logs/spec-compuserve-audiences-build-reviewed.log` passes 100 grammar
+productions, 12 terminal categories, 578 scenario rows, 441 links and 324 message
+fragments. Visually reviewed physical PDF pages 196 and 200 for examples and the
+new amendment; removed a redundant trailing source paragraph that otherwise
+occupied a page by itself. Structural source review is recorded in
+`logs/spec-compuserve-audiences-source-review.log`; immutable-source audit passed
+in `logs/spec-compuserve-audiences-audit.log`. These checks do not establish
+complete semantics, original execution parity or scheduler conformance. No
+runtime changes; full specification goal remains active.

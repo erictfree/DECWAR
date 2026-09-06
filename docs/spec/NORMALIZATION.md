@@ -1356,3 +1356,17 @@ explain that result only in research, not in the language-level amendment.
 The Romulan speech tests retain their source positions and changed draw bounds.
 Source: SETUP.FOR 126–190, 505–565; WARMAC.MAC 980, 1313–1338, 1897–1901,
 1970–1972; ROMDRV.FOR 64 and 123. No game or runtime changes accompany the appendix.
+
+
+## CompuServe autonomous speech audiences
+
+Replaced historical recipient encoding with explicit sets of the ten declared
+ship identities. The three speech choices denote all ten ships; the five
+Federation ships plus Cobra, Demon, Hawk and Jackal; and Wolf. Retained their
+respective sub-Romulan/human/klingon wording and the plural body form. This
+preserves the observable candidate sets without introducing nonexistent ship
+identities, encoding masks or a new faction classification into the book.
+Ordinary TELL groups remain five ships per faction. Source: CompuServe
+WARMAC.MAC 6225–6311, BLKDAT.FOR 84–100 and TELL.FOR 127–174. Autonomous
+recipient failures are silent, unlike the core Austin path; publication and
+transport failures remain separately governed. No runtime changes.
