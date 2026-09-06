@@ -812,3 +812,16 @@ CRLF therefore matters. TELL08 separately includes a leading CRLF and period.
 Capacity admission precedes short-body rejection in MAKMSG; the recipe does
 not invent NoMessageSent on failed admission. All nine fragment rows were
 extracted from immutable MSG.MAC without newline translation.
+
+### CompuServe TELL text and refusal ending
+
+All nine TELL01–09 MSG.MAC fragments match Austin byte-for-byte. CompuServe
+TELL.FOR retains the ordinary player diagnostic suffixes, body call and final
+conditional CRLF (158–159). Its WARMAC.MAC ASCIL macro (51–54), however, embeds
+CRLF before the closing delimiter; Austin's macro (22–24) does not. Thus the
+mmsg.5 No message sent text itself ends with CRLF in CompuServe. The appendix
+preserves that earlier ending rather than assuming identical helper expansion
+from the same call spelling. Final TELL CRLF remains conditional in both.
+Existing direct-Romulan and autonomous-suppression amendments continue to govern
+those different paths. logs/spec-comp-tell-review.log records exact fragment
+comparison and both macro bodies. No new interruption schedule is prescribed.

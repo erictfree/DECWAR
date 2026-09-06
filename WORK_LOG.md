@@ -4119,3 +4119,17 @@ records a successful build (100 productions, 671 scenarios, 624 links, 324
 fragments). PDF pages 159–160 visually checked without clipping/overlap.
 git diff --check passed. Full delivery/interruption and CompuServe amendments
 remain separate obligations; this is sender-response coverage only.
+
+
+## CompuServe TELL refusal ending — 2026-09-06
+
+Verified nine TELL fragments identical between variants, but found the ASCIL
+expansions differ: CompuServe embeds CRLF; Austin does not. Added the precise
+body-refusal output boundary amendment while preserving direct-Romulan and
+autonomous-suppression rules. No gameplay or archive changes.
+
+logs/spec-comp-tell-review.log preserves exact fragment checks and both macro
+bodies. logs/spec-comp-tell-build-2.log records the final successful build after
+clarifying wording to include body cancellation (100 productions, 671 scenarios,
+629 links, 324 fragments). PDF page 238 visually checked with no clipping or
+overlap. git diff --check passed. Full variant/interruption review remains.

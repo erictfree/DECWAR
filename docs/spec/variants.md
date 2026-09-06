@@ -48,6 +48,20 @@ input waiting and world termination still use their variant contracts.
 **SET source basis:** [command selection and prompts](../../legacy/compuserve/fortran%201978/SET.FOR#L27),
 [terminal-type retry](../../legacy/compuserve/fortran%201978/SET.FOR#L78).
 
+For player [TELL responses](presentation.md#tell-command-responses), the nine
+recipient fragments and ordinary recipient/body prompts remain the same.
+CompuServe's body refusal emits `"No message sent\r\n"` during body handling. Austin's corresponding text has no appended ending there. Both
+player TELL paths subsequently request a conditional blank line when the body/publication path
+returns; this later request is not a second unconditional ending. Preserve that
+output boundary when assessing interruptions or intervening observations.
+The [direct Romulan reply amendment](#direct-romulan-replies) still controls
+RomulanUnavailable and suppression of NoRecipients after a reply attempt;
+autonomous speech retains its own diagnostic suppression.
+
+**TELL source basis:** [player output](../../legacy/compuserve/fortran%201978/TELL.FOR#L39),
+[body refusal](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L3589),
+[line-ending definition](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L51).
+
 Amending [movement relocation](commands.md#traversal-resource-cost-and-relocation),
 CompuServe Move can additionally return RelocationRefused. This is a semantic
 outcome, not command syntax or a new terminal message. When a required relocation
