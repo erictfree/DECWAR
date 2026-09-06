@@ -117,13 +117,15 @@ placement rule is introduced by this draft.
 **Source basis:** [TRCOFF](../../legacy/utexas/DECWAR.FOR#L4504),
 [following movement](../../legacy/utexas/DECWAR.FOR#L2227).
 
-## Phaser damage to ships and bases
+## Weapon damage to ships and bases
 
-The firing command supplies an attacker, target, firing strength and distance.
-The same calculation serves installation defense. In the following formulas,
+The firing command supplies an attacker, target and weapon parameters.
+The phaser calculation also serves installation defense. In the following formulas,
 H is damage measured in damage units; S is shield or base strength measured in
 percentage points, so 100 denotes full strength. These local numbers stand for
 the named game quantities.
+
+### Phaser impact
 
 Draw b and c with `UnitDraw()`. Let `F = (0.9 + 0.02*c)^distance`. If a player
 ship is firing and either its phasers or computer has positive damage, multiply
@@ -141,6 +143,38 @@ newStrength := S - 0.03 *
 Set a ship's shield strength to `max(0, newStrength)` percentage points. Set a
 base's strength to `newStrength` percentage points; the base resolution below
 handles nonpositive strength. Then resolve H using the following rules.
+
+### Torpedo impact
+
+A torpedo does not damage a ship whose energy is already nonpositive or whose
+hull damage is already at least 2500 units, or a base whose strength is already
+nonpositive. Otherwise draw a, b and c with `UnitDraw()` and let
+`rawDamage = 400 + 400*c` damage units.
+
+For a ship with shields down, set H to rawDamage and leave shield strength
+unchanged. For a shielded ship or a base, first test deflection using its current S:
+
+```text
+if b - (S/100)*a + 0.1 <= 0:
+    H := 0
+    strength := max(0, S - 5*b) percentage points
+    report TorpedoDeflected
+else:
+    H := rawDamage * (1 - S/100)
+    strength := S - 0.03 * (rawDamage * max(S/100, 0.1) + 1)
+    if target is a ship:
+        strength := max(0, strength)
+```
+
+A deflected hit skips critical damage and ordinary hull, energy and base-strength
+damage. It still lowers exhausted shields, sets a ship's condition red, and
+attempts to displace a surviving ship. A hit that was not deflected applies the
+critical, ordinary-damage and score rules below, using b from this impact.
+
+After damage, a surviving ship is displaced along the torpedo's trace step.
+Destruction by that displacement earns the same 500-point ship kill credit.
+An ordinary torpedo hit does not displace a base. The firing command releases
+the victim's tractor beam after the hit notification, including a deflected hit.
 
 ### Critical ship damage
 
@@ -197,8 +231,11 @@ CriticalBaseHit(base):
 
 The early critical path skips ordinary base damage and ordinary damage-score
 credit. Its hit report still carries the originally calculated H. A destroyed
-base has zero strength and no presence in its sector; destruction also invokes
-docking re-evaluation and the appropriate destruction notification.
+base has zero strength and no presence in its sector. On this weapon-damage path,
+docking re-evaluation occurs before removing the base or setting its strength to
+zero. Consequently, a base destroyed by the random critical outcome while still
+at positive strength can itself preserve a nearby ship's docking at that step.
+The firing command supplies the subsequent destruction notification.
 
 ### Score and result
 
@@ -228,12 +265,136 @@ Romulan from the galaxy and report destruction.
 
 For a player-fired weapon, add the reported damage in points to the pending
 ROMULAN category, plus 500 points when the Romulan is destroyed. Installation
-attackers credit their faction directly. A surviving Romulan struck by a player's
-torpedo can also be displaced; that caller's displacement rule is still being
-converted. Phaser hits do not invoke that displacement.
+attackers credit their faction directly. For a surviving Romulan struck by a
+player's torpedo, `IntegerDraw(10) > 7` attempts displacement along the trace
+step. Destruction by that displacement also earns the 500-point bonus. Phaser
+hits do not invoke that displacement.
 
 **Source basis:** [PHAROM, TOROM and DEADRO](../../legacy/utexas/DECWAR.FOR#L3382),
 [player phaser credit](../../legacy/utexas/DECWAR.FOR#L2711).
+
+## Blast displacement
+
+`Displace(target, step)` uses a direction step from a torpedo path or from an
+exploding star to the affected sector. Compute the candidate by rounding each
+coordinate of `target.position + step` down to a whole sector. If the candidate
+is outside the galaxy, is not exactly one sector away in Chebyshev distance,
+or contains an object other than a black hole, nothing moves.
+
+For an empty candidate, move the target there and update its galaxy presence.
+A displaced player ship becomes undocked and red. Displacement itself does not
+charge energy, change shields, or release a tractor association.
+
+For a black hole, remove the target from its old sector without replacing the
+black hole. A ship receives 2500 hull-damage units and ceases to be commissioned;
+a base receives zero strength; the Romulan ceases to exist. Report displacement
+into the black hole. Keep the target's last occupied position distinct from that
+reported destination. The caller performs its destruction scoring and notices.
+
+**Source basis:** [JUMP](../../legacy/utexas/DECWAR.FOR#L1283).
+
+## Stellar explosions
+
+A nova affects ships, bases, planets and the Romulan in the exploding star's
+sector and its eight adjacent sectors, clipped to the galaxy. Friendly objects
+receive nova damage too. A chain retains the original initiating attacker for
+scoring throughout.
+
+### Chain order
+
+Remove the initial star. For each explosion, inspect nearby sectors in increasing
+vertical coordinate, then increasing horizontal coordinate. Record the positions
+of damageable objects and their displacement vectors from this explosion.
+For each neighboring star, `IntegerDraw(5) != 5` selects it to explode, provided
+fewer than 29 other stars are awaiting explosion. Remove a selected star at once
+and place its position last in the pending explosion sequence.
+
+Resolve affected positions in reverse discovery order. At each position, use the
+object currently there; an earlier hit may have moved or destroyed the object
+originally observed. Apply the appropriate nova effect below if the current
+object is damageable. Then take the last pending explosion, announce it to
+captains within ten sectors, charge 50 STAR_DESTRUCTION points to the initiator,
+and repeat. The charge is a subtraction from a player's pending score or the
+Romulan's own score. Stop when no explosion remains pending. The triggering
+weapon supplies the initial star's announcement and score effect.
+
+The limit is on pending explosions, not the total number of stars in a chain.
+Selection and removal precede nearby damage; a sector vacated by a scheduled
+star can therefore receive a displaced object before that explosion occurs.
+
+### Ship and base severity
+
+Start with severity 100. Subtract a base's strength in percentage points, or a
+ship's shield strength if its shields are up. If the result is less than 20,
+replace it with 25; exactly 20 stays 20. Call the resulting number d.
+
+For a ship, add `4*d*UnitDraw()` damage units to each of the nine devices in
+device order. If shield-device damage then reaches 300 units, lower shields.
+For either a ship or a base, the reported hit damage is
+`H = 8*d + IntegerDraw(1000)/10` damage units.
+
+A player initiator receives H pending damage points for an enemy and loses H
+for a teammate: ENEMY_DAMAGE for ships, BASE_DAMAGE for bases. A Romulan initiator
+receives H points directly in the corresponding category.
+
+### Ship effect
+
+```text
+target.hullDamage += H damage units
+target.energy -= H * UnitDraw() energy units
+if target.shields.mode == UP:
+    target.shields.strength := max(0,
+        target.shields.strength - 30% + (IntegerDraw(100)/10)*1%)
+if target.shields.strength <= 0%:
+    target.shields.mode := DOWN
+
+if target.hullDamage >= 2500 damage units or target.energy <= 0:
+    remove target's galaxy presence
+    target.commissioned := false
+else:
+    Displace(target, displacementFromStar)
+```
+
+A nova kill adds 500 ENEMY_KILLS points directly to the player initiator's team
+for an enemy, or subtracts 500 for a teammate. This kill adjustment is to the
+team total, not the captain's pending score. A Romulan initiator receives 500
+direct points. Announce the hit within ten sectors of the target's resulting
+or last occupied position, then release its tractor beam. A surviving ship that
+cannot be displaced does not become red or undocked merely from this nova rule.
+
+### Base effect
+
+A base at 100% strength first announces distress to its faction's captains whose
+radios are on. Set strength to `max(0, strength - 30% + (IntegerDraw(100)/10)*1%)`.
+If positive, attempt displacement away from the star. If the base is destroyed,
+a player initiator receives 1000 pending BASE_DAMAGE points for an enemy base
+or loses 1000 for a friendly base; a Romulan initiator receives 1000 directly.
+Update the faction's surviving-base count and re-evaluate docking.
+
+Announce the hit within ten sectors of the resulting or last occupied position.
+For a destroyed base, remove its remaining presence and announce destruction to
+its faction's captains whose radios are on. The H damage credit above applies
+independently of this strength reduction and any destruction bonus.
+
+### Romulan and planet effects
+
+Displace a surviving Romulan first. If it survives displacement, halve its energy.
+The player initiator receives one tenth of that remaining energy in pending
+ROMULAN points. If displacement destroyed it, use its energy immediately before
+displacement instead. A Romulan initiator loses the corresponding points from
+its own score. Announce the hit within ten sectors of its resulting or last
+occupied position. Destruction adds 500 points for a player initiator, or
+subtracts 500 from a Romulan initiator's score.
+
+For a planet, first obtain permission for a shared planet update. If unavailable,
+leave it unaffected. Otherwise subtract three builds and announce the hit within
+ten sectors, displaying at least zero builds. A negative result destroys the
+planet and subtracts 100 PLANET_DESTRUCTION points from the player's pending
+score or the Romulan's score. Remove the planet and apply installation-loss and
+world-termination rules. Release the shared update. Exactly zero builds survives.
+
+**Source basis:** [NOVA](../../legacy/utexas/DECWAR.FOR#L2259),
+[SNOVA](../../legacy/utexas/DECWAR.FOR#L3807).
 
 ## Installation changes and world termination
 

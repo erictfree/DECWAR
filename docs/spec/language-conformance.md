@@ -54,6 +54,23 @@ defense phases. Other ships and installations do not alter the stated result.
 | EX-MODEL-41 | Trace from (10,10), displacement (5,2), one step, deflection 0.005; blocker at (11,11) | Probe (11,10), then (11,11). Return the second as obstruction and (10,10) as last clear. |
 | EX-MODEL-42 | Undamaged shielded shooter, energy 1000; enemy ship two sectors away with shields down, energy 2000, hull zero; PHASERS strength 100; no overheating, b=0, c=0 | Shot deals 648 damage; target energy 1352 and hull damage 648. Shooter pays 300 energy units and completes one turn without automatic repair. |
 | EX-MODEL-43 | Undamaged shooter attacks full-strength enemy base at distance one using PHASERS strength 200; no overheating, b=0, c=0 | Ordinary hit damage is zero; base strength becomes 78.37%. No damage-score credit for that hit. |
+| EX-MODEL-44 | Undocked ship with two torpedoes; TORPEDOS requests three | Reject without launching or completing a turn. Inventory remains two. |
+| EX-MODEL-45 | Docked ship with two torpedoes, ready tubes; burst of two at a friendly base; no misfires | Both shots are neutralized. Inventory remains two; one turn without repair. |
+| EX-MODEL-46 | Ship at (37,37), green, tubes ready in the future; TORPEDOS ABSOLUTE 1 37 37 | Own-location diagnostic; no consumption, no red-condition assignment; readiness becomes now and one turn completes. |
+| EX-MODEL-47 | Three-shot burst, undocked, undamaged tubes, pacing class one; first shot misfires and damages tubes with IntegerDraw(3000)=100; empty path | Only the first shot travels. One torpedo is consumed; tube damage becomes 60 units; next readiness is burst completion plus 2600 ms. One turn, no repair. |
+| EX-MODEL-48 | Enemy ship at (37,37), shields down, hull zero, energy 1000; torpedo impact a=0, b=0, c=0 with step (1,0), empty destination | Hull becomes 400, energy 600; ship moves to (38,37), red and undocked. Attacker gains 400 pending damage points. |
+| EX-MODEL-49 | Same target with full raised shields and a tractor beam; impact a=0.9, b=0.2, c=0 | Deflection: shields become 99%, hull and energy unchanged. Ship is still displaced; beam is released after the hit notice. |
+| EX-MODEL-50 | Full-strength enemy base; torpedo impact a=0, b=0, c=0 | No deflection; zero ordinary hit damage; strength becomes 87.97%, no displacement or damage-score credit. |
+| EX-MODEL-51 | Neutral zero-build planet hit by player torpedo; update available, IntegerDraw(4)=4 | Planet is destroyed; pending PLANET_DESTRUCTION decreases by 100 points. |
+| EX-MODEL-52 | Full-shielded green docked ship, devices undamaged, hull zero, energy 1000; nova device draws zero, IntegerDraw(1000)=100, energy draw 0.5, shield draw 100; displacement blocked | Severity 25, hull damage 210, energy 895, shields 80%. Ship remains green and docked. |
+| EX-MODEL-53 | Compare nova severity at raised shields 80% and 80.1%, all other inputs equal | Severity is respectively 20 and 25. The below-20 replacement is not a monotonic clamp. |
+| EX-MODEL-54 | Planet with three builds; nova update available | Builds become zero; planet survives. With two initial builds it would be destroyed. |
+| EX-MODEL-55 | Romulan energy 201; player-initiated nova; displacement survives | Energy becomes 100.5; player gains 10.05 pending ROMULAN points, with no kill bonus. |
+| EX-MODEL-56 | Three players; activated base attacks an eligible shields-down ship one sector away; phaser b=0, c=0 | Firing strength is 200/3; hit damage is 480; owning faction receives 480 damage points directly. |
+| EX-MODEL-57 | Three players; activated two-build planet attacks a shields-down ship one sector away; phaser b=0, c=0 | Firing strength is 110/3; hit damage is 264. |
+| EX-MODEL-58 | Same planet attacks the Romulan one sector away, energy 300; IntegerDraw(100)=100 | Firing strength is 110, undivided; Romulan damage is 220 and energy becomes 80. |
+| EX-MODEL-59 | Acting faction has three players; opposing base strength 97%; BaseReplenishment | Add 5/6 percentage point, yielding 587/6%. No integer quantization. |
+| EX-MODEL-60 | Neutral planet, eligible ships and Romulan in range; defensive IntegerDraw(2)=1 | The planet skips all attacks for this activation. |
 
 EX-MODEL-06 deliberately uses fractional shield strength. Historical loss of
 that fraction is excluded by the numerical normalization policy. The grammar,

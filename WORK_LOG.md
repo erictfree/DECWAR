@@ -1896,3 +1896,45 @@ port/tool attribution remain separate.
 - This was documentation-only: no game code, transport, archived source or live
   server changed. The previous source audit/typecheck remains applicable because
   neither audited data nor build code changed in this round.
+- 2026-09-05 — Generalized specification: torpedoes, novas and installation defense.
+  - Added TORPEDOS grammar, continuation and validation rules, burst order,
+    deflection, misfires, ammunition, target effects and reload/turn semantics.
+    Own-location input completes a turn without launching; an out-of-range
+    target does not. A misfired shot still travels, and docked inventory checks
+    still precede consumption exemption. Source: DECWAR.FOR TORP 4228–4431.
+  - Added torpedo ship/base damage, displacement into empty sectors or black
+    holes, stellar chain order, ship/base/planet/Romulan nova effects, faction
+    versus captain scoring, base/planet defenses and base replenishment.
+    Sources: JUMP 1283, TORDAM/PHADAM 4089, NOVA 2259, SNOVA 3807,
+    BASBLD/BASPHA 317/375, PLNATK 2800. Refined weapon-base destruction's
+    docking re-evaluation order from the source instead of silently changing it.
+  - Ordinary mathematical damage, percentages, halving and divided defense
+    strengths retain fractions. The whole-sector torpedo-length choice is
+    expressed as four intervals. Preserved SNOVA's explicit 29-pending-star
+    limit as an observable explosion rule, without requiring a memory structure.
+    Rationale and derivations are in docs/spec/NORMALIZATION.md.
+  - Added 17 semantic examples (60 total). Conversion coverage is now 16 of
+    33 main commands; remaining command, pregame, lifecycle, interleaving,
+    randomness, output and variant work keeps the full goal active. Incomplete
+    torpedo pairs/empty continuation and some shared-update cases remain explicit
+    review items rather than invented target values or atomicity guarantees.
+  - Exact-rational formula review passed 8904 checks: 8001 sampled torpedo
+    path-length choices and 903 damage, strength, severity, defense and example
+    comparisons. The first scratch calculation accidentally mixed a Python
+    integer constant with division and produced a float comparison failure;
+    using Fraction throughout fixed the review script. No game formula changed
+    as a result. Reproducible local script and results:
+    logs/spec-torpedo-numeric-review.py and .json. These checks exclude deliberate
+    historical truncation removal and do not establish native execution parity,
+    random-generator distributions or full conformance.
+  - Initial publication failed on unsupported prose comparison glyphs and
+    overlong inline formulas. Rephrased/wrapped those passages; the final build
+    passed all layout/reference checks, 148 links, 60 scenario rows and 324
+    source message fragments. The compiled PDF has 56 pages. Visually reviewed
+    physical pages 37, 38, 41, 44, 45, 48, 49 and 54 after the successful build.
+    Logs: logs/spec-torpedo-nova-build.log (retained failure) and
+    logs/spec-torpedo-nova-final.log. Images: tmp/pdfs/spec-torpedo-nova/.
+    npm run audit:check and git diff --check also passed; source audit log:
+    logs/spec-torpedo-source-audit.log.
+  - Documentation only. No running game, transport, legacy archive, generated
+    source data or build tool changed. No server restart was performed.

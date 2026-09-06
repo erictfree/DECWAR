@@ -1,7 +1,7 @@
 # Turns and elapsed time
 
 This chapter defines the completion operations used by command semantics.
-Detailed world defenses, Romulan actions, score categories and interruption
+Detailed Romulan actions, score reporting and interruption
 rules are still being converted. The named operations below identify those
 remaining dependencies; their names alone are not complete definitions.
 
@@ -96,6 +96,105 @@ hull damage. The session rules determine when death is subsequently processed.
 **Source basis:** [command dispatch](../../legacy/utexas/DECWAR.FOR#L57),
 [turn accounting](../../legacy/utexas/DECWAR.FOR#L237),
 [repair](../../legacy/utexas/DECWAR.FOR#L3190).
+
+## Automatic installation defenses
+
+These operations run when turn accounting activates world defenses. A player
+context supplies the acting ship's faction. A Romulan context has no player
+faction. The Romulan action rules determine when it invokes these operations;
+they do not run on an independent elapsed-time schedule.
+
+An eligible player target is commissioned and visibly present at its recorded
+sector. Temporarily absent or concealed ships are skipped. Attack decisions are
+made as the sequence proceeds, so destruction by an earlier installation prevents
+a later installation from selecting that ship as a commissioned target.
+
+### EnemyBaseDefense
+
+In a player context activate the opposing faction's bases. In a Romulan context
+activate Federation bases, then Empire bases. Within each faction use base
+identity order, skipping bases with nonpositive strength. For each base:
+
+```text
+for each opposing ship in roster order:
+    if eligible and within four sectors of the base:
+        hit := PhaserHit(base, ship,
+            strength = 200/world.playerCount,
+            distance = Distance(base.position, ship.position))
+        world.teamScores[base.team][ENEMY_DAMAGE] += hit.damage in points
+        if hit destroyed the ship:
+            world.teamScores[base.team][ENEMY_KILLS] += 500 points
+        announce the hit
+
+if the Romulan exists and is within four sectors:
+    hit := RomulanPhaserHit(strength = 200/world.playerCount,
+                           distance = distance from base)
+    world.teamScores[base.team][ROMULAN] += hit.damage in points
+    if hit destroyed the Romulan:
+        world.teamScores[base.team][ROMULAN] += 500 points
+    announce the hit
+```
+
+`PhaserHit` and `RomulanPhaserHit` denote the shared damage rules, without the
+player PHASERS command's input, energy charge, overheating or bank deadlines.
+Installation credit goes directly to `world.teamScores[base.team]`.
+
+For a player context, ship-hit announcements address the acting faction within
+ten sectors of the victim, everyone within four sectors, and the victim itself.
+Romulan-hit announcements address everyone within ten sectors of the Romulan.
+The complete announcement audience in a Romulan context remains under review.
+
+### PlanetDefense
+
+Visit planets in their current order. For a neutral planet, `IntegerDraw(2) == 1`
+skips its entire defensive action, including a possible attack on the Romulan.
+In a player context, skip planets owned by the acting faction. Otherwise:
+
+```text
+for each ship in roster order:
+    if eligible and not of the planet's faction
+       and within two sectors of the planet:
+        strength := (50 + 30*planet.builds)/world.playerCount
+        hit := PhaserHit(planet, ship, strength, distance to ship)
+        if planet.owner != none:
+            credit hit.damage to owner's ENEMY_DAMAGE total
+            if destroyed, credit 500 to owner's ENEMY_KILLS total
+        announce the hit
+
+if the Romulan exists and is within two sectors:
+    strength := 50 + 30*planet.builds
+    hit := RomulanPhaserHit(strength, distance to Romulan)
+    if planet.owner != none:
+        credit hit.damage to owner's ROMULAN total
+        if destroyed, credit 500 to owner's ROMULAN total
+    announce the hit
+```
+
+A neutral planet has no friendly faction and receives no team score. A captured
+planet never attacks its own ships. Planet attacks on players divide strength
+by the player count; attacks on the Romulan do not. Faction-owned planet notices
+address that faction within ten sectors of the victim and everyone within four.
+Neutral-planet notices address everyone within ten sectors. These hits do not
+release tractor beams or use player weapon readiness deadlines.
+
+### BaseReplenishment
+
+In a player context, let n be the number of players on the acting faction.
+Replenish each surviving opposing base by `2.5/n` percentage points. In a Romulan
+context, let n be the total player count. Replenish every surviving base by
+`5/(n+1)` percentage points. Cap each resulting strength at 100%.
+Fractions are retained; there is no minimum
+whole-percentage replenishment and destroyed bases do not regenerate.
+
+These formulas use the session's maintained player counts. Their normal player
+context requires a positive count for the acting faction and a positive total
+player count. Races with admission or departure, and a Romulan defense invocation
+when the total player count is zero, remain part of the unfinished lifecycle
+and interleaving rules; this draft does not invent a replacement denominator.
+
+**Source basis:** [BASBLD](../../legacy/utexas/DECWAR.FOR#L317),
+[BASPHA](../../legacy/utexas/DECWAR.FOR#L375),
+[PLNATK](../../legacy/utexas/DECWAR.FOR#L2800).
 
 ## Returning to command input
 

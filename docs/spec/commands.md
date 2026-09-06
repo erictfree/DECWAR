@@ -847,3 +847,133 @@ subsequent lifecycle rules, without undoing the shot.
 **Source basis:** [PHACON](../../legacy/utexas/DECWAR.FOR#L2647),
 [damage](../../legacy/utexas/DECWAR.FOR#L4089),
 [Romulan hit](../../legacy/utexas/DECWAR.FOR#L3382).
+
+## TORPEDOS
+
+### Syntax and continuation
+
+The command is spelled TORPEDOS. The ordinary abbreviation and coordinate rules
+apply, including ABSOLUTE, RELATIVE and COMPUTED forms.
+
+```text
+TorpedoCommand ::= "TORPEDOS" [CountAndTargets]
+CountAndTargets ::= locations producing an integer count
+                    followed by zero to three coordinate pairs
+```
+
+The count is a scalar; it is not offset in relative mode. A burst requests one
+to three torpedoes. Supply at least one target pair, either with the count or
+in a following coordinates continuation. If fewer pairs than torpedoes are
+supplied, reuse the last pair for the remaining shots. Targets denote directions;
+they need not contain an enemy, and a torpedo may travel beyond a target.
+
+With no initial items, prompt for the burst and repeat until the reply has a
+positive odd number of location items, or input is cancelled. A count alone
+requests up to twice that count in coordinate items; an odd-sized reply requests
+coordinates again. A nonpositive count cancels without firing. An excessive count
+is rejected; a count above the available inventory also reports that limitation.
+
+**Open acceptance cases:** incomplete pairs supplied on the original command line
+and an empty coordinates continuation follow inconsistent historical paths.
+Their language-level acceptance and diagnostics remain under review. They do
+not authorize manufacturing target coordinates from unrelated input state.
+
+### Entry checks and target validation
+
+Torpedo-tube damage of at least 300 units rejects the command before input is
+read. Inventory must be positive, even while docked. The requested count cannot
+exceed either three or the current inventory. Validate all stored targets before
+launching the first shot: each must be within ten sectors of the acting ship.
+An out-of-range target rejects the burst without a turn.
+
+An own-sector target takes a different path: report the invalid target, set the
+tubes' readiness deadline to now, and complete one turn without automatic repair.
+No torpedo is launched or consumed. This early path does not set red condition.
+It can be reached before the previous readiness delay has expired.
+
+Otherwise wait until `captain.torpedoesReady`, then set condition red and begin
+the burst. Shots in one burst do not wait separately for the tubes to reload.
+
+### Launch and misfire
+
+For each shot, use the ship's current position and state. If a previous shot
+misfired, stop the burst. Compute deflection as follows; each U is a separate
+`UnitDraw()`:
+
+```text
+deflection := (U1 - 0.5)/5
+if torpedo tubes or computer have positive damage:
+    deflection += (U2 - 0.5)/10
+if ship.shields.mode == UP:
+    deflection += (ship.shields.strength / 1%) * (U3 - 0.5)/1000
+```
+
+If this shot's target has become the ship's own sector, report the error and
+finish the burst normally with the delays already accumulated. Otherwise consume
+one torpedo when undocked; docking prevents this consumption but does not waive
+the entry inventory checks. There is no engine-energy firing cost.
+
+`IntegerDraw(100) > 96` is a misfire. Report its shot number and add
+`(UnitDraw()-0.5)/5` to deflection. No subsequent shot in this burst launches,
+but the misfired shot still travels and can hit normally. On a misfire,
+`IntegerDraw(5) == 5` also adds `50 + IntegerDraw(3000)/10` damage units to the
+tubes and reports that damage.
+
+Choose the shot's maximum path length using a new U:
+
+| U | Maximum steps |
+| --- | --- |
+| `0 <= U < 1/8` | 7 |
+| `1/8 <= U < 5/8` | 8 |
+| `5/8 <= U < 7/8` | 9 |
+| `7/8 <= U < 1` | 10 |
+
+Add `(world.pacingClass+1)*1000 milliseconds` plus ten milliseconds per current
+torpedo-tube damage unit to the accumulated reload delay. This includes tube
+damage caused by this shot's misfire. Trace from the current ship position toward
+the stored target using this length and deflection, and resolve the first
+obstruction. The shared path rule determines sector order and displacement step.
+
+### Impact
+
+| Result | Effect |
+| --- | --- |
+| No obstruction | Report a miss at the final traced position to the shooter. |
+| Black hole | Absorb the shot and notify the shooter. |
+| Friendly ship, base or planet | Neutralize the shot without damage; notify the shooter. |
+| Star | If `IntegerDraw(100) <= 80`, announce a nova within ten sectors, subtract 50 pending STAR_DESTRUCTION points and resolve the stellar explosion. Otherwise report the unaffected star to the shooter. |
+| Enemy ship or base | Apply the shared torpedo-damage rule. Notify captains within ten sectors of the impact; then release a ship victim's tractor beam. |
+| Romulan | Apply its torpedo-damage, possible displacement and score rule. Notify captains within ten sectors of the original impact. |
+| Neutral or enemy planet | Apply the planet rule below. |
+
+A full-strength enemy base makes its faction-wide distress call before damage.
+A destroyed base makes its faction-wide destruction call after the hit notice.
+These two calls address captains of the base's faction whose radios are on.
+
+A planet hit first requires a shared planet update. If unavailable, output
+“Sorry, Captain, but the torpedo tubes are empty!” and stop without updating the
+readiness deadline or completing a turn. Prior shots, consumption and score
+changes remain in effect. This diagnostic does not mean the inventory was
+actually reduced to zero.
+
+With the update available, `IntegerDraw(4) == 4` removes one build; other results
+leave builds unchanged. A negative build count destroys the planet and invokes
+planet removal and world-end rules. Subtract 100 points from the pending
+PLANET_DESTRUCTION score. Exactly zero builds survives. Release the update and notify
+captains within ten sectors of the impact.
+
+### Completion
+
+```text
+captain.torpedoesReady := now + accumulatedReloadDelay
+CompleteTurn(ship, automaticRepair = false)
+```
+
+This happens once for a normally completed burst, including a burst cut short
+by a misfire. It does not happen after the explicitly identified early returns.
+The reload deadline starts at burst completion; it gates the next burst rather
+than adding a wait between this burst's shots.
+
+**Source basis:** [TORP](../../legacy/utexas/DECWAR.FOR#L4228),
+[TORDAM](../../legacy/utexas/DECWAR.FOR#L4089),
+[location input](../../legacy/utexas/DECWAR.FOR#L1404).

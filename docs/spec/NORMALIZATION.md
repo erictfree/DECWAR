@@ -72,3 +72,35 @@ The earlier operational chapters are retained as research outside the book
 manifest. Command families and world rules are being converted into the abstract
 model; the assembled book is explicitly incomplete during that conversion.
 The preserved source and the running port are not changed by this policy.
+
+## Torpedoes, novas and installation defenses
+
+The TORP and ROMTOR path-length expression selects a whole number of sector
+steps. Its intervals are stated as a finite game choice: 7 steps on [0,1/8),
+8 on [1/8,5/8), 9 on [5/8,7/8), and 10 on [7/8,1). This preserves the discrete
+range choice without requiring a compiler's conversion instruction. Damage,
+shield reductions and nova energy halving retain their mathematical fractions.
+Automatic base phasers use strength 200/playerCount, player-directed planet
+phasers use (50+30*builds)/playerCount, and replenishment retains its fractional
+percentage points. No rounding back to historical storage quanta is required.
+
+SNOVA's explicit test for 29 pending stars remains a limit on outstanding
+explosions, not a required stack or allocation size. Removing that limit would
+change which stars survive, beyond the authorized removal of small numerical
+and representation effects. The book defines the observable ordering with an
+abstract sequence and preserves current-occupant resolution at each affected
+position. It imposes no underlying storage structure or packed object encoding.
+
+NOVA's severity replacement below 20, its distinction between team-only kill
+credit and captain damage credit, and a neutral planet's attack decision remain
+game rules. These are separate from integer quantization. Fractional coordinates
+in blast displacement still require whole-sector selection; the candidate is
+the floor of each coordinate sum, subject to the original range/occupancy gates.
+
+**Source basis:** [TORP](../../legacy/utexas/DECWAR.FOR#L4228),
+[ROMTOR](../../legacy/utexas/DECWAR.FOR#L3419),
+[NOVA](../../legacy/utexas/DECWAR.FOR#L2259),
+[SNOVA](../../legacy/utexas/DECWAR.FOR#L3807),
+[JUMP](../../legacy/utexas/DECWAR.FOR#L1283),
+[BASBLD/BASPHA](../../legacy/utexas/DECWAR.FOR#L317),
+[PLNATK](../../legacy/utexas/DECWAR.FOR#L2800).
