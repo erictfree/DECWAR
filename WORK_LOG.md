@@ -3845,3 +3845,16 @@ and checks source clearing/increment statements. Build passed in
 logs/spec-mapping-domains-build.log. Inspected PDF physical page 236: ADTs and
 scope paragraph readable. This is a mapping-domain review, not complete type
 verification. No gameplay/archive changes; full specification goal remains active.
+
+### Specification: named types and direct command fields
+
+Reviewed candidate type references across the book and checked command-chapter
+s/c/w field names against Ship/Captain/World. All 15/13/16 distinct direct names
+resolve; candidate nominal-type exceptions are result tags, values or parameters.
+Recorded the bounded review in language-coverage without claiming a type checker.
+Nested fields, alias binding, optionals, units and invariants remain to review.
+
+Evidence: logs/spec-named-type-review.log and logs/spec-command-field-review.log.
+Archive audit passed in logs/spec-types-archive-audit.log: 135 hashes, 83
+declarations, 33 main and 16 pregame commands, 324 strings. No normative book,
+gameplay or archive change; no PDF rebuild required. Full goal remains active.

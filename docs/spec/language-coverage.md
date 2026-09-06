@@ -439,3 +439,22 @@ standings resources now have explicit scope and remembered-resource selection
 rules. Movement/admin mapping, pending/interrupted acquisition and environment
 failures remain open.
 The amendment no longer leaves the entire ordinary wait sequence undescribed.
+
+## Type-reference review checkpoint
+
+The colon-following type/value-name scan across the assembled book found no
+missing nominal declaration among its candidates. Candidate exceptions were
+result alternatives, declared enum/union values, or the generic Error parameter.
+This scan does not parse the complete notation and does not prove all signatures
+well typed. Detailed output is retained in logs/spec-named-type-review.log.
+
+In commands.md, all 15 distinct direct `s` member names, 13 `c` member names and
+16 `w` member names occur in the Ship, Captain and World declarations respectively
+(logs/spec-command-field-review.log). This verifies property-name availability,
+not that every local binding has the right type, optional values are unwrapped,
+nested fields are valid, or quantities have compatible units. Those obligations
+remain in the whole-book review. No normative change was needed for these checks.
+
+The archive audit at this checkpoint passed 135 hashes, 83 declarations, 33 game
+commands, 16 pregame commands and 324 strings; logs/spec-types-archive-audit.log
+records its scope. This does not replace semantic or complete layout review.
