@@ -4070,3 +4070,19 @@ cases and scope limits. git diff --check passed. No PDF rebuild was needed:
 only companion evidence/coverage and this log changed. This closes the bounded
 shape enumeration, not the intentionally unspecified missing-value behavior
 or concurrent acquisition semantics. The full specification goal remains active.
+
+
+## Romulan target-result domain — 2026-09-06
+
+Rechecked DIST's candidate initialization and strict comparison. Made the
+existing eligible-target-within-75-Euclidean-sectors domain explicit before
+SelectRomulanTarget's algorithm; no fallback, pursuit rule or message added.
+Recorded why integer sector distances establish that bound and why opposite
+corners demonstrate a real all-distant domain. Historical mechanics remain in
+the evidence companion. Runtime and source archives unchanged.
+
+logs/spec-romulan-domain-review.log retains the bounded reasoning;
+logs/spec-romulan-domain-build.log records a successful build (100 productions,
+671 scenarios, 617 links and 324 source fragments). PDF page 123 visually checked
+with no clipping/overlap. git diff --check passed. No-target outcomes and
+concurrent selection remain explicitly unspecified; the full goal remains active.

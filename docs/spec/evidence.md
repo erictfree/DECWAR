@@ -766,3 +766,23 @@ generalized model.
 logs/spec-special-input-domain-review.log records every length/count case and
 the exact source-index recurrence. This is a bounded source audit; it does not
 execute the original program or prove concurrent input behavior.
+
+### Romulan selection result domain
+
+DIST (Austin DECWAR.FOR 836–891) initializes all four comparison distances to
+KGALV*KGALH+1, which is 5626 for the declared 75-by-75 galaxy. Each group replaces
+its candidate only for a strictly smaller squared distance. Because positions
+have integer sector components, a candidate is initialized exactly when its
+squared distance is at most 5625. This equals Euclidean distance at most 75;
+the output range is separately Chebyshev distance. A present eligible candidate
+inside this bound eventually beats every uninitialized group, independent of
+preceding empty-group comparisons. If all groups lack such a candidate, the
+routine still reads a selected identity and coordinates without initializing
+them in this call.
+
+Made the already documented partial domain explicit before the operation's
+algorithm. This changes no selection policy and supplies no artificial target,
+idle action or diagnostic. The condition is nonvacuous: opposite galaxy corners
+have squared distance 10952. Absence and all-distant states therefore cannot be
+silently assumed impossible from position bounds alone. Historical sentinel
+and retained-storage details remain in this companion, outside the book.

@@ -91,8 +91,15 @@ remain part of the open lifecycle contract.
 operation SelectRomulanTarget(): RomulanTarget
 ```
 
-A Romulan must be present. Targets are player ships and surviving bases;
-planets and stars are not direct candidates. For positions p and q, define:
+SelectRomulanTarget requires a present Romulan and at least one eligible
+candidate whose Euclidean distance from it is at most 75 sectors. Eligibility
+is defined below. This is the operation's defined domain, not a restriction on
+where ships may exist or a rule that the Romulan ignores more distant ships.
+The RomulanTarget result is guaranteed only within that domain. No target,
+idle action or failure message is prescribed outside it.
+
+Targets are player ships and surviving bases; planets and stars are not direct
+candidates. For positions p and q, define:
 
 ```text
 squaredDistance(p, q) = (p.vertical - q.vertical)^2
