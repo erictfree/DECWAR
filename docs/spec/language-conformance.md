@@ -688,6 +688,10 @@ defense phases. Other ships and installations do not alter the stated result.
 | EX-MODEL-596 | Actor at (20,20); sufficient ammunition; tubes functioning; TORPEDOS ABSOLUTE 1 20 21 22 on original line | Location resolution validates (1,20) and (21,22); burst count is 1 and selected aim is (20,21). Continue ordinary burst validation and firing. |
 | EX-MODEL-597 | Same entry state; at least four torpedoes; TORPEDOS ABSOLUTE 4 20 on original line | Resolve (4,20), then reject count 4 with InvalidBurstCount and the inventory report. Do not invent a missing-count diagnostic or consume ammunition. |
 | EX-MODEL-598 | Same entry state; TORPEDOS ABSOLUTE 2 20 21 22 on original line | Count 2 passes, but the second selected aim lacks a component. This suffix remains unresolved; do not infer (22,0), reuse the first complete aim or claim a prescribed rejection. |
+| EX-MODEL-599 | Replay reaches a draw with no remaining events | Reject replay validation as EVENTS_EXHAUSTED. Do not generate a replacement or claim later behavior was reproduced. |
+| EX-MODEL-600 | Next event belongs to captain B; reached request belongs to captain A | CAPTAIN_MISMATCH precedes request/value checks. Do not search forward for another captain A event. |
+| EX-MODEL-601 | Same captain; reached ChoiceRequest count 9; next event has IntegerRequest count 9 with value 2 | REQUEST_MISMATCH despite the same count and an in-range index. |
+| EX-MODEL-602 | Two replay contexts request Choice on different ordered collections of equal size, both with index 2 | Matching the random record alone does not prove the same selected member or complete game replay. Compare the operation state and collection order. |
 
 EX-MODEL-06 deliberately uses fractional shield strength. Historical loss of
 that fraction is excluded by the numerical normalization policy. The grammar,

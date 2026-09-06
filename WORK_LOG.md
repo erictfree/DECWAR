@@ -3531,3 +3531,19 @@ logs/spec-field-meaning-build-reviewed.log passed: 646 scenarios, 100 production
 324 fragments, 14 chapters and 546 links. Inspected physical PDF pages 15 and
 228–229: readable field explanation and type/operation order. No gameplay,
 archive or normalization-rule changes. Full goal remains active.
+
+### Specification: random replay and finite-source claims
+
+Added TakeRandomEvent validation with ordered exhaustion/captain/request/value
+failures, full-versus-prefix endpoints, and explicit collection-order context.
+Clarified finite-source disclosure of attainable unit values, integer mapping,
+initialization/advancement and approximation. No generator, tolerance, game
+command, gameplay draw or new probability was selected. Added EX-MODEL-599–602;
+updated normalization and coverage. Full draw-site/multiplayer audit remains.
+
+Validation: logs/spec-random-replay-review.log checks relevant declarations and
+failure order and records scoped consistency review; it is not an executed replay
+engine or statistical certification. logs/spec-random-replay-build.log passed:
+650 scenarios, 100 productions, 324 fragments, 14 chapters and 546 links.
+Inspected PDF physical pages 91–92 and 217: readable types, validation rules and
+examples. No gameplay or archive edits. Full specification goal remains active.

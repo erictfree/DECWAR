@@ -318,3 +318,10 @@ initial-state phrase “five life-support turns.” CompuServeStatistics now app
 before RecordCommission first refers to that type. Whole-book forward references,
 optional-value presence, aliases, unit consistency and operation contracts remain
 to be audited; this checkpoint does not treat a name inventory as that proof.
+
+Random replay now has an explicit matching query and failure ordering, complete
+versus prefix endpoints, and collection-order requirements. Finite-source binding
+claims must disclose discretization, integer mapping and context advancement;
+a transcript does not certify distributions. No universal approximation tolerance
+is invented. Full per-operation draw-order and multiplayer-context review remains
+necessary; these validation rules alone do not complete it.

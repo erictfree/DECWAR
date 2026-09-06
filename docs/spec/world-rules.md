@@ -88,6 +88,84 @@ sequence to obtain that binding's reproducible results. A differently grouped
 set of independent draws can have the same distribution while failing an
 advertised deterministic replay contract.
 
+### Replay matching
+
+```text
+enum RandomReplayError = EVENTS_EXHAUSTED | CAPTAIN_MISMATCH
+                      | REQUEST_MISMATCH | VALUE_MISMATCH
+
+type RandomReplayStep = {
+    value: RandomValue;
+    remaining: List<RandomEvent>;
+};
+
+query TakeRandomEvent(events: List<RandomEvent>, captain: CaptainId,
+                      request: RandomRequest): Result<RandomReplayStep, RandomReplayError>
+```
+
+This query checks a recorded random input against the next request reached by
+a semantic operation. It describes replay validation, not another game command
+or an error that a captain encounters while playing. Check in this order:
+
+1. If events is empty, reject EVENTS_EXHAUSTED.
+2. Compare the first event's captain with the performing captain. If they
+   differ, reject CAPTAIN_MISMATCH.
+3. Compare its request with the reached request, including the request kind
+   and count. If they differ, reject REQUEST_MISMATCH.
+4. Require UnitValue for UnitRequest, or IndexValue in 1..count for IntegerRequest
+   and ChoiceRequest. Otherwise reject VALUE_MISMATCH.
+5. Return the first event's value and the remaining events in their original
+   order. The query leaves its supplied values and all game state unchanged.
+
+A serialized record must first satisfy the declared value types. For example,
+UnitValue containing 1 is invalid before it can be a typed RandomEvent. None of
+these failures permits wrapping an index, clamping a value, scanning ahead for
+a matching event, assigning the event to another captain, or drawing a fresh
+replacement. Validation stops at the first mismatch; later behavior has not
+been reproduced by that record.
+
+Reusing a previously selected value consumes no new event. Reaching a draw and
+then cancelling still uses its event. At the declared end of a complete replay,
+all supplied random events must have been consumed. A record of only a prefix
+must identify its endpoint and claim that prefix, rather than treating unused
+events as evidence of a complete match.
+
+For Choice, matching the count does not establish matching members or their
+order. The operation's state and inputs must determine the same ordered
+collection; index 2 means its second member. Likewise this random record alone
+does not establish equal command input, clock observations, scheduling or
+external events. These remain requirements of the complete replay context.
+
+### Finite random-source bindings
+
+The probabilities above describe the mathematical game model. A finite source
+cannot assign that continuous distribution to finitely many unit values exactly.
+A binding must distinguish its realizable distribution from the ideal model.
+In addition to algorithm, version and initialization, document:
+
+- The attainable unit values and the probabilities or discretization rule
+  assigned to them, including treatment of interval endpoints.
+- How a request for 1..n is mapped to its outcomes, including any rejected
+  primitive samples and the assumptions under which those outcomes are uniform.
+- How random contexts are initialized and advanced, and which retained input
+  and environment values are needed to repeat that initialization.
+- The precision or distribution qualifications attached to the conformance
+  claim. This draft does not invent a universal numerical tolerance.
+
+Internal sampling used to realize one request is part of the binding; it does
+not create additional game-level RandomEvents. For example, rejecting a primitive
+sample while obtaining IntegerDraw(n) does not represent another torpedo or
+another device selection. A repeatability claim must nevertheless use the same
+binding's advancement rules. Modifying those rules can change later choices.
+
+A seed and a finite successful transcript establish repeatability only within
+their stated context. They do not prove uniformity or independence. Repeatedly
+choosing one outcome is still incompatible with the declared uniform-choice
+model; calling it a finite approximation does not waive the distribution
+requirement. Assess mapping/discretization claims separately from replay matches,
+and state any approximation explicitly rather than claiming exact continuous
+sampling.
+
 ### Derived game probabilities
 
 The following consequences illustrate the declared distributions. Conditional

@@ -1683,3 +1683,19 @@ or count-two forms yield complete selected aims; retain those forms. Cases
 that consume an absent final component remain unresolved rather than assigning
 zero, previous input, or a new error. The burst prompt's even-item reprompt is
 separate. Source DECWAR.FOR LOCATE 1410–1497 and TORP 4247–4279.
+
+### Replay validation and finite-source claims
+
+TakeRandomEvent is specification/replay vocabulary, not a game action or player
+diagnostic. It validates ordered captain/request/value correspondence without
+fallback randomness, event skipping or index normalization. Complete replay
+requires its stated endpoint and no unexplained event suffix; a choice count
+alone cannot certify collection order. These are conformance requirements,
+not new source game effects.
+
+The random-source binding distinguishes its finite realizations from the ideal
+continuous model. It documents discretization, bounded-integer mapping and
+context advancement, while avoiding an invented universal tolerance. Primitive
+sampling is below the semantic RandomEvent boundary. This clarifies existing
+ordinary-probability normalization; it does not select a new generator, seed
+format, device distribution or draw site.
