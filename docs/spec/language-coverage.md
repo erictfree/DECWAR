@@ -52,7 +52,7 @@ remaining dependencies below still limit end-to-end conformance claims.
 
 | Command | Grammar and semantic clause | Remaining dependencies |
 | --- | --- | --- |
-| SHIELDS | [SHIELDS](commands.md#shields): ADT operation contract. | Session and complete response rules. |
+| SHIELDS | [SHIELDS](commands.md#shields): ADT operation contract and complete ordinary prompt/response strings. | Session, interrupted output and concurrent confirmation; transfer confirmation prints no numeric amount. |
 | RADIO | [RADIO](commands.md#radio): ADT operation contract. | Message delivery and response rules. |
 | ENERGY | [ENERGY](commands.md#energy): ADT operation contract. | Notification delivery, session and response rules. |
 | DOCK | [DOCK](commands.md#dock): ADT operation contract. | Full report, concurrent world and response rules. |

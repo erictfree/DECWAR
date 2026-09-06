@@ -96,7 +96,9 @@ ensures after(s.condition) ==
     (after(s.energy) < 1000 energy units ? YELLOW : GREEN)
 ```
 
-The actor receives the signed transfer amount; the outcome is Transferred { amount: amount }.
+The outcome is Transferred { amount: amount }. The terminal response confirms
+the transfer without printing its amount, as specified in
+[shield command responses](presentation.md#shield-command-responses).
 The confirmation precedes the lower limits on amount. Confirming does not cap
 the transfer at available engine energy, so a completed transfer can exhaust
 the engines. At exactly 1000 remaining energy units this event sets condition

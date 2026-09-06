@@ -244,6 +244,42 @@ prevent a claim of complete terminal conformance to this draft.
 [conditional blank line](../../legacy/utexas/WARMAC.MAC#L1696),
 [character output](../../legacy/utexas/WARMAC.MAC#L1309).
 
+## Shield command responses
+
+SHIELDS begins with one conditional blank-line request. Its action and amount
+acquisition, confirmation and state changes follow the [command contract](commands.md#shields).
+The following strings apply in SHORT, MEDIUM and LONG output alike. Prompts have
+no appended line ending; each response has one unconditional line ending after
+the complete string, including any line ending already inside that string.
+
+| Event | Text | Kind |
+| --- | --- | --- |
+| Request action, including another attempt after an unrecognized action | `"Transfer, Up, Down  ? "` | Prompt |
+| Request transfer amount | `"Units of energy to transfer to shields: "` | Prompt |
+| Request confirmation of a transfer that reaches the available engine energy | `"Transferring all ship energy to shields.  Confirm? "` | Prompt |
+| Confirmation is not YES | `"Energy NOT transferred."` | Response |
+| Transfer completes | `"Energy transferred, Captain."` | Response |
+| Shields raised | `"Shields raised, Captain."` | Response |
+| Energy is zero after raising shields | `"\r\nShield control uses remaining ship energy!"` | Response |
+| Shields lowered | `"Shields lowered, Captain."` | Response |
+| Raising rejected for critical shield-device damage | `"Captain, unable to raise shields due to critical damage."` | Response |
+
+A completed transfer prints no numeric amount, even when the amount is negative
+or zero. Its semantic Transferred result still records the amount. Cancelling
+action selection with empty input, or supplying a noninteger at the amount
+prompt, adds no cancellation response. Refusing the energy confirmation does
+produce the response listed above.
+
+On successful UP, the raised response precedes release of an existing tractor
+beam. Any resulting tractor notice uses the communication rules; this sequence
+does not force immediate delivery of the notice. The zero-energy response, when
+applicable, follows the release operation. These command responses add no
+STATUS report, resource adjustment or turn beyond the command's stated effects.
+
+**Source basis:** [SHIELDS response paths](../../legacy/utexas/DECWAR.FOR#L3739),
+[response strings](../../legacy/utexas/MSG.MAC#L280),
+[literal and line output](../../legacy/utexas/WARMAC.MAC#L1653).
+
 ## Combat observation bodies
 
 These recipes present a CombatObservation that passed ReceiveNotice's reception

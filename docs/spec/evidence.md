@@ -570,3 +570,16 @@ The abstract position can be absent during lifecycle; the specification does
 not turn that absence into a coordinate or silently return NotAdjacent. The
 new prose applies the existing Optional and Position domains locally and leaves
 concurrent check/use invalidation unresolved. No new guard or gameplay repair.
+
+### SHIELDS terminal responses
+
+Completed SHIELD output-path comparison (Austin DECWAR.FOR 3739–3801;
+MSG.MAC 280–289; WARMAC.MAC OUT 1653–1661). All nine strings are independent
+of output length. Prompts use OUT(...,0), responses OUT(...,1); SHLD07 already
+begins with CRLF. Action/amount cancellation is silent, while failed YES
+confirmation prints SHLD04. SHLD05 is a fixed confirmation with no amount
+formatter. Corrected the command's erroneous claim that the actor receives
+the signed amount; Transferred.amount remains the semantic outcome. The
+presentation now separates it from the emitted text. UP prints SHLD06 before
+TRCOFF and SHLD07 afterward if energy is exhausted; notice delivery remains
+subject to its own reception rules. No gameplay change.

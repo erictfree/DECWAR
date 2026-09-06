@@ -3871,3 +3871,18 @@ orders; logs/spec-adjacency-optionals-build.log records successful publication
 checks. Inspected PDF physical pages 43 and 53: clauses and contracts readable.
 No gameplay/archive changes. Other optional values, concurrent invalidation and
 the broader type review remain open; full goal active.
+
+### Specification: complete ordinary SHIELDS responses
+
+Added all nine SHIELDS prompt/response strings with suffix line endings,
+output-length independence, silent versus reported cancellation, and UP/tractor/
+exhaustion ordering. Corrected a semantic/presentation conflation: the abstract
+Transferred outcome carries amount, but the terminal prints only a fixed
+confirmation. Updated command coverage; interrupted delivery remains open.
+
+Validation: logs/spec-shield-responses-review.log compares all nine literal
+strings and source call suffixes, output-length independence and UP ordering.
+logs/spec-shield-responses-build.log passed 662 scenarios, 100 productions,
+324 fragments, 14 chapters and 555 links. Inspected PDF physical pages 159–160:
+response table and following section readable. No gameplay/archive changes;
+full goal active.
