@@ -12,11 +12,11 @@ remaining dependencies below still limit end-to-end conformance claims.
 
 | Command | Grammar and semantic clause | Remaining dependencies |
 | --- | --- | --- |
-| SHIELDS | [SHIELDS](commands.md#shields) | Session and complete response rules. |
-| RADIO | [RADIO](commands.md#radio) | Message delivery and response rules. |
-| ENERGY | [ENERGY](commands.md#energy) | Notification delivery, session and response rules. |
-| DOCK | [DOCK](commands.md#dock) | Full report, concurrent world and response rules. |
-| REPAIR | [REPAIR](commands.md#repair) | Full report, concurrent world and response rules. |
+| SHIELDS | [SHIELDS](commands.md#shields): ADT operation contract. | Session and complete response rules. |
+| RADIO | [RADIO](commands.md#radio): ADT operation contract. | Message delivery and response rules. |
+| ENERGY | [ENERGY](commands.md#energy): ADT operation contract. | Notification delivery, session and response rules. |
+| DOCK | [DOCK](commands.md#dock): ADT operation contract. | Full report, concurrent world and response rules. |
+| REPAIR | [REPAIR](commands.md#repair): ADT operation contract. | Full report, concurrent world and response rules. |
 | SCAN, SRSCAN | [SCAN and SRSCAN](commands.md#scan-and-srscan) | Terminal rendering, concealed objects and interrupted output. |
 | STATUS | [STATUS](commands.md#status) | Exact terminal presentation and multiplayer observations. |
 | DAMAGES | [DAMAGES](commands.md#damages) | Exact terminal presentation and multiplayer observations. |
@@ -55,7 +55,10 @@ coverage does not establish lifecycle, concurrency or terminal conformance.
 ## Shared and variant work
 
 - Abstract model: game-state ADT and operation-contract notation introduced;
-  CAPTURE, HELP, NEWS, GRIPE, QUIT and message publication/reception use explicit contracts. Existing
+  SHIELDS, RADIO, ENERGY, DOCK, REPAIR, CAPTURE, HELP, NEWS, GRIPE, QUIT and
+  message publication/reception use explicit contracts. Mapping/property notation,
+  the nine device states and their distinction from hull damage and shield state
+  are defined explicitly. Existing
   command pseudocode still needs conversion to that form. Identities, quantities,
   roster, installations, radio, tractor associations, preferences and score
   categories drafted; full lifecycle remains.

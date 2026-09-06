@@ -2,7 +2,9 @@
 
 This chapter uses the quantities and pseudocode notation of [the abstract
 model](language-model.md) and the [shared world rules](world-rules.md).
-The remaining command families are still being rewritten from the source analysis.
+All main-game commands have draft clauses; older clauses are being brought into
+the same operation-contract form. Their remaining dependencies are identified
+in the companion coverage record.
 
 ## SHIELDS
 
@@ -21,41 +23,43 @@ and trailing-input rules are also part of its acceptance behavior.
 
 ### Raising shields
 
-SHIELDS UP raises the acting ship's shields, charges 100 energy units, and releases
-any tractor beam involving that ship. The energy charge applies even when the
-shields were already up. Shield-device damage greater than 300 damage units
-prevents the action; exactly 300 does not.
-
 ```text
-RaiseShields(ship):
-    if ship.devices[SHIELDS].damage > 300 damage units:
-        reject ShieldsTooDamaged
-
-    ship.shields.mode := UP
-    ship.energy := max(0 energy units, ship.energy - 100 energy units)
-    emit ShieldsRaised(ship)
-
-    if ship.tractorBeam != none:
-        ReleaseTractorBeam(ship.tractorBeam)
-
-    if ship.energy == 0 energy units:
-        emit NoEnergyRemaining(ship)
+operation RaiseShields(actor: ShipId)
+    on GameState -> Raised | Rejected(ShieldsTooDamaged)
 ```
 
-`ReleaseTractorBeam` is defined in the shared tractor-association rules.
-This command does not advance the ship's stardate or trigger ordinary turn
-accounting. Shield strength is unchanged.
+Let s be `ship(game, actor)`. The precondition is
+`s.devices[SHIELDS].damage <= 300 damage units`. Failure rejects the operation
+with the damaged-shields diagnostic and changes none of s's state. Exactly
+300 units permits raising shields.
+
+On success, the shield-raising event satisfies:
+
+```text
+after(s.shields.mode) == UP
+after(s.energy) == max(0 energy units,
+                       before(s.energy) - 100 energy units)
+```
+
+The charge applies even when `before(s.shields.mode) == UP`. The actor receives
+the shields-raised report, followed by release of any beam involving s under
+the [tractor-release rule](world-rules.md#tractor-associations). If s.energy is
+then zero, the actor also receives the no-energy report. The outcome is Raised.
+Shield strength and device damage are unchanged. There is no turn completion
+or automatic repair; subsequent command acquisition handles exhausted energy.
 
 ### Lowering shields
 
 ```text
-LowerShields(ship):
-    ship.shields.mode := DOWN
-    emit ShieldsLowered(ship)
+operation LowerShields(actor: ShipId)
+    on GameState -> Lowered
 ```
 
-There is no energy charge or stardate advance. Shield strength and an existing
-tractor beam are unchanged.
+Let s be `ship(game, actor)`. No shield-damage precondition applies.
+The effect is `after(s.shields.mode) == DOWN`; the actor receives the
+shields-lowered report. Energy, shield strength, device damage and an existing
+tractor beam are unchanged. The outcome is Lowered, with no turn completion
+or automatic repair.
 
 ### Energy transfer
 
@@ -64,38 +68,47 @@ return shield energy to the engines. Twenty-five energy units correspond to one
 percentage point of shield strength. Fractional increases are retained.
 
 ```text
-TransferShieldEnergy(ship, requestedEnergy):
-    transfer := min(requestedEnergy,
-                    25 energy units * (100% - ship.shields.strength) / 1%)
-
-    if transfer >= ship.energy:
-        if captain does not confirm YES:
-            emit ShieldTransferCancelled
-            return
-
-    transfer := max(transfer,
-                    -25 energy units * ship.shields.strength / 1%)
-    transfer := max(transfer, ship.energy - 5000 energy units)
-
-    ship.shields.strength := ship.shields.strength
-                            + (transfer / 25 energy units) * 1%
-    ship.energy := ship.energy - transfer
-    emit ShieldEnergyTransferred(ship, transfer)
-
-    if ship.shields.strength <= 0%:
-        ship.shields.mode := DOWN
-    if ship.energy < 1000 energy units:
-        ship.condition := YELLOW
-    else:
-        ship.condition := GREEN
+operation TransferShieldEnergy(actor: ShipId, requested: Energy)
+    on GameState -> Transferred(amount: Energy) | Cancelled
 ```
 
-The confirmation concerns the transfer after the shield-capacity limit but
-before the later return-energy limits. Confirming does not cap the transfer at
-available engine energy. A completed transfer can therefore exhaust the engines;
-normal command-acquisition rules then apply. This operation does not advance the
-ship’s stardate. The fractional arithmetic is the explicit normalization recorded
-in [the numerical policy](NORMALIZATION.md), not a new transfer rate or capacity.
+The command's Integer denotes requested energy units. Let s be the acting ship.
+First determine the amount limited by shield capacity:
+
+```text
+candidate = min(requested,
+                25 energy units * (100% - s.shields.strength) / 1%)
+```
+
+If candidate is at least s.energy, require a YES confirmation. Any other answer
+gives Cancelled and the cancellation report, with no transfer effects. No
+shield-device damage precondition applies.
+
+After any required confirmation, let E and S denote s.energy and
+s.shields.strength immediately before the transfer. The transfer event satisfies:
+
+```text
+amount = max(candidate,
+             -25 energy units * S / 1%,
+             E - 5000 energy units)
+after(s.energy) == E - amount
+after(s.shields.strength) == S + amount / (25 energy units) * 1%
+after(s.shields.mode) == DOWN if after(s.shields.strength) <= 0%
+                        else before(s.shields.mode)
+after(s.condition) == YELLOW if after(s.energy) < 1000 energy units
+                     else GREEN
+```
+
+The actor receives the signed transfer amount; the outcome is Transferred(amount).
+The confirmation precedes the lower limits on amount. Confirming does not cap
+the transfer at available engine energy, so a completed transfer can exhaust
+the engines. At exactly 1000 remaining energy units this event sets condition
+GREEN. Subsequent command acquisition has its own condition and lifecycle rules.
+There is no turn completion or automatic repair.
+
+**Open:** Changes by other actors during the confirmation interval still need
+a complete multiplayer contract. The equations do not make that interval an
+indivisible transaction.
 
 ### Examples
 
@@ -120,36 +133,41 @@ RadioAction  ::= "ON" | "OFF"
 
 A missing or unrecognized action prompts for an action; an empty answer cancels.
 GAG and UNGAG can separately prompt for a ship name. Ship names follow the
-ordinary first-match rule. Naming the acting ship causes no change.
+ordinary first-match rule. Non-name input repeats that prompt; an empty answer
+cancels. An unknown name rejects with its diagnostic. The selected roster ship
+need not be commissioned. Naming the acting ship causes no change or confirmation.
 
-### State changes
+### Operations and state effects
 
 ```text
-RadioOn(captain):
-    captain.radio.enabled := true
-    emit RadioEnabled(captain)
-
-RadioOff(captain):
-    captain.radio.enabled := false
-    emit RadioDisabled(captain)
-
-Gag(captain, sender):
-    if sender == captain.ship:
-        return
-    captain.radio.gaggedSenders := captain.radio.gaggedSenders union {sender}
-    emit SenderGagged(captain, sender)
-
-Ungag(captain, sender):
-    if sender == captain.ship:
-        return
-    captain.radio.gaggedSenders := captain.radio.gaggedSenders minus {sender}
-    emit SenderUngagged(captain, sender)
+operation RadioOn(actor: CaptainId) on GameState -> Enabled
+operation RadioOff(actor: CaptainId) on GameState -> Disabled
+operation Gag(actor: CaptainId, sender: ShipId)
+    on GameState -> Gagged | Unchanged
+operation Ungag(actor: CaptainId, sender: ShipId)
+    on GameState -> Ungagged | Unchanged
 ```
 
-Gagging a sender does not turn the radio off, change teams, or prevent outgoing
-messages. These actions cost no energy and do not advance the ship's stardate.
-How these settings affect message acceptance and delivery belongs to the message
-rules. The displayed confirmations belong to the response definitions.
+Let c be `captain(game, actor)`. The command acts on the radio preferences
+`c.radio`, not on the ship's radio-device damage. None of these operations has
+a device-damage precondition.
+
+| Operation | State effect |
+| --- | --- |
+| RadioOn | `after(c.radio.enabled) == true` |
+| RadioOff | `after(c.radio.enabled) == false` |
+| Gag | `after(c.radio.gaggedSenders) == before(c.radio.gaggedSenders) union {sender}` |
+| Ungag | `after(c.radio.gaggedSenders) == before(c.radio.gaggedSenders) minus {sender}` |
+
+For Gag and Ungag, `sender == c.ship` instead gives Unchanged with no state
+effect or confirmation. Otherwise each operation gives its named outcome and
+confirmation, even if the requested setting already holds. The gag confirmations
+identify the selected ship.
+
+Gagging does not alter `c.radio.enabled`; switching the radio on or off does not
+alter `c.radio.gaggedSenders`. These operations cost no energy and complete no
+turn or automatic repair. Their effects on outgoing recipient selection and
+incoming delivery are defined in [radio communication](communication.md).
 
 **Source basis:** [RADIO](../../legacy/utexas/DECWAR.FOR#L3129).
 
@@ -167,7 +185,7 @@ other responses that lack those two categories prompt again. Resolve the ship
 name using roster order. An unknown name rejects the command. Unused trailing
 arguments are ignored.
 
-### State changes
+### Operation and preconditions
 
 Energy can be sent only to another commissioned ship on the same team, within
 one sector. Ten percent of the transmitted energy is lost. The recipient's
@@ -175,34 +193,47 @@ one sector. Ten percent of the transmitted energy is lost. The recipient's
 for that transfer and its loss.
 
 ```text
-TransferEnergy(sender, recipient, requested):
-    if recipient.id == sender.id:
-        reject CannotTransferToSelf
-    if not recipient.commissioned:
-        reject ShipNotInGame
-    if recipient.team != sender.team:
-        reject CannotTransferToEnemy
-    if distance(sender.position, recipient.position) > 1:
-        reject RecipientNotAdjacent
-    if requested >= sender.energy:
-        reject InsufficientEnergy
-    if requested <= 0 energy units:
-        reject AmountMustBePositive
+operation TransferEnergy(actor: ShipId, target: ShipId,
+                         requested: Energy)
+    on GameState -> Transferred(received: Energy, charged: Energy)
+                 | Rejected(reason: EnergyRejection)
 
-    received := min(0.9 * requested,
-                    5000 energy units - recipient.energy)
-    charged := received / 0.9
-    sender.energy := sender.energy - charged
-    recipient.energy := recipient.energy + received
-    emit EnergyTransferred(sender, recipient, received)
-    notify recipient of EnergyReceived(sender, received)
+EnergyRejection = CannotTransferToSelf | ShipNotInGame
+                | CannotTransferToEnemy | RecipientNotAdjacent
+                | InsufficientEnergy | AmountMustBePositive
 ```
 
-The checks occur in the displayed order. Validation compares the requested
-amount with the sender's energy before applying the recipient's capacity limit.
+Let s be `ship(game, actor)` and r be `ship(game, target)`. Check, in order:
+
+1. `r.id != s.id`; otherwise CannotTransferToSelf.
+2. `r.commissioned == true`; otherwise ShipNotInGame.
+3. `r.team == s.team`; otherwise CannotTransferToEnemy.
+4. `distance(s.position, r.position) <= 1`; otherwise RecipientNotAdjacent.
+5. `requested < s.energy`; otherwise InsufficientEnergy.
+6. `requested > 0 energy units`; otherwise AmountMustBePositive.
+
+A failed check gives Rejected with the corresponding diagnostic and no transfer
+effects. Validation compares the requested amount with the sender's energy
+before applying the recipient's capacity limit.
 Requesting all remaining energy therefore fails even if the recipient has room
-for only a small part of it. A recipient already at capacity produces a
-successful zero-amount transfer, with no energy deducted.
+for only a small part of it.
+
+### Successful state effects and completion
+
+The transfer event satisfies:
+
+```text
+received = min(0.9 * requested,
+               5000 energy units - before(r.energy))
+charged = received / 0.9
+after(s.energy) == before(s.energy) - charged
+after(r.energy) == before(r.energy) + received
+```
+
+The outcome is Transferred(received, charged). The actor receives the transfer
+report and the recipient is notified of the received amount and sender.
+A recipient already at capacity produces a successful zero-amount transfer,
+with no energy deducted.
 
 There is no stardate advance, automatic repair or direct condition change.
 Subsequent command acquisition may update condition from the new energy level.
@@ -221,47 +252,60 @@ STATUS is recognized only as the first argument. Its remaining arguments use
 the STATUS report rules. Other arguments do not prevent docking and do not
 request a report.
 
-### Replenishment
+### Operation and preconditions
+
+```text
+operation ReplenishAtDock(actor: ShipId)
+    on GameState -> Docked | Rejected(NoAdjacentFriendlyInstallation)
+                 | CommissionEnded
+```
 
 Each surviving friendly base within one sector contributes two supply shares;
 each friendly planet within one sector contributes one. With no shares the
 command fails without replenishment or a turn. If the commission ends before
-replenishment, the operation stops without these changes.
+replenishment, the outcome is CommissionEnded without these changes.
+Let s be `ship(game, actor)` and w be `world(game)`:
 
 ```text
-ReplenishAtDock(ship, world):
-    bases := surviving friendly bases within distance 1
-    planets := friendly planets within distance 1
-    shares := 2 * count(bases) + count(planets)
-    if shares == 0:
-        reject NoAdjacentFriendlyInstallation
-    if not ship.commissioned:
-        return
-
-    ship.torpedoes := min(10, ship.torpedoes + 5 * shares)
-    ship.energy := min(5000 energy units,
-                       ship.energy + 500 energy units * shares)
-    ship.shields.strength := min(100%,
-                                ship.shields.strength + 10% * shares)
-    hullRepair := 50 damage units * shares
-    if ship.docked:
-        hullRepair := 2 * hullRepair
-    ship.hullDamage := max(0 damage units,
-                           ship.hullDamage - hullRepair)
-    ship.docked := true
-    ship.lifeSupportReserve := 5
-    ship.condition := GREEN
-    emit Docked(ship)
+bases = {b in w.bases where b.team == s.team
+         and b.strength > 0% and distance(b.position, s.position) <= 1}
+planets = {p in w.planets where p.owner == s.team
+           and distance(p.position, s.position) <= 1}
+shares = 2 * count(bases) + count(planets)
 ```
 
-Repeated docking repairs twice as much hull damage as docking from an undocked
-state. Docking does not raise lowered shields. Device repair is separate from
-this hull repair.
+Here braces describe a set of the matching entities. The share check precedes
+the commission check. No adjacent installation gives its diagnostic and Rejected;
+an ended commission is handled by the session rules.
+
+### Successful state effects
+
+At replenishment, the effects are:
+
+```text
+hullRepair = 50 damage units * shares
+             * (2 if before(s.docked) else 1)
+after(s.torpedoes) == min(10, before(s.torpedoes) + 5 * shares)
+after(s.energy) == min(5000 energy units,
+                       before(s.energy) + 500 energy units * shares)
+after(s.shields.strength) == min(100%,
+                                before(s.shields.strength) + 10% * shares)
+after(s.hullDamage) == max(0 damage units,
+                           before(s.hullDamage) - hullRepair)
+after(s.docked) == true
+after(s.lifeSupportReserve) == 5
+after(s.condition) == GREEN
+```
+
+The outcome is Docked and the actor receives the docking report. Repeated
+docking repairs twice as much `s.hullDamage` as docking from an undocked state.
+Replenishment does not change `s.shields.mode` or `s.devices[d].damage` for any
+device d. Device repair occurs separately during turn completion.
 
 ### Completion and time
 
 At command entry, set a deadline to the current elapsed time plus
-`(world.pacingClass + 1) * 1000 milliseconds`. After replenishment, emit the
+`(w.pacingClass + 1) * 1000 milliseconds`. After replenishment, emit the
 optional STATUS report and record the remaining delay to that deadline.
 Successful docking completes a turn with automatic device repair, as defined
 in [turn completion](turns.md). That completion still occurs when reporting has
@@ -285,42 +329,67 @@ units while undocked or 100 while docked. The amount never exceeds the greatest
 current device damage. This command repairs devices, not hull damage.
 
 DAMAGE requests a report and is sought immediately after a recognized amount
-or ALL, otherwise as the first argument. Unrecognized arguments do not create
+or ALL, otherwise as the first argument, subject to the all-undamaged ALL
+exception below. Unrecognized arguments do not create
 a general syntax error or an additional prompt. Device selectors follow the
 DAMAGES rules.
 
-### State changes
+### Shared device-repair operation
 
 ```text
-RepairDevices(ship, amount):
-    for each device in Device:
-        deviceState := ship.devices[device]
-        deviceState.damage := max(0 damage units,
-                                   deviceState.damage - amount)
-
-ExplicitRepair(ship, request, report):
-    maximum := greatest damage among ship.devices
-    deadline := none
-    if maximum > 0 damage units:
-        amount := selected amount, limited above to maximum
-        rate := 80 milliseconds per damage unit
-        if ship.docked:
-            rate := 40 milliseconds per damage unit
-        deadline := now + amount * rate
-        RepairDevices(ship, amount)
-
-    if report is requested:
-        emit the requested device-damage report
-
-    if deadline == none or deadline <= now:
-        return without completing a turn
-    record remaining delay until deadline
-    CompleteTurn(ship, automaticRepair = true)
+operation RepairDevices(actor: ShipId, amount: Damage)
+    on GameState -> DevicesAdjusted
 ```
 
-The deadline precedes repairs and the optional report; their elapsed time reduces
-the remaining delay. With positive time remaining, the turn includes a further
-automatic repair. Otherwise there is no turn completion or automatic repair.
+Let s be `ship(game, actor)`. For every device d in Device, the repair event
+satisfies:
+
+```text
+after(s.devices[d].damage) == max(0 damage units,
+                                 before(s.devices[d].damage) - amount)
+```
+
+This operation adjusts all nine DeviceState values independently. It leaves
+`s.hullDamage`, `s.energy`, `s.shields.mode` and `s.shields.strength` unchanged.
+It produces no report, delay or turn by itself. Both explicit REPAIR and
+[automatic repair](turns.md#automatic-repair) use this contract.
+
+### Explicit repair and completion
+
+```text
+RepairRequest = Default | All | Amount(value: Damage)
+
+operation ExplicitRepair(actor: ShipId, request: RepairRequest)
+    on GameState -> Repaired(amount: Damage) | NothingToRepair
+```
+
+The command's Integer denotes the value for Amount. ALL denotes All; absence
+of either denotes Default. Let s be the acting ship and let
+`maximum = max(s.devices[d].damage for d in Device)`.
+
+If maximum is zero, the outcome is NothingToRepair, with no device adjustment,
+repair deadline or turn. Otherwise select the amount:
+
+| Request | Amount |
+| --- | --- |
+| Default | `min(maximum, 100 damage units)` if s.docked, otherwise `min(maximum, 50 damage units)` |
+| All | maximum |
+| Amount(value) | `min(maximum, value)` |
+
+Before the repair event, establish a deadline of now plus amount times the
+repair rate. The rate is 40 milliseconds per damage unit if s.docked, otherwise
+80. Apply RepairDevices(actor, amount); the outcome is Repaired(amount).
+
+An accepted DAMAGE suffix produces its selected report after device adjustment,
+or after determining NothingToRepair. One acceptance exception applies: when
+maximum is zero, `REPAIR ALL DAMAGE` does not recognize its DAMAGE suffix.
+An explicit integer or omitted amount still permits that suffix when maximum
+is zero.
+
+After any report, positive time remaining to the deadline selects turn completion
+with automatic repair. If there is no deadline or its time has already elapsed,
+there is no turn completion or automatic repair. Thus the repair and report's
+elapsed time reduces the delay; a turn adds a further automatic device repair.
 There is no direct energy charge.
 
 The accepted integer is not restricted to positive values. If at least one
@@ -554,8 +623,17 @@ with exactly two resulting coordinate items. Missing coordinates prompt for them
 empty continuation cancels and invalid coordinates reject. A location equal to
 the current sector reports the zero-displacement diagnostic and asks again.
 
-Before reading coordinates, MOVE requires warp-engine damage below 300 damage
-units; IMPULSE requires impulse-engine damage below 300. On passing that check,
+Let s be the acting ship, selected by `ship(game, actor)` from the
+[Ship definition](language-model.md#ships). Before reading coordinates, check
+the corresponding precondition:
+
+```text
+MOVE:    s.devices[WARP_ENGINES].damage < 300 damage units
+IMPULSE: s.devices[IMPULSE_ENGINES].damage < 300 damage units
+```
+
+Failure reports the damaged propulsion device and ends the command without
+movement, an energy charge or a turn. On passing that check,
 set a deadline to `now + (world.pacingClass + 1)*1000 milliseconds`, and select
 the potential speed damage as `IntegerDraw(4000)/10` damage units. Its value is
 used only if a later overheating check succeeds.
@@ -563,8 +641,9 @@ used only if a later overheating check succeeds.
 ### Range and speed
 
 After accepting a nonzero displacement, set condition green and clear docking.
-Let d be the Chebyshev distance to the intended destination. If computer damage
-is at least 300 units, set path deflection to `(UnitDraw()-0.5)/2`; otherwise use
+Let d be the Chebyshev distance to the intended destination. If
+`s.devices[COMPUTER].damage >= 300 damage units`, set path deflection to
+`(UnitDraw()-0.5)/2`; otherwise use
 zero deflection. Then validate range:
 
 ```text
@@ -574,7 +653,7 @@ if command == IMPULSE:
 else:
     if d > 6:
         reject WarpRangeExceeded
-    if ship.devices[WARP_ENGINES].damage > 0 and d > 3:
+    if s.devices[WARP_ENGINES].damage > 0 and d > 3:
         reject DamagedWarpRangeExceeded
 ```
 
@@ -584,7 +663,8 @@ before the nonzero-displacement step does not apply those state changes.
 
 MOVE at distance 5 or 6 emits the speed-risk warning and selects `IntegerDraw(100)`.
 A result above 90 at distance 5 or above 80 at distance 6 causes overheating.
-Add the previously selected speed damage to warp-engine damage and report it.
+Add the previously selected speed damage to `s.devices[WARP_ENGINES].damage`
+and report it.
 Overheating does not cancel the movement. Short output omits the estimated
 repair-time explanation; exact response wording belongs to presentation.
 
@@ -596,16 +676,16 @@ the destination:
 
 ```text
 cost := 4 * d^2 energy units
-if ship.shields.mode == UP:
+if s.shields.mode == UP:
     cost := 2 * cost
-if ship.tractorBeam != none:
+if s.tractorBeam != none:
     cost := 3 * cost
-ship.energy := ship.energy - cost
+s.energy := s.energy - cost
 
-if trace.lastClear != ship.position:
-    ship.position := trace.lastClear
+if trace.lastClear != s.position:
+    s.position := trace.lastClear
     move the ship's presence to that sector
-    if ship.tractorBeam != none:
+    if s.tractorBeam != none:
         move its partner under the tractor-following rule
 
 if trace has an obstruction:

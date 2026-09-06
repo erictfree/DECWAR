@@ -179,6 +179,14 @@ defense phases. Other ships and installations do not alter the stated result.
 | EX-MODEL-166 | No planets remain; both factions have at least one base | Galaxy continues. |
 | EX-MODEL-167 | No planets remain; Federation has no bases; Empire has a base | End the galaxy, announce Empire victory, and perform the checking captain's final report/release/exit. |
 | EX-MODEL-168 | No planets or bases remain | Announce total destruction, then both faction victory reports in their specified order. Do not invent a score bonus. |
+| EX-MODEL-169 | `s.devices[WARP_ENGINES].damage` is 300 units; MOVE with no coordinates | Reject before asking for coordinates. No movement, energy charge, undocking or turn occurs. |
+| EX-MODEL-170 | Warp-device damage is 300 units and impulse-device damage is zero; IMPULSE with no coordinates | The propulsion check succeeds and coordinates are requested; warp damage does not reject IMPULSE. |
+| EX-MODEL-171 | All nine device-damage values are zero; REPAIR ALL DAMAGE | No repair, damage report or turn occurs. |
+| EX-MODEL-172 | All nine device-damage values are zero; REPAIR 0 DAMAGE | Produce the requested damage report without repair or a turn. |
+| EX-MODEL-173 | Warp-device damage is 40 units, all other device damage is zero, hull damage is 70, shields are DOWN at 60%; REPAIR 10 | At the explicit repair event, warp-device damage becomes 30; hull damage, shield mode and shield strength are unchanged. Any ensuing automatic repair is a separate event. |
+| EX-MODEL-174 | Yorktown is active and Wolf is uncommissioned; RADIO GAG WOLF | Add Wolf's identity to Yorktown's captain's gag set and confirm it; Wolf need not hold a commission. |
+| EX-MODEL-175 | Shield-device damage is 300 units, warp-device damage is 400, energy is 800, no beam; SHIELDS UP | Raise shields and leave energy 700. Both device-damage values remain unchanged; warp damage is not a precondition. |
+| EX-MODEL-176 | The ship's radio-device damage is 450 units and the captain's radio setting is OFF; RADIO ON | Enable the captain's radio setting and report it. The device-damage value remains 450; no energy charge or turn occurs. |
 
 EX-MODEL-06 deliberately uses fractional shield strength. Historical loss of
 that fraction is excluded by the numerical normalization policy. The grammar,

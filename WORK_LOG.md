@@ -2158,3 +2158,41 @@ port/tool attribution remain separate.
     remaining normalization questions and earlier clauses' ADT conversion.
     No gameplay, archived source or running service changed. Concurrent automated-
     player changes remain separate; only this entry is staged from WORK_LOG.md.
+
+
+## Specification checkpoint — explicit ADT properties and resource contracts (2026-09-05)
+
+- Responded to the request for R7RS-style entries and unambiguous ADTs. Consulted
+  only the supplied R7RS PDF, section 1.3.3, for editorial format; it supplies no
+  DECWAR rules. Recorded this reference and single-column direction in the plan.
+- Defined mapping, property-selection, identity and semantic-outcome notation.
+  Defined Damage as a scalar and explained all nine Device entries, DeviceState,
+  hull damage, shield strength/mode and shared engine energy. MOVE/IMPULSE now
+  name exact device-damage paths and keep their distinct propulsion checks.
+- Rewrote SHIELDS, RADIO, ENERGY, DOCK and REPAIR as operation contracts with
+  typed inputs, ordered preconditions, before/after effects, outcomes and
+  completion rules. Shared RepairDevices has a contract used by automatic repair.
+  No storage structure or new game command is prescribed.
+- Rechecked Austin DECWAR.FOR SHIELD (3739), RADIO (3129), ENERGY (1009),
+  DOCK (893), REPAIR (3190), MOVE/IMPULS (2141), and caller/turn sites. Preserved
+  shield threshold asymmetry, signed transfer/repair amounts, capacity/confirmation
+  ordering, radio preference/device separation and report-sensitive repair timing.
+- Corrected one draft syntax omission found in REPAIR: the zero-damage branch
+  bypasses ALL recognition and its report-suffix advancement, so REPAIR ALL DAMAGE
+  produces no damage report when all devices are undamaged. An explicit integer
+  or omitted amount still permits DAMAGE. This is a source-derived acceptance
+  rule, not a numerical normalization or a runtime change. Clarified RADIO's
+  unknown-name rejection and acceptance of uncommissioned roster identities.
+- Added EX-MODEL-169 through 176 for independent device state, threshold checks,
+  report acceptance and radio settings. Build verifies 12 included sections,
+  243 local links, 176 scenario rows and 324 source message fragments. Source audit
+  verifies 135 hashes, 83 declarations, 33 main/16 pregame commands and variant
+  populations. git diff --check passes.
+- Logs: logs/spec-adt-resources-build.log, logs/spec-adt-resources-final.log,
+  logs/spec-adt-resources-audit.log. Rebuilt the 91-page PDF and visually reviewed
+  relevant ADT, resource and example pages under tmp/pdfs/spec-adt-resources/.
+  Generated publication files remain ignored and reproducible.
+- Runtime and legacy archives unchanged. Separate automated-player experiment
+  work, docs/status.md and its work-log entries remain outside this checkpoint.
+  Goal remains active: older command contracts, complete ADT/lifecycle and
+  multiplayer definitions, autonomous actions, presentation and variants remain.

@@ -26,6 +26,11 @@ Queries describe the current state without changing it. Operations describe
 permitted changes and observations. Their names are specification vocabulary,
 not additional commands or a required software interface. For example, the
 CAPTURE grammar determines how player input invokes the `Capture` operation.
+In an operation declared `on GameState`, game denotes the state on which it
+acts. The result following the arrow is a semantic outcome: vertical bars
+separate alternatives, and parentheses give any associated values. Thus
+`Rejected(reason: CaptureRejection)` is an outcome carrying a reason, not
+terminal text or a command that the player can enter.
 
 An operation contract states:
 
@@ -45,8 +50,9 @@ contract names separate events and states their ordering. Other world activity
 may occur during an operation under the multiplayer rules; these contracts
 do not imply that every command is one indivisible transaction.
 
-The CAPTURE clause establishes this contract form. Other drafted clauses still
-use the pseudocode below and are being brought into the same form. An operation
+Resource controls, CAPTURE, information commands and session operations use
+this contract form. Other drafted clauses still use the pseudocode below and
+are being brought into the same form. An operation
 name alone does not define its meaning: its command or shared-rule clause must
 supply the contract.
 
@@ -56,6 +62,20 @@ A record names facts about the game. An enum names mutually exclusive values.
 `Set<T>` is an unordered collection with no duplicates; `Sequence<T>` is ordered.
 `Optional<T>` is either a value of T or `none`. These are specification concepts,
 not required programming-language types or storage structures.
+
+In a declaration, `property: T` gives the property's type. `A -> B` denotes a
+total mapping: every value of A has exactly one associated value of B. For
+example, `devices: Device -> DeviceState` associates each of the nine device
+kinds with its own device state. Square brackets select a mapping entry;
+a dot selects a named property. Neither notation requires an array or object
+representation.
+
+The query `ship(game, actor)` selects the ship identified by actor. A command
+may bind that ship to s and then write `s.energy` or
+`s.devices[WARP_ENGINES].damage`. A `ShipId` is an identity, not itself a Ship
+record. Reading an optional value requires it to be present. Rules that act on
+the position of an active, positioned ship use the contained Position value;
+rules for admission and release handle absence explicitly.
 
 Pseudocode describes the meaning of an operation:
 
@@ -156,8 +176,8 @@ examines Federation ships in the order below, then Empire ships in that order.
 | Vulcan | Panther |
 | Yorktown | Wolf |
 
-The initial world has twenty planets and ten bases for each faction. The
-spatial-placement and full initialization rules remain to be converted.
+The initial world has twenty planets and ten bases for each faction. Placement
+and initialization are defined in [galaxy creation](session-rules.md#galaxy-creation-and-placement).
 
 ```text
 record Rectangle:
@@ -218,17 +238,60 @@ record Ship:
     pendingScore: Score
 ```
 
-A commissioned ship begins with 5000 energy units, ten torpedoes, no hull or
-device damage, five life-support turns, shields up at 100%, and green condition.
-Reservations, destruction and release require distinct lifecycle rules; neither
-zero energy nor an absent captain alone defines every lifecycle state.
+A new commission begins with 5000 energy units, ten torpedoes, no hull or device
+damage, five life-support turns, shields up at 100%, and green condition.
+`commissioned` means a captain holds an active commission aboard the ship.
+It can remain true at zero energy or fatal damage until the separate
+commission-release event defined by the session rules.
 
-`commissioned` means that a captain currently holds an active commission aboard
-the ship. It does not imply positive energy or nonfatal damage: terminating a
-commission is a distinct event in the session rules.
+### Damage and device state
 
-The shield-raising rule reads shield-device damage and changes shield mode
-and engine energy.
+`Damage` is a scalar quantity measured in damage units. It has no fields.
+`Device` identifies a kind of equipment; `DeviceState` describes that equipment's
+damage aboard one ship. Every Ship has a DeviceState for each of the nine Device
+values, even when the device is undamaged. Zero device damage means undamaged;
+larger values mean more damage. The permission to use a device is determined by
+the operation's precondition, not by a universal working/broken flag.
+
+For a ship s, the expressions below select distinct properties:
+
+| Expression | Meaning |
+| --- | --- |
+| `s.hullDamage` | Damage to the ship's hull, of type Damage. |
+| `s.devices[WARP_ENGINES]` | The warp engines' DeviceState aboard s. |
+| `s.devices[WARP_ENGINES].damage` | Damage to those engines, of type Damage. |
+| `s.devices[SHIELDS].damage` | Damage to shield equipment, of type Damage. |
+| `s.shields.strength` | Available shield strength, of type Percentage. |
+| `s.shields.mode` | Whether the shields are UP or DOWN, of type ShieldMode. |
+
+Warp engines are therefore a key in s.devices, not a property of a damage
+object. Hull damage is separate from all nine device-damage values. Shield
+strength, shield mode and damage to shield equipment are also separate:
+changing one changes another only when an operation explicitly says so.
+
+| Device value | Equipment whose damage is selected |
+| --- | --- |
+| SHIELDS | Shield equipment |
+| WARP_ENGINES | Warp propulsion |
+| IMPULSE_ENGINES | Impulse propulsion |
+| LIFE_SUPPORT | Life-support equipment |
+| TORPEDO_TUBES | Photon-torpedo tubes |
+| PHASERS | Phaser equipment |
+| COMPUTER | Navigation and targeting computer |
+| RADIO | Radio equipment |
+| TRACTOR_BEAM | Tractor-beam equipment |
+
+**Example:** MOVE requires `s.devices[WARP_ENGINES].damage < 300 damage units`.
+SHIELDS UP instead requires `s.devices[SHIELDS].damage <= 300 damage units`.
+At exactly 300 units, the former operation is rejected and the latter is
+permitted. A single derived predicate such as “all devices work below 300”
+would erase this distinction.
+
+In command prose, “warp-engine damage” denotes precisely
+`s.devices[WARP_ENGINES].damage` for the identified ship s; the other device names
+follow the same convention. Preconditions and state-effect equations use the
+explicit property path. “Engine energy” denotes `s.energy`, a shared ship
+resource, not an additional property of either propulsion device.
 
 ## Installations
 

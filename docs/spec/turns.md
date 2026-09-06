@@ -42,13 +42,14 @@ mean that typing any recognized command necessarily consumes a turn.
 
 ```text
 AutomaticRepair(ship):
-    maximum := greatest damage among ship.devices
+    maximum := max(ship.devices[d].damage for d in Device)
     if maximum > 0 damage units:
         amount := min(30 damage units, maximum)
-        RepairDevices(ship, amount)
+        RepairDevices(ship.id, amount)
 ```
 
-This operation uses the same device-damage subtraction as REPAIR. Docking does
+This operation uses the [RepairDevices contract](commands.md#shared-device-repair-operation).
+Docking does
 not increase its 30-unit allowance. It has no separate repair delay and does
 not recursively complete another turn.
 

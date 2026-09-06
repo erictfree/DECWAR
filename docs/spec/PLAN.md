@@ -68,6 +68,19 @@ research, not in the generalized language. Any proposed departure beyond the
 authorized numerical normalization needs an explicit decision; do not invent
 replacement gameplay while rewriting the prose.
 
+## Editorial form
+
+Use the [R7RS Scheme report](https://standards.scheme.org/official/r7rs.pdf),
+especially its entry-format conventions in section 1.3.3, as an editorial
+reference only. It supplies no DECWAR rules. Retain a single-column document.
+Introduce notation and abstract types before using them; give command entries
+consistent syntax, operation signatures, preconditions, effects, observations
+and examples. Define every state property and distinguish scalar quantities,
+entity identities, records and mappings. Prefer explicit paths in semantic
+predicates, such as `s.devices[WARP_ENGINES].damage`, to ambiguous equipment prose.
+The naming and type conventions are language-neutral; they do not mandate a
+TypeScript representation.
+
 ## Deliverables
 
 Files under this directory will use stable clause and example identifiers.
