@@ -4391,3 +4391,18 @@ formula remains normative. Build passed 100 productions, 671 scenario rows,
 14 units and 686 links in logs/spec-distance-name-build.log. Inspected PDF page
 12; no clipping or overfull/undefined warnings. No formula, coordinate domain
 or gameplay changed.
+
+## Specification: integrate the Romulan sector distinction
+
+Replaced the isolated statement that the Romulan is not a player commission
+with an explanation attached to SectorObject. PlayerShip now explicitly refers
+to the fixed roster and commission state; RomulanObject refers to the optional
+autonomous `World.romulan`. Both take part in spatial rules while their lifecycle
+and behavior remain separate. This is an editorial integration of existing ADTs,
+not a new occupancy, lifecycle or combat rule. Reformatted the SectorObject union
+vertically after the first render left its declaration at the bottom of one page
+and its explanation on the next. Final build passed 100 productions, 671 scenario
+rows, 14 units and 686 links in
+logs/spec-romulan-sector-integration-build-2.log; the initial layout is retained
+in the preceding build log. Inspected final PDF page 13; the union and explanation
+remain together with no clipping or overfull/undefined warnings.

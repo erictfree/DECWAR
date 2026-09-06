@@ -289,22 +289,31 @@ handling explicitly.
 
 The galaxy contains 75 rows and 75 columns of sectors. Increasing the vertical
 coordinate moves upward; increasing the horizontal coordinate moves rightward.
-A sector can contain a ship, base, planet, star or black hole, or be empty.
-The Romulan is a separate autonomous ship, not a player commission.
-During HELP or GRIPE, a ship can retain its commission and position while its
-sector has a different temporary interaction kind, as defined in
-[session activities](session-rules.md#temporary-information-activities).
+A sector is empty or has one interaction object of the following kind:
 
 ```text
-type SectorObject = PlayerShip { id: ShipId } | Starbase { id: BaseId }
-             | PlanetObject { id: PlanetId } | RomulanObject
-             | StarObject | BlackHoleObject
+type SectorObject =
+    | PlayerShip { id: ShipId }
+    | Starbase { id: BaseId }
+    | PlanetObject { id: PlanetId }
+    | RomulanObject
+    | StarObject
+    | BlackHoleObject
 ```
 
 The sector query returns the object with which a sector-based observation or
 action interacts, or none for an empty sector. These alternatives are abstract
 object kinds, not numeric encodings. The position supplied to the query locates
 a star or black hole; the other alternatives identify the corresponding entity.
+PlayerShip refers to a member of the fixed player roster and its commission
+state. RomulanObject instead refers to the optional autonomous ship in
+`World.romulan`; it cannot be assigned to a captain as a player commission.
+This distinction lets movement, scanning and combat recognize both kinds at a
+sector while their lifecycle and behavior remain separate.
+
+During HELP or GRIPE, a ship can retain its commission and position while its
+sector has a different temporary interaction kind, as defined in
+[session activities](session-rules.md#temporary-information-activities).
 An active information activity can make this query return BlackHoleObject while
 the ship's commission and position remain present. The session rules specify
 that distinction; a sector query is not a query for every ship with that position.

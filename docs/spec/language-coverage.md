@@ -579,3 +579,9 @@ The sector-geometry clause now names its existing maximum-coordinate formula
 as Chebyshev distance (the maximum metric or L-infinity distance). The formula
 remains the normative definition, avoiding dependence on a library's naming or
 distance convention.
+
+The galaxy model now ties RomulanObject directly to `World.romulan` and contrasts
+it with a roster-backed PlayerShip. This explains the semantic reason for the
+separate sector-object alternative: both participate in spatial rules, while
+only roster ships can carry player commissions. No lifecycle or combat rule was
+changed.
