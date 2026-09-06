@@ -27,12 +27,12 @@ remaining dependencies below still limit end-to-end conformance claims.
 | PHASERS | [PHASERS](commands.md#phasers): ADT operation contract. | Concurrent target changes, random distributions and complete delivery/presentation. |
 | TORPEDOS | [TORPEDOS](commands.md#torpedos): ADT operation contract. | Malformed continuations, concurrent target changes and complete delivery/presentation. |
 | LIST, SUMMARY, BASES, PLANETS, TARGETS | [Galaxy reports](commands.md#list-summary-bases-planets-and-targets) | Mixed selector edge cases, label aggregation, concurrent reporting and terminal presentation. |
-| POINTS | [POINTS](commands.md#points) | Zero-denominator presentation, concurrent counts and terminal formatting. |
+| POINTS | [POINTS](commands.md#points): ADT operation contract. | Zero-denominator presentation, concurrent counts and terminal formatting. |
 | TYPE | [TYPE](commands.md#type): ADT operation contract. | Unselected terminal profile, concurrent observations and terminal formatting. |
 | TIME | [TIME](commands.md#time): ADT operation contract. | Environment clock/accounting binding and duration formatting. |
 | USERS | [USERS](commands.md#users): ADT operation contract. | Session metadata binding, admission interleavings and terminal formatting. |
 | SET | [SET](commands.md#set) | Unselected terminal profile, nonprinting name characters, world termination and responses. |
-| TELL | [TELL](commands.md#tell) | Full multiplayer publication/receipt conditions and terminal presentation. |
+| TELL | [TELL](commands.md#tell): ADT operation contract. | Full multiplayer publication/receipt conditions and terminal presentation. |
 | *PASSWORD | [*PASSWORD](commands.md#password) | Complete session privilege lifecycle. |
 | *DEBUG | [*DEBUG](commands.md#debug) | Instrumentation selection and environment timing binding. |
 | HELP | [HELP](commands.md#help): ADT operation contract. | Concurrent temporary-sector effects, complete text/presentation binding. |
@@ -57,11 +57,11 @@ coverage does not establish lifecycle, concurrency or terminal conformance.
 - Abstract model: game-state ADT and operation-contract notation introduced;
   SHIELDS, RADIO, ENERGY, DOCK, REPAIR, SCAN, SRSCAN, STATUS, DAMAGES,
   TRACTOR, MOVE, IMPULSE, BUILD, CAPTURE,
-  PHASERS, TORPEDOS, POINTS, TYPE, TIME, USERS, HELP, NEWS, GRIPE, QUIT and
-  message publication/reception use explicit contracts. Mapping/property notation,
+  PHASERS, TORPEDOS, POINTS, TYPE, TIME, USERS, TELL, HELP, NEWS, GRIPE, QUIT and
+  message publication/reception/discard use explicit contracts. Mapping/property notation,
   the nine device states and their distinction from hull damage and shield state
   are defined explicitly. Phaser-bank identities and independent deadlines are
-  defined separately from shared device damage. Token categories, scan marks/rows,
+  defined separately from shared device damage. Token categories, acquired-line/command input values, radio service and message observations, scan marks/rows,
   ordered status observations, device-damage rows, type/time/user observations, typed score columns/rows and ratio operands,
   session reporting metadata and commission clock baselines are defined. Sector objects, geometric points/vectors, PathResult,
   symmetric beam membership and fixed base-identity order are defined. Existing

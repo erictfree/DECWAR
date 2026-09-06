@@ -2457,3 +2457,47 @@ command-family ADT conversions, lifecycle/interleavings, terminal/environment
 bindings, CompuServe amendments and a whole-spec consistency review. Unrelated
 experiments, docs/status.md and concurrent work-log additions remain outside
 this specification checkpoint.
+
+
+## 2026-09-05 — TELL and radio communication ADT contracts
+
+Converted TELL to SendTell with explicit input, failures, observations and
+ValidateRadioRecipients. Named the exact device/captain properties for radio
+availability, enablement, commission eligibility and ungagging. Preserved
+ship-name-before-group lookup, per-token diagnostics, ROMULAN skipping before
+repeat rejection, filtering precedence, sender removal and effects retained
+through cancelled composition or failed publication. Added AcquiredLine and
+CommandInput so raw body text, token arguments and repeated-input state have
+explicit meanings, including recipient continuations and ESC at Msg:.
+
+Added MessageSender, RadioService, PublicationId, RadioHeading and
+MessageObservation. Typed publication/receipt and defined DiscardUnread for
+capacity loss and release. Published order is distinct from capacity acquisition;
+unpublished operations occupy capacity but have no receivable body. Original
+audiences remain immutable while remaining recipients change. Initial capacity
+access can fail, whereas final publication retries temporary unavailability.
+Complete availability/interruption and release/publication interleavings remain
+open. No queue layout, address artifacts or new game mechanics were prescribed.
+
+Evidence: Austin TELL DECWAR.FOR 3977–4063; OUTMSG 2599–2623; FREE 1082–1140;
+SETUP.FOR groups 358–364; WARMAC.MAC INLI. 1542–1605, publication/capacity
+2589–2750 and MAKMSG/GETMSG 2963–3075. Added EX-MODEL-265 through EX-MODEL-277.
+All 33 main commands retain grammar/semantic clauses; 25 now have explicit
+ADT operation contracts. Remaining command conversions include SET, the five
+galaxy-report commands, *PASSWORD and *DEBUG. Lifecycle, multiplayer, terminal
+bindings, variants and full consistency/conformance review remain unfinished.
+
+Validation: source audit passed (135 hashes, 83 declarations, 33 main and
+16 pregame commands, 324 strings). Book construction checked 13 chapters,
+289 local links, 277 scenario rows and 324 source message fragments. First PDF
+build rejected one overlong property expression; displayed the recipient-removal
+expression separately, then rebuilt successfully. Visually reviewed pages 18,
+64–65, 90–92 and 122 of the 123-page book for declarations, TELL, shared
+communication and examples. Logs: logs/spec-tell-adt-audit.log,
+logs/spec-tell-adt-build.log (failure retained), logs/spec-tell-adt-build-2.log
+(pass); renders tmp/pdfs/spec-tell-adt/. These checks verify construction and
+source preservation, not executable conformance or full semantic coverage.
+
+No gameplay, server, archive or generated source data changed. Concurrent
+experiments, status edits and unrelated work-log additions stay outside this
+specification checkpoint. Next: SET preference operations and their effects.

@@ -2178,17 +2178,51 @@ The body after the first semicolon belongs to message text, not command tokens.
 It retains its original case, spaces and punctuation. Without an inline body,
 TELL prompts `Msg: ` after recipient selection succeeds.
 
-If radio-device damage is at least 300 units, reject before changing radio state
-or reading recipients. Otherwise enable the sender's radio. If recipients were
-omitted, prompt for them; an empty continuation cancels, leaving the radio on.
+### Operation and input
+
+```text
+type TellFailure = RadioUnavailable | RepeatedTell | NoRecipients
+
+type TellObservation = UnknownRecipient(Text) | AmbiguousGroup(Text)
+                     | SelfRecipient | RecipientUnavailable(ShipId)
+                     | RecipientRadioUnavailable(ShipId)
+                     | NoRecipients | NoMessageSent
+
+operation SendTell(actor: ShipId, input: CommandInput)
+    on GameState -> Published(MessageId) | NotPublished
+                 | Cancelled | Rejected(TellFailure)
+```
+
+Let s be ship(game, actor), and let c be the captain identified by s.captain.
+Require an active commission and a present captain. The device precondition is:
+
+```text
+s.devices[RADIO].damage < 300 damage units
+```
+
+Failure returns Rejected(RadioUnavailable) before changing radio state or
+reading recipients. Otherwise set c.radio.enabled to true. If input.arguments
+is empty, prompt for recipients and acquire a continuation. An empty continuation
+returns Cancelled, leaving the radio on. Otherwise use the continuation's tokens
+as recipients and its AcquiredLine as the current line. With supplied recipients,
+use input.arguments and input.line. The current line determines both repeated
+input status and any inline message body.
+
+### Recipient selection
+
+Start with selected as an empty set of ShipId. The following selection rules
+inspect every supplied recipient token; they do not stop at a numeric or null
+token as POINTS does. Tokens that match no recipient are diagnosed and skipped.
 
 For each recipient token, first recognize ROMULAN and skip it: Austin player
 TELL does not address the Romulan or cause a reply. For any other recipient,
-repeated command input is rejected before name lookup. Then try ship names in
+if the current line's repeated property is true, return Rejected(RepeatedTell)
+before name lookup. Then try ship names in
 roster order, before checking group names. Group abbreviations must match exactly
 one group name; matching several names is ambiguous even if they denote the same
-faction. Unknown or ambiguous recipients are diagnosed and skipped; other tokens
-can still supply valid recipients.
+faction. Emit UnknownRecipient(token.text) or AmbiguousGroup(token.text) for
+an unknown or ambiguous recipient, then skip it; other tokens can still supply
+valid recipients.
 
 | Group name | Ship identities selected |
 | --- | --- |
@@ -2198,26 +2232,41 @@ can still supply valid recipients.
 | FRIENDLY | The sender's faction. |
 | ENEMY | The opposing faction. |
 
-Groups contribute only currently commissioned ships. Explicit ship names can
-select an uncommissioned ship for the later availability diagnostic. Combine
-selections as a set, so duplicate names or overlapping groups do not cause
-duplicate delivery. Explicitly naming oneself produces the self-recipient notice.
+Groups contribute only ships whose commissioned property is true. Explicit ship
+names can select an uncommissioned ship for the later availability diagnostic.
+Add matches to selected as a set, so duplicate names or overlapping groups do
+not cause duplicate delivery. Explicitly naming oneself emits SelfRecipient.
 
 ### Filtering and state changes
 
-Examine selected ships in roster order. A selected ship whose radio damage is
-at least 300 units is unreachable and is removed. Otherwise an uncommissioned
-ship is unavailable and is removed; otherwise a ship whose radio is off is
-unreachable and is removed. Diagnose each removal in that order of precedence.
-No distance or faction restriction applies.
+Use the shared recipient-validation operation below. It is also used by
+autonomous speech, so it does not itself exclude the caller's ship.
 
 ```text
-recipients := validated selected ships, excluding the sender
-captain.radio.gaggedSenders -= recipients
+operation ValidateRadioRecipients(viewer: CaptainId, selected: Set<ShipId>)
+    on GameState -> Set<ShipId>
+```
+
+Examine selected identities in roster order. For each id let r be ship(game, id).
+Apply the first matching rule below and send any diagnostic to viewer:
+
+| Condition | Observation and result for id |
+| --- | --- |
+| `r.devices[RADIO].damage >= 300 damage units` | Emit RecipientRadioUnavailable(id); exclude id. |
+| `r.commissioned == false` | Emit RecipientUnavailable(id); exclude id. |
+| Otherwise, with rc the captain identified by r.captain, `rc.radio.enabled == false` | Emit RecipientRadioUnavailable(id); exclude id. |
+| Otherwise | Retain id. |
+
+A commissioned recipient requires a present captain. Validation changes no
+ship or captain property, and imposes no distance or faction restriction.
+Back in SendTell, perform these effects in order:
+
+```text
+recipients = ValidateRadioRecipients(c.id, selected) - {actor}
+c.radio.gaggedSenders -= recipients
 if recipients is empty:
     emit NoRecipients
-    return
-acquire and publish message body for recipients
+    return Rejected(NoRecipients)
 ```
 
 Sending to a ship ungags that ship in the sender's own radio settings. It does
@@ -2228,13 +2277,16 @@ composition or delivery.
 
 ### Body and completion
 
-If the current acquired line contains a semicolon, use the raw text following
-its first semicolon. Otherwise acquire a line at the message prompt using the
+If the current acquired line's raw property contains a semicolon, use the text
+following its first semicolon. Otherwise acquire a line at the message prompt using the
 ordinary line-editing rules. Ctrl-C during that prompt cancels with no message
 published. Empty or one-character bodies produce `No message sent`. For longer
 bodies, retain the first 75 characters. The full acquired body is consumed even
 when its retained text reaches that limit.
 
+Submit an acquired body through PublishMessage(actor, recipients, body), and
+return its Published or NotPublished outcome. Ctrl-C at the body prompt instead
+returns Cancelled after emitting NoMessageSent, without submitting a publication.
 Publication and subsequent delivery follow [radio communication](communication.md).
 TELL completes no turn and charges no energy. Successful submission is distinct
 from a recipient displaying the message: it can later be gagged, discarded on

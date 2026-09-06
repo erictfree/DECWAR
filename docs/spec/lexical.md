@@ -79,6 +79,14 @@ record Token:
     category: TokenCategory
     numericValue: real
     origin: InputPosition
+
+record AcquiredLine:
+    raw: Text
+    repeated: Boolean
+
+record CommandInput:
+    line: AcquiredLine
+    arguments: Sequence<Token>
 ```
 
 Token is an abstract description of input, not a required lexer object.
@@ -86,6 +94,15 @@ The text property is the retained, transformed spelling; numericValue is the
 quantity determined below. A name-category token means ALPHANUMERIC; it does
 not introduce a fifth category. Operation parameters of type `Sequence<Token>`
 contain arguments only, excluding the command name and end boundary.
+
+AcquiredLine.raw is the retained line after editing, without its terminating
+control character and before token case transformation. Its repeated property
+records the first-character ESC reuse defined by LEX-2. CommandInput associates
+the current command's arguments with that acquired line. Several commands
+separated by slash can refer to the same line. These are input values, not a
+required buffering or parser architecture. Acquiring a continuation produces
+another AcquiredLine and its own tokens; it does not append tokens to the old
+command unless that command's continuation rule says so.
 
 A token has retained text, a category, a numeric value and an origin position in
 the acquired line. The categories are null, integer, REAL and alphanumeric.

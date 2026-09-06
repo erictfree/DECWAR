@@ -8,13 +8,16 @@ delivery removes only the receiving ship from remaining recipients.
 ## Publishing a message
 
 ```text
-operation PublishMessage(sender, recipients, body)
+operation PublishMessage(sender: MessageSender, recipients: Set<ShipId>,
+                         body: Text)
     on GameState -> Published(MessageId) | NotPublished
 ```
 
 TELL defines recipient selection and body acquisition. `PublishMessage` receives
 that selected audience and acquired body; it does not repeat recipient-readiness
-checks. Successful publication creates one message with a new identity:
+checks. An empty recipient set returns NotPublished without obtaining capacity.
+Let service be world(game).radioService. Successful publication creates one
+message with a new identity:
 
 ```text
 message.sender              == sender
@@ -23,23 +26,45 @@ message.remainingRecipients == recipients
 message.body                == first 75 characters of body
 ```
 
+Append that message to service.messages. Its position in that sequence defines
+publication order, independently of when composition began or capacity was
+obtained. The original recipient set is nonempty, and remainingRecipients is
+always a subset of recipients.
+
 Messages are available to their recipients in publication order. No recipient
 can read an incomplete body. Publication does not imply immediate display, and
 consumption by one recipient does not withdraw the message from another.
 
 The radio service has capacity for 32 messages, including publications in
-progress. At capacity, the loss policy selects the first remaining recipient,
+progress. Its occupied capacity is:
+
+```text
+size(service.messages) + size(service.publicationsInProgress)
+```
+
+Before storing a body, the operation obtains one place and adds a fresh
+PublicationId to service.publicationsInProgress. Publishing replaces that
+in-progress identity with the new Message. Abandoning a short body removes
+the in-progress identity without creating a message. No receiver can observe
+a publication that has only obtained capacity.
+
+At capacity, the loss policy selects the first remaining recipient,
 in roster order, of the oldest published message. That ship loses its entire
 unread backlog. All other ships retain their unread messages. A message no
 longer unread by anyone ceases to occupy capacity. If capacity is still full,
 the policy applies again. It imposes no energy or score penalty.
 
-A body shorter than two characters is not published. The capacity-loss policy
+A body shorter than two characters emits NoMessageSent and returns NotPublished.
+The capacity-loss policy
 can nevertheless have taken effect before this rejection; lost messages are not
 restored. Cancelling at the body prompt does not submit a publication.
+Failure to obtain access at the initial capacity-acquisition step returns
+NotPublished. Once a body is accepted for publication, temporary unavailability
+at the publication step delays completion: it does not turn that accepted
+publication into a successful return with a missing message. No finite wait or
+fairness guarantee follows from this rule.
 
-**Open:** A publication attempt can end without publishing when access to shared
-message state is unavailable. The complete multiplayer admission, waiting and
+**Open:** The complete multiplayer admission, waiting, interruption and
 failure conditions remain to be specified, including the case where all capacity
 belongs to publications in progress. These gaps do not establish a random
 message-loss rate, fairness guarantee or automatic timeout.
@@ -51,13 +76,25 @@ message-loss rate, fairness guarantee or automatic timeout.
 ## Receiving a message
 
 ```text
+record RadioHeading:
+    sender: ShipId | ROMULAN
+    recipients: Sequence<ShipId>
+
+record MessageObservation:
+    heading: Optional<RadioHeading>
+    body: Text
+
 operation ReceiveMessage(receiver: ShipId)
     on GameState -> Displayed(MessageId)
                  | Suppressed(MessageId) | NoMessage
 ```
 
-The selected message m is the earliest published message whose remaining
-recipients include receiver. If one is received, its state effect is:
+Let r be ship(game, receiver), and let c be the captain identified by r.captain.
+This reception contract requires an active commission with a present captain;
+commission release uses the discard operation below. Let service be
+world(game).radioService. The selected message m is the first entry in
+service.messages whose remainingRecipients contains receiver. If one is
+received, its state effect is:
 
 ```text
 after(m.remainingRecipients)
@@ -69,7 +106,7 @@ unread status changes. A message with no remaining recipients ceases to occupy
 capacity. When no message is received, the outcome is `NoMessage` and no message
 is displayed or consumed.
 
-If m's sender is a player ship in the receiving captain's gagged-sender set,
+If m.sender is a ShipId in c.radio.gaggedSenders,
 the outcome is `Suppressed(m.id)` and nothing is displayed. Otherwise the outcome
 is `Displayed(m.id)`. In both cases the message has been consumed. A Romulan or
 system sender is distinct from every player-ship identity.
@@ -79,10 +116,13 @@ revoke an already addressed message. Those checks happen during TELL recipient
 validation. Leaving a commission discards that ship's unread messages under the
 release rules.
 
-Displayed player and Romulan messages identify the sender and show the original
-recipient initials in roster order, followed by the body. The audience shown
-does not shrink as others receive it. A system message displays its body without
-that heading. Terminal presentation supplies line endings and separators.
+For Displayed(m.id), emit a MessageObservation with body m.body. Its heading
+is absent when m.sender is SYSTEM. Otherwise the heading contains m.sender
+and the members of m.recipients in roster order. Displayed player and Romulan
+messages identify the sender and show those original recipient initials,
+followed by the body. The audience shown does not shrink as others receive it.
+Terminal presentation supplies line endings and separators. A suppressed
+message produces no MessageObservation.
 
 **Open:** The complete scheduling and shared-state availability rules for message
 reception remain part of the multiplayer contract.
@@ -90,6 +130,34 @@ reception remain part of the multiplayer contract.
 **Source basis:** [GETMSG](../../legacy/utexas/WARMAC.MAC#L3036),
 [OUTMSG](../../legacy/utexas/DECWAR.FOR#L2599),
 [release](../../legacy/utexas/DECWAR.FOR#L1082).
+
+## Discarding an unread audience
+
+```text
+operation DiscardUnread(receiver: ShipId)
+    on GameState -> Discarded
+```
+
+Let service be world(game).radioService. For each m in service.messages:
+
+```text
+m.remainingRecipients -= {receiver}
+```
+
+Remove any resulting message with no remaining
+recipients from the service. Retain the order of all remaining messages and
+leave their original recipients, sender and body unchanged. No message is
+displayed and no gag, radio, resource or score property changes. Applying this
+operation to a ship with no unread messages changes nothing.
+
+The capacity-loss policy and commission release use this effect. It does not
+unsubscribe the ship from future messages or remove it from a publication that
+is still in progress. The ordering of release against such an overlapping
+publication remains part of the unfinished lifecycle contract.
+
+**Source basis:** [capacity-loss removal](../../legacy/utexas/WARMAC.MAC#L2624),
+[message recipient removal](../../legacy/utexas/WARMAC.MAC#L2710),
+[release consumption](../../legacy/utexas/DECWAR.FOR#L1125).
 
 ## Autonomous Romulan speech
 

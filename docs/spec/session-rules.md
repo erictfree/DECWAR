@@ -262,6 +262,8 @@ Thus star count ranges from 100 to 350 in steps of five; hole count ranges from
 Initial faction scores, discoveries and cumulative faction commission counts
 are zero; there are no published messages or tractor associations.
 In particular, world.teamCommissions maps each Team to zero.
+World.radioService starts with an empty messages sequence and an empty
+publicationsInProgress set.
 Set world.elapsedOrigin to the new galaxy's clock origin.
 
 Place bases in alternating faction order by base identity: Federation first,
@@ -377,7 +379,9 @@ The released ship has no active sector presence. Any tractor beam involving it
 is released under the shared beam rules. The galaxy and faction each have one
 fewer participant. Pending hit notifications and radio messages addressed to
 that ship are consumed or discarded for that recipient; other recipients retain
-their messages. The ship becomes available for a subsequent commission.
+their messages. Radio-message removal has the effect of
+[DiscardUnread](communication.md#discarding-an-unread-audience).
+The ship becomes available for a subsequent commission.
 
 Release does not erase the roster identity, erase faction scores, award a kill,
 or advance a turn. It preserves the departing ship's state for the separate

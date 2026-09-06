@@ -108,6 +108,7 @@ entity. Updating a field through that name changes the entity's state.
 
 ```text
 type ShipId, CaptainId, BaseId, PlanetId, TractorBeamId, MessageId
+type PublicationId
 type Text = sequence of characters
 type Boolean = true | false
 
@@ -237,6 +238,7 @@ record World:
     teamScores: Team -> Score
     romulan: Optional<Romulan>
     romulanActivity: RomulanActivity
+    radioService: RadioService
 ```
 
 This is the portion of world state used by the converted command families.
@@ -440,18 +442,34 @@ record Captain:
     phaserReady: PhaserBank -> TimePoint
     torpedoesReady: TimePoint
 
+type MessageSender = ShipId | ROMULAN | SYSTEM
+
 record Message:
     id: MessageId
-    sender: ShipId | ROMULAN | SYSTEM
+    sender: MessageSender
     recipients: Set<ShipId>
     remainingRecipients: Set<ShipId>
     body: Text
+
+record RadioService:
+    messages: Sequence<Message>
+    publicationsInProgress: Set<PublicationId>
 ```
 
 The recipients name the audience of a message. Message-delivery state is
 specified separately from that original audience. Turning a radio off and
 gagging a sender are distinct actions. The delivery rules determine which
 messages can be received and when.
+
+RadioService.messages contains published messages in publication order.
+Each has a distinct identity and at least one remaining recipient. An operation
+removes a message from this sequence when no recipients remain. The separate
+publicationsInProgress set identifies publication attempts that have obtained
+capacity but have not yet published or abandoned their messages. These
+identities describe overlapping operations, not storage addresses. Together,
+published messages and publications in progress occupy at most 32 places.
+The [communication operations](communication.md) define acquisition, release
+and loss of this capacity. These declarations impose no array or queue layout.
 
 Each captain has two independent phaser readiness deadlines. For a captain c:
 

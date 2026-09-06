@@ -615,3 +615,44 @@ that at least one column remains.
 
 Sources: Austin DECWAR.FOR POINTS 2893–3048; SETUP.FOR faction counts 296 and
 323; DECWAR.FOR player turn counters 238–239 and Romulan activation 3244.
+
+
+## TELL, input values and radio-service ADTs
+
+TELL now uses SendTell, TellFailure and TellObservation, with a shared
+ValidateRadioRecipients operation. Device checks name Ship.devices[RADIO].damage;
+radio enablement and ungagging name the associated Captain.radio properties.
+Validation retains the source precedence: radio damage, commission availability,
+then radio-on state. Group selection excludes uncommissioned identities before
+validation; explicit names retain them for diagnostics. Ship-name first-match
+precedes group lookup. Every token is processed, including numeric/null tokens;
+this differs from POINTS termination. ROMULAN is skipped before the repeated-line
+check. Sender exclusion happens after validation and before ungagging.
+
+AcquiredLine and CommandInput are semantic input values, not concrete reader
+buffers. A continuation replaces the current line used for recipient repetition
+and inline-body selection. A later raw message-body read is not subject to
+TELL's earlier recipient repetition rejection. Original case and punctuation
+are retained in raw text, with ordinary line acquisition still applying.
+
+MessageSender, RadioService, PublicationId, RadioHeading and MessageObservation
+make the existing publication/receipt effects explicit. Published messages are
+ordered by publication, not reservation. In-progress identities model concurrent
+operations occupying capacity without exposing partial bodies; they do not
+prescribe linked lists, storage indices or a locking API. An empty audience
+returns before reservation. Initial reservation-access failure can abandon a
+publication; the later update retries access and does not silently lose an
+accepted publication. Full failure/wait/interruption conditions remain open,
+including capacity entirely occupied by in-progress publications.
+
+DiscardUnread describes removing a receiver from all published messages while
+preserving all original audiences. It is the stable-state effect of capacity
+loss and commission-release consumption; it does not include unpublished work
+or create a future subscription prohibition. Races with release remain open.
+Historical notification counters, stale output buffers, Romulan gag indexing and
+pre-reservation Ctrl-C cleanup continue to be governed by the earlier message
+normalization entry; this change adds no memory-dependent behavior to the book.
+
+Sources: Austin DECWAR.FOR TELL 3977–4063, OUTMSG 2599–2623, FREE 1082–1140;
+SETUP.FOR default groups 358–364; WARMAC.MAC RSRV./UPDT./SRCH./REMV.
+2589–2750 and MAKMSG/GETMSG 2963–3075. No game code or archive bytes changed.
