@@ -141,7 +141,9 @@ coverage does not establish lifecycle, concurrency or terminal conformance.
 - CompuServe appendix: population, names, explicit initial preferences and selection,
   startup versus pregame matching, DOCUMENT effects, HONORROLL entry/continuation,
   Ctrl-G behavior, speech probabilities, autonomous audiences and their silent
-  validation are specified. Full standings, Romulan direct replies, privilege,
+  validation are specified. Direct-reply token ordering, body choices, fallback
+  qualifiers and uninterrupted relocation are drafted; the origin-wording binding
+  and publication/concurrent return paths remain open. Full standings, privilege,
   lifecycle/concurrency and presentation
   amendments remain. Separate CompuServe examples cover the new clauses.
 - Examples: resources, scans/reports, tractor, movement, construction, capture,

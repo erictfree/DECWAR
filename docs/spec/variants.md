@@ -238,9 +238,161 @@ audience selection and body construction without assuming either outcome.
 [roster identities](../../legacy/compuserve/fortran%201978/BLKDAT.FOR#L84),
 [publication admission retry](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L3560).
 
+## Direct Romulan replies
+
+Amends [TELL recipient selection](commands.md#recipient-selection). ROMULAN
+remains an existing Recipient alternative; this amendment gives it a CompuServe
+effect. It adds no new command or argument form.
+
+```text
+type CompuServeTellObservation = TellObservation | RomulanUnavailable
+
+type CompuServeTellOutcome =
+    Result<Published { id: MessageId } | NotPublished | ReplyAttempted, TellFailure>
+    | Cancelled
+```
+
+CompuServe's SendTell uses this outcome in place of the core outcome. The
+additional ReplyAttempted alternative distinguishes completion with no ordinary
+player recipients after a present-Romulan reply attempt; it does not assert that
+the reply was displayed.
+
+RomulanUnavailable emits fragment(tell07), then `Romulan`, then an unconditional
+line ending. It does not create a radio message.
+
+The actor must pass TELL's radio-device check. Enable the actor's radio and
+acquire recipients as in the core. Process recipient tokens in input order.
+Recognize ROMULAN before applying the repeated-input rejection for other
+recipients. An absent Romulan emits RomulanUnavailable and
+continues to the next recipient, without composing a reply or making relocation
+choices.
+
+For each ROMULAN match with a present Romulan, perform these steps in order:
+
+1. Compose a direct reply using the operation below.
+2. Submit it with sender ROMULAN and the singleton recipient set containing the
+   actor. Preserve the ordinary player-recipient set accumulated so far.
+3. If submission returns, record that a present-Romulan reply was attempted,
+   then perform the relocation choice below.
+4. Continue with the next recipient token.
+
+The reply does not depend on acquiring, publishing or interpreting the player's
+own message body. Repeated ROMULAN tokens each invoke this sequence. A later
+invalid recipient or repeated-input rejection does not undo a prior reply or
+relocation. A repeated input containing only ROMULAN recipients can therefore
+reach the reply path. A later ordinary recipient in that same input still
+encounters the core repeated-input rejection.
+
+After all recipient tokens, validate and ungag ordinary player recipients as in
+TELL, excluding the actor. If none remain and a present-Romulan reply was
+attempted, return ReplyAttempted without NoRecipients or a player-body prompt.
+If none remain and no such attempt occurred, emit the ordinary NoRecipients
+report. If ordinary recipients remain, acquire and submit the player's body
+normally. That later publication has the player as sender; it does not replace
+an earlier Romulan reply.
+
+A reply attempt is not proof of delivery. Its publication and subsequent unread
+message remain subject to the applicable service contract.
+The placement of relocation after submission specifies ordering when submission
+returns; it supplies no timeout, cancellation or completion guarantee. The
+complete CompuServe waiting contract remains open as described above. TELL
+itself still completes no turn and charges no energy.
+
+**Source basis:** [recipient loop and reply sequence](../../legacy/compuserve/fortran%201978/TELL.FOR#L54),
+[filtering and player-body continuation](../../legacy/compuserve/fortran%201978/TELL.FOR#L132),
+[direct reply sender and audience](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L6242).
+
+### Reply body
+
+```text
+query CompuServeOriginQualifier(viewer: CaptainId): Optional<Text>
+
+operation ComposeCompuServeRomulanReply(actor: ShipId): Text
+```
+
+Require the actor to have an active commission and a present captain. The
+origin-qualifier query describes wording associated with that captain's
+connection origin. It observes environment metadata; it changes no game state
+and makes no random choice. Its result is absent when the origin has no
+recognized qualifier. It does not infer a player's physical location or faction.
+
+**OPEN QUESTION:** The complete origin-to-wording binding remains unspecified.
+The supplied origin table and exceptional origin tests require a separate
+binding description. The query is not permission to invent qualifiers or replace
+it with a geolocation service. The following fallback rule is fully defined for
+an absent result and for branches that do not consult the query.
+
+Compose the body in this order:
+
+| Part | Choice rule |
+| --- | --- |
+| Opening | IntegerDraw(4): `You have aroused my wrath, `; `You will witness my vengence, `; `May you be attacked by a slime-devil, `; `I will reduce you to quarks, `. |
+| Adjective | IntegerDraw(5), using the core speech adjective alternatives in their declared order. |
+| Qualifier | The selection below. |
+| Noun | IntegerDraw(5), using the core speech noun alternatives in their declared order. |
+
+For the qualifier, first draw IntegerDraw(3). On 1, consult
+CompuServeOriginQualifier for the actor's captain. Use a present result without
+another qualifier draw. On 2 or 3, or on an absent query result, draw
+IntegerDraw(5) and select from this table:
+
+| Choice | Qualifier |
+| --- | --- |
+| 1 | `sub-Romulan ` |
+| 2 | `vertebrate ` |
+| 3 | `endo-skeletal ` |
+| 4 | `soft-skinned ` |
+| 5 | `human ` for a Federation actor; `klingon ` for an Empire actor. |
+
+Concatenate opening, adjective, qualifier, noun and `!`. Retain the opening's
+spelling `vengence`. Do not append the autonomous speech's plural `s` and do not
+make an audience-selection draw. This operation only composes text: it does not
+publish the message, move the Romulan or change radio, energy or score state.
+The reply sequence above supplies those subsequent operations.
+
+**Source basis:** [direct openings and composition](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L6251),
+[qualifier choice and origin lookup](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L6320),
+[origin wording table](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L6349).
+
+### Relocation after a reply attempt
+
+```text
+operation RelocateRomulanAfterReply(actor: ShipId):
+    Stayed | Relocated { from: Position, to: Position }
+```
+
+Require an active actor and a present Romulan at the point of this operation.
+First draw IntegerDraw(4). Results 2, 3 and 4 return Stayed without changing
+position or making another draw. On 1, first read the actor's current position p,
+then let start = IntegerDraw(10) - 5; thus
+start is an integer from -4 through 5.
+
+Search horizontal offsets from start through 10 in increasing order. For each
+horizontal offset, search vertical offsets from start through 10 in increasing
+order. A candidate has vertical coordinate p.vertical plus the vertical offset,
+and horizontal coordinate p.horizontal plus the horizontal offset. Skip a
+candidate outside the galaxy or with a present sector object. Choose the first
+remaining candidate. This is an ordered search, not a choice among all vacant
+sectors and not a nearest-distance search.
+
+If no candidate qualifies, return Stayed with the Romulan's position unchanged.
+Otherwise let from be its former position and to the selected candidate. Change
+its position to to, make its former sector empty and place the Romulan in the
+selected sector; return Relocated { from: from, to: to }. Retain its energy and
+activity state. No arrival report, weapon effect, score change, energy charge or
+turn completion belongs to this operation. The actor does not move.
+
+These state effects describe the uninterrupted operation. They do not establish
+exclusive access or a destination recheck against concurrent actions. Such
+interleavings, including disappearance of the actor or Romulan while the reply
+waits to publish, remain part of the concurrency amendment; the precondition
+above is not a new player-visible rejection in those cases.
+
+**Source basis:** [post-reply choice and ordered relocation](../../legacy/compuserve/fortran%201978/TELL.FOR#L93).
+
 ## Remaining amendments
 
-Direct Romulan replies, standings persistence, concurrency and other differences
-still require language-level descriptions. The earlier [CompuServe source
+The direct-reply origin binding, standings persistence, concurrency and other
+differences still require language-level descriptions. The earlier [CompuServe source
 analysis](compuserve.md) retains the derivations. Packed representations and
 machine side effects in that analysis are not requirements of this appendix.

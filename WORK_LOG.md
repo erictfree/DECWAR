@@ -3060,3 +3060,29 @@ occupied a page by itself. Structural source review is recorded in
 in `logs/spec-compuserve-audiences-audit.log`. These checks do not establish
 complete semantics, original execution parity or scheduler conformance. No
 runtime changes; full specification goal remains active.
+
+
+## Specification checkpoint: direct Romulan reply contracts
+
+Drafted CompuServe TELL's direct-reply observation/outcome types, recipient-order
+amendment, text-composition operation and ordered relocation operation. Preserved
+ROMULAN-before-repeat checking, separate replies for repeated recipients,
+ordinary recipient accumulation, reply-attempt suppression of NoRecipients,
+singular reply punctuation, qualifier branching and horizontal-outer relocation
+search. Added nine examples. The origin-wording query is explicitly incomplete;
+no geographic inference, arbitrary new wording or wait-completion guarantee was
+introduced. Waiting and concurrent actor/Romulan changes remain open.
+
+Build passed in `logs/spec-compuserve-replies-build-final.log`: 100 grammar
+productions, 12 terminal categories, 587 scenario rows, 449 local links and 324
+message fragments. PDF has 204 pages. Visually reviewed physical pages 197 and
+201–204. Source audit passed in `logs/spec-compuserve-replies-audit.log`.
+Structural/text checks passed in
+`logs/spec-compuserve-replies-source-review-final.log`; the initial check used an
+unanchored source-label search and failed before assertions, recorded in the
+initial review log. Corrected the check to select actual labels. No game-code or
+archive changes; no original-execution, concurrent or full-conformance claim.
+
+Answered the user's draft-status question while continuing this review. The
+next difficult review remains publication wait/error and lifecycle ordering,
+for which high was recommended. The full specification goal remains active.

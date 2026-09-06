@@ -1370,3 +1370,23 @@ Ordinary TELL groups remain five ships per faction. Source: CompuServe
 WARMAC.MAC 6225–6311, BLKDAT.FOR 84–100 and TELL.FOR 127–174. Autonomous
 recipient failures are silent, unlike the core Austin path; publication and
 transport failures remain separately governed. No runtime changes.
+
+
+## CompuServe direct replies and relocation
+
+Expressed the direct TELL ROMULAN path with named observations/outcomes, an
+operation returning reply text and an ordered relocation operation. ReplyAttempted
+records the source's completion flag after the direct-publication call returns;
+it is not evidence of delivery. Ordinary recipient selection remains separate
+from each direct reply. Preserved ROMULAN-before-repeat checking and repeated
+ROMULAN effects, body-before-publication-before-relocation ordering, singular
+reply punctuation, qualifier draw branching, and actor-position read before
+the start-offset draw. Relocation uses ordinary sector coordinates and
+horizontal-outer/vertical-inner ordering, with no new nearest-distance policy.
+
+The origin-qualifier query is an explicit unresolved environment binding, not a
+license to infer geographic location or invent reply text. Busy-publication
+completion, interruption, and actor/Romulan changes during the wait are likewise
+not supplied by assumption. Accidental recipient-encoding effects stay outside
+the modern game model. No runtime or archive changes.
+Source: CompuServe TELL.FOR 54–174; WARMAC.MAC 6242–6401 and MAKMSG 3536–3621.
