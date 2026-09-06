@@ -183,9 +183,13 @@ Their caller-specific behavior remains part of the corresponding amendment.
 
 **Source basis:** [standings source selection and continuation](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L5885).
 
-**OPEN QUESTION:** The complete standings ADT, storage-failure behavior and report
-contract remain incomplete. This entry defines command availability and caller
-continuation, not a complete HONORROLL conformance claim.
+The following clauses define standings records, placement, ordinary storage
+attempts and report presentation. Together with this command's source-selection
+rule, they describe the ordinary Honor Roll operation.
+
+**OPEN QUESTION:** Malformed records, persistence failures, empty-primary-list
+faction ordering and asynchronous control transfer still limit a complete
+HONORROLL conformance claim.
 
 **Source basis:** [startup and pregame dispatch](../../legacy/compuserve/fortran%201978/SETUP.FOR#L126),
 [DOCUMENT and HONORROLL actions](../../legacy/compuserve/fortran%201978/SETUP.FOR#L162),
@@ -285,10 +289,11 @@ implied by the ordinary successful sequence.
 [common departure record](../../legacy/compuserve/fortran%201978/DECWAR.FOR#L333),
 [fatal environment event](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L6106).
 
-**OPEN QUESTION:** Date binding, complete output and concurrent failure
-behavior still require review. The placement rule does not promise a
-durable write or define the treatment of malformed preexisting records. It does
-not reclassify a losing commission as a destroyed physical ship.
+**OPEN QUESTION:** The calendar binding that supplies date parts, concurrent
+failure behavior and malformed preexisting records still require review.
+Ordinary row values and spacing are defined below. The placement rule does not
+promise a durable write or reclassify a losing commission as a destroyed
+physical ship.
 
 **Source basis:** [record update and ranking](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L5694),
 [record fields](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L5833),

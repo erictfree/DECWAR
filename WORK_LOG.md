@@ -3635,3 +3635,17 @@ source failure branch; logs/spec-reception-failure-build.log passed 659 scenario
 100 productions, 324 fragments, 14 chapters and 546 links. Inspected PDF physical
 pages 21, 127 and 220: readable rule, table and example. Failure timing and
 interruption conditions remain open. Full goal stays active.
+
+### Specification: refresh requirement-level completion findings
+
+Reconciled the current requirement matrix with delivered special-input,
+standings, randomness and coordination clauses. Corrected stale scenario count
+and broad outstanding-work descriptions. Narrowed two Honor Roll open-question
+paragraphs to remaining calendar, malformed-record, persistence, ordering and
+control-transfer gaps. No new game semantics or completion claim.
+
+Validation: logs/spec-completion-matrix-review.log checks manifest/count/section
+evidence; logs/spec-completion-matrix-build.log passed 659 scenarios,
+100 productions, 324 fragments, 14 chapters and 546 links. Inspected PDF physical
+pages 227–229; readable updated limitations and context. Full source/type/domain
+review remains required. Goal stays active.
