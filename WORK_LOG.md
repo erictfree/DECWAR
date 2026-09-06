@@ -4210,3 +4210,18 @@ legacy/utexas-manifest.json: logs/spec-coverage-refresh-austin-hashes.log. Inspe
 the audit's check mode to distinguish baseline hashes from generated variant
 comparisons. git diff --check passed. Only coverage companion and this log
 changed; no PDF rebuild or gameplay/archive changes. Whole-goal review remains.
+
+
+## HELP resource failures and cleanup — 2026-09-06
+
+Specified standard-open warning, silent privileged-open fallback, missing-section
+EOF boundary and ordinary cleanup/continuation. Corrected the command overview's
+omitted percent prefix. Added CompuServe warning-ending amendment. No fallback
+on missing privileged topic, new game effect or cleanup-success guarantee under
+host failure was introduced.
+
+logs/spec-help-failure-review.log records source scope. Final build in
+logs/spec-help-failure-build.log passed (100 productions, 671 scenarios, 650
+links, 324 fragments). PDF pages 89, 159 and 240 visually reviewed; no clipping
+or overlap in the new content. git diff --check passed. No runtime/archive edits.
+Complete terminal/control and concurrent failure review remains ongoing.

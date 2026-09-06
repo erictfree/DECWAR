@@ -289,6 +289,32 @@ remain governed by the help-content and environment contracts.
 [ambiguity and list formatting](../../legacy/utexas/WARMAC.MAC#L4318),
 [display labels](../../legacy/utexas/DECWAR.FOR#L437).
 
+## HELP section failures
+
+Each help-section request begins with a conditional blank-line request.
+An unavailable privileged resource falls back silently to standard content.
+If standard content cannot be opened, make prior buffered terminal output
+available before emitting `"%Can't read help file"`. In Austin this warning has
+no appended line ending. If disconnection has already been detected, suppress
+that warning and its preceding output-flush request; its return path remains.
+
+If the opened content ends before the requested section body begins, emit
+`"%Can't find help on "`, then the resolved topic's display name up to its first
+space or ten characters, and request a conditional blank line. This includes
+an identifying topic line at end of resource with no following line boundary
+that begins its body. Once the body has begun, reaching end of resource finishes
+normally without a missing-section diagnostic. Text already displayed remains.
+
+The [HELP contract](commands.md#topic-selection-and-observations) specifies
+resource cleanup and subsequent topic processing. These failures add no game
+turn, score change or fallback topic. Transport delivery after a detected
+connection loss and failures of resource cleanup itself are not supplied by
+these response rules.
+
+**Source basis:** [section entry and opening](../../legacy/utexas/WARMAC.MAC#L4222),
+[end-of-resource and cleanup](../../legacy/utexas/WARMAC.MAC#L4273),
+[warning output](../../legacy/utexas/WARMAC.MAC#L28).
+
 ## TELL command responses
 
 Player TELL makes no initial conditional blank-line request. RadioUnavailable

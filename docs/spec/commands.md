@@ -2915,8 +2915,13 @@ A requested section uses the help-content binding defined in
 [information resources](information.md#help-content). Privilege tries privileged
 help content first, falling back to standard content only if the former cannot
 be opened. A missing section in an opened privileged resource does not trigger
-that fallback. Failure to open standard content reports `Can't read help file`;
+that fallback. Failure to open standard content reports `%Can't read help file`;
 a missing section reports `%Can't find help on ` followed by the resolved topic.
+Both paths finish that topic request and permit later topics to be processed.
+Before returning from section handling, clear the section's interrupt/output-stop
+conditions. An opened resource is closed and input is restored; open failure
+has not entered resource input. On the ordinary HELP return, restore the
+captain's temporary information activity as specified by the session rules.
 
 ### State effects and completion
 

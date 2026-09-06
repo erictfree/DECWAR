@@ -877,3 +877,16 @@ reach EXIT after ordinary terminating cleanup and do not resume their callers.
 logs/spec-comp-world-end-review.log preserves all direct sites and the routine
 diff; this establishes ordinary propagation, not interrupted persistence or
 cross-session timing.
+
+### HELP resource failure and cleanup
+
+Austin SHLP 4222–4287 requests OCRL before opening. Privileged open failure
+falls back; standard open failure uses WARN and jumps directly to shlp.e.
+WARN 28–36 flushes pending terminal output and emits the percent-prefixed text
+only if HUNGUP is clear. ASCIL adds no ending in Austin. EOF at shlp.8 diagnoses
+missing help unless section state is positive: a matched identifying line still
+has zero state until its boundary is consumed. An opened resource closes and
+restores input at shlp.9; all returns clear interrupt/output-stop conditions at
+shlp.e. Outer HELP continues its topic loop, then restores temporary presence.
+CompuServe's analogous open path uses its CRLF-bearing warning expansion.
+The recipe does not assert successful cleanup under an environment failure.

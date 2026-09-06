@@ -84,6 +84,14 @@ subject to this variant's command and help-topic declarations.
 **Source basis:** [command heading](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L5100),
 [ambiguity list](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L5232).
 
+For [HELP section failures](presentation.md#help-section-failures), CompuServe's
+unavailable-standard-resource warning is `"%Can't read help file\r\n"`.
+The core warning has no appended ending. Privileged-resource fallback and the
+missing-section diagnostic retain the core sequence.
+
+**Source basis:** [section opening](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L5128),
+[warning macro](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L62).
+
 Amending [movement relocation](commands.md#traversal-resource-cost-and-relocation),
 CompuServe Move can additionally return RelocationRefused. This is a semantic
 outcome, not command syntax or a new terminal message. When a required relocation
