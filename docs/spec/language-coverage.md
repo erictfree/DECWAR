@@ -30,7 +30,7 @@ remaining dependencies below still limit end-to-end conformance claims.
 | POINTS | [POINTS](commands.md#points): ADT operation contract. | Zero-denominator presentation, concurrent counts and terminal formatting. |
 | TYPE | [TYPE](commands.md#type): ADT operation contract. | Unselected terminal profile, concurrent observations and full terminal controls. |
 | TIME | [TIME](commands.md#time): ADT operation contract. | Environment clock/accounting binding and unavailable origins. |
-| USERS | [USERS](commands.md#users): ADT operation contract. | Session metadata binding, admission interleavings and terminal formatting. |
+| USERS | [USERS](commands.md#users): ADT operation contract. | Session metadata binding and admission interleavings; ordinary terminal rows and headings are specified. |
 | SET | [SET](commands.md#set): ADT operation contract. | Unselected terminal profile, nonprinting name characters, world termination and responses. |
 | TELL | [TELL](commands.md#tell): ADT operation contract. | Full multiplayer publication/receipt conditions and terminal presentation. |
 | *PASSWORD | [*PASSWORD](commands.md#password): ADT operation contract. | Complete session privilege lifecycle. |
@@ -130,7 +130,8 @@ coverage does not establish lifecycle, concurrency or terminal conformance.
   including recipient-specific critical detail, Romulan deflection wording,
   base emergency paragraphs and exact spacing. Radio headings preserve the original
   audience and retain their body-ending blank line. STATUS fields, DAMAGES headings/rows,
-  TIME durations, TYPE preference/option lines and complete scan-grid axes/rows
+  TIME durations, TYPE preference/option lines, USERS identity rows/headings and
+  complete scan-grid axes/rows
   now compose their typed report values. LIST-family detail and summary lines
   use recorded affiliation and visible telemetry; grouped separators and terrain/absence
   output still need complete rules. Complete control/transport behavior

@@ -808,3 +808,79 @@ selection semantics; formatting does not replace that count with one.
 [summary lines](../../legacy/utexas/DECWAR.FOR#L2060),
 [grouped observations](../../legacy/utexas/DECWAR.FOR#L1959),
 [range and category strings](../../legacy/utexas/MSG.MAC#L89).
+## USERS reports
+
+This presentation consumes [UserReportEntry](commands.md#users). Request a
+conditional blank line before the report. In LONG output emit fragment(users1),
+append fragment(users2) when the viewer is privileged, then request a conditional
+blank line. SHORT and MEDIUM omit the heading; they do not omit row fields.
+The heading fragments are:
+
+```text
+"Ship       Captain       Baud  User ID     TTY       Job"
+"  Location"
+```
+
+Present entries in their observation order. FactionSeparator emits `"----"` and
+one unconditional line ending. It is present at the faction boundary even when
+there are no captain rows on one or both sides. Each CaptainRow uses the
+formatter below, followed by a conditional blank-line request.
+
+```text
+type AccountLabel = {
+    project: Text;
+    member: Text;
+};
+
+query UserAccountLabel(account: AccountIdentity): AccountLabel
+query FormatUserRow(row: UserRow): Text
+```
+
+UserAccountLabel belongs to the terminal binding. Its fields are the two
+account components as nonempty sequences of octal digits, with no leading zero
+except for the single digit `0`. They are displayed labels; game rules continue
+to compare AccountIdentity values. The binding must identify which account
+components these labels denote. It must not derive them from the captain's
+chosen name or silently assign every account the same display label.
+
+For this terminal presentation, row.connectionLabel contains at most six
+characters in the binding's terminal-label repertoire. The binding supplies
+the label's case and characters; the formatter does not infer a network address
+or change the session identity. Captain names use the printable-name conversion
+already defined by their acquisition rules and have at most twelve characters.
+No packed character or account representation is required.
+
+FormatUserRow concatenates these fields, in order, without other separators:
+
+1. The full roster name for row.ship, padded on the right to ten characters.
+2. One space, then row.captainName padded on the right to twelve characters.
+3. One space, then row.advertisedSpeed formatted with zero fractional digits,
+   NEGATIVE_ONLY and Exactly { count: 4 }.
+4. Two spaces, then UserAccountLabel(row.account).project padded on the left to
+   at least six characters, a comma, and its member field. If member has d
+   characters, append max(5 - d, 0) spaces. Do not truncate an account component
+   that exceeds its minimum field width.
+5. One space, then row.connectionLabel padded on the right to six characters.
+6. Two spaces, then row.sessionNumber formatted with zero fractional digits,
+   NEGATIVE_ONLY and Exactly { count: 3 }.
+
+When row.position is present, append three spaces and its recorded coordinate
+components. An absolute component uses vertical, `-`, horizontal with
+NEGATIVE_ONLY and Exactly { count: 2 }; there is no `@`, even in LONG output.
+A relative component uses vertical, `,`, horizontal with NONZERO and
+Exactly { count: 3 }. When both are present, put one space between the absolute
+and relative pairs. Zero relative displacement is retained as `"  0,  0"`.
+The observation's components determine this text; do not calculate a different
+displacement from a later viewer position. An absent row.position contributes
+neither coordinates nor the preceding three spaces.
+
+This formatting does not grant privilege or reveal a position omitted from the
+observation. It changes no game state and inserts no line ending of its own.
+The surrounding report supplies line composition as stated above. Metadata
+outside the terminal binding's defined label domain, and unavailable pregame
+relative origins, remain binding gaps rather than invented labels or positions.
+
+**Source basis:** [USERS headings and row order](../../legacy/utexas/DECWAR.FOR#L4600),
+[identity fields](../../legacy/utexas/WARMAC.MAC#L2187),
+[account field digits and width](../../legacy/utexas/WARMAC.MAC#L1856),
+[position fields](../../legacy/utexas/DECWAR.FOR#L3078).

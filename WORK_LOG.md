@@ -3106,3 +3106,25 @@ removed it and retained the failed build log. Reviewed PDF physical pages 48,
 `logs/spec-austin-input-sites-source-review.log`; audit passed in
 `logs/spec-austin-input-sites-audit.log`. No runtime/archive changes and no claim
 of exhaustive input or original-execution parity. Goal remains active.
+
+
+## Specification checkpoint: USERS terminal rows
+
+Defined UserRow rendering, LONG headers, unconditional faction separator and
+six-field rows in every verbosity. Added AccountLabel as a terminal-binding
+value while retaining opaque game account identity. Preserved account padding,
+fixed-width speed/session fields and privileged recorded coordinate components,
+including zero relative displacement. Six new examples cover these rules.
+
+Source review confirmed both Austin and CompuServe ordinary STAT use a
+three-character session field; the two-character STAT.Y field is for pregame
+feedback. No false USERS variant was added. Binding domains and pregame relative
+origins remain explicit gaps rather than invented metadata.
+
+`logs/spec-users-presentation-build-final.log` passes 100 grammar productions,
+12 terminal categories, 600 scenario rows, 455 links and 324 message fragments.
+PDF has 207 pages; reviewed physical pages 153, 154, 197 and 198 and checked the
+continued scenario IDs against PDF text bounds. Source-structure checks are in
+`logs/spec-users-presentation-source-review.log`; audit passed in
+`logs/spec-users-presentation-audit.log`. No game or archive changes, and no full
+host-binding or concurrent-report equivalence claim. Goal remains active.

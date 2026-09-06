@@ -2373,6 +2373,9 @@ USERS does not apply sensor-distance filtering or discover installation location
 All output lengths include the six ordinary fields; LONG additionally prints
 the descriptive header, including a location heading when privileged.
 
+The [USERS presentation](presentation.md#users-reports) defines headings, field
+widths, account labels and coordinate text.
+
 USERS ignores trailing arguments, changes no game state and does not complete
 a turn. It is available before commissioning as well as during play. A row's
 metadata and position need not be observed atomically with other rows; complete

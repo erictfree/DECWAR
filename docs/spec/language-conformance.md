@@ -581,6 +581,12 @@ defense phases. Other ships and installations do not alter the stated result.
 | EX-MODEL-568 | Relative preference; TORPEDOS ABSOLUTE 1; target continuation `1 0`; actor at (37,37) | Count one is accepted without a target. The target line uses the relative preference and resolves (38,37). The earlier absolute keyword does not carry over. |
 | EX-MODEL-569 | TORPEDOS count two accepted without targets; target continuation is a single integer 1 | A resolved odd item count repeats the coordinates prompt, without the burst prefix. No target has been selected and no firing effects occur. |
 | EX-MODEL-570 | TORPEDOS count one accepted without targets; target continuation has zero tokens | Cancel before target validation, reload waiting, ammunition use or turn completion. Do not confuse this with a mode-only Empty result. |
+| EX-MODEL-571 | USERS in SHORT output, one included captain row | Omit the header but retain ship, captain, speed, account, connection and session fields; SHORT does not reduce the row to names. |
+| EX-MODEL-572 | UserAccountLabel supplies project `1`, member `2` | Account field before its surrounding separators is `"     1,2    "`: project left-padded to six, member plus trailing padding occupies five. |
+| EX-MODEL-573 | UserAccountLabel supplies project `1234567`, member `123456` | Account field is `"1234567,123456"`; neither component is truncated and no member-padding space is inserted within the field. |
+| EX-MODEL-574 | Privileged UserRow has only absolute position (3,4); LONG output | Append three spaces followed by `" 3- 4"`; no `@`. The ordinary six fields remain. |
+| EX-MODEL-575 | Privileged UserRow has only relative displacement (0,0) | Append three spaces followed by `"  0,  0"`; retain the zero displacement. |
+| EX-MODEL-576 | USERS has no commissioned ships in either faction; MEDIUM output | After the initial conditional blank-line request, emit the faction separator `"----\r\n"`; no captain row or LONG header. |
 
 EX-MODEL-06 deliberately uses fractional shield strength. Historical loss of
 that fraction is excluded by the numerical normalization policy. The grammar,

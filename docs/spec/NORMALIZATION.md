@@ -1409,3 +1409,19 @@ empty coordinates continuation follows an inconsistent path: a zero-token
 continuation unambiguously cancels. No fabricated coordinates, generic new
 rejection rule or stale-storage model was supplied for the separate Empty cases.
 Source: Austin DECWAR.FOR LOCATE/RELOC 1404–1520, MOVE 2141–2180, TORP 4228–4286.
+
+
+## USERS row presentation
+
+Mapped UserRow to its six terminal fields and optional recorded position.
+AccountIdentity remains opaque game identity; AccountLabel supplies its two
+canonical octal display components through a declared terminal binding. Octal
+here is observable text syntax, not required account storage or game arithmetic.
+Names and connection labels use explicit character widths; no six-bit words or
+split fields enter the game ADT. Preserved expandable account components,
+fixed-width speed/session fields, the five-character member-plus-padding rule,
+privileged zero-relative fields and all-six-fields-in-SHORT behavior. Rendering
+uses the observation's coordinate components rather than recomputing them from
+later state. Source: Austin DECWAR.FOR 4600–4629 and 3078–3098; WARMAC.MAC
+2187–2244, 1825–1839 and 1856–1880. Binding domains and pregame origin gaps stay
+explicit. No runtime changes.
