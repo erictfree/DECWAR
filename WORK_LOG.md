@@ -1938,3 +1938,48 @@ port/tool attribution remain separate.
     logs/spec-torpedo-source-audit.log.
   - Documentation only. No running game, transport, legacy archive, generated
     source data or build tool changed. No server restart was performed.
+- 2026-09-05 — Generalized specification: galaxy, score and session reports.
+  - Added clauses for LIST, SUMMARY, BASES, PLANETS, TARGETS, POINTS, TYPE,
+    TIME and USERS. Main-command conversion is now 25 of 33; the remaining
+    eight command families and broader lifecycle, world, multiplayer, presentation
+    and CompuServe work keep the goal active. No completion claim is inferred
+    from the older source inventory or the publication checks.
+  - Galaxy reports use ordered selection groups, abstract affiliations and
+    identities, explicit visibility, immediate/deferred report ordering, closest
+    tie-breaking, summary counts and discovery effects. A whole-game summary can
+    count an unknown installation without revealing its location. Deferred
+    installation detail can discover it; immediate coordinate/CLOSEST detail
+    does not. Remote friendly detail, remote known planet builds and concealed
+    enemy-ship coordinates follow the source. Exact-coordinate BASES can report
+    a ship because that path does not apply the base-kind restriction to ships.
+    Sources: DECWAR.FOR 1359–1400 and 1519–2140; PARAM.FOR selector definitions.
+  - Retained repeated Romulan-group summary multiplicity as an observable
+    selection count, without requiring packed masks or formatter-mutated shared
+    counters. Mixed selector/name-duplicate edge cases and full label aggregation
+    remain explicit review items. These are not silently repaired into a more
+    permissive unordered query syntax.
+  - POINTS reads committed scores, ordered selected columns, nonzero categories,
+    cumulative commission counts and per-commission/per-turn ratios. Fractions
+    are retained; zero-denominator presentation is still unresolved. TYPE observes
+    preferences and selected galaxy options. TIME distinguishes elapsed time from
+    environment-supplied execution accounting. USERS retains its six report fields
+    and privileged-only locations using abstract session metadata.
+    Sources: DECWAR.FOR 2893–3052, 4066–4084, 4540–4629; WARMAC.MAC 2187–2251.
+  - Recorded the abstract report/metadata model and pregame TYPE's normalization
+    away from its omitted control-argument read in NORMALIZATION.md. Updated
+    language-model.md and language-coverage.md. No new report switch, targeting
+    syntax, sensor range or score rate was introduced.
+  - Added 31 source-reviewed examples, 91 total, covering visibility, discovery,
+    direct queries, repeated groups, error order, scoring and session reports.
+    Publication checked 160 links, 91 scenario rows and 324 source fragments.
+    These are documentation checks and reviewed cases, not executable conformance
+    tests or original-system differential evidence.
+  - Final PDF is 64 pages. Replaced a cramped three-column defaults table with
+    a two-column table after visual review. Final layout/reference checks passed;
+    inspected final physical pages 39, 40, 42, 43, 44, 62 and 63. Logs:
+    logs/spec-reports-build.log, logs/spec-reports-final.log and
+    logs/spec-reports-publication.log. Images: tmp/pdfs/spec-reports/final-*.png.
+    npm run audit:check passed (logs/spec-reports-source-audit.log), as did
+    git diff --check. Source and generated-data checks remain unchanged.
+  - Documentation-only checkpoint; no game code, build tool, legacy source,
+    running galaxy or transport behavior changed. No server restart.

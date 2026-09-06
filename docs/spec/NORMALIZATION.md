@@ -104,3 +104,50 @@ the floor of each coordinate sum, subject to the original range/occupancy gates.
 [JUMP](../../legacy/utexas/DECWAR.FOR#L1283),
 [BASBLD/BASPHA](../../legacy/utexas/DECWAR.FOR#L317),
 [PLNATK](../../legacy/utexas/DECWAR.FOR#L2800).
+
+## Galaxy reports and scores
+
+The LIST-family selection is expressed as object kinds, affiliations, named
+identities, range and requested observations. Packed selector and output masks
+are not normative data structures. The original ordered parser still determines
+acceptance: a general unordered query API would accept forms the language does
+not accept. A symbolic whole-game scope replaces the maximum machine integer;
+an explicit numeric range remains distinct even when it spans the whole galaxy.
+
+Knowledge sets contain installation identities, not a frozen telemetry snapshot.
+The source reads current coordinates and builds for a previously discovered
+remote installation; preserving that visibility does not add a new sensor rule.
+Immediate exact-position/CLOSEST reports and deferred detailed reports have
+different discovery effects. The spec retains this difference.
+
+Repeated Romulan groups retain their observable summary multiplicity, expressed
+as a count of qualifying selections. This requires neither a shared accumulator
+nor a reference argument modified by the output formatter. It does not imply
+more than one Romulan in the galaxy. Invalid name-duplicate checks and mixed
+selector paths remain review items; arbitrary reads of unrelated state are not
+made into a generalized rejection rule.
+
+POINTS ratios use ordinary division in displayed score units. Internal integer
+division is excluded. Zero denominators are explicitly unresolved instead of
+requiring a processor exception or inventing a zero ratio.
+
+**Source basis:** [LSTSCN/LSTFLG/LSTUPD](../../legacy/utexas/DECWAR.FOR#L1519),
+[LSTOUT/LSTSUM](../../legacy/utexas/DECWAR.FOR#L1959),
+[POINTS](../../legacy/utexas/DECWAR.FOR#L2893).
+
+TYPE, TIME and USERS retain their existing report fields. Session execution
+time, account identity, terminal label and session number are abstract environment
+observations; their representation is deferred to the terminal/environment
+binding. The core does not prescribe a process layout, packed account word or
+character encoding for those fields. This is not permission to omit fields or
+replace execution time with elapsed time without documenting the binding.
+
+The pregame TYPE entry omits the routine's control argument. The generalized
+command uses its ordinary switch grammar in pregame, rather than obtaining a
+report choice from an invalid argument read. TYPE OUTPUT/OPTION keep their
+existing meanings; no new switch is introduced.
+
+**Source basis:** [TYPE and USERS](../../legacy/utexas/DECWAR.FOR#L4540),
+[TIME](../../legacy/utexas/DECWAR.FOR#L4066),
+[STAT](../../legacy/utexas/WARMAC.MAC#L2187),
+[pregame TYPE invocation](../../legacy/utexas/SETUP.FOR#L121).

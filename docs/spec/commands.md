@@ -977,3 +977,362 @@ than adding a wait between this burst's shots.
 **Source basis:** [TORP](../../legacy/utexas/DECWAR.FOR#L4228),
 [TORDAM](../../legacy/utexas/DECWAR.FOR#L4089),
 [location input](../../legacy/utexas/DECWAR.FOR#L1404).
+
+## LIST, SUMMARY, BASES, PLANETS and TARGETS
+
+These commands query the galaxy. A detail row identifies an object and reports
+the information the captain is allowed to see; a summary counts selected objects.
+The commands share ordered selection groups, but have different defaults.
+
+### Syntax and defaults
+
+```text
+ReportCommand ::= ReportVerb [Group {GroupEnd Group}]
+ReportVerb ::= "LIST" | "SUMMARY" | "BASES" | "PLANETS" | "TARGETS"
+GroupEnd ::= "AND" | "&"
+Group ::= one or more selectors accepted for the chosen ReportVerb
+```
+
+The complete selector inventory, recognition order and conflicts are specified
+in [LIST-family grouping](grammar.md#gram-11--list-family-grouping). Selectors
+are processed in their written order. In particular, two consecutive integers
+are an absolute sector coordinate, while a lone integer is a maximum distance.
+These commands do not use the general ABSOLUTE/RELATIVE/COMPUTED location syntax.
+A token matching AND ends the group before other keywords are considered.
+
+| Command | Default query and report |
+| --- | --- |
+| LIST | Detail for ships, bases and planets of all affiliations, throughout the galaxy. |
+| SUMMARY | Counts for the same object selection as LIST. |
+| BASES | Detail and counts for friendly bases throughout the galaxy. |
+| PLANETS | Detail for planets of all affiliations within ten sectors. |
+| TARGETS | Detail for opposing ships, bases and planets, plus the Romulan, within ten sectors. |
+
+These defaults start afresh for each group. A bare command uses one default
+group. Later empty groups are errors. An illegal keyword or selector conflict
+stops further processing. No partial deferred report is printed after a parsing
+error; rows already produced by earlier direct queries remain visible.
+
+An abstract group describes object kinds, affiliations, requested detail/count
+results, range, and any named-object, exact-position or closest selection. It
+does not change the world's objects. The command records the acting ship's
+position when it begins and uses that position for its distance calculations.
+
+### Selector effects
+
+The following effects apply only when the selector is legal at that point in
+the group. The grammar's conflict rules remain part of acceptance.
+
+| Selector | Meaning |
+| --- | --- |
+| SHIPS, BASES, PLANETS | Restrict to the named object kind and remove affiliations impossible for that kind. The Romulan is included in SHIPS when its affiliation remains selected. |
+| PORTS | Select bases and planets. Unless a side was explicitly selected, choose friendly and neutral objects. Exclude the Romulan. A prior NEUTRAL selection keeps the planet-only restriction. |
+| FRIENDLY | Select the acting faction and exclude the Romulan. |
+| ENEMY or TARGETS | Select the opposing faction and include the Romulan. |
+| FEDERATION or HUMAN | Select Federation, retaining any already selected Romulan affiliation. |
+| EMPIRE or KLINGON | Select Empire, retaining any already selected Romulan affiliation. |
+| NEUTRAL | Select neutral planets only. |
+| CAPTURED | Select Federation and Empire planets only. |
+| ALL | With no explicit side, select every affiliation, except that TARGETS keeps its opposing/Romulan selection. With no explicit range, extend range to the whole galaxy. |
+| Positive integer | Set a maximum Chebyshev distance from the saved acting position. |
+| CLOSEST | Select one nearest eligible object for immediate detail. Exclude the acting ship. Without an explicit range, search throughout the galaxy. |
+| LIST | Request detail. For BASES, PLANETS and TARGETS this replaces their default result choice. |
+| SUMMARY | Request counts and, without an explicit range, extend range to the whole galaxy. LIST SUMMARY retains detail as well as adding counts; other eligible commands switch to counts. |
+
+Explicit faction selectors can retain the Romulan even when they name only one
+faction: use FRIENDLY to exclude it. ALL expands affiliations and range;
+it does not remove object-kind restrictions or reveal undiscovered locations.
+Only one explicit output selector is accepted in a group.
+
+### Visibility and selection
+
+Process ordinary candidate objects in this order: the Romulan if present, ships
+in roster order, Federation bases then Empire bases in base-identity order,
+then planets in their current order. Skip uncommissioned ships and ships with
+no galaxy presence; skip bases with nonpositive strength. Apply the group's
+object-kind and affiliation selection before visibility checks.
+
+For each candidate let d be its distance from the saved acting position. Normal
+detail is available within ten sectors, or at any distance for a friendly object.
+Privilege also admits remote objects, but that admission is distinguished from
+ordinary discovery. The group's explicit distance limit still applies.
+
+For an object outside ten sectors that is neither friendly nor admitted by
+privilege, use these rules:
+
+```text
+if object is a base or planet:
+    known := object is in the acting faction's corresponding knowledge set
+else:
+    known := this is a whole-game group and not a CLOSEST request
+
+if known:
+    admit the requested result modes if within the group's distance limit
+    mark its detail as out of sensor range
+else if counts were requested for the whole game:
+    admit counts only
+else:
+    omit the candidate
+```
+
+Whole-game selection means the unrestricted scope obtained without an explicit
+numeric range. Supplying a number larger than the galaxy does not acquire the
+whole-game disclosure rule: it remains a specified-range query. In particular,
+SUMMARY can count unknown remote bases or planets, but a specified-range summary
+requires their prior discovery when they are beyond normal sensor range.
+
+For CLOSEST, an eligible candidate at a distance equal to the current nearest
+distance replaces it. Thus ties choose the last eligible object in the candidate
+order above. The chosen sector is reported through the exact-position path
+below. A remote enemy ship or Romulan is not eligible for CLOSEST merely because
+its identity appears in a whole-game LIST.
+
+### Named objects and exact positions
+
+LIST and TARGETS can name ships or ROMULAN. Report requested ships in roster
+order, after the Romulan if requested, independently of their order in the input.
+An absent ship is reported as not in the game. Naming ROMULAN distinguishes
+Romulan activity being disabled from the Romulan being temporarily absent.
+A present remote enemy ship or Romulan can be identified, but its coordinates
+and strength are replaced by `out of range` unless privilege permits them.
+Naming a friendly ship permits its ordinary detail at any distance.
+
+An exact-position query uses absolute coordinates in the galaxy. All four
+commands accepting a coordinate can report a ship or the Romulan there.
+BASES additionally accepts a base, PLANETS additionally accepts a planet, and
+LIST and TARGETS accept both installation kinds. Their ordinary group-side
+defaults do not reject a friendly object on this path. Within ten sectors, LIST can also
+describe a star, black hole or empty sector. The other commands diagnose the
+absence of their requested kind. A remote empty sector, star or black hole
+exceeds sensor range even with privilege.
+
+For remote nonfriendly installations, an exact-position query requires prior
+discovery or privilege. A remote enemy ship or Romulan selected by position
+requires privilege. Successful exact-position and named-object queries print
+immediately, before later groups and any deferred report. They do not themselves
+add an installation to faction knowledge. CLOSEST uses this same immediate path.
+
+### Detail, summaries and knowledge
+
+Deferred detail rows are combined across groups by object identity and printed
+once per selected object, in the candidate order above. A direct row produced
+earlier does not suppress that object's later deferred row. Use the currently
+available object data at the time of reporting; the command is not an indivisible
+world snapshot.
+
+| Object | Detail information |
+| --- | --- |
+| Player ship | Identity; when visible, position, shield mode and shield strength. Remote nonfriendly rows without privileged visibility instead say out of range. |
+| Romulan | Identity; when visible, position and its energy-derived strength display. Otherwise out of range. |
+| Base | Identity and position. Include strength unless marked out of sensor range. |
+| Planet | Identity, position and nonzero build count, including for a previously discovered remote planet. |
+
+Ordinary detail marks opposing-faction objects and the Romulan with `*`.
+TARGETS omits that marker. Ship shield strength is signed to indicate raised
+or lowered shields. The Romulan's displayed strength is one tenth of its energy,
+followed by a percent sign outside SHORT output. This is its established report
+scale; it does not change the energy used by combat rules.
+
+After a deferred base or planet detail row, add that identity to the acting
+faction's knowledge, unless it was admitted only through privilege. Summary-only
+selection does not reveal a location and does not update knowledge.
+
+Ordinary summaries follow their object class: Romulan; Federation and Empire
+ships; Federation and Empire bases; neutral, Federation and Empire planets.
+Omit zero-count rows. TARGETS replaces ship/base/planet category summaries with
+one target total, counting opposing objects selected for summary and one Romulan
+when selected for summary. Its Romulan summary can still appear separately.
+Detail-only objects do not contribute to a requested summary from another group.
+
+Ship, base and planet summary counts count selected identities once. A Romulan
+summary counts the qualifying group selections of the Romulan; repeated groups
+can therefore produce a count greater than one even though only one Romulan
+exists. This report multiplicity does not create extra Romulans or alter the
+TARGETS total's one-Romulan contribution.
+
+Summary labels distinguish ordinary sensor range, explicitly specified range,
+and the whole game. Whole-game wording takes precedence when results from several
+scopes are combined; specified-range wording takes precedence over ordinary
+range. A known-object qualification accompanies restricted remote discovery.
+Complete label aggregation and exact terminal formatting remain under review.
+
+If a group selects no eligible object, report that absence and continue with
+later groups. Distinguish unknown remote objects from an empty matching set in
+the established report wording. Exact formatting of these diagnostics, mixed
+named/filtered selector edge cases and concurrent changes remain open.
+
+These commands do not spend energy, complete a turn, repair devices or change
+physical objects. Their persistent game effect is the knowledge update described
+above, when detailed installation output reaches that step.
+
+**Source basis:** [LIST and related entries](../../legacy/utexas/DECWAR.FOR#L1359),
+[group parsing](../../legacy/utexas/DECWAR.FOR#L1519),
+[selection and visibility](../../legacy/utexas/DECWAR.FOR#L1750),
+[detail and summary output](../../legacy/utexas/DECWAR.FOR#L1959).
+
+## POINTS
+
+### Syntax and selection
+
+```text
+PointsCommand ::= "POINTS" {ScoreSelector}
+ScoreSelector ::= "ME" | "I" | "FEDERATION" | "HUMANS"
+                | "EMPIRE" | "KLINGONS" | "ROMULANS" | "ALL"
+```
+
+With no selectors during a commission, report the acting ship's score. Before
+joining a ship, default to both factions and, when enabled, the Romulan. ALL
+selects those columns plus the acting ship when one is commissioned. Repeated
+selectors do not duplicate columns. ME and I require an acting ship.
+
+Read selectors in order, applying ordinary abbreviations and the production's
+matching order. A nonalphanumeric token stops selector processing; selectors
+already recognized still apply and subsequent tokens are ignored. An unknown
+alphanumeric selector rejects the command. Remove a Romulan column when Romulan
+activity is disabled. If no column remains selected, report invalid input.
+
+### Score report
+
+Present selected columns in the order: acting ship, Federation, Empire, Romulan.
+Use committed scores; do not commit pending command score merely to answer POINTS.
+Within those columns, visit categories in this order:
+
+1. Enemy damage.
+2. Enemy kills.
+3. Base damage and destruction.
+4. Planet capture.
+5. Base construction.
+6. Romulan damage and destruction.
+7. Star destruction.
+8. Planet destruction.
+
+Omit a category only if every selected column is zero for it. For a category
+that is shown, include each selected column's value, including zero. Negative
+scores remain negative. Follow category rows with each column's total.
+
+When faction or Romulan columns are selected, also report their cumulative
+number of commissions and total score per commission. These are historical
+commission counts for this galaxy, not the current simultaneous player count.
+Do not place a per-commission value in the acting-ship column. Finally report
+score per turn: the ship's own completed turns for its column, and accumulated
+turns for each faction or the Romulan for theirs.
+
+```text
+total(score) := sum of its eight category values
+pointsPerCommission := total / cumulativeCommissions
+pointsPerTurn := total / completedTurns
+```
+
+Ratios retain fractions until terminal formatting. The display of a ratio with
+a zero denominator remains unresolved; it is not implicitly zero, and this
+draft does not require a machine arithmetic exception. The lifecycle rules must
+establish the initial counts and define when each commission increments them.
+
+POINTS changes no score, resource, knowledge or stardate. A report does not
+recompute damage or turn credits and does not reconcile team totals to the sum
+of currently commissioned ships: some events credit a team directly.
+
+**Source basis:** [POINTS](../../legacy/utexas/DECWAR.FOR#L2893),
+[commission counts](../../legacy/utexas/SETUP.FOR#L296),
+[Romulan commissions and turns](../../legacy/utexas/DECWAR.FOR#L3244).
+
+## TYPE
+
+### Syntax
+
+```text
+TypeCommand ::= "TYPE" ["OUTPUT" | "OPTION"]
+```
+
+An absent or invalid switch prompts for one. An empty continuation cancels.
+The one-character switch O is explicitly ambiguous and produces the ambiguity
+diagnostic before prompting again. Other abbreviations use ordinary matching:
+OU selects OUTPUT; OP selects OPTION. Ignore further arguments after selecting
+one of these switches.
+
+### Meaning
+
+TYPE OUTPUT reports these session preferences in order:
+
+1. Output length: SHORT, MEDIUM or LONG.
+2. Prompt style: NORMAL or INFORMATIVE.
+3. Scan style: SHORT or LONG.
+4. Input coordinate default.
+5. Output coordinate default.
+6. Terminal profile name.
+
+TYPE OPTION reports the game version, whether Romulan activity is enabled, and
+whether black holes were selected for this galaxy. The black-hole option is
+distinct from counting black holes that currently remain on the board.
+
+TYPE observes the current preferences; it does not change them, consume energy
+or complete a turn. Its preference and option labels are part of the terminal
+presentation. The same reports are available before commissioning, subject to
+the session's current configuration.
+
+**Source basis:** [TYPE](../../legacy/utexas/DECWAR.FOR#L4540).
+
+## TIME
+
+```text
+TimeCommand ::= "TIME"
+```
+
+TIME reports the following durations and clock reading, in this order:
+
+1. Elapsed time since the galaxy's time origin.
+2. Elapsed time since the acting ship's commission began, if commissioned.
+3. Execution time accrued by the session since that commission began, if commissioned.
+4. Total execution time accrued by the session.
+5. Current time of day.
+
+Elapsed time includes waiting. Execution time is the environment's accounting
+of time spent running the session; it is a separate observation, not a turn
+count or a movement delay. The environment supplies these clocks and accounting
+readings. Their acquisition does not change the game's stardates or scores.
+The platform binding must identify the execution-time measure it supplies;
+equating it to elapsed time is not implicit in this command.
+
+Before commissioning, omit the two ship-specific rows. TIME ignores trailing
+arguments and changes no game state. Precision, time-of-day convention and exact
+duration rendering belong to the presentation and environment binding still
+being specified.
+
+**Source basis:** [TIME](../../legacy/utexas/DECWAR.FOR#L4066).
+
+## USERS
+
+```text
+UsersCommand ::= "USERS"
+```
+
+USERS lists currently commissioned captains in ship-roster order, with a faction
+separator between Federation and Empire. Every included row contains these
+fields, in order:
+
+1. Ship name.
+2. Captain's name.
+3. Advertised terminal speed.
+4. Account identity.
+5. Terminal or connection label.
+6. Session number.
+
+The latter four fields are supplied session metadata. They do not expose a
+new targeting syntax, add a game entity, or affect commission ownership. Their
+historical terminal presentation is specified separately from the abstract
+identities; an implementation need not obtain them from a particular operating
+system or memory layout.
+
+When the viewing session has privilege, append the ship's current position in
+the viewer's chosen coordinate-output mode. Without privilege, omit this field.
+USERS does not apply sensor-distance filtering or discover installation locations.
+All output lengths include the six ordinary fields; LONG additionally prints
+the descriptive header, including a location heading when privileged.
+
+USERS ignores trailing arguments, changes no game state and does not complete
+a turn. It is available before commissioning as well as during play. A row's
+metadata and position need not be observed atomically with other rows; complete
+session-change interleavings remain part of the multiplayer rules.
+
+**Source basis:** [USERS](../../legacy/utexas/DECWAR.FOR#L4600),
+[user-information fields](../../legacy/utexas/WARMAC.MAC#L2187).

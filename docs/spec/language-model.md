@@ -258,6 +258,17 @@ specified separately from that original audience. Turning a radio off and
 gagging a sender are distinct actions. The delivery rules determine which
 messages can be received and when.
 
+Faction knowledge records discovery of an installation's identity. It does not
+store a frozen copy of its coordinates, owner, builds or strength. Report rules
+specify which current properties of a known remote installation are disclosed.
+Counting an object in a whole-game summary need not reveal its location or add
+it to knowledge. A detailed installation report can perform that discovery update.
+
+Score reports also use cumulative commission counts for Federation, Empire and
+the Romulan, and their accumulated turn counts. These historical counters are
+distinct from the number of players currently commissioned. The lifecycle rules
+define their initial values and increments; POINTS only observes them.
+
 These declarations introduce the vocabulary for rewritten commands. They are
 not yet a complete world, combat or session model.
 

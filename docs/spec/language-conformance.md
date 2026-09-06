@@ -71,6 +71,37 @@ defense phases. Other ships and installations do not alter the stated result.
 | EX-MODEL-58 | Same planet attacks the Romulan one sector away, energy 300; IntegerDraw(100)=100 | Firing strength is 110, undivided; Romulan damage is 220 and energy becomes 80. |
 | EX-MODEL-59 | Acting faction has three players; opposing base strength 97%; BaseReplenishment | Add 5/6 percentage point, yielding 587/6%. No integer quantization. |
 | EX-MODEL-60 | Neutral planet, eligible ships and Romulan in range; defensive IntegerDraw(2)=1 | The planet skips all attacks for this activation. |
+| EX-MODEL-61 | Federation captain; Wolf commissioned more than ten sectors away; no privilege; LIST WOLF | Identify Wolf and report out of range. Withhold position and shield strength; no state change. |
+| EX-MODEL-62 | Federation captain; undiscovered Empire base five sectors away; LIST BASES ENEMY | Show the base's location and strength, then add it to Federation knowledge. No turn or energy cost. |
+| EX-MODEL-63 | Same base fifteen sectors away, still undiscovered; LIST BASES ENEMY | Do not disclose a base detail row or discover it. Report absence of known matching bases. |
+| EX-MODEL-64 | Same undiscovered remote base; SUMMARY BASES ENEMY | Include the base in the whole-game count, without revealing its location or changing knowledge. |
+| EX-MODEL-65 | Same undiscovered base fifteen sectors away; SUMMARY BASES ENEMY 20 | Exclude it from the specified-range count: it is beyond sensor range and not previously discovered. |
+| EX-MODEL-66 | Known neutral planet fifteen sectors away; PLANETS | Exclude it because the default distance limit is ten. |
+| EX-MODEL-67 | Same known remote planet, two builds; PLANETS ALL | Report its current location and two builds. Prior knowledge permits remote detail. |
+| EX-MODEL-68 | Unseen planet three sectors away; PLANETS 5 | Report it and add its identity to faction knowledge. |
+| EX-MODEL-69 | Privileged captain; unknown enemy base fifteen sectors away; LIST BASES ALL | Show location and strength, but do not add it to ordinary faction knowledge. |
+| EX-MODEL-70 | Unknown planet at (37,38), captain at (37,37); LIST 37 38 | Report the planet immediately. This exact-position path does not discover it for the faction. |
+| EX-MODEL-71 | Two eligible planets at equal distance, no nearer planet; PLANETS CLOSEST | Report the later planet in current planet order. Do not perform deferred discovery. |
+| EX-MODEL-72 | Friendly base more than ten sectors away; BASES | Show its location and strength and include it in the base count. Friendly detail is not limited to ten sectors. |
+| EX-MODEL-73 | Friendly and enemy ships more than ten sectors away; TARGETS ALL | Exclude the friendly ship. Identify the enemy as out of range without its location. |
+| EX-MODEL-74 | Captain at (37,37), friendly commissioned ship at (37,38); BASES 37 38 | Report the ship at that exact position; this path accepts ships despite the BASES default kind. |
+| EX-MODEL-75 | Undiscovered remote enemy base; LIST BASES SUMMARY | Count the base but withhold its detail. Knowledge is unchanged. |
+| EX-MODEL-76 | Wolf commissioned and visible; LIST WOLF AND BOGUS | Wolf's immediate row precedes the illegal-keyword diagnostic and remains visible. No deferred report follows the error. |
+| EX-MODEL-77 | Acting ship has 100 committed points and 50 pending points; POINTS | Report total 100. Leave pending points uncommitted and unchanged. |
+| EX-MODEL-78 | POINTS ME FEDERATION; one category is zero for the ship and 50 for Federation, all others zero | Show that category with values zero and 50; omit every all-zero category. Columns are ship then Federation. |
+| EX-MODEL-79 | Acting ship commissioned; POINTS ME 1 ALL | The integer ends selector processing. Report only the acting ship; ignore ALL after it. |
+| EX-MODEL-80 | Romulan activity disabled; POINTS ROMULANS | No selected column remains; diagnose invalid input. |
+| EX-MODEL-81 | Acting ship and another eligible ship, no other objects; LIST SHIPS CLOSEST | Exclude the acting ship from nearest-object selection and report the other ship. |
+| EX-MODEL-82 | Federation total 100 points, three cumulative commissions and four turns; POINTS FEDERATION | Total 100, commissions three, points per commission 100/3, points per turn 25, before terminal formatting. |
+| EX-MODEL-83 | One Romulan present; SUMMARY SHIPS AND SHIPS | Its summary counts two qualifying selections. No additional Romulan is created. |
+| EX-MODEL-84 | TARGETS FRIENDLY | Diagnose an illegal keyword; FRIENDLY is not a TARGETS selector. |
+| EX-MODEL-85 | TYPE O, followed by an empty continuation | Diagnose the ambiguous switch, prompt, then cancel without changing preferences. |
+| EX-MODEL-86 | TYPE OU | Report output preferences, in the specified order; do not change them. |
+| EX-MODEL-87 | Black holes were selected initially but have since been removed; TYPE OPTION | Report the selected black-hole option, not a fresh count of surviving black holes. |
+| EX-MODEL-88 | Commissioned session; TIME | Report galaxy elapsed time, commission elapsed time, commission execution time, session execution time and time of day, in that order. No turn. |
+| EX-MODEL-89 | Pregame session; TIME IGNORED | Omit both commission-specific rows and ignore the trailing token. |
+| EX-MODEL-90 | Nonprivileged captain using SHORT output; USERS; an enemy captain is beyond sensor range | Include that captain's six ordinary fields. Omit location; do not omit the row merely because it is remote. |
+| EX-MODEL-91 | Privileged captain using LONG output; USERS | Include the header and each commissioned captain's six fields plus location, in roster order. |
 
 EX-MODEL-06 deliberately uses fractional shield strength. Historical loss of
 that fraction is excluded by the numerical normalization policy. The grammar,

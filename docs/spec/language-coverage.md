@@ -7,6 +7,9 @@ not make it a complete language-level definition in the assembled book.
 
 ## Converted command clauses
 
+Twenty-five of the 33 main-game commands now have converted clauses. The
+remaining dependencies below still limit end-to-end conformance claims.
+
 | Command | Grammar and semantic clause | Remaining dependencies |
 | --- | --- | --- |
 | SHIELDS | [SHIELDS](commands.md#shields) | Session and complete response rules. |
@@ -23,6 +26,11 @@ not make it a complete language-level definition in the assembled book.
 | CAPTURE | [CAPTURE](commands.md#capture) | Planet-update availability, final lifecycle and responses. |
 | PHASERS | [PHASERS](commands.md#phasers) | Concurrent target changes, random distributions and complete delivery/presentation. |
 | TORPEDOS | [TORPEDOS](commands.md#torpedos) | Malformed continuations, concurrent target changes and complete delivery/presentation. |
+| LIST, SUMMARY, BASES, PLANETS, TARGETS | [Galaxy reports](commands.md#list-summary-bases-planets-and-targets) | Mixed selector edge cases, label aggregation, concurrent reporting and terminal presentation. |
+| POINTS | [POINTS](commands.md#points) | Initial lifecycle counts, zero-denominator presentation and terminal formatting. |
+| TYPE | [TYPE](commands.md#type) | Complete preference/session definitions and terminal formatting. |
+| TIME | [TIME](commands.md#time) | Environment clock/accounting binding and duration formatting. |
+| USERS | [USERS](commands.md#users) | Session metadata binding, admission interleavings and terminal formatting. |
 
 These clauses have been checked against the cited Austin routines and use
 ordinary game-unit arithmetic. They are drafted clauses with explicit dependencies,
@@ -30,8 +38,7 @@ not complete end-to-end conformance claims.
 
 ## Remaining main-game commands
 
-BASES, GRIPE, HELP, LIST, NEWS, PLANETS, POINTS, QUIT, SET, SUMMARY, TARGETS,
-TELL, TIME, TYPE, USERS, *DEBUG and *PASSWORD still need complete converted
+GRIPE, HELP, NEWS, QUIT, SET, TELL, *DEBUG and *PASSWORD still need complete converted
 command clauses. Their grammar inventory remains in [grammar.md](grammar.md);
 their older semantic analysis remains outside the book.
 
@@ -51,7 +58,7 @@ their older semantic analysis remains outside the book.
 - CompuServe appendix: population, names, initial preferences and extra pregame
   commands introduced; remaining differences and complete command amendments remain.
 - Examples: resources, scans/reports, tractor, movement, construction, capture,
-  phaser, torpedo, nova, defense and path cases drafted;
+  phaser, torpedo, nova, defense, report visibility, knowledge and scoring cases drafted;
   broader command, lifecycle and multiplayer cases remain.
 
 No game code or legacy source is changed to conform to this draft.
