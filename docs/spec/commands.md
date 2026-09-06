@@ -573,45 +573,71 @@ name-category argument prompts for OFF or a ship name; an empty continuation
 cancels. OFF takes precedence over ship-name matching. OFF without an active
 beam reports that no beam is in use. Unused trailing arguments are ignored.
 
-### Acquisition
-
-For a named target, first reject an existing beam on the acting ship, then resolve
-the first matching ship name in roster order. An unknown name rejects the command.
-Apply the remaining checks in this order:
+### Engagement operation and preconditions
 
 ```text
-EngageTractor(ship, target):
-    if target.id == ship.id:
-        reject CannotTractorSelf
-    if target.team != ship.team:
-        reject CannotTractorEnemy
-    if not target.commissioned:
-        reject ShipNotInGame
-    if distance(ship.position, target.position) > 1:
-        reject TargetNotAdjacent
-    if target.tractorBeam != none:
-        reject TargetAlreadyInBeam
-    if ship.shields.mode == UP:
-        reject LowerOwnShields
-    if target.shields.mode == UP:
-        reject TargetShieldsRaised
+operation EngageTractor(actor: ShipId, target: ShipId)
+    on GameState -> Engaged(beam: TractorBeamId)
+                 | Rejected(reason: TractorRejection)
 
-    beam := new association between ship.id and target.id
-    add beam to world.beams
-    ship.tractorBeam := beam.id
-    target.tractorBeam := beam.id
-    notify both endpoints of TractorEngaged
+TractorRejection = BeamAlreadyActive | CannotTractorSelf
+                 | CannotTractorEnemy | ShipNotInGame
+                 | TargetNotAdjacent | TargetAlreadyInBeam
+                 | LowerOwnShields | TargetShieldsRaised
 ```
 
-Acquisition does not move either ship, charge energy, change condition or complete
-a turn. Tractor-device damage is not an acquisition precondition. The association
-and release operation are defined in [tractor associations](world-rules.md#tractor-associations).
+Let s be `ship(game, actor)` and r be `ship(game, target)`. For a name argument,
+the command first checks `s.tractorBeam == none`; failure reports BeamAlreadyActive
+before attempting name resolution. Otherwise it resolves the first matching
+roster name. An unknown name rejects with its diagnostic. For a resolved name,
+the remaining conditions are checked in order:
+
+1. `r.id != s.id`; otherwise CannotTractorSelf.
+2. `r.team == s.team`; otherwise CannotTractorEnemy.
+3. `r.commissioned == true`; otherwise ShipNotInGame.
+4. `distance(s.position, r.position) <= 1`; otherwise TargetNotAdjacent.
+5. `r.tractorBeam == none`; otherwise TargetAlreadyInBeam.
+6. `s.shields.mode == DOWN`; otherwise LowerOwnShields.
+7. `r.shields.mode == DOWN`; otherwise TargetShieldsRaised.
+
+A failed condition gives Rejected with its corresponding diagnostic and no
+engagement effects. Neither ship's `devices[TRACTOR_BEAM].damage` is an
+engagement precondition. The checks of faction and commission have the displayed
+order: an uncommissioned enemy is diagnosed as an enemy.
+
+### Successful state effects
+
+Engagement establishes a new TractorBeam b with a distinct identity. Let w be
+`world(game)`. The engagement event satisfies:
+
+```text
+b.endpoints == {s.id, r.id}
+after(w.beams) == before(w.beams) union {b}
+after(s.tractorBeam) == b.id
+after(r.tractorBeam) == b.id
+```
+
+The outcome is Engaged(b.id), and both endpoints receive the tractor-engagement
+notification. Positions, energy, shields, device damage, condition, docking and
+stardates are unchanged. Either endpoint may subsequently move using the same
+association; engagement does not choose a permanent towing ship.
+
+### Release and completion
+
+A release requested by OFF or by the no-argument form with an existing beam
+invokes [ReleaseTractorBeam](world-rules.md#release). With no beam, OFF instead
+reports that none is in use and changes no state. No TRACTOR outcome charges
+energy or completes a turn or automatic repair.
+
+**Open:** Simultaneous engagements involving a shared endpoint still need a
+complete resolution rule. The successful relationship above does not establish
+that the input and validation sequence is indivisible.
 
 **Source basis:** [TRACTR and TRCOFF](../../legacy/utexas/DECWAR.FOR#L4432).
 
 ## MOVE and IMPULSE
 
-### Syntax and initial validation
+### Syntax
 
 ```text
 MoveCommand    ::= "MOVE" [Location]
@@ -622,86 +648,138 @@ Location uses the absolute, relative or computed forms in the coordinate grammar
 with exactly two resulting coordinate items. Missing coordinates prompt for them;
 empty continuation cancels and invalid coordinates reject. A location equal to
 the current sector reports the zero-displacement diagnostic and asks again.
+The propulsion check below precedes coordinate acquisition.
 
-Let s be the acting ship, selected by `ship(game, actor)` from the
-[Ship definition](language-model.md#ships). Before reading coordinates, check
-the corresponding precondition:
+### Operation and initial precondition
 
 ```text
-MOVE:    s.devices[WARP_ENGINES].damage < 300 damage units
+enum Propulsion = WARP | IMPULSE
+
+operation Move(actor: ShipId, destination: Position, mode: Propulsion)
+    on GameState -> MovementOutcome
+
+MovementOutcome = Moved(position: Position)
+                | Obstructed(position: Position, at: Position)
+                | Rejected(reason: MovementRejection)
+                | Cancelled | CommissionEnded
+
+MovementRejection = WarpUnavailable | ImpulseUnavailable
+                  | WarpRangeExceeded | DamagedWarpRangeExceeded
+                  | ImpulseRangeExceeded | InvalidLocation
+```
+
+MOVE selects WARP and IMPULSE selects IMPULSE. The signature identifies the
+semantic inputs; the command acquires destination only after its initial check.
+Let s be `ship(game, actor)` and w be `world(game)`:
+
+```text
+WARP:    s.devices[WARP_ENGINES].damage < 300 damage units
 IMPULSE: s.devices[IMPULSE_ENGINES].damage < 300 damage units
 ```
 
-Failure reports the damaged propulsion device and ends the command without
-movement, an energy charge or a turn. On passing that check,
-set a deadline to `now + (world.pacingClass + 1)*1000 milliseconds`, and select
-the potential speed damage as `IntegerDraw(4000)/10` damage units. Its value is
-used only if a later overheating check succeeds.
+Failure gives the corresponding unavailable-propulsion rejection and diagnostic,
+without asking for coordinates, changing ship state or completing a turn.
+On passing the check, establish a deadline of
+`now + (w.pacingClass + 1)*1000 milliseconds` and select potentialDamage as
+`IntegerDraw(4000)/10` damage units. This damage is applied only on overheating.
+Coordinate cancellation or rejection before accepting a nonzero displacement
+has no movement effects or turn completion.
 
-### Range and speed
+### Departure and range
 
-After accepting a nonzero displacement, set condition green and clear docking.
-Let d be the Chebyshev distance to the intended destination. If
-`s.devices[COMPUTER].damage >= 300 damage units`, set path deflection to
-`(UnitDraw()-0.5)/2`; otherwise use
-zero deflection. Then validate range:
+Accepting a nonzero displacement begins departure. This event satisfies:
 
 ```text
-if command == IMPULSE:
-    if d != 1:
-        reject ImpulseRangeExceeded
-else:
-    if d > 6:
-        reject WarpRangeExceeded
-    if s.devices[WARP_ENGINES].damage > 0 and d > 3:
-        reject DamagedWarpRangeExceeded
+after(s.condition) == GREEN
+after(s.docked) == false
 ```
 
-A range rejection retains the already-applied green condition and undocking.
-It does not charge movement energy or complete a turn. Coordinate rejection
-before the nonzero-displacement step does not apply those state changes.
-
-MOVE at distance 5 or 6 emits the speed-risk warning and selects `IntegerDraw(100)`.
-A result above 90 at distance 5 or above 80 at distance 6 causes overheating.
-Add the previously selected speed damage to `s.devices[WARP_ENGINES].damage`
-and report it.
-Overheating does not cancel the movement. Short output omits the estimated
-repair-time explanation; exact response wording belongs to presentation.
-
-### Movement and energy
-
-Trace the intended displacement for d steps using the shared path rule. Charge
-energy according to intended distance, even when an obstruction prevents reaching
-the destination:
+Define the displacement and intended distance:
 
 ```text
-cost := 4 * d^2 energy units
-if s.shields.mode == UP:
-    cost := 2 * cost
-if s.tractorBeam != none:
-    cost := 3 * cost
-s.energy := s.energy - cost
-
-if trace.lastClear != s.position:
-    s.position := trace.lastClear
-    move the ship's presence to that sector
-    if s.tractorBeam != none:
-        move its partner under the tractor-following rule
-
-if trace has an obstruction:
-    emit MovementObstructed
-record remaining delay until the entry deadline
+displacement = destination - s.position
+d = distance(s.position, destination)
 ```
 
-The factors multiply: raised shields and a beam make the cost six times the
-unmodified cost. Movement has no precondition requiring sufficient energy to
-pay this charge. Exhausted energy is handled by the subsequent lifecycle rules.
+If
+`s.devices[COMPUTER].damage >= 300 damage units`, use deflection
+`(UnitDraw()-0.5)/2`; otherwise use zero. Then check range:
 
-Normal movement completes a turn with automatic repair. If the commission has
-ended before that completion is selected, proceed to session exit instead.
-The moving ship's relocation precedes its partner's; they are not required to
-be observed as a simultaneous relocation. Full concurrent obstruction and
-occupied-trailing-sector cases remain part of the world-rule review.
+| Propulsion | Range preconditions, checked in order |
+| --- | --- |
+| IMPULSE | d must equal 1; otherwise ImpulseRangeExceeded. |
+| WARP | d must be at most 6; otherwise WarpRangeExceeded. Then, if `s.devices[WARP_ENGINES].damage > 0 damage units`, d must be at most 3; otherwise DamagedWarpRangeExceeded. |
+
+A range rejection gives its diagnostic and retains GREEN condition and undocking.
+It changes neither position nor energy and completes no turn. Thus a rejected
+range differs from a rejected propulsion device or invalid coordinate input.
+
+### Overheating
+
+For WARP at distance 5 or 6, emit the speed-risk warning and draw q with
+IntegerDraw(100). Overheating occurs when `d == 5 and q > 90`, or when
+`d == 6 and q > 80`. The overheating event satisfies:
+
+```text
+after(s.devices[WARP_ENGINES].damage)
+    == before(s.devices[WARP_ENGINES].damage) + potentialDamage
+```
+
+The damage report precedes the addition to device damage. Short output omits
+the estimated repair-time explanation.
+Overheating does not cancel movement or repeat the propulsion/range checks.
+Other device damage is unchanged by overheating itself; automatic repair can
+subsequently affect all devices during turn completion.
+
+### Traversal, resource cost and relocation
+
+Obtain `trace = TracePath(s.position, displacement, d, deflection)` under the
+[sector-path contract](world-rules.md#sector-paths). The energy-charge event
+satisfies:
+
+```text
+shieldFactor = 2 if s.shields.mode == UP else 1
+tractorFactor = 3 if s.tractorBeam != none else 1
+cost = 4 * d^2 * shieldFactor * tractorFactor energy units
+after(s.energy) == before(s.energy) - cost
+```
+
+The intended distance determines cost even when an obstruction prevents reaching
+the destination. The factors multiply: raised shields and a beam together make
+cost six times the unmodified amount. There is no precondition requiring enough
+energy to pay the charge, and paying it does not itself cancel relocation.
+Subsequent lifecycle rules handle exhausted energy.
+
+If trace.lastClear differs from s.position, relocation satisfies:
+
+```text
+after(s.position) == trace.lastClear
+```
+
+The former sector becomes empty and trace.lastClear contains PlayerShip(s.id).
+After this relocation, an existing
+beam invokes [FollowTractorBeam](world-rules.md#following-a-moving-endpoint)
+with s.id and trace.step. If s does not change sector, its partner does not move.
+
+With an obstruction, report it and give Obstructed(trace.lastClear,
+trace.obstruction.position). Otherwise give Moved(trace.lastClear). Moved denotes
+normal traversal completion; its position can still equal the starting sector
+when a galaxy boundary prevents advancement. Neither an obstruction nor a
+boundary exit refunds energy. The moving ship precedes its following partner;
+the two relocations are not specified as a simultaneous event.
+
+### Completion
+
+Record the time remaining to the deadline after movement and reporting. Normal
+movement completes one turn with automatic repair, including an obstructed move
+that advances no sectors. If the commission has ended before turn completion
+is selected, the outcome is CommissionEnded and session exit takes precedence.
+Earlier energy and movement effects are not rolled back on that account.
+
+**Open:** Concurrent obstruction changes, relocation claims, temporary sector
+kinds and crowded or out-of-bounds tractor following still need complete rules.
+The ordinary relocation contract applies to the clear destination established
+by the trace; it does not grant the actor a reservation while other actions occur.
 
 **Source basis:** [MOVE/IMPULS](../../legacy/utexas/DECWAR.FOR#L2141),
 [path](../../legacy/utexas/DECWAR.FOR#L699),
@@ -709,72 +787,142 @@ occupied-trailing-sector cases remain part of the world-rule review.
 
 ## BUILD
 
-### Syntax and prerequisites
+### Syntax
 
 ```text
 BuildCommand ::= "BUILD" [Location]
 ```
 
 Location supplies exactly two coordinate items. Missing input prompts for
-coordinates; empty continuation cancels. The target must be within one sector,
-must be a planet, and must already belong to the acting team. Test these
-conditions in that order. If it has four completed builds and the team already
-has ten active bases, reject before changing the planet.
+coordinates; empty continuation cancels and invalid coordinates reject.
+At command entry, establish the deadline
+`now + world(game).pacingClass*1000 milliseconds + 4000 milliseconds`.
+Time spent acquiring the location counts toward that deadline.
 
-At command entry, set the deadline to
-`now + world.pacingClass*1000 milliseconds + 4000 milliseconds`.
-
-### Construction stages
+### Operation and preconditions
 
 ```text
-BuildStage(ship, planet):
-    planet.builds := planet.builds + 1
-    if planet.builds != 5:
-        emit ConstructionStageCompleted(planet.builds)
-    ship.pendingScore[BASE_CONSTRUCTION] += 50 * planet.builds points
+operation Build(actor: ShipId, target: Position)
+    on GameState -> BuildOutcome
 
-    if planet.builds == 5:
-        attempt to begin the shared planet-update operation
-        if that operation is unavailable:
-            reject ConstructionCrewBusy
-        if no base capacity remains for this team:
-            planet.builds := planet.builds - 1
-            end the planet-update operation
-            reject BaseLimitReached
+BuildOutcome = StageCompleted(planet: PlanetId, builds: integer)
+             | BaseConstructed(base: BaseId)
+             | Rejected(reason: BuildRejection)
+             | Cancelled | GalaxyEnded
 
-        ship.pendingScore[BASE_CONSTRUCTION] += 250 points
-        convert the planet into a friendly base at the same position
-        transfer discovery of the planet to discovery of the base
-        set base strength to 100%
-        end the planet-update operation
-        emit BaseConstructed(base)
-
-    record remaining delay until the entry deadline
-    CompleteTurn(ship, automaticRepair = true)
+BuildRejection = NotAdjacent | NotAPlanet | NotOwned
+               | BaseLimitReached | ConstructionCrewBusy
+               | InvalidLocation
 ```
 
-The first four stages retain the planet and its ownership. The fifth removes
-the planet and creates a base, using the first available base identity in the
-team's ordering. The new base begins at full strength. Conversion invokes the
-installation-removal and world-end rules.
+Let s be `ship(game, actor)` and w be `world(game)`. After resolving a valid
+location, check the following in order:
 
-The fifth-stage availability and capacity checks occur after the stage increment
-and its pending score. A busy-crew rejection retains both. A later capacity
-rejection reverses the stage increment but retains that pending score. Neither
-rejection completes a turn, so the pending score has not yet been committed to
-ship and team totals. This differs from the earlier four-build/ten-base
-precondition, which changes nothing.
+1. `distance(s.position, target) <= 1`; otherwise NotAdjacent.
+2. `sector(game, target)` is PlanetObject(id); otherwise NotAPlanet.
+   Let p be `planet(game, id)` for the remaining checks.
+3. `p.owner == s.team`; otherwise NotOwned.
+4. If `p.builds == 4`, the faction must have fewer than ten surviving bases;
+   otherwise BaseLimitReached.
 
-There is no direct engine-energy charge. Successful construction completes one
-turn with automatic device repair. A full five-stage construction contributes
-1000 points in total when all stages complete normally.
+The fourth check applies only at four builds. These rejections produce their
+diagnostics without changing builds or pending points and without completing
+a turn. Coordinate cancellation or rejection likewise has no construction
+effects. BUILD has no device-damage or minimum-energy precondition.
 
-**Open:** The shared planet-update operation serializes installation changes;
-the complete availability and interleaving rules are still being specified.
-World termination during conversion also needs its final lifecycle ordering.
+### Construction-stage event
+
+Let p be the selected planet and b its builds immediately before this event.
+The stage event satisfies:
+
+```text
+after(p.builds) == b + 1
+after(s.pendingScore[BASE_CONSTRUCTION])
+    == before(s.pendingScore[BASE_CONSTRUCTION]) + 50 * (b + 1) points
+```
+
+If the new build count is not five, report that count and give
+StageCompleted(p.id, b + 1). The planet's identity, position and ownership are
+unchanged. A fifth build instead attempts the base conversion described below.
+Pending points are not yet part of the ship's or faction's committed score.
+
+The test is equality with five, not a maximum-build limit. If an earlier failed
+conversion left a planet at five builds, a later BUILD advances it to six,
+contributes 300 pending construction points and completes an ordinary stage;
+it does not retry conversion. No new clamping or retry behavior is implied.
+
+### Fifth-stage conversion
+
+A fifth stage can be refused with ConstructionCrewBusy. This outcome reports
+that the construction crew is busy with repairs, retaining the stage increment
+and its 250 pending points. It completes no turn.
+
+If conversion proceeds, choose the first available identity in
+`w.baseOrder[s.team]`. If none is available, give BaseLimitReached and its
+diagnostic, restore p.builds to four and retain the 250 pending points.
+This later capacity failure completes no turn. It differs from the initial
+four-build capacity rejection, which adds no build or points.
+
+**Open:** The conditions for conversion refusal, concurrent changes between the
+capacity checks and competing installation operations remain to be specified.
+The crew report does not define a new random failure or player-controlled crew
+resource.
+
+With an available identity, conversion contributes a further 250 pending
+BASE_CONSTRUCTION points. It removes p as a planet and introduces a base n at
+that location belonging to s.team. On normal completion:
+
+```text
+n.id == selected base identity
+n.team == s.team
+n.position == p.position
+n.strength == 100%
+after(w.planets) == before(w.planets) minus {p}
+after(w.bases) == before(w.bases) union {n}
+```
+
+Remaining planets keep their identities and relative report order. For each
+faction, let k denote its TeamKnowledge. The knowledge effects are:
+
+```text
+after(k.knownPlanets) == before(k.knownPlanets) minus {p.id}
+after(k.knownBases) == (before(k.knownBases) minus {n.id})
+    union ({n.id} if p.id in before(k.knownPlanets) else {})
+```
+
+Thus prior discovery of p becomes discovery of n. Reusing a base identity does
+not preserve knowledge of the former base at that identity; the converted
+planet's discovery determines the new base's visibility. Knowledge of other
+installations is unchanged. Neither the new base nor the former planet is an
+additional ship or player commission.
+
+Installation removal invokes docking re-evaluation and the world-end check.
+If that check ends the galaxy, GalaxyEnded takes precedence over the remaining
+construction report and ordinary turn completion. The final score report uses
+committed points; the newly pending construction points are not committed by
+an additional turn on this path. Session release and exit follow the
+[world-termination rules](session-rules.md#world-termination).
+
+If the galaxy continues, give BaseConstructed(n.id) and the construction report,
+which identifies the acting ship, location and new base. The five normal stages
+contribute 1000 points altogether: 50, 100, 150, 200 and 500.
+
+**Open:** The partially completed conversion state at a terminating world check,
+and the exact observations available to simultaneous actions during conversion,
+need a complete contract. The equations above describe normal completed
+conversion, not an indivisible change covering these intermediate events.
+
+### Completion
+
+BUILD has no direct engine-energy cost. StageCompleted and normal BaseConstructed
+complete one turn with automatic device repair, using the time remaining to
+the command-entry deadline. Rejected, Cancelled and GalaxyEnded do not complete
+that normal turn. Shared world or lifecycle events can have their own effects.
 
 **Source basis:** [BUILD](../../legacy/utexas/DECWAR.FOR#L523),
-[planet removal](../../legacy/utexas/DECWAR.FOR#L2864).
+[planet removal](../../legacy/utexas/DECWAR.FOR#L2864),
+[world-end exit](../../legacy/utexas/DECWAR.FOR#L961),
+[normal build completion](../../legacy/utexas/DECWAR.FOR#L64).
 
 ## CAPTURE
 
@@ -822,8 +970,14 @@ contract. Surrender refusal is not a random chance or a new diplomatic mechanic.
 ### Successful state effects
 
 Let p be the target planet, s the acting ship, t its faction, o the planet's
-owner before capture, and b the planet's builds before capture. The capture
-event has these effects:
+owner before capture, and b the planet's builds before capture. If o is a faction,
+first perform its [docking re-evaluation](world-rules.md#installation-changes-and-world-termination)
+using the ownership and installations before capture. At that event p still
+qualifies as an adjacent friendly port for o. Capture does not repeat this
+re-evaluation after changing ownership, so a ship docked beside p is not
+automatically undocked merely because this capture succeeds.
+
+The capture event has these effects:
 
 ```text
 after(p.owner)  == t
@@ -876,8 +1030,8 @@ turn rules apply even after a fatal defensive hit; lifecycle handling follows
 those rules. The state effects above describe the capture and its defense, not
 an exemption from other events in turn completion.
 
-**Open:** Former-faction docking effects, concurrent audience changes and complete
-notification rendering still need their final shared-rule contracts.
+**Open:** Concurrent audience changes and complete notification rendering still
+need their final shared-rule contracts.
 
 **Source basis:** [CAPTUR](../../legacy/utexas/DECWAR.FOR#L600),
 [phaser damage](../../legacy/utexas/DECWAR.FOR#L4166),

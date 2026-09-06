@@ -171,9 +171,8 @@ No energy-sufficiency check is added. Ordinary shared turn completion still foll
 The lock-failure report remains an observable surrender refusal; its complete
 multiplayer precondition is unresolved. It is not converted into a random refusal
 probability. CAPTUR invokes BASKIL before decrementing the former faction's count
-and changing the planet owner. This docking dependency remains recorded here and
-explicitly open in the contract rather than being replaced by an invented
-post-capture docking update. The early PRIDIS calls select notification recipients;
+and changing the planet owner. The contract now states that pre-capture docking
+check explicitly; it does not replace it with a post-capture update. The early PRIDIS calls select notification recipients;
 they are not installation discovery updates. The contract therefore does not
 invent a capture-induced discovery change.
 
@@ -319,3 +318,66 @@ or score effect. The source's actual reports and release behavior remain normati
 [placement](../../legacy/utexas/DECWAR.FOR#L2765),
 [world-clear boundaries](../../legacy/utexas/HISEG.FOR#L1),
 [world-end reports](../../legacy/utexas/DECWAR.FOR#L961).
+
+
+## Movement, tractor and construction contracts
+
+The type declarations in the book name semantic distinctions: Position is a
+whole sector, GridPoint is a geometric point, SectorVector is an offset, and
+PathResult reports the traversed endpoint and optional obstruction. They do not
+map to CHECK's argument names or shared work area. CHECK receives vertical
+arguments in its first formal position despite naming that position H; the book
+uses the caller's vertical/horizontal meanings and retains vertical dominance
+on a tie. The existing CHKPNT fractional normalization remains unchanged.
+
+Tractor endpoints are an unordered pair of distinct ship identities expressed
+as a two-member set. There is no persistent towing role; the movement command
+selects an endpoint for that action. Release removes one association and clears
+both references. Following uses the already-recorded normalization giving the
+partner's committed position and sector presence one consistent location,
+including when its resulting location equals its prior location. A different
+occupied destination and an out-of-galaxy result are still unresolved; no new
+collision, displacement alternative or damage is introduced.
+
+BUILD's fifth-stage test is exact equality, not a maximum. The stage increment
+and its credit precede LOCK's failure branch. If that branch retains five builds,
+a later BUILD reaches six and follows the nonconversion branch, adding 300
+pending points. Retain this source-derived state transition; removing it would
+add a retry or cap absent from the code. Late capacity failure restores four
+builds but retains the earlier 250 pending points.
+
+Base identities form a fixed order of ten per faction. Reusing the first
+available identity does not copy the previous base's discovery state:
+`base(j,4,team) = locpln(i,4)` replaces it with the converted planet's knowledge.
+The contract therefore replaces discovery membership for that identity in each
+faction, rather than merely adding the identity to the discovering factions.
+
+The completion bonus and nbase increment precede PLNRMV. Its ENDGAM call can
+exit before the new base's position/strength and board presence are installed,
+before the construction report, and before ordinary turn accounting. The book
+states that a terminating conversion does not complete that turn or commit the
+new pending points. The full partially completed conversion state is explicitly
+open; normal completed-conversion equations do not claim that the entire source
+sequence was atomic.
+
+CAPTUR calls BASKIL before reducing the former owner's captured count or changing
+planet ownership. The former planet consequently remains an eligible port during
+that docking check. There is no second re-evaluation after ownership changes.
+The book now states this observable ordering without prescribing count storage.
+
+Do not infer independent per-planet locks from the callers' argument names.
+WARMAC LOCK replaces its supplied address with global user code 1, and UNLOCK
+releases all locks held by the caller. Whether a request fails or waits depends
+on the monitor service. The contracts retain source-defined refusal outcomes
+but do not turn these into random crew/diplomacy mechanics or assert a complete
+multiplayer admission policy from the routine names alone.
+
+**Source basis:** [BUILD](../../legacy/utexas/DECWAR.FOR#L523),
+[CAPTUR](../../legacy/utexas/DECWAR.FOR#L600),
+[BASKIL](../../legacy/utexas/DECWAR.FOR#L339),
+[CHECK/CHKPNT](../../legacy/utexas/DECWAR.FOR#L699),
+[movement and following](../../legacy/utexas/DECWAR.FOR#L2141),
+[planet removal](../../legacy/utexas/DECWAR.FOR#L2864),
+[world-end exit](../../legacy/utexas/DECWAR.FOR#L961),
+[TRACTR/TRCOFF](../../legacy/utexas/DECWAR.FOR#L4432),
+[LOCK/UNLOCK](../../legacy/utexas/WARMAC.MAC#L3764).

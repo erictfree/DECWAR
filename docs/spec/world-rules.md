@@ -19,17 +19,45 @@ no game-state or output effect do not themselves define extra game events.
 
 ## Sector paths
 
-A path has a starting position, an intended displacement, an integer maximum
-number of steps and a deflection. It returns the last unobstructed position,
-any obstruction and its position, and a direction step for towing or blast
-displacement. The intended endpoint determines direction; a torpedo can continue
-beyond that endpoint when its allowed step count is greater.
+### Operation and result types
+
+```text
+record PathObstruction:
+    position: Position
+    object: SectorObject
+
+record PathResult:
+    lastClear: Position
+    step: SectorVector
+    obstruction: Optional<PathObstruction>
+
+operation TracePath(start: Position, displacement: SectorVector,
+                    steps: integer, deflection: real)
+    on GameState -> PathResult
+```
+
+The displacement must be nonzero, its components must be whole numbers of
+sectors, and steps must be nonnegative. This operation
+observes sector contents and uses the random inputs stated below; it does not
+move objects, charge energy or complete a turn. The result's lastClear is the
+last fully traversable sector. Its step supplies the direction used by towing
+or blast displacement. An obstruction identifies both the encountered object
+and its position; none means no object collision was found. The intended endpoint
+determines direction; a torpedo can continue beyond that endpoint when its
+allowed step count is greater. The starting sector is not probed. lastClear
+initially equals start, even when the first step is blocked or steps is zero.
+
+### Geometric meaning
 
 Choose the axis of greatest absolute displacement as the dominant axis. A tie
 chooses vertical. The dominant step is +1 or -1. The other step is its intended
 displacement divided by the absolute dominant displacement, plus deflection.
 The running position begins at the start; its nondominant coordinate can be
 fractional.
+In the algorithm, running is a GridPoint. The words dominant and nondominant
+select its vertical or horizontal component according to the axis choice above;
+they are not additional record fields. A candidate whose two coordinates are
+whole and inside the galaxy is used as a Position in a sector query.
 
 For a running nondominant coordinate c, define candidate sectors as follows:
 
@@ -48,21 +76,23 @@ damage and other continuous game quantities do not inherit this rounding.
 ```text
 TracePath(start, displacement, steps, deflection):
     step := dominant and nondominant steps defined above
-    running := start
+    running := GridPoint(start.vertical, start.horizontal)
     lastClear := start
 
     repeat at most steps times:
         running := running + step
         if dominant coordinate is outside 1..75:
-            return Unobstructed(lastClear, step)
+            return PathResult(lastClear, step, none)
 
         candidates := PathCandidates(running.nondominant)
         for each candidate in listed order:
             position := running with nondominant coordinate = candidate
             if position is outside the galaxy:
-                return Unobstructed(lastClear, step)
-            if a blocking object occupies position:
-                return Obstructed(lastClear, position, object, step)
+                return PathResult(lastClear, step, none)
+            object := sector(game, position)
+            if object != none:
+                obstruction := PathObstruction(position, object)
+                return PathResult(lastClear, step, obstruction)
 
         if count(candidates) == 2:
             selected := floor(running.nondominant + UnitDraw())
@@ -70,13 +100,13 @@ TracePath(start, displacement, steps, deflection):
             selected := candidates[1]
         lastClear := running with nondominant coordinate = selected
 
-    return Unobstructed(lastClear, step)
+    return PathResult(lastClear, step, none)
 ```
 
 The list notation here uses the first candidate as `candidates[1]`. Ordinary
 ships, bases, planets, stars, the Romulan and black holes block a trace. Empty
-sectors do not. Temporary absence or concealment is a separate session rule
-still being converted. An obstruction on the second candidate still leaves
+sectors do not. The sector query includes temporary interaction kinds under
+the session rules. An obstruction on the second candidate still leaves
 `lastClear` at the previous step; passing the first candidate does not complete
 half a step.
 
@@ -84,35 +114,71 @@ Leaving the galaxy stops at the last clear sector without reporting an object
 collision. Probe order and obstruction timing are part of the rule, not a
 permission to choose any straight-line grid traversal.
 
+**Open:** The resolution of concurrent changes between probes and subsequent
+movement or impact is still being specified. A result does not reserve its
+clear sectors or guarantee that the encountered object remains present.
+
 **Source basis:** [CHECK and CHKPNT](../../legacy/utexas/DECWAR.FOR#L699).
 
 ## Tractor associations
 
+### Release
+
 ```text
-ReleaseTractorBeam(beam):
-    for each endpoint in beam.endpoints:
-        ship := ship identified by endpoint
-        ship.tractorBeam := none
-    remove beam from world.beams
-    notify both endpoints of TractorReleased
+operation ReleaseTractorBeam(beam: TractorBeamId)
+    on GameState -> Released
 ```
 
-Releasing a beam changes neither endpoint's position, energy, shields nor
-stardate. Commands and combat rules specify when they invoke release.
+The beam must identify an established association. Let b be
+`tractorBeam(game, beam)` and w be `world(game)`. The release event satisfies:
+
+```text
+after(w.beams) == before(w.beams) minus {b}
+for each endpoint in b.endpoints:
+    after(ship(game, endpoint).tractorBeam) == none
+```
+
+Both former endpoints receive the tractor-release notification. The outcome is
+Released. Neither endpoint's position, energy, shields, device damage, docking,
+condition nor stardate changes. Release has no turn completion of its own.
+Commands and combat rules specify when they invoke it; TRACTOR OFF with no beam
+is handled by the command and does not invoke this operation.
+
+### Following a moving endpoint
+
+```text
+operation FollowTractorBeam(moving: ShipId, step: SectorVector)
+    on GameState -> Followed(partner: ShipId, position: Position)
+```
 
 After a ship actually changes sector while associated with a beam, the other
-endpoint follows. Its new position is the moving ship's new position minus the
-trace step, with each resulting coordinate rounded down to a whole sector.
-Both its position and its presence in the galaxy describe that one location.
-If the moving endpoint did not change sector, the partner does not move.
+endpoint follows. The moving ship must still have an established beam. Let s be
+`ship(game, moving)`, let b be its beam, and let r be the ship identified by the
+other member of b.endpoints. The step is the PathResult.step of that movement.
+Define the trailing sector:
+
+```text
+trailing.vertical   = floor(s.position.vertical - step.vertical)
+trailing.horizontal = floor(s.position.horizontal - step.horizontal)
+```
+
+When trailing is inside the galaxy and empty or already occupied by r, following
+has `after(r.position) == trailing`. Its former sector becomes empty if it
+differs from trailing, and trailing contains PlayerShip(r.id). Both the position
+and the sector query then describe that one location. The outcome is
+Followed(r.id, trailing). If the moving endpoint did not change sector, the
+command does not invoke following and the partner stays in place.
 
 The other endpoint's energy, condition and docking state are not directly changed
-by following. Either endpoint can issue a movement command; an association does
-not designate a permanently privileged towing ship.
+by following. Shield and device state, beam membership and stardate are likewise
+unchanged. No separate following notification or turn is added. Either endpoint
+can issue a movement command; the beam has no permanent towing endpoint.
 
 **Open:** The generalized outcome when the resulting trailing sector is occupied
-or outside the galaxy remains unresolved. No extra collision, damage or safe
-placement rule is introduced by this draft.
+by a different object or outside the galaxy remains unresolved. Concurrent
+relocation and the interaction with temporary information activities also need
+their full contracts. No collision damage or alternative safe placement is
+introduced by this draft.
 
 **Source basis:** [TRCOFF](../../legacy/utexas/DECWAR.FOR#L4504),
 [following movement](../../legacy/utexas/DECWAR.FOR#L2227).

@@ -20,10 +20,10 @@ remaining dependencies below still limit end-to-end conformance claims.
 | SCAN, SRSCAN | [SCAN and SRSCAN](commands.md#scan-and-srscan) | Terminal rendering, concealed objects and interrupted output. |
 | STATUS | [STATUS](commands.md#status) | Exact terminal presentation and multiplayer observations. |
 | DAMAGES | [DAMAGES](commands.md#damages) | Exact terminal presentation and multiplayer observations. |
-| TRACTOR | [TRACTOR](commands.md#tractor) | Occupied trailing sectors, concurrent acquisition and responses. |
-| MOVE, IMPULSE | [MOVE and IMPULSE](commands.md#move-and-impulse) | Crowded towing, concurrent relocation, random distributions and responses. |
-| BUILD | [BUILD](commands.md#build) | Planet-update availability, conversion/world-end ordering and responses. |
-| CAPTURE | [CAPTURE](commands.md#capture): explicit ADT operation contract. | Surrender-refusal conditions, former-faction docking, final lifecycle and responses. |
+| TRACTOR | [TRACTOR](commands.md#tractor): ADT operation contract. | Occupied trailing sectors, concurrent acquisition and responses. |
+| MOVE, IMPULSE | [MOVE and IMPULSE](commands.md#move-and-impulse): ADT operation contract. | Crowded towing, concurrent relocation, random distributions and responses. |
+| BUILD | [BUILD](commands.md#build): ADT operation contract. | Planet-update availability, conversion/world-end ordering and responses. |
+| CAPTURE | [CAPTURE](commands.md#capture): explicit ADT operation contract. | Surrender-refusal conditions, final lifecycle and responses; former-faction docking ordering is specified. |
 | PHASERS | [PHASERS](commands.md#phasers) | Concurrent target changes, random distributions and complete delivery/presentation. |
 | TORPEDOS | [TORPEDOS](commands.md#torpedos) | Malformed continuations, concurrent target changes and complete delivery/presentation. |
 | LIST, SUMMARY, BASES, PLANETS, TARGETS | [Galaxy reports](commands.md#list-summary-bases-planets-and-targets) | Mixed selector edge cases, label aggregation, concurrent reporting and terminal presentation. |
@@ -55,10 +55,12 @@ coverage does not establish lifecycle, concurrency or terminal conformance.
 ## Shared and variant work
 
 - Abstract model: game-state ADT and operation-contract notation introduced;
-  SHIELDS, RADIO, ENERGY, DOCK, REPAIR, CAPTURE, HELP, NEWS, GRIPE, QUIT and
+  SHIELDS, RADIO, ENERGY, DOCK, REPAIR, TRACTOR, MOVE, IMPULSE, BUILD, CAPTURE,
+  HELP, NEWS, GRIPE, QUIT and
   message publication/reception use explicit contracts. Mapping/property notation,
   the nine device states and their distinction from hull damage and shield state
-  are defined explicitly. Existing
+  are defined explicitly. Sector objects, geometric points/vectors, PathResult,
+  symmetric beam membership and fixed base-identity order are defined. Existing
   command pseudocode still needs conversion to that form. Identities, quantities,
   roster, installations, radio, tractor associations, preferences and score
   categories drafted; full lifecycle remains.
@@ -67,7 +69,7 @@ coverage does not establish lifecycle, concurrency or terminal conformance.
 - Turns: completion classes, automatic repair, pacing, accounting, base and planet
   defense and base replenishment drafted; Romulan actions, randomness and detailed
   interleavings remain.
-- Shared world rules: path geometry, beam release/following, phaser damage,
+- Shared world rules: typed path results and beam release/following contracts, phaser damage,
   torpedo damage, blast displacement, novas, Romulan weapon damage and installation
   transitions drafted; complete Romulan actions and world-end ordering remain.
 - Communication: message identities, recipient filtering, publication order,

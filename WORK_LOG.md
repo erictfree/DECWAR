@@ -2196,3 +2196,50 @@ port/tool attribution remain separate.
   work, docs/status.md and its work-log entries remain outside this checkpoint.
   Goal remains active: older command contracts, complete ADT/lifecycle and
   multiplayer definitions, autonomous actions, presentation and variants remain.
+
+
+## Specification checkpoint — movement, tractor and construction ADTs (2026-09-05)
+
+- Classified the preceding checkpoint as progress: d45418c is the committed and
+  pushed ADT/resource-contract revision. Rechecked the current worktree; separate
+  experiment, status and work-log changes remain outside this specification work.
+- Converted TRACTOR, MOVE, IMPULSE and BUILD to typed operation contracts with
+  grammar, ordered validation, state effects, outcomes and completion. Separated
+  propulsion rejection from departure/range rejection, retained movement costs
+  despite obstruction, and retained overheating without a second propulsion check.
+- Added SectorObject and the sector query, GridPoint, SectorVector, PathObstruction
+  and PathResult. Defined the path operation's domain, candidate/probe ordering,
+  last-clear result and boundary behavior. Distinguished geometric axis aliases
+  from actual record fields. Added fixed per-faction base identity order.
+- Defined tractor membership as a two-identity unordered set, engagement/release
+  effects on both ships, and the following operation. Either endpoint may move
+  first; only the acting ship pays movement energy and completes its turn.
+  Crowded/out-of-bounds following and concurrent claims remain explicitly open.
+- Rechecked Austin TRACTR/TRCOFF (DECWAR.FOR 4432), MOVE/IMPULS (2141),
+  CHECK/CHKPNT (699), BUILD (523), PLNRMV (2864), ENDGAM (961), BASKIL (339),
+  CAPTUR (600), command callers and WARMAC LOCK/UNLOCK (3764). Recorded the global
+  lock implementation only in excluded normalization research; did not invent
+  independent per-planet locks or random crew/surrender failures.
+- Clarified that a retained fifth build advances to six on a later BUILD rather
+  than retrying conversion; late capacity failure restores four builds but keeps
+  250 pending points. A reused base identity replaces discovery state using the
+  converted planet. A terminating conversion exits before normal turn accounting,
+  leaving new pending points uncommitted; its partial conversion state remains open.
+- Closed CAPTURE's ordinary former-faction docking ordering: re-evaluation uses
+  the former ownership before capture, with no second check afterward. Kept
+  notification/concurrency and refusal conditions separate as remaining work.
+- Added EX-MODEL-177 through 189 covering validation order, independent device
+  state, movement from either endpoint, overheating, path boundaries/candidates,
+  construction failures, knowledge replacement, docking and final-score behavior.
+- Verified 12 included sections, 248 local links, 189 scenario rows and 324 source
+  message fragments. Source audit passes 135 hashes, 83 declarations, 33 main and
+  16 pregame commands plus both population checks. git diff --check passes.
+- Logs: logs/spec-movement-construction-build.log (initial layout rejection for
+  two overlong inline equations), logs/spec-movement-construction-final.log
+  (passed after displaying those equations separately), and
+  logs/spec-movement-construction-audit.log. Rebuilt the 96-page PDF and visually
+  reviewed relevant model, command, path, tractor and example pages under
+  tmp/pdfs/spec-movement-construction/. Generated outputs remain ignored.
+- No runtime, live-server or legacy archive changes. The goal remains active;
+  remaining command contracts, complete combat/autonomous behavior, lifecycle,
+  multiplayer/presentation bindings and variant amendments still require work.

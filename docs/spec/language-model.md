@@ -17,6 +17,9 @@ query ship(game: GameState, id: ShipId) -> Ship
 query planet(game: GameState, id: PlanetId) -> Planet
 query captain(game: GameState, id: CaptainId) -> Captain
 query world(game: GameState) -> World
+query tractorBeam(game: GameState, id: TractorBeamId) -> TractorBeam
+query sector(game: GameState, position: Position)
+    -> Optional<SectorObject>
 
 operation Capture(actor: ShipId, target: Position)
     on GameState -> CaptureOutcome
@@ -50,11 +53,11 @@ contract names separate events and states their ordering. Other world activity
 may occur during an operation under the multiplayer rules; these contracts
 do not imply that every command is one indivisible transaction.
 
-Resource controls, CAPTURE, information commands and session operations use
-this contract form. Other drafted clauses still use the pseudocode below and
-are being brought into the same form. An operation
-name alone does not define its meaning: its command or shared-rule clause must
-supply the contract.
+Resource controls, movement, tractor beams, construction, CAPTURE, information
+commands and session operations use this contract form. Other drafted clauses
+still use the pseudocode below and are being brought into the same form.
+An operation name alone does not define its meaning: its command or shared-rule
+clause must supply the contract.
 
 ## Notation
 
@@ -132,6 +135,14 @@ type UnitDraw   = real number in [0, 1)
 record Position:
     vertical: Coordinate
     horizontal: Coordinate
+
+record SectorVector:
+    vertical: real number of sectors
+    horizontal: real number of sectors
+
+record GridPoint:
+    vertical: real coordinate
+    horizontal: real coordinate
 ```
 
 The identities distinguish entities. Names and name-matching order are separate
@@ -151,6 +162,15 @@ distance(a, b) = max(
 
 Thus diagonal neighbors have distance one.
 
+A Position names a sector inside the galaxy. A GridPoint is a mathematical
+point whose coordinates may be fractional or outside the galaxy. A SectorVector
+describes direction and displacement; its components can be negative, zero or
+fractional. Subtracting two positions gives the vector from the second to the
+first. Adding a vector to a position or GridPoint adds corresponding components
+and gives a GridPoint. It denotes a Position only when both components are whole
+coordinates inside the galaxy. Path rules state any rounding and boundary
+handling explicitly.
+
 ## Galaxy and roster
 
 The galaxy contains 75 rows and 75 columns of sectors. Increasing the vertical
@@ -160,6 +180,20 @@ The Romulan is a separate autonomous ship, not a player commission.
 During HELP or GRIPE, a ship can retain its commission and position while its
 sector has a different temporary interaction kind, as defined in
 [session activities](session-rules.md#temporary-information-activities).
+
+```text
+SectorObject = PlayerShip(id: ShipId) | Starbase(id: BaseId)
+             | PlanetObject(id: PlanetId) | RomulanObject
+             | StarObject | BlackHoleObject
+```
+
+The sector query returns the object with which a sector-based observation or
+action interacts, or none for an empty sector. These alternatives are abstract
+object kinds, not numeric encodings. The position supplied to the query locates
+a star or black hole; the other alternatives identify the corresponding entity.
+An active information activity can make this query return BlackHoleObject while
+the ship's commission and position remain present. The session rules specify
+that distinction; a sector query is not a query for every ship with that position.
 
 Austin supports eighteen captains, nine per faction. Ship-name resolution
 examines Federation ships in the order below, then Empire ships in that order.
@@ -187,6 +221,7 @@ record Rectangle:
 record World:
     ships: collection of Ship
     bases: collection of Base
+    baseOrder: Team -> Sequence<BaseId>
     planets: collection of Planet
     knowledge: Team -> TeamKnowledge
     playerCount: integer
@@ -315,12 +350,19 @@ fractional resource. Destruction and conversion remove an installation from
 the world's collection of that kind. Enumeration order, where observable, is
 specified separately from identity.
 
+Each faction has ten base identities in the fixed order `world(game).baseOrder[t]`.
+That order is unchanged by destruction or construction; a removed base's identity
+can be reused. The two factions' identities are distinct. A base's team agrees
+with the faction whose order contains its identity. The first identity without
+a surviving base is the next available identity for that faction. This order
+defines selection and report numbering, without prescribing a storage location.
+
 ## Tractor beams and score
 
 ```text
 record TractorBeam:
     id: TractorBeamId
-    endpoints: pair of ShipId
+    endpoints: Set<ShipId> containing exactly two distinct identities
 
 enum ScoreCategory = ENEMY_DAMAGE | ENEMY_KILLS | BASE_DAMAGE
                   | PLANET_CAPTURE | BASE_CONSTRUCTION
@@ -336,7 +378,11 @@ record Romulan:
 
 A tractor beam associates two ships symmetrically. Either endpoint can act on
 that association under the tractor rules; it is not an ownership relationship.
-Each ship can participate in at most one beam.
+Each ship can participate in at most one beam. For an established beam b, both
+endpoint ships have `tractorBeam == b.id`; the endpoint set has no towing/towed
+ordering. Acquiring or releasing an association must establish the corresponding
+relationships on both ships. A movement command identifies which endpoint moves
+first for that action, without changing the beam's membership.
 
 Score is expressed in the units shown by the POINTS command. Category values
 can be negative, and totals are their sum. A ship's pending score changes are
