@@ -2038,3 +2038,65 @@ port/tool attribution remain separate.
     Austin 18 ships/20 planets and CompuServe 10 ships/60 planets. git diff --check
     passed. No gameplay tests required for this documentation-only checkpoint.
     No game code, source archive, server or running galaxy changed.
+
+
+- 2026-09-05 — Information-command contracts and commission release.
+  - Added ADT operation contracts for HELP, NEWS, GRIPE and QUIT. Every one of
+    the 33 main-game commands now has a draft clause; this is not complete
+    semantic, lifecycle or terminal coverage. Earlier command pseudocode still
+    requires ADT-contract conversion, and pregame ACTIVATE/*ZAP remain.
+  - HELP retains main-command-before-extra-topic resolution, privilege-filtered
+    command lists, ambiguity handling, resource fallback only on open failure,
+    and section-level stop behavior. A section clears its stop condition, so a
+    later requested topic can still appear. Source: WARMAC.MAC 4134–4402 and
+    DECWAR.FOR 471. The startup HELP dialogue is explicitly separate.
+  - NEWS retains red-alert availability, supplied text, dot continuation markers
+    and YES matching. Source review of GTKN established that a slash remainder
+    such as NEWS / YES can answer a continuation. QUIT instead clears pending
+    input and requires a fresh reply. Its exact prompt is sourced from MSG.MAC
+    309. Sources: WARMAC.MAC 1384, 3811–3852; DECWAR.FOR 134–141, 290–311.
+  - GRIPE preserves the 20-line input limit, warning after line 18, Ctrl-Z/empty
+    input distinctions, cancellation, newest-first records, metadata and a
+    three-second retry for a being-modified resource. Partial acquisition/write
+    failures remain explicit binding questions; no atomic-persistence guarantee
+    was invented. Sources: WARMAC.MAC 470, 2116–2180, 3858–4130.
+  - Added session-rules.md: session phases/identities, temporary HELP/GRIPE
+    sector behavior and ReleaseCommission. The temporary sector really is a
+    black hole in ESHP., while the ship remains commissioned; the ADT preserves
+    that observable state without encoding the board. It grants no blanket
+    immunity. Concurrent movement/restoration remains open. Release describes
+    absent active position, beam release, recipient notification cleanup,
+    recent-commission history and five-minute empty-world retention.
+    Sources: WARMAC.MAC 4379–4402; DECWAR.FOR 1082–1183, 1335–1353;
+    SETUP.FOR 168–172; PARAM.FOR 30–32.
+  - Recent history matches account plus execution identity, not name or terminal.
+    Capacity ten retains insertion replacement order even when a match is
+    updated. Austin's FORTRAN KWAIT is zero; the separate assembly constant
+    does not introduce a two-minute reentry delay into this specification.
+  - Added information.md with help/news content bindings and abstract feedback
+    records. Preserved topic and news section boundaries, list order, seven
+    ten-character terminal columns, feedback prepend order and header fields.
+    Resource text is distinguished from claims about the current project's
+    version. Complete header/terminal and storage failure bindings remain.
+  - Recorded normalization of absent positions, ordinary retention durations,
+    invalid feedback-header argument writes and final POINTS entry in
+    NORMALIZATION.md. Final reporting uses the existing all-column selection;
+    compiler-specific entry into an uninitialized loop is not required. Zero-
+    denominator ratios remain unresolved. No gameplay or source changes.
+  - Added 28 source-reviewed examples, 145 total. Build checks validate document
+    structure and source links; these examples are not executable conformance
+    tests or native differential evidence. The initial complete draft built;
+    later builds detected a blank line splitting the appended example table.
+    Fixed it and retained the failed logs. Final publication passed 12 included
+    sections, 220 local links, 145 scenario rows and 324 source message fragments:
+    logs/spec-information-session-release.log. Earlier logs use the
+    spec-information-session-{build,final,publication,verified}.log names.
+  - The final PDF has 83 pages. Inspected physical pages 50, 51, 52, 53, 68, 69,
+    72 and 81, with final renders in tmp/pdfs/spec-information/final-*.png;
+    no layout defects found in those pages. npm run audit:check passed:
+    logs/spec-information-source-audit.log (135 hashes, 83 declarations,
+    33 main-game/16 pregame slots, 324 strings, both variant inventories).
+    git diff --check passed. No game code, legacy data, server or galaxy changed.
+  - Unrelated automated-player work is present concurrently in experiments/,
+    docs/status.md and another WORK_LOG.md entry. This checkpoint stages only
+    specification files and this log entry, preserving that work separately.

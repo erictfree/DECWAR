@@ -222,3 +222,49 @@ with the Romulan driver; it has not been silently discarded as an address alias.
 [TELL](../../legacy/utexas/DECWAR.FOR#L3977),
 [message capacity](../../legacy/utexas/WARMAC.MAC#L2589),
 [MAKMSG and GETMSG](../../legacy/utexas/WARMAC.MAC#L2963).
+
+## Information activities and commission release
+
+HELP and GRIPE explicitly call ESHP., whose body writes decimal 1000, a black-hole
+sector value, and PSHP. later restores the still-active ship at its current
+coordinates. This is not an unknown-cell sentinel or an overflow artifact. The
+spec expresses the observable rule as a temporary sector interaction kind while
+the commission and ship properties remain intact. It does not equate that state
+with empty space, global pause or blanket combat immunity. Concurrent movement
+and cleanup remain explicit interleaving questions. NEWS does not use this state.
+
+HELP's section reader clears control flags on return. A stop within a section
+therefore need not cancel later topics in the same HELP command; a control
+observed by the outer loop between topics does stop the remaining topics. The
+contract preserves that difference without exposing flags or routine calls.
+
+Feedback is an ordered sequence of records with session context and acquired
+lines. File words, allocation blocks and the time-helper write through an invalid
+argument are not ADT effects. Context observes environment date/time without
+writing that value into unrelated game state. Insufficient acquisition storage
+and partially failed writes remain open failure cases; the new contract does not
+promise atomic persistence where the source does not provide it.
+
+Release uses an absent position rather than coordinates zero outside the 75-by-75
+galaxy. The resume snapshot retains the prior ship values. Recent-player records
+use opaque account/execution identities and preserve capacity ten and insertion
+replacement order. A matched update does not advance replacement order. Terminal
+identity alone does not match: that source branch is commented out. FORTRAN
+KWAIT is zero in PARAM.FOR; the assembly constant 120000 does not impose a two-minute
+wait on the FORTRAN admission path. Five-minute empty-world retention is expressed
+as an elapsed duration, not subtraction of day-wrapping clock encodings.
+
+Final POINTS takes the source's all-column selection, with Romulan suppressed
+when disabled. Its jump into an uninitialized FORTRAN DO body does not impose a
+compiler-specific loop traversal on the generalized operation. The existing
+all-column selection and report order supply the abstract meaning; no new score
+category or score commit is added. Zero-denominator ratios remain unresolved.
+
+**Source basis:** [HELP](../../legacy/utexas/WARMAC.MAC#L4134),
+[temporary sector state](../../legacy/utexas/WARMAC.MAC#L4379),
+[feedback context](../../legacy/utexas/WARMAC.MAC#L2116),
+[feedback failures](../../legacy/utexas/WARMAC.MAC#L4050),
+[FREE/RSTART](../../legacy/utexas/DECWAR.FOR#L1082),
+[history matching](../../legacy/utexas/DECWAR.FOR#L1335),
+[admission constants](../../legacy/utexas/PARAM.FOR#L30),
+[final POINTS](../../legacy/utexas/DECWAR.FOR#L2893).

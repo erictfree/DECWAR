@@ -7,7 +7,7 @@ not make it a complete language-level definition in the assembled book.
 
 ## Converted command clauses
 
-Twenty-nine of the 33 main-game commands now have converted clauses. The
+All 33 main-game commands now have drafted grammar and semantic clauses. The
 remaining dependencies below still limit end-to-end conformance claims.
 
 | Command | Grammar and semantic clause | Remaining dependencies |
@@ -35,21 +35,27 @@ remaining dependencies below still limit end-to-end conformance claims.
 | TELL | [TELL](commands.md#tell) | Full multiplayer publication/receipt conditions and terminal presentation. |
 | *PASSWORD | [*PASSWORD](commands.md#password) | Complete session privilege lifecycle. |
 | *DEBUG | [*DEBUG](commands.md#debug) | Instrumentation selection and environment timing binding. |
+| HELP | [HELP](commands.md#help): ADT operation contract. | Concurrent temporary-sector effects, complete text/presentation binding. |
+| NEWS | [NEWS](commands.md#news): ADT operation contract. | Full control/terminal binding and environment resource failures. |
+| GRIPE | [GRIPE](commands.md#gripe): ADT operation contract. | Context rendering, partial storage failures and concurrent temporary-sector effects. |
+| QUIT | [QUIT](commands.md#quit): ADT operation contract. | Final ratios/report failures, admission/release interleavings and environment continuation. |
+
 
 These clauses have been checked against the cited Austin routines and use
 ordinary game-unit arithmetic. They are drafted clauses with explicit dependencies,
 not complete end-to-end conformance claims.
 
-## Remaining main-game commands
+## Remaining command work
 
-GRIPE, HELP, NEWS and QUIT still need complete converted
-command clauses. Their grammar inventory remains in [grammar.md](grammar.md);
-their older semantic analysis remains outside the book.
+A clause for every command is not a complete command specification. Convert the
+older pseudocode clauses to ADT contracts, close the dependencies above, and
+complete pregame ACTIVATE and *ZAP plus startup/admission dialogues. Command
+coverage does not establish lifecycle, concurrency or terminal conformance.
 
 ## Shared and variant work
 
 - Abstract model: game-state ADT and operation-contract notation introduced;
-  CAPTURE and message publication/reception use explicit contracts. Existing
+  CAPTURE, HELP, NEWS, GRIPE, QUIT and message publication/reception use explicit contracts. Existing
   command pseudocode still needs conversion to that form. Identities, quantities,
   roster, installations, radio, tractor associations, preferences and score
   categories drafted; full lifecycle remains.
@@ -64,7 +70,11 @@ their older semantic analysis remains outside the book.
 - Communication: message identities, recipient filtering, publication order,
   capacity loss, consumption and gagging drafted. Complete interleavings and
   autonomous speech's effects on captain preferences remain.
-- Sessions, admission, exit, controls and terminal presentation: conversion remains.
+- Sessions: temporary HELP/GRIPE activity and commission release drafted,
+  including history and empty-world retention. Complete startup, admission,
+  resume, world termination, controls and terminal presentation remain.
+- Information resources: help topic sections, news continuation boundaries and
+  feedback records drafted; complete headers and storage-failure bindings remain.
 - CompuServe appendix: population, names, initial preferences and extra pregame
   commands introduced; remaining differences and complete command amendments remain.
 - Examples: resources, scans/reports, tractor, movement, construction, capture,

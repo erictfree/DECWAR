@@ -375,7 +375,7 @@ HELP without arguments lists general topics. `*` lists visible commands; other
 tokens are matched first against visible main commands, then extra help topics.
 Ambiguity is diagnosed in the applicable search. Privilege changes which starred
 commands are offered. HELP is rejected under red alert before its temporary
-ship-removal path. The special initial startup HELP dialogue belongs to the
+information activity. The special initial startup HELP dialogue belongs to the
 session rules, which are still being rewritten.
 
 NEWS reads its asset and requests YES confirmation at a section separator

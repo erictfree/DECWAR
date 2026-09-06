@@ -137,6 +137,9 @@ The galaxy contains 75 rows and 75 columns of sectors. Increasing the vertical
 coordinate moves upward; increasing the horizontal coordinate moves rightward.
 A sector can contain a ship, base, planet, star or black hole, or be empty.
 The Romulan is a separate autonomous ship, not a player commission.
+During HELP or GRIPE, a ship can retain its commission and position while its
+sector has a different temporary interaction kind, as defined in
+[session activities](session-rules.md#temporary-information-activities).
 
 Austin supports eighteen captains, nine per faction. Ship-name resolution
 examines Federation ships in the order below, then Empire ships in that order.
@@ -198,7 +201,7 @@ record Ship:
     id: ShipId
     name: Text
     team: Team
-    position: Position
+    position: Optional<Position>
     captain: Optional<CaptainId>
     commissioned: Boolean
     energy: Energy

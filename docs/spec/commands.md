@@ -1589,3 +1589,214 @@ The command ignores trailing arguments and changes no game resources, scores or
 turn counts. Its availability before commissioning does not create a ship.
 
 **Source basis:** [DEBUG and timing observations](../../legacy/utexas/WARMAC.MAC#L3600).
+
+## HELP
+
+### Syntax and operation
+
+```text
+HelpCommand ::= "HELP" {HelpTopic | "*"}
+HelpTopic   ::= CommandName | ExtraTopic
+ExtraTopic  ::= "CTL-C" | "INTRO" | "HINTS" | "INPUT"
+             | "OUTPUT" | "PAUSES" | "PREGAME"
+
+operation ReadHelp(captain: CaptainId, topics: Sequence<Text>)
+    on GameState -> Finished | Rejected(RedAlert)
+```
+
+HELP is available before commissioning and during play. If the captain has an
+acting ship under RED alert, reject before displaying help or changing its
+activity. Otherwise begin the temporary information activity defined in
+[session rules](session-rules.md#temporary-information-activities).
+
+### Topic selection and observations
+
+With no topics, display the general help instructions and extra-topic list.
+This includes how to request a command list and how to ask about a command;
+it does not implicitly select INTRO. The startup dialogue's HELP response is
+separate: it displays both general help and the command list.
+
+With topics, process each in input order. An asterisk requests the visible
+main-game command list. For another topic, first match visible main-game command
+names using ordinary abbreviation and ambiguity rules. A nonprivileged captain
+sees the 31 ordinary commands; privilege adds *DEBUG and *PASSWORD. The list
+and matching order are those of the main-game grammar, including in pregame.
+
+An ambiguous command name produces the ambiguity diagnostic and matching names;
+do not then try extra topics. If no command matches, search the extra topics
+in the grammar above. A unique match requests that topic's text. An unknown
+extra topic produces `I don't know the term ` followed by the topic; ambiguity
+produces the corresponding ambiguity report. A failed topic does not discard
+reports from preceding topics or prevent processing later topics.
+
+A requested section uses the help-content binding defined in
+[information resources](information.md#help-content). Privilege tries privileged
+help content first, falling back to standard content only if the former cannot
+be opened. A missing section in an opened privileged resource does not trigger
+that fallback. Failure to open standard content reports `Can't read help file`;
+a missing section reports `%Can't find help on ` followed by the resolved topic.
+
+### State effects and completion
+
+HELP charges no energy, awards no points and completes no turn. Topic output
+counts as activity for a commissioned ship. On return, end the temporary
+information activity and resume command acquisition in the same session phase.
+Other world activity is not suspended.
+
+Ctrl-C and the output-stop control terminate the currently displayed section
+at a line boundary. A section exit clears those controls, so subsequent topics
+in the same HELP command can still be processed. A control detected between
+topics ends topic processing. This distinction does not imply a new command
+or a universal whole-command cancellation rule.
+
+**Source basis:** [HELP and topic matching](../../legacy/utexas/WARMAC.MAC#L4134),
+[section output](../../legacy/utexas/WARMAC.MAC#L4222),
+[extra topics](../../legacy/utexas/DECWAR.FOR#L471),
+[startup HELP](../../legacy/utexas/SETUP.FOR#L76).
+
+## NEWS
+
+### Syntax and operation
+
+```text
+NewsCommand ::= "NEWS"
+
+operation ReadNews(captain: CaptainId)
+    on GameState -> Finished | Stopped | Unavailable
+```
+
+NEWS is available before commissioning and during play, including under RED
+alert. Trailing command arguments do not select a section or answer a later
+continuation prompt. Failure to open the news content yields `Unavailable`
+and the diagnostic `Can't read DECWAR.NWS`.
+
+### Observations and state effects
+
+Display the news content in its supplied order, using the text and continuation
+boundaries defined by [the news binding](information.md#news-content). At each
+continuation boundary, enable terminal output and prompt:
+
+`Do you want to continue viewing the news file? `
+
+Obtain a reply through ordinary command-input continuation. A slash-separated
+remainder, such as YES in `NEWS / YES`, can supply it without another physical
+line. A YES match, including an ordinary accepted abbreviation, continues; every other reply stops viewing. The separator dot itself is not
+part of the displayed news. End of content yields `Finished`; refusal or a
+stop control yields `Stopped`.
+
+Ctrl-C or the output-stop control stops viewing at a line boundary. Clear those
+controls on exit and restore command input. News output counts as activity for
+a commissioned ship. NEWS does not start HELP's temporary sector state: the
+ship remains present normally, subject to ordinary concurrent world events.
+
+NEWS changes no resources or scores and completes no turn. Elapsed time spent
+reading does not stop other captains or make the reader immune to attacks.
+
+**Source basis:** [NEWS](../../legacy/utexas/WARMAC.MAC#L3811),
+[supplied news](../../legacy/utexas/HLP/DECWAR.NWS).
+
+## GRIPE
+
+### Syntax and operation
+
+```text
+GripeCommand ::= "GRIPE"
+
+operation SubmitFeedback(captain: CaptainId)
+    on GameState -> Recorded | Cancelled
+                 | Rejected(RedAlert) | StorageFailure
+```
+
+GRIPE is available before commissioning and during play. If the acting ship is
+under RED alert, reject without beginning feedback input or changing its activity.
+Otherwise begin the temporary information activity defined in the session rules.
+Trailing command tokens do not supply the feedback body.
+
+### Input and observations
+
+Prompt `Enter gripe, end with ^Z` and acquire lines using the ordinary line
+editor. Preserve the acquired characters and their case. Input ends at Ctrl-Z
+or after twenty lines. Ctrl-C cancels the submission.
+
+After the eighteenth complete line, report `[Only 2 more message lines allowed]`.
+After the twentieth, report `[Too many lines -- end of gripe]` and finish input
+without another line prompt. Complete lines have line endings in the feedback
+record. A nonempty final line terminated by Ctrl-Z also receives a line ending.
+
+An immediate Ctrl-Z with no characters or preceding lines cancels an empty
+submission. Earlier complete blank lines still count as submitted lines; they
+do not turn a later Ctrl-Z into the immediate-empty case. Completing input counts
+as activity for a commissioned ship.
+
+### State effects and completion
+
+Successful recording adds a new feedback record ahead of every existing record,
+leaving their relative order unchanged:
+
+```text
+after(feedbackRecords)
+    == [newRecord] followed by before(feedbackRecords)
+```
+
+The record contains session metadata, the acquired body and a closing separator,
+as defined in [feedback records](information.md#feedback-records). It does not
+change gameplay scores or create a radio message. Recording charges no energy
+and completes no turn.
+
+If the feedback resource is being modified, report the retry diagnostic and
+retry after three seconds. Ctrl-C during this wait cancels. An open or old-record
+read failure produces its corresponding diagnostic and returns `StorageFailure`.
+A failed write also produces a diagnostic and is not a `Recorded` outcome; its effect on partially written
+persistent content remains a storage-binding question. Insufficient resources
+while acquiring or assembling a body can produce further diagnostics; whether
+a partial record is subsequently retained remains an unresolved failure case.
+
+On every return after input begins, restore terminal output, end the temporary
+information activity and clear the input-cancellation condition. Return to
+command acquisition in the same session phase. Cancellation before recording
+adds no feedback record.
+
+**Source basis:** [GRIPE input](../../legacy/utexas/WARMAC.MAC#L3858),
+[recording and cleanup](../../legacy/utexas/WARMAC.MAC#L4050),
+[line limit and retry interval](../../legacy/utexas/WARMAC.MAC#L470),
+[record header](../../legacy/utexas/WARMAC.MAC#L2116).
+
+## QUIT
+
+### Syntax and operation
+
+```text
+QuitCommand ::= "QUIT"
+
+operation Quit(captain: CaptainId)
+    on GameState -> SessionEnded | Continued
+```
+
+Before commissioning, QUIT ends the session without confirmation or a ship-score
+report. It does not obtain or release an active commission on that path.
+
+During play, discard pending command input and request confirmation with the
+ordinary `Do you really want to quit? ` prompt. Read a new reply; YES under the ordinary
+keyword-matching rule confirms. Every other reply yields `Continued` and resumes
+command acquisition. Thus `QUIT YES` on a single acquired line does not itself
+confirm quitting. If the connection is already lost, bypass confirmation and
+follow the accepted-quit path.
+
+### Accepted state effects and observations
+
+Display final POINTS for the acting ship, both factions and, when enabled, the
+Romulan. The report reads committed scores under the POINTS rules; QUIT is not
+an additional turn that commits pending score or triggers automatic defenses.
+
+Then perform [ReleaseCommission](session-rules.md#releasing-a-commission) and
+end the session. The result is `SessionEnded`. Other captains remain in their
+current sessions; quitting is not a world-termination command. If this was the
+last commission, the shared world-retention rule applies.
+
+A declined confirmation has no release, score, energy-charge or turn consequence. Discarded command input is not restored. Final ratios with zero denominators and the complete behavior of a
+reporting failure remain unresolved with the score/environment binding.
+
+**Source basis:** [confirmation](../../legacy/utexas/DECWAR.FOR#L134),
+[final score and exit](../../legacy/utexas/DECWAR.FOR#L290),
+[release](../../legacy/utexas/DECWAR.FOR#L1082),
+[pregame exit](../../legacy/utexas/SETUP.FOR#L112).

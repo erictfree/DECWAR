@@ -87,6 +87,9 @@ consequences without prescribing how a new implementation realizes them.
 | commands.md | Each command's syntax, preconditions, state changes, outputs and completion. |
 | world-rules.md | Shared paths, towing, damage, scoring and installation transitions. |
 | turns.md | Time, automatic repair, action accounting and command completion. |
+| communication.md | Message operations, audiences, consumption and capacity. |
+| session-rules.md | Session phases, commission and lifecycle operations. |
+| information.md | Help/news bindings and feedback-record semantics. |
 | language-conformance.md | Initial conditions, inputs and expected abstract state changes. |
 | variants.md | CompuServe amendments expressed in the same abstract vocabulary. |
 | language-coverage.md | Conversion progress and remaining dependencies, outside the book. |

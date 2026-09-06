@@ -128,6 +128,34 @@ defense phases. Other ships and installations do not alter the stated result.
 | EX-MODEL-115 | Same capacity state, but acquired TELL body is one character | Capacity loss can precede No message sent. No new message is published, and lost backlog is not restored. |
 | EX-MODEL-116 | A message was displayed earlier; subsequent reception obtains none | NoMessage outcome; do not display the previous body again. |
 | EX-MODEL-117 | TELL ROMULAN with no other recipients | No recipient remains; diagnose that fact. No message prompt or autonomous reply. |
+| EX-MODEL-118 | Ship under RED alert; HELP | Reject before topic output or temporary sector activity. Ship state and turn count are unchanged. |
+| EX-MODEL-119 | Ship under GREEN alert; HELP, with another captain scanning its sector during output | The sector is observed as a black hole; the ship remains commissioned with its original resources. On ordinary completion, ship presence returns. |
+| EX-MODEL-120 | Nonprivileged captain in pregame; HELP * | List the 31 ordinary main-game commands. Do not substitute the pregame table or expose *DEBUG and *PASSWORD. |
+| EX-MODEL-121 | Privileged captain; HELP * | List all 33 main-game commands, in main-table order. |
+| EX-MODEL-122 | HELP IN | No main command matches; INTRO and INPUT make the extra-topic match ambiguous. Report ambiguity rather than choosing one. |
+| EX-MODEL-123 | HELP H with accessible HELP content | Match the main command HELP before considering HINTS. Display the HELP section. |
+| EX-MODEL-124 | HELP BOGUS SCAN with available SCAN content | Report the unknown first topic, then display SCAN. The error does not discard later topics. |
+| EX-MODEL-125 | Privileged help resource opens but lacks SCAN; standard resource has SCAN; HELP SCAN | Report the missing section. Do not fall back merely because a section is absent. |
+| EX-MODEL-126 | Privileged help resource cannot open; standard resource contains SCAN; HELP SCAN | Use the standard resource's SCAN section. |
+| EX-MODEL-127 | HELP SCAN MOVE; Ctrl-C detected at a line boundary within SCAN output | End that section and clear its stop condition; MOVE can still be displayed. A separate control detected between topics would end processing. |
+| EX-MODEL-128 | Ship under RED alert; NEWS with accessible content | Viewing is allowed. The ship retains ordinary sector presence and completes no turn. |
+| EX-MODEL-129 | News contains first line, LF, dot, second line; reply YES at continuation | Display the first line and LF, prompt once, omit the dot, then display the second line. |
+| EX-MODEL-130 | Same news; reply NO | Stop after the prompt. Do not display the second line. |
+| EX-MODEL-131 | News starts with a dot and has no preceding line boundary | Display the leading dot as ordinary content; it does not itself request confirmation. |
+| EX-MODEL-132 | Ship under RED alert; GRIPE | Reject before body acquisition or temporary sector activity. No feedback record is added. |
+| EX-MODEL-133 | GRIPE; immediate Ctrl-Z with no characters | Cancel. Add no record; restore any temporary information activity. |
+| EX-MODEL-134 | GRIPE; one complete blank line, then Ctrl-Z | Record the blank line with context and separator. This is not the immediate-empty cancellation case. |
+| EX-MODEL-135 | GRIPE; twenty complete lines | Warn after line eighteen; report the limit at line twenty and finish without a twenty-first line. |
+| EX-MODEL-136 | Existing feedback records A then B; successful submission C | Feedback order becomes C, A, B. No radio message or game score is created. |
+| EX-MODEL-137 | Feedback resource reports being modified; Ctrl-C during retry wait | Cancel recording and restore information activity; do not add the submitted record. |
+| EX-MODEL-138 | Active captain types QUIT YES, then NO at the fresh prompt | Continue playing. The inline YES did not confirm; no release, turn or final score report occurs. |
+| EX-MODEL-139 | Pregame captain; QUIT | End the session without a confirmation prompt or a ship-score report. |
+| EX-MODEL-140 | Active captain confirms QUIT; final report succeeds; ship participates in a tractor beam | Report committed final scores, release the beam and commission, discard that ship's unread notifications and end the session. No turn. |
+| EX-MODEL-141 | Last participant leaves an unterminated galaxy at elapsed time 100 seconds | Retention deadline becomes 400 seconds. An eligible arrival before that deadline can reuse the galaxy. |
+| EX-MODEL-142 | Same empty galaxy; admission begins at elapsed time 400 seconds | The expired galaxy is reinitialized under admission rules; retention does not extend merely because it was still stored. |
+| EX-MODEL-143 | Ten recent-commission records in insertion order; oldest matching identity departs again | Update that record in place. The next previously unseen identity still replaces the oldest inserted record. |
+| EX-MODEL-144 | Returning session has the same display name and terminal as a recent departure but a different account/execution pair | That history entry does not match. Display name and terminal alone do not establish return identity. |
+| EX-MODEL-145 | News has a continuation boundary; acquired command line is NEWS / YES | The slash remainder supplies the continuation reply. An additional physical input line is not required for that boundary. |
 
 EX-MODEL-06 deliberately uses fractional shield strength. Historical loss of
 that fraction is excluded by the numerical normalization policy. The grammar,
