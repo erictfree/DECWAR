@@ -3153,3 +3153,23 @@ Reviewed physical pages 18–20, 136, 201 and 211 (page 18 unchanged by the tabl
 reorder). Source-order checks passed in `logs/spec-coordination-source-review.log`;
 source audit passed in `logs/spec-coordination-audit.log`. No executable/archive
 changes or proof of full scheduler behavior. Full specification goal stays active.
+
+### Specification checkpoint: command acquisition and elapsed waiting
+
+Defined Austin main-command acquisition as a typed operation, including ordered
+prompt checks, pending combat/radio delivery, prior command delay, input readiness,
+and the distinct early-pending and post-token interrupt paths. Defined elapsed
+waiting with its initial duration cap and early-return continuation. Recorded the
+CompuServe waiting amendment without importing Austin coordination semantics.
+These are specification changes only; transport bindings and remaining lifecycle
+questions stay explicit.
+
+Validation: `logs/spec-command-control-build-reviewed.log` passes with 100 EBNF
+productions, 12 terminal categories, 615 scenario rows, 14 chapters, 488 local
+links and 324 source-verified message fragments. The 213-page PDF was visually
+checked at physical pages 112, 138–140, 203–204 and 213 for the changed sections.
+`logs/spec-command-control-source-review.log` records source-order checks;
+`logs/spec-command-control-audit.log` verifies preserved source hashes and data.
+Scenario validation is structural, not original-executable behavioral parity.
+Remaining work includes availability/reentry, output contracts, concurrency and
+whole-specification consistency review.

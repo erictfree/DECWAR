@@ -26,7 +26,9 @@ The ordinary command reader MUST ignore carriage return. Line feed, vertical tab
 form feed, NUL, Ctrl-Z and ESC terminate an acquired line when delivered to this
 reader. Ctrl-C has an end-of-line classification but also an interrupt path; it
 must not be specified solely as ordinary text. Its cancellation and interruption
-effects will be defined in the session rules.
+effects at main-command acquisition are defined by the
+[session control rules](session-rules.md#main-command-acquisition-and-control);
+argument and message readers have their own cancellation contracts.
 
 At most 80 ordinary characters are retained per newly acquired line. Reaching
 that limit completes the line without waiting for an additional terminator.

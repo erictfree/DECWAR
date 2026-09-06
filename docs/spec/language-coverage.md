@@ -164,3 +164,14 @@ Admission explicitly ends coordination before the selected ship is reserved.
 These constrain traces; they do not complete all racing-claim, interrupted,
 reentrant or stale-observation cases. CompuServe's distinct coordination is
 marked as an unfinished amendment, not an implicit inheritance of Austin rules.
+
+
+### Command-acquisition control checkpoint
+
+Main-command acquisition now states prior-delay handling, ordered hull/energy/
+world checks, the YELLOW assignment, notice-before-radio delivery, ordinary
+readiness waits and command matching. It distinguishes interrupt delivery during
+token acquisition from an already-pending interrupt/disconnect at the wait
+boundary. Nested delivery, read-time disconnect, environment availability and
+final-report failures remain explicit binding questions. This does not import
+the playable host's control repair into the Austin contract.

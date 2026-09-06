@@ -1446,3 +1446,37 @@ Source: Austin WARMAC.MAC 3768–3795, 2603–2722, 1394–1405, 3372–3406,
 failed-monitor and cross-galaxy behavior remain binding questions. CompuServe
 has a distinct resource/release scheme and is explicitly not assigned Austin's
 coordination contract. No gameplay or immutable source changes.
+
+
+## Main-command acquisition and control timing
+
+Expressed GETCMD as an operation returning a named command with its existing
+CommandInput value, or ending a commission/galaxy. Preserved prior-delay
+consumption, combat-before-radio delivery, hull-before-energy checks and
+low-energy YELLOW assignment before prompting. Separated a control event
+reported by token acquisition from an indication already pending at the earlier
+wait boundary; the latter can cycle without selecting QUIT. No cancellation
+repair, fairness or idle autonomous turn was introduced.
+
+The inactive cleanup counters are not new game clocks or scoring quantities:
+the only periodic DSHIP call at that wait boundary is inactive in the selected
+source. No unused counter or machine flag layout was added to the game ADT.
+The statement concerns game effects of the wait, not unknown monitor accounting
+or hidden host scheduling. Source: Austin DECWAR.FOR GETCMD 1184–1274 and
+QUIT 134; PARAM.FOR KCMDTM; WARMAC.MAC GTKN 1385. Full event delivery and final
+report/exit failures remain distinct binding questions. No runtime changes.
+
+The command-acquisition clause now references an explicit WaitElapsed operation:
+nonpositive requests return immediately; positive requests are capped at ten
+seconds initially, with one-second requests after early wakeups until the
+observed deadline. This is elapsed suspension, not automatic game turns or an
+exact scheduler promise. The rule is limited to nondiscontinuous clock readings;
+rollover and failed suspension remain binding questions. Source: Austin
+WARMAC.MAC 3372–3406. No old time-unit packing or host wait instruction is
+required by the operation contract.
+
+CompuServe's coordination-amendment status explicitly excludes Austin's
+no-release-during-wait rule: positive PAUSE and fresh GTKN acquisition release
+and reacquire the remembered resource. This does not complete the CompuServe
+resource selection, failed suspension or reacquisition binding. Source:
+CompuServe WARMAC.MAC 1679–1690 and 4010–4042.

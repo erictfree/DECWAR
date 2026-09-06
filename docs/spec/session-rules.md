@@ -529,6 +529,122 @@ all concurrent sector effects to the final position or restoring a lost commissi
 [GRIPE entry and return](../../legacy/utexas/WARMAC.MAC#L3858),
 [temporary sector state](../../legacy/utexas/WARMAC.MAC#L4379).
 
+## Main-command acquisition and control
+
+This operation applies to an ACTIVE session with an associated ship. It is
+separate from command-argument prompts, the entry-name reader and message-body
+input; those readers retain their own cancellation rules.
+
+```text
+type MainCommandName = a name in the main-game command table
+
+type MainCommandSelection = {
+    command: MainCommandName;
+    input: CommandInput;
+};
+
+operation AcquireMainCommand(actor: ShipId, previousDelay: Duration):
+    Selected { value: MainCommandSelection } | QuitRequested
+    | CommissionReleased | GalaxyEnded
+```
+
+MainCommandName denotes the finite set in [command selection](grammar.md#gram-2--command-selection).
+It is not an arbitrary operating-system command or an additional input category.
+A Selected result identifies a typed command and its acquired arguments; it
+does not execute that command. QuitRequested instead requests the existing QUIT
+operation and its confirmation/disconnection rules, without inventing an acquired
+input line. Both are dispatch results, not new user commands.
+
+### Entry and prompt checks
+
+On entry, end the session's remaining coordination. Deliver pending combat
+notices before pending radio messages, enable ordinary output for each delivery,
+and flush pending output. Then honor previousDelay unless the captain is
+privileged, using [WaitElapsed](turns.md#elapsed-waiting). Consume that prior delay
+once; retries within this acquisition do not apply it again.
+
+Before each prompt, request a conditional blank line and check the participating
+sessions' continued availability. Then apply these checks in order:
+
+1. If the actor's hull damage is at least 2500 damage units, perform final score
+   reporting and release its commission; return CommissionReleased.
+2. Otherwise, if its energy is at most zero, emit the out-of-energy report and
+   follow that same final-report/release path.
+3. Otherwise, energy at most 1000 units sets the actor's condition to YELLOW.
+   Emit the yellow-alert indication when its resulting condition is YELLOW.
+4. Enable output and perform the ordinary world-termination check. A terminating
+   check takes precedence over displaying another command prompt.
+5. Clear the pending interrupt indication for this new prompt, emit the selected
+   command prompt and flush it.
+
+The low-energy assignment can replace RED with YELLOW at this boundary. It does
+not raise low energy, repair damage or change shield state. No prompt check or
+input wait completes a turn or invokes periodic defenses merely because time
+has passed. Final-report failure and session-availability checks still require
+their complete environment/lifecycle bindings; a prompt does not certify an
+atomic snapshot of all sessions.
+
+### Waiting and ordinary input
+
+At the start of each wait, end the session's remaining coordination. With no
+already-pending interrupt or disconnect, request input readiness for an interval
+of 2000 milliseconds. This is a readiness wait, not a mandatory delay after
+input becomes available. The environment may report readiness sooner.
+
+After an interval without input, deliver any pending combat notices before
+radio messages. If either kind was pending, return to the prompt checks after
+delivery. Otherwise check world termination and wait again without printing
+another prompt. Waiting does not create an autonomous game turn, an idle-ship
+attack or a periodic cleanup action.
+
+When input is ready, a disconnect already observed at that point returns QuitRequested.
+Otherwise acquire tokens using the ordinary lexical reader. If no interrupt
+is pending when that acquisition returns, zero-token input returns to the prompt
+checks. Nonempty input uses the ordinary main-command matching rules. Unknown
+or ambiguous input emits its diagnostic and, outside SHORT output, the help
+hint, then returns to the prompt checks. A unique match returns Selected.
+
+### Interrupt timing and QUIT selection
+
+An interrupt observed when token acquisition returns has these effects:
+
+| Actor condition then | Effect |
+| --- | --- |
+| RED | Emit fragment(noquit), discard pending command input and return to the prompt checks. Do not select QUIT on this path. |
+| Any other condition | Return QuitRequested under the ordinary QUIT operation contract. |
+
+The RED restriction applies to this interrupt path. An explicitly typed QUIT
+still follows the QUIT command's own rule; this section does not add a RED
+precondition to that command. A disconnect detected after an input-readiness
+wait that returned without input also returns QuitRequested. Disconnected QUIT bypasses
+confirmation under its existing contract.
+
+An interrupt or disconnect **already pending at the start of a wait** follows
+a different path: perform the pending-notice and world-end checks used after a
+no-input interval, without selecting QUIT at that boundary. That path does not
+clear the pending indication. If no notices lead back to the prompt checks and
+world termination does not end the operation, the same wait boundary can be
+revisited with the indication still pending. No eventual cancellation or
+disconnection cleanup is guaranteed by this path.
+
+These distinctions describe delivered control events, not every physical
+keystroke a client might intercept. They do not prescribe a signal handler or
+an interrupt-counter representation. A transport binding must distinguish the
+timing of delivered control from client-local handling. The playable port's
+control repair is separate from this Austin source contract.
+
+**OPEN QUESTION:** Complete nested-control delivery, disconnection during token
+acquisition, failures during final reporting and the continuation after an
+environment interruption remain binding questions. This chapter does not
+replace the already-pending path with an invented automatic quit or timeout.
+
+**Source basis:** [entry, prompting and wait boundaries](../../legacy/utexas/DECWAR.FOR#L1184),
+[ready-input and interrupt paths](../../legacy/utexas/DECWAR.FOR#L1230),
+[final score/release](../../legacy/utexas/DECWAR.FOR#L1258),
+[QUIT operation](../../legacy/utexas/DECWAR.FOR#L134),
+[readiness interval](../../legacy/utexas/PARAM.FOR#L31),
+[token acquisition](../../legacy/utexas/WARMAC.MAC#L1385).
+
 ## Releasing a commission
 
 ```text

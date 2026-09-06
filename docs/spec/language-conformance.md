@@ -593,6 +593,15 @@ defense phases. Other ships and installations do not alter the stated result.
 | EX-MODEL-580 | Captain A is in admission's faction/ship-choice dialogue after successful WORLD_CHANGE entry | Waiting for the reply does not by itself end A's coordinated phase. A prompt inside admission is not ordinary command acquisition. |
 | EX-MODEL-581 | Captain A has selected an available ship; admission reaches its ordinary phase end, before clearing that ship's score or establishing the commission | Selection has not atomically reserved the ship. The draft does not declare A the winner of a subsequent racing claim or invent a destination/availability recheck. |
 | EX-MODEL-582 | Captain A retains coordination; another captain B returns to ordinary command acquisition | B's remaining coordination ends. A's phase does not end merely because B reached that boundary. |
+| EX-MODEL-583 | Main-command prompt checks; actor has hull damage 2500 and energy zero | Take the fatal-hull final-report/release path first; do not emit the separate out-of-energy report from the later check. |
+| EX-MODEL-584 | Actor RED with energy 1000, nonfatal hull; world continues; main-command prompt checks | Set condition YELLOW before displaying the prompt. Do not repair hull, energy or shields. |
+| EX-MODEL-585 | Interrupt pending when token acquisition returns; actor condition RED at that point | Emit the cannot-quit report, discard pending input and return to prompt checks. Do not request QUIT through this interrupt path. |
+| EX-MODEL-586 | Interrupt pending when token acquisition returns; actor condition GREEN | Return QuitRequested. The ordinary QUIT confirmation rule still applies if connected. Do not fabricate a user-entered command line. |
+| EX-MODEL-587 | Interrupt already pending at the earlier wait boundary; no pending notices and world does not end | Follow the notice/world-check cycle and revisit the wait boundary with the indication still pending. No eventual QUIT or cancellation guarantee follows. |
+| EX-MODEL-588 | Both combat notices and radio messages are pending on entering main-command acquisition; prior delay positive; unprivileged captain | Deliver combat notices before radio messages, flush output, then handle the prior delay once. No wait itself completes a turn. |
+| EX-MODEL-589 | WaitElapsed requested zero or a negative duration | Return immediately with no suspension request and no game turn, repair, random draw or coordination release. |
+| EX-MODEL-590 | WaitElapsed requested 20000 ms; continuous clock; initial suspension returns at the established deadline | Request 10000 ms initially and return after the deadline check. Do not require an additional ten-second wait. |
+| EX-MODEL-591 | WaitElapsed requested 2000 ms; initial clock zero; suspension returns early at 1500 ms, next return is at 2500 ms | Request 2000 ms, then 1000 ms, and finish after the second return. No fractional second request is substituted to force an exact deadline. |
 
 EX-MODEL-06 deliberately uses fractional shield strength. Historical loss of
 that fraction is excluded by the numerical normalization policy. The grammar,

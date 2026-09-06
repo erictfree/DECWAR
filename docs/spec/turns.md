@@ -324,8 +324,42 @@ nonpositive energy or fatal hull damage ends the commission through the session
 rules. A command's immediate condition setting can therefore differ from the
 condition at its next prompt.
 
-The complete interleaving rules for incoming combat, cancellation, disconnection
-and messages during waits remain unfinished. Nothing in these algorithms makes
+The [main-command acquisition rules](session-rules.md#main-command-acquisition-and-control)
+define the prompt and control boundaries. Complete interleavings during delivery
+and environment interruptions remain unfinished. Nothing in these algorithms makes
 all of a command's steps one indivisible transaction.
 
 **Source basis:** [command acquisition](../../legacy/utexas/DECWAR.FOR#L1184).
+
+## Elapsed waiting
+
+```text
+operation WaitElapsed(requested: Duration): Unit
+```
+
+WaitElapsed supplies the elapsed-time suspension used by command delays. It does
+not complete a game turn, repair a device, advance a weapon deadline or release
+coordination. A separate command rule can bypass a particular wait, as privilege
+does for the previous-command delay at main-command acquisition.
+
+For requested at most zero, return immediately without requesting suspension.
+Otherwise let duration be the smaller of requested and 10000 milliseconds. Read
+the environment's elapsed clock and establish a deadline duration after that
+reading. Request suspension for duration. Whenever suspension returns, read the
+same clock. If it is before the deadline, request another 1000 milliseconds of
+suspension and repeat the clock check; otherwise return Unit.
+
+Thus a requested 20000-millisecond delay initially requests only 10000
+milliseconds. An early wakeup does not necessarily finish the operation. The
+extra one-second requests can overshoot the deadline; neither the requested
+interval nor the deadline guarantees an exact resumption instant. Waiting can
+also last longer because the environment resumes the session late. The operation
+makes no random choice and does not rescale the requested duration into turns.
+Other sessions can act during the wait, subject to existing coordination.
+
+The rule describes ordinary clock observations without a discontinuity during
+the wait. Clock rollover, discontinuity, failed suspension and interrupted
+continuation remain environment-binding questions. It does not imply a FIFO
+scheduler, a real-time execution guarantee or automatic cancellation by Ctrl-C.
+
+**Source basis:** [PAUSE](../../legacy/utexas/WARMAC.MAC#L3372).

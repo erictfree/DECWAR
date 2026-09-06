@@ -399,7 +399,15 @@ scope. Its waiting and interruption rules need a separate amendment. Do not
 infer the Austin two-domain relation or nested release behavior merely because
 both variants use the same game operations.
 
-**Source basis:** [CompuServe coordination and release](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L4462).
+Positive elapsed waits and fresh input acquisition in CompuServe also release
+and subsequently reacquire a remembered coordinated resource when one is present.
+They do not inherit Austin's rule that waiting alone retains coordination. The
+complete resource-selection, failed-wait and reacquisition contract remains part
+of this amendment; no claim that all resources are released together follows.
+
+**Source basis:** [CompuServe waiting](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L4010),
+[fresh input](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L1679),
+[CompuServe coordination and release](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L4462).
 
 ## Remaining amendments
 
