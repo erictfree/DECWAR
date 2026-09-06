@@ -5,6 +5,46 @@ matrix](coverage.json) measures source analysis, not completion of this rewrite.
 The distinction matters: retaining a researched rule in a companion file does
 not make it a complete language-level definition in the assembled book.
 
+
+## Requirement-level review — September 6, 2026
+
+This review uses the included files in [book.json](book.json), the deliverables
+and completion criteria in [PLAN.md](PLAN.md), and the actual validation scope
+in [the builder](../../tools/spec/build.ts). It does not classify the whole goal
+as complete. A source citation establishes traceability, not automatically a
+correct or complete semantic contract.
+
+| Requirement | Current authoritative evidence | Completion finding / remaining proof |
+| --- | --- | --- |
+| Concrete plan and scope | PLAN; README scope clauses; book manifest | Present. The scope remains all command families and cross-cutting semantics, not only the latest checkpoints. |
+| Austin authority and separate CompuServe amendments | README pins Austin revision; variants is the sole appendix; NORMALIZATION is outside the manifest | Structure established. Review every amendment against its affected core clause; full variant lifecycle, standings and presentation are unfinished. |
+| Modern ADTs and ordinary arithmetic | language-model types/notation; operation signatures throughout commands and shared chapters | Drafted. Whole-book property/type references and invariants still need review. No checker currently proves type consistency. |
+| Lexical syntax and interactive grammar | lexical; grammar; grammar checker verifies 100 productions and 12 terminal categories | Reference integrity checked. Missing torpedo counts, incomplete pairs and special empty continuations remain unresolved; this is not parser acceptance verification. |
+| Every command and pregame entry | commands has all 33 main commands; builder compares main and pregame tables to source coverage | Inventory and drafted contracts established. Source-table agreement alone does not prove each argument, failure and lifecycle path has a complete contract. |
+| Game transitions and scoring | commands, world-rules, turns and autonomous | Substantial source-derived contracts. Terrain report fallthrough, autonomous target edge domains and intermediate concurrent effects still need disposition. |
+| Multiplayer ordering and timing | coordination domains; communication operations; turn and elapsed-wait rules; main-command acquisition | Phase boundaries and many ordered effects specified. Reentrancy, racing claims, interrupted operations and full delivery bindings remain incomplete. |
+| Session/configuration/lifecycle | session-rules admission, preferences, release, history, world end and SavedShipCondition | Drafted with explicit gaps. Saved values do not establish a working continuation; concurrent admission, final-report failure and interrupted lifecycle need resolution. |
+| Randomness and reproducibility | world-rules RandomEvent, distributions, conditional draws and tournament mapping | Abstract contracts present. Finite-source acceptance and complete event ordering for replay are not yet established. |
+| Observable output | presentation; information; 324 named fragments verified against Austin | Many report recipes and literal fragments reviewed. Terrain, full terminal editing/transport, remaining command responses and resource failures prevent terminal-conformance claims. |
+| Conformance examples and claims | language-conformance has 616 scenario rows; README limits claims | Examples present. Builder checks table structure and duplicate IDs, not their expected results. Formal game-semantics versus terminal profile criteria and final scenario coverage are still needed. |
+| Single assembled publication and attribution | manifest metadata; builder; output PDF/Markdown/LaTeX | Build mechanism and credited draft exist; recent changed pages were visually checked. Final whole-document editorial/layout review remains required after substantive edits finish. |
+| Evidence, normalization and runtime preservation | source links; NORMALIZATION; WORK_LOG; source audit | Evidence organization established; recent changes are documentation only. Repeat archive audit and verify final diff at publication; current partial checks are not whole-goal proof. |
+
+The recent source checks closed specific gaps: command acquisition, elapsed
+waiting, inactive prompt availability scanning, saved condition values, POINTS
+presentation, absence messages and report-section boundaries. They did not
+close all lifecycle or terminal requirements. Earlier chronological entries
+below remain checkpoint history; this table and the current command matrix
+identify the remaining work.
+
+Next review priorities are (1) resolve or explicitly delimit terrain and special
+input paths without inventing behavior, (2) complete the variant amendments,
+(3) finish concurrency/lifecycle dispositions and conformance-profile criteria,
+and (4) conduct whole-book type, source, example and layout review. Source facts
+that cannot define generalized behavior must be identified precisely; they must
+not be replaced by undocumented playable repairs.
+
+
 ## Converted command clauses
 
 All 33 main-game commands now have drafted grammar and ADT operation contracts. The
@@ -133,8 +173,11 @@ coverage does not establish lifecycle, concurrency or terminal conformance.
   TIME durations, TYPE preference/option lines, USERS identity rows/headings and
   complete scan-grid axes/rows
   now compose their typed report values. LIST-family detail and summary lines
-  use recorded affiliation and visible telemetry; grouped separators and terrain/absence
-  output still need complete rules. Complete control/transport behavior
+  use recorded affiliation and visible telemetry; selection-dependent section
+  boundaries, named/coordinate absence messages and NoMatches composition are
+  specified. POINTS headings, labels, accounting rows and numeric fields are
+  specified for defined ratios. Terrain output and zero-denominator ratios
+  still need complete rules. Complete control/transport behavior
   and remaining command/report recipes still remain; the source-analysis terminal
   chapter stays outside the book.
 - Information resources: help topic sections, news continuation boundaries and

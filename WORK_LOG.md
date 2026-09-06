@@ -3246,3 +3246,17 @@ TARGETS branch structure. `logs/spec-report-boundaries-build.log` passes;
 physical PDF pages 158 and 160 were visually inspected. Terrain fallthrough,
 concurrent reporting and interrupted output remain separate open work. Runtime
 and archive files unchanged.
+
+### Specification requirement-level review — September 6
+
+Added a current requirement/evidence/completion matrix to language-coverage.md
+after reviewing the plan criteria, book manifest, scope/conformance text and
+builder. Corrected stale terminal gap summaries for recently completed report
+recipes. The matrix explicitly distinguishes source inventory, draft contracts,
+structural checks and remaining semantic proof. It retains the full goal and
+identifies variant, lifecycle/concurrency, profile and whole-book review work.
+
+`logs/spec-requirements-review-check.log` passes the document checks;
+`logs/spec-requirements-review-audit.log` verifies immutable sources/generated
+evidence. All coverage-record links resolve locally. This companion-record edit
+does not change the assembled book or gameplay and does not assert goal completion.
