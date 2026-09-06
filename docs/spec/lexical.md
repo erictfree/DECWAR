@@ -70,6 +70,23 @@ that permits spaces or separators inside a token.
 
 ## LEX-4 — Token categories
 
+```text
+enum TokenCategory = NULL | INTEGER | REAL | ALPHANUMERIC
+type InputPosition = character position within an acquired input
+
+record Token:
+    text: Text
+    category: TokenCategory
+    numericValue: real
+    origin: InputPosition
+```
+
+Token is an abstract description of input, not a required lexer object.
+The text property is the retained, transformed spelling; numericValue is the
+quantity determined below. A name-category token means ALPHANUMERIC; it does
+not introduce a fifth category. Operation parameters of type `Sequence<Token>`
+contain arguments only, excluding the command name and end boundary.
+
 A token has retained text, a category, a numeric value and an origin position in
 the acquired line. The categories are null, integer, REAL and alphanumeric.
 End of command marks the boundary after the arguments.

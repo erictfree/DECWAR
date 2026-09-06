@@ -492,3 +492,51 @@ Source: Austin DECWAR.FOR PHACON 2647–2760, TORP 4228–4425, LOCATE/RELOC
 1404–1535, PHADAM/TORDAM 4089–4224; main command dispatch 120–124 and 196–201
 with completion 230–253. The original PHACON planet hit has no LOCK call;
 this contract does not add a refusal outcome to that weapon's planet branch.
+
+
+## Scan and ship-report observations
+
+SCAN/SRSCAN now have typed requests and ScanReport observations. Marks describe
+what the report discloses, rather than returning full state objects. The unique
+roster initial identifies a ship; base marks disclose faction, planet marks
+ownership, and neither discloses damage/builds. Black holes display blank space,
+which differs from the dot for an empty sector. MARK does not replace a black
+hole with a warning. A warning area observes its sectors again, so a changing
+world can differ from the initially prepared scan. The source captures the scan
+center before those observations; discovery uses that same center, not a later
+ship position. No sensor device precondition is introduced.
+
+The source's all-ones hidden-sector sentinel is handled defensively by SETSCN
+and MARK. It is not a declared SectorObject in the generalized normal-state
+model, and the examined command paths supply no player cloaking operation.
+ESHP for HELP/GRIPE explicitly writes the ordinary black-hole code instead.
+Retain sentinel details in companion terminal/source analysis; do not add a
+concealed-ship ability or expose representation words as core scan values.
+
+Discovery completes before SHWSCN. A stop observed after a displayed row clears
+CCFLG and returns without the remaining rows or bottom labels. ScanOutcome
+therefore permits a prefix report while retaining completed team discovery.
+This defines that row-boundary behavior, not the entire asynchronous control
+and Telnet binding. The horizontal-label loop always emits its first label;
+a one-column short scan labels Hmin+1 even though that is beyond Hmax.
+
+STATUS returns an ordered stream of observations including syntax diagnostics.
+It does not use an all-or-nothing validation pass, and a non-name first argument
+does not select the no-argument default. DAMAGED radio status masks the reported
+on/off state without changing it. Hull damage is separate from device damage;
+equivalent shield energy derives from strength even when shields are down.
+DAMAGE first tests for any positive device damage, before selectors; an unmatched
+selector with damage elsewhere can yield no rows. Initial non-name arguments
+select the general report, unlike STATUS. Prefixes can match multiple device
+identifiers and repeated selectors repeat rows. These are report semantics,
+not requirements to mutate or reuse the original token buffers.
+
+Token now has named text, category, numericValue and origin properties. This
+makes Sequence<Token> inputs explicit without requiring a particular lexer data
+structure. End boundaries are excluded from argument sequences; name-category
+means the existing ALPHANUMERIC category.
+
+Source: Austin DECWAR.FOR SCAN/SRSCAN 3527–3615, STATUS 3860–3974, DAMAGE
+783–830 and device/roster data 435/489; WARMAC.MAC SETSCN 2350–2409,
+MARK 2412–2463, SHWSCN/labl. 2482–2530, ESHP/PSHP 4370–4401 and
+DISP 4403–4438. No runtime or preserved source modifications.

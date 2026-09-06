@@ -418,6 +418,52 @@ present, is the first argument. CORNER requires two integers. Other forms accept
 zero, one or two integers. Invalid categories, missing CORNER coordinates or
 extra arguments produce a syntax diagnostic; there is no continuation prompt.
 
+### Operation and observation types
+
+```text
+enum ScanVerb = SCAN | SRSCAN
+enum ScanDirection = UP | DOWN | RIGHT | LEFT | CORNER
+
+record ScanRequest:
+    verb: ScanVerb
+    direction: Optional<ScanDirection>
+    extents: Sequence<integer> containing zero to two values
+    warning: Boolean
+
+ScanMark = EmptySpace | BlankSpace | ShipMark(ship: ShipId)
+         | BaseMark(team: Team) | RomulanMark
+         | PlanetMark(owner: Optional<Team>) | StarMark | WarningMark
+
+record ScanRow:
+    vertical: Coordinate
+    cells: Sequence<ScanMark>
+
+record ScanReport:
+    bounds: Rectangle
+    rows: Sequence<ScanRow>
+
+operation Scan(actor: ShipId, request: ScanRequest)
+    on GameState -> ScanOutcome
+
+ScanOutcome = Reported(report: ScanReport)
+            | Interrupted(partial: ScanReport) | RejectedSyntax
+```
+
+Let s be `ship(game, actor)` and w be `world(game)`. The actor must have a
+position. Save that position as origin when computing the bounds; both bounds
+and discovery range use that same origin. The terminal binding supplies
+terminalWidth, a positive integer count of character columns. A request with CORNER and fewer than two extent values
+is rejected; malformed input has the same RejectedSyntax outcome. Rejection
+produces a syntax diagnostic, performs no discovery and completes no turn.
+
+The report contains observations, not copies of the objects at those sectors.
+Its rows are in decreasing vertical order. A row's cells are in increasing
+horizontal order, with one mark per sector from bounds.minHorizontal through
+bounds.maxHorizontal. A complete report includes every row of its inclusive
+bounds. An interrupted report contains only the rows emitted so far.
+
+### Spatial bounds
+
 There are four extents from the acting ship: up, down, right and left. SCAN
 starts with each extent 10; SRSCAN starts with 7. Limit that initial extent to
 the number of whole columns that fit `(terminalWidth - 9) / 4`. One explicit
@@ -431,16 +477,17 @@ value the decreasing side, and its magnitude is the extent. Zero selects neither
 side of that axis.
 
 ```text
-BoundScan(ship, up, down, right, left):
+operation BoundScan(position: Position, up: integer, down: integer,
+                    right: integer, left: integer) -> Rectangle:
     up := clamp(up, 0, 10)
     down := clamp(down, 0, 10)
     right := clamp(right, 0, 10)
     left := clamp(left, 0, 10)
     return Rectangle(
-        minVertical = max(1, ship.position.vertical - down),
-        maxVertical = min(75, ship.position.vertical + up),
-        minHorizontal = max(1, ship.position.horizontal - left),
-        maxHorizontal = min(75, ship.position.horizontal + right)
+        minVertical = max(1, position.vertical - down),
+        maxVertical = min(75, position.vertical + up),
+        minHorizontal = max(1, position.horizontal - left),
+        maxHorizontal = min(75, position.horizontal + right)
     )
 ```
 
@@ -450,33 +497,89 @@ This spatial calculation is independent of the output's SHORT or LONG format.
 
 ### Knowledge and result
 
-A successful scan reports the sectors in that rectangle. It also discovers all
-planets and surviving enemy bases within distance 10 of the acting ship,
+First observe the sectors in the resulting rectangle. Empty sectors give
+EmptySpace; black holes give BlankSpace; other SectorObject alternatives give
+the corresponding mark above. A ship mark identifies its roster ship. A base
+mark gives only faction; a planet mark gives only ownership. Scanning does not
+disclose their strength, builds, damage or captain metadata.
+
+The scan then discovers all planets and surviving enemy bases within distance
+10 of origin,
 including those outside the displayed rectangle. Discovery belongs to the
 acting team, so other captains on that team can use it.
 
 ```text
-AcquireScanKnowledge(ship, world):
-    knowledge := world.knowledge[ship.team]
-    for each planet within distance 10 of ship.position:
-        knowledge.knownPlanets :=
-            knowledge.knownPlanets union {planet.id}
-    for each surviving enemy base within distance 10:
-        knowledge.knownBases :=
-            knowledge.knownBases union {base.id}
+knowledge := w.knowledge[s.team]
+for each planet within distance 10 of origin:
+    knowledge.knownPlanets :=
+        knowledge.knownPlanets union {planet.id}
+for each surviving enemy base within distance 10 of origin:
+    knowledge.knownBases :=
+        knowledge.knownBases union {base.id}
 ```
 
 With WARNING, enemy planets considered by that discovery step mark a square
 danger area of radius 2; enemy bases mark radius 4. Clip each area to the scan
-rectangle. Warning marks occupy otherwise blank sectors and do not replace
-visible objects. Ordinary scans do not mark these areas.
+rectangle. For each considered enemy installation, observe sectors in that
+clipped area again. An empty sector gives WarningMark; an occupied sector keeps
+the mark for its currently observed object. In particular a black hole remains
+BlankSpace, not WarningMark. Neutral and friendly planets do not create warning
+areas. Ordinary scans do not mark these areas.
+Planet discovery precedes base discovery; enemy bases are considered in their
+faction's baseOrder. Each warning area is processed with its installation's
+discovery, before continuing to the next installation.
 
-Scanning costs no energy and completes no turn. Exact symbols, labels, spacing,
-concealed objects and interrupted rendering belong to the terminal presentation
-rules, whose conversion is still pending.
+The discovery and warning steps finish before rows are emitted. Therefore a
+scan interrupted during row output retains all the discovery already performed.
+At a row boundary, an observed scan-interruption request stops further rows and
+omits the bottom axis labels, consumes that scan-interruption request and gives
+Interrupted(partial). The just-emitted row is included. Otherwise emit the
+bottom labels and give Reported(report).
+
+Initial sector observations visit increasing vertical and then horizontal
+coordinates. Warning areas are reconsidered during installation discovery,
+and emitted rows run in decreasing vertical order. Thus a scan need not be a
+single simultaneous snapshot; changing objects can be observed at different
+times. The full control-delivery and concurrent-installation contract remains
+open, including interruption before row output begins.
+
+Scanning changes only the acting faction's installation knowledge. It costs no
+energy, repairs no device and completes no turn. Scan marks have the following
+terminal representations; other clients may render the same observations in
+their own presentation binding:
+
+| Mark | LONG scan pair | SHORT scan character |
+| --- | --- | --- |
+| EmptySpace | space then `.` | `.` |
+| BlankSpace | two spaces | space |
+| ShipMark | space then roster initial | roster initial |
+| BaseMark(FEDERATION) | `<>` | `>` |
+| BaseMark(EMPIRE) | `)(` | `(` |
+| RomulanMark | `??` | `?` |
+| PlanetMark(none) | space then `@` | `@` |
+| PlanetMark(FEDERATION) | `@F` | `F` |
+| PlanetMark(EMPIRE) | `@E` | `E` |
+| StarMark | space then `*` | `*` |
+| WarningMark | space then `!` | `!` |
+
+Scan style is the captain's scanStyle preference; it is independent of the
+SCAN/SRSCAN verb and outputLength. Each row has its two-column vertical label
+on both sides, with one separating space on each side of the cells. Horizontal
+labels occur above and below the grid: LONG starts at the minimum horizontal
+coordinate and labels every second column; SHORT starts one column after that
+minimum and labels every third. The initial horizontal label is always emitted,
+even when a one-column SHORT scan puts that label beyond the last displayed
+column. The label does not add a sector to the result. Labels omit leading
+zeroes. Terminal line endings and complete interruption delivery remain part of the binding work.
+
+The core does not define a player-controlled cloaking operation. Observations
+of sector states outside the declared SectorObject model remain outside this
+normal-state contract; they do not introduce a new ship ability.
 
 **Source basis:** [SCAN/SRSCAN](../../legacy/utexas/DECWAR.FOR#L3527),
-[warning marks](../../legacy/utexas/WARMAC.MAC#L2412).
+[sector observations and symbols](../../legacy/utexas/WARMAC.MAC#L2350),
+[warning marks](../../legacy/utexas/WARMAC.MAC#L2412),
+[row output and axes](../../legacy/utexas/WARMAC.MAC#L2482).
 
 ## STATUS
 
@@ -497,15 +600,43 @@ apply command-name ambiguity detection to the items.
 
 ### Meaning of report items
 
+```text
+enum RadioState = DAMAGED | ON | OFF
+
+StatusObservation = StardateValue(value: Stardate)
+    | ShieldValue(mode: ShieldMode, strength: Percentage,
+                  equivalentEnergy: Optional<Energy>)
+    | LocationValue(position: Position)
+    | ConditionValue(condition: Condition, docked: Boolean)
+    | TorpedoValue(count: integer) | EnergyValue(value: Energy)
+    | HullDamageValue(value: Damage) | RadioValue(state: RadioState)
+    | InvalidStatusItem
+
+operation ReportStatus(actor: ShipId, arguments: Sequence<Token>)
+    on GameState -> Sequence<StatusObservation>
+```
+
+Token and its categories are defined in the [lexical rules](lexical.md).
+Let s be `ship(game, actor)` and c its captain. The actor must have a position.
+The result is the ordered sequence of observations emitted, including any
+InvalidStatusItem diagnostics among successful items. It is not an all-or-nothing
+success or rejection. Empty arguments select the full report; a first token of
+another category instead stops without selecting that default.
+
 | Item | Information reported |
 | --- | --- |
-| SHIELDS | Shield mode and percentage strength. Medium/long output also reports the equivalent shield energy: 25 energy units per percentage point. |
-| LOCATION | Absolute vertical and horizontal position, regardless of the coordinate-output preference. |
-| CONDITION | Current green, yellow or red condition, with docking status. |
-| TORPEDO | Remaining torpedo count. |
-| ENERGY | Remaining engine energy in energy units. |
-| DAMAGE | Hull damage in damage units. |
-| RADIO | Damaged when radio-device damage is at least 300 damage units; otherwise the radio's on/off setting. |
+| SHIELDS | ShieldValue from s.shields.mode and s.shields.strength. With MEDIUM or LONG output, equivalentEnergy is 25 energy units per percentage point of strength; with SHORT it is none. |
+| LOCATION | LocationValue from s.position, absolute regardless of c.outputCoordinates. |
+| CONDITION | ConditionValue from s.condition and s.docked. |
+| TORPEDO | TorpedoValue from s.torpedoes. |
+| ENERGY | EnergyValue from s.energy. |
+| DAMAGE | HullDamageValue from s.hullDamage; not a sum of device damage. |
+| RADIO | RadioValue is DAMAGED when radio-device damage is at least 300; otherwise ON or OFF according to c.radio.enabled. |
+
+The radio test reads `s.devices[RADIO].damage`, in damage units. It does not
+change c.radio.enabled. The full report's initial StardateValue reads s.stardate.
+Each repeated valid item produces another observation. InvalidStatusItem emits
+the syntax diagnostic, then processing resumes with the next token.
 
 STATUS observes state without changing it, charging energy or completing a turn.
 The report need not be a simultaneous snapshot of all fields; concurrent changes
@@ -533,19 +664,40 @@ can match several identifiers: T matches both TO and TR.
 ### Selection and result
 
 ```text
-ReportDamage(ship, arguments):
-    if every device has zero damage:
-        emit AllDevicesFunctional
-        return
+record DeviceDamageRow:
+    device: Device
+    damage: Damage
 
-    if the first argument is a name-category token:
-        for each argument until a non-name-category token:
-            for each matching DeviceSelector in displayed order:
-                emit DeviceDamage(device, ship.devices[device].damage)
-    else:
-        for each device in displayed order:
-            if ship.devices[device].damage > 0 damage units:
-                emit DeviceDamage(device, ship.devices[device].damage)
+DamageReport = AllDevicesFunctional | Rows(values: Sequence<DeviceDamageRow>)
+
+operation ReportDamage(actor: ShipId, arguments: Sequence<Token>)
+    on GameState -> DamageReport
+```
+
+Let s be `ship(game, actor)`. The report uses this device order:
+
+```text
+deviceOrder = [SHIELDS, WARP_ENGINES, IMPULSE_ENGINES, LIFE_SUPPORT,
+               TORPEDO_TUBES, PHASERS, COMPUTER, RADIO, TRACTOR_BEAM]
+```
+
+Selector spellings in the syntax correspond to these values in that order.
+Token categories follow the lexical chapter.
+
+```text
+if no device has positive damage:
+    emit AllDevicesFunctional
+    return AllDevicesFunctional
+
+if the first argument is a name-category token:
+    for each argument until a non-name-category token:
+        for each matching DeviceSelector in displayed order:
+            emit DeviceDamageRow(device, s.devices[device].damage)
+else:
+    for each device in displayed order:
+        if s.devices[device].damage > 0 damage units:
+            emit DeviceDamageRow(device, s.devices[device].damage)
+return Rows(the emitted rows, in order)
 ```
 
 An unmatched selector is silently skipped. Explicit matches report zero damage

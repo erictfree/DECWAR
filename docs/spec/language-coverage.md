@@ -17,9 +17,9 @@ remaining dependencies below still limit end-to-end conformance claims.
 | ENERGY | [ENERGY](commands.md#energy): ADT operation contract. | Notification delivery, session and response rules. |
 | DOCK | [DOCK](commands.md#dock): ADT operation contract. | Full report, concurrent world and response rules. |
 | REPAIR | [REPAIR](commands.md#repair): ADT operation contract. | Full report, concurrent world and response rules. |
-| SCAN, SRSCAN | [SCAN and SRSCAN](commands.md#scan-and-srscan) | Terminal rendering, concealed objects and interrupted output. |
-| STATUS | [STATUS](commands.md#status) | Exact terminal presentation and multiplayer observations. |
-| DAMAGES | [DAMAGES](commands.md#damages) | Exact terminal presentation and multiplayer observations. |
+| SCAN, SRSCAN | [SCAN and SRSCAN](commands.md#scan-and-srscan): ADT operation contract. | Full transport/control delivery and concurrent installation changes. |
+| STATUS | [STATUS](commands.md#status): ADT operation contract. | Exact terminal presentation and multiplayer observations. |
+| DAMAGES | [DAMAGES](commands.md#damages): ADT operation contract. | Exact terminal presentation and multiplayer observations. |
 | TRACTOR | [TRACTOR](commands.md#tractor): ADT operation contract. | Occupied trailing sectors, concurrent acquisition and responses. |
 | MOVE, IMPULSE | [MOVE and IMPULSE](commands.md#move-and-impulse): ADT operation contract. | Crowded towing, concurrent relocation, random distributions and responses. |
 | BUILD | [BUILD](commands.md#build): ADT operation contract. | Planet-update availability, conversion/world-end ordering and responses. |
@@ -55,12 +55,14 @@ coverage does not establish lifecycle, concurrency or terminal conformance.
 ## Shared and variant work
 
 - Abstract model: game-state ADT and operation-contract notation introduced;
-  SHIELDS, RADIO, ENERGY, DOCK, REPAIR, TRACTOR, MOVE, IMPULSE, BUILD, CAPTURE,
+  SHIELDS, RADIO, ENERGY, DOCK, REPAIR, SCAN, SRSCAN, STATUS, DAMAGES,
+  TRACTOR, MOVE, IMPULSE, BUILD, CAPTURE,
   PHASERS, TORPEDOS, HELP, NEWS, GRIPE, QUIT and
   message publication/reception use explicit contracts. Mapping/property notation,
   the nine device states and their distinction from hull damage and shield state
   are defined explicitly. Phaser-bank identities and independent deadlines are
-  defined separately from shared device damage. Sector objects, geometric points/vectors, PathResult,
+  defined separately from shared device damage. Token categories, scan marks/rows,
+  ordered status observations and device-damage report rows are defined. Sector objects, geometric points/vectors, PathResult,
   symmetric beam membership and fixed base-identity order are defined. Existing
   command pseudocode still needs conversion to that form. Identities, quantities,
   roster, installations, radio, tractor associations, preferences and score

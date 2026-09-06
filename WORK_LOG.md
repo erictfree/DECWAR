@@ -2328,3 +2328,50 @@ port/tool attribution remain separate.
 - Goal remains active. Remaining commands, shared combat contracts, lifecycle,
   multiplayer, random distributions, terminal bindings, variant amendments and
   complete conformance review still require work. No runtime/server changes.
+
+
+## Specification checkpoint — scan and ship-report ADTs (2026-09-05)
+
+- Classified the previous turn as progress: player-weapon checkpoint 6453186 was
+  committed and pushed. Rechecked the worktree; unrelated experiment/status/log
+  changes remain separate from this specification checkpoint.
+- Added ScanRequest, ScanMark, ScanRow, ScanReport and ScanOutcome, plus a typed
+  BoundScan operation. The report exposes marks rather than complete object
+  records. Defined initial observation order, fixed scan origin, discovery beyond
+  the displayed rectangle, warning-area rereads and decreasing output row order.
+- Rechecked Austin DECWAR.FOR SCAN/SRSCAN 3527–3615, STATUS 3860–3974,
+  DAMAGE 783–830 and device/roster data; WARMAC.MAC SETSCN/MARK/SHWSCN,
+  axis labels and ESHP/PSHP. Preserved the distinct blank black-hole mark,
+  warning behavior, short/long cell forms and the mandatory first axis label,
+  even beyond the displayed column on a one-cell SHORT scan.
+- Specified row-boundary scan interruption as a prefix result: completed discovery
+  remains, the interruption is consumed, and remaining rows/bottom labels are
+  omitted. Full delivery and concurrent-installation behavior remain separate.
+  No cloaking ability was inferred from defensive hidden-sentinel handling.
+- Added ReportStatus and its ordered StatusObservation alternatives, including
+  diagnostic observations among successful items. Each value names its source
+  ADT field; hull damage, device damage, shield strength and radio enabled state
+  remain distinct. Repeated selectors and non-name termination remain observable.
+- Added ReportDamage, DeviceDamageRow and DamageReport. Preserved the initial
+  positive-device-damage test, silent unmatched selectors, multiple prefix matches,
+  repeated rows and the general-report fallback for an initial non-name token.
+- Defined Token with explicit text, category, numericValue and origin properties
+  in the lexical chapter. Name-category means ALPHANUMERIC, and argument sequences
+  exclude the command name and end boundary. No lexer representation is prescribed.
+- Added EX-MODEL-226 through 241 for scan warning/discovery differences,
+  interruption, short-scan labels, width defaults, extent clamping, ordered status
+  diagnostics, equivalent shield energy and device-report selection edge cases.
+- Validation: source audit passes 135 hashes, 83 declarations, 33 main and
+  16 pregame commands, 324 messages and both variant population checks. Final
+  build passes 13 sections, 275 local links and 241 example rows. These are
+  source/document checks, not complete executable semantic conformance.
+- Logs: logs/spec-ship-reports-build.log (table break caught),
+  logs/spec-ship-reports-layout.log (heading link caught),
+  logs/spec-ship-reports-overflow.log (long device list caught),
+  logs/spec-ship-reports-final.log and logs/spec-ship-reports-audit.log (passed).
+  Visual review of the 112-page PDF also caught and corrected an unescaped generic
+  type in Markdown. Reviewed final lexical, scan/status/damage and example pages
+  using renders under tmp/pdfs/spec-ship-reports/. Generated publications stay ignored.
+- No runtime/server/archive changes. Goal remains active: remaining command and
+  shared-operation contracts, lifecycle, multiplayer, randomness, full terminal
+  bindings, variant amendments and complete conformance review still require work.

@@ -236,6 +236,22 @@ defense phases. Other ships and installations do not alter the stated result.
 | EX-MODEL-223 | Undocked, healthy tubes, inventory three; request three shots; first misfire draws 97, 5 and 2500, clear trace; pacing class one, burst ends at 4000 | First shot travels; no later shot launches. Tube damage becomes 300, inventory two, reload deadline 9000. Finished(1, MISFIRE), one turn without repair. |
 | EX-MODEL-224 | One launched torpedo hits an enemy planet; update refused; undocked, inventory initially two, healthy tubes, reload deadline initially 1000; condition initially GREEN | PlanetUpdateRefused(1), empty-tubes diagnostic; inventory one and condition RED. No planet change, new deadline, turn or pending-score commitment. |
 | EX-MODEL-225 | A burst destroyed a ship on its first impact; second shot hits an enemy zero-build planet with an accepted update and build draw 1 | Planet remains at zero builds and is not destroyed. The earlier ship's destruction does not determine this impact's result. |
+| EX-MODEL-226 | Actor at (37,37), enemy base at (37,42), black hole at (37,38), other displayed cells empty; SCAN 1 WARNING | Bounds 36..38 on both axes. Base becomes known although outside the rectangle. Cell (36,38) is WarningMark, (37,38) remains BlankSpace, and (36,37) remains EmptySpace. |
+| EX-MODEL-227 | Actor at (37,37), neutral planet at (37,39), otherwise empty surrounding sectors; SCAN 1 WARNING | Discover the planet, but it creates no warning area. Displayed empty sectors remain EmptySpace. |
+| EX-MODEL-228 | Actor at (37,37), unknown planet within ten sectors; SCAN CORNER 1 | RejectedSyntax with no discovery or scan result, no prompt and no turn. |
+| EX-MODEL-229 | Actor at (37,37), unknown planet at (45,45); SCAN 1; interruption observed after first emitted row | Interrupted report has bounds 36..38 on both axes and only row 38. Planet knowledge is retained. Consume the scan interruption and omit bottom labels; no turn. |
+| EX-MODEL-230 | Actor at (37,37), scanStyle SHORT; SCAN 0 | One cell and one row, containing ShipMark(actor). Both horizontal axes emit initial label 38, even though the only displayed horizontal coordinate is 37. Row labels remain 37. |
+| EX-MODEL-231 | Actor at (37,37), terminal width 29, scanStyle LONG; SRSCAN | Default radius is five: bounds 32..42 on each axis, eleven rows and eleven cells per row. SRSCAN does not select SHORT presentation. |
+| EX-MODEL-232 | Actor at (37,37); SCAN -2 3 | Clamp vertical extents to zero; horizontal extents are three. Report one row, vertical 37, with horizontal coordinates 34..40. |
+| EX-MODEL-233 | Hull damage 12, warp damage 80, energy 900; STATUS DAMAGE BOGUS ENERGY | Emit HullDamageValue(12), InvalidStatusItem and EnergyValue(900), in that order. Warp damage is not included in the hull value. No state changes. |
+| EX-MODEL-234 | STATUS 1 ENERGY | No status observations. The initial integer stops item processing; do not print the default report or the later energy item. |
+| EX-MODEL-235 | Energy 900, hull damage 12; STATUS ENERGY ENERGY 1 DAMAGE | Emit EnergyValue(900) twice, then stop at the integer. No hull observation or stardate row. |
+| EX-MODEL-236 | Shields DOWN at strength 40%; STATUS SHIELDS with MEDIUM output | ShieldValue(DOWN, 40%, 1000 energy units). Equivalent energy reports stored strength even while shields are lowered; no energy transfer occurs. |
+| EX-MODEL-237 | Same shields, SHORT output | ShieldValue(DOWN, 40%, none); omit the equivalent-energy field. No preference or resource changes. |
+| EX-MODEL-238 | Warp damage 8, all other devices zero; DAMAGES 1 TR | First argument is not a name token, so report all positively damaged devices: one WARP_ENGINES row at 8. The later TR token does not select a different report. |
+| EX-MODEL-239 | Torpedo-tube damage 10, tractor-beam damage zero, all other devices zero; DAMAGES T T | Four rows: TORPEDO_TUBES 10, TRACTOR_BEAM 0, then those same two rows again. No deduplication. |
+| EX-MODEL-240 | Warp damage 8, all others zero; DAMAGES BOGUS | Rows(empty). Skip the unmatched selector silently; do not fall back to the general report or emit AllDevicesFunctional. |
+| EX-MODEL-241 | All devices zero, hull damage 100; DAMAGES WA | AllDevicesFunctional. Hull damage does not participate in the device-damage availability test. |
 
 
 EX-MODEL-06 deliberately uses fractional shield strength. Historical loss of
