@@ -585,3 +585,19 @@ it with a roster-backed PlayerShip. This explains the semantic reason for the
 separate sector-object alternative: both participate in spatial rules, while
 only roster ships can carry player commissions. No lifecycle or combat rule was
 changed.
+
+### Chapters 1 and 2 editorial review
+
+The scope and abstract-model chapters received a full clarity pass. Repeated
+statements about draft status, evidence and implementation independence were
+combined, and long explanatory sentences were shortened without changing their
+requirements. Every section and subsection now introduces its subject in prose
+before presenting a type declaration, pseudocode block, table or list.
+
+Rectangle now appears in Sector geometry, where scan regions first need it.
+Score, Ship, installation, tractor/Romulan, communication and World declarations
+each have a short statement of purpose before their notation. The review changed
+no type domains, fields, operation contracts, coordinate formula, roster values
+or game behavior. `logs/spec-chapters-1-2-editorial-review.log` records the
+heading-order check; `logs/spec-chapters-1-2-editorial-build.log` records the
+successful assembled build.

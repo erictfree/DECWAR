@@ -4417,3 +4417,19 @@ rows, 14 units and 686 links in
 logs/spec-romulan-sector-integration-build-2.log; the initial layout is retained
 in the preceding build log. Inspected final PDF page 13; the union and explanation
 remain together with no clipping or overfull/undefined warnings.
+
+## Specification: clarify chapters 1 and 2
+
+Revised Scope and conformance and Abstract game model for simpler language and a
+clearer reading order. Consolidated repeated scope and evidence statements,
+shortened notation explanations, and added a prose introduction before every
+section or subsection declaration block. Moved Rectangle from the end of Galaxy
+and roster into Sector geometry. Preserved all type domains, fields, contracts,
+formulas, roster values and game behavior.
+
+The heading-order review passed for both source chapters. The assembled build
+passed 324 message fragments, 100 EBNF productions, 671 scenario rows, 14
+chapters and 684 links. Inspected all compiled pages through the end of chapter 2;
+no clipping, overfull boxes or undefined references remain. Evidence:
+logs/spec-chapters-1-2-editorial-review.log and
+logs/spec-chapters-1-2-editorial-build.log.

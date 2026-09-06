@@ -1,45 +1,39 @@
 # Abstract game model
 
-This chapter defines the game-state abstract data type (ADT), its observable
-properties and the operations used in the command semantics. The world and
-session model is still being extended.
+This chapter defines the abstract state of a DECWAR game. Later chapters use
+these types, queries and operations to state the meaning of commands. The model
+describes what an implementation must represent and observe, without prescribing
+how it stores that information.
 
 ## Notation
 
-The type notation is inspired by TypeScript and algebraic data types. It is
-specification notation, not executable TypeScript: it does not import JavaScript
-numbers, object identity, inheritance or runtime behavior.
+The notation resembles TypeScript and algebraic data types, but it is
+language-independent specification notation. It does not adopt JavaScript's
+number system, object identity, inheritance or runtime behavior.
 
-`type Name = { ... }` defines a record of named fields. `property: T` gives a
-field's type. An enum lists mutually exclusive symbolic values. A union lists
-alternatives separated by `|`; an alternative may carry named fields in braces.
-The alternative's name is its tag. For example,
+`type Name = { ... }` defines a record with named fields. `property: T` gives a
+field's type. An enum lists mutually exclusive names. A union lists alternatives
+separated by `|`. An alternative may carry named fields in braces. For example,
 `Captured { planet: PlanetId }` carries a planet identity, while `Cancelled`
-carries no value. These names are not text the player enters.
+carries no value. These names are specification terms, not player input.
 
 
-A result alternative belongs to the type or operation result in which it is
-introduced. Reusing a tag spelling does not create one global payload type.
-For example, PublishMessage returns Published with a MessageId, while
-PublishNotice returns Published with a NoticeId. The operation determines which
-result is meant; a message identity cannot be supplied where a notice identity
-is required. Likewise, Selected from terminal-profile selection is distinct
-from Selected from main-command acquisition.
+A result name belongs to the operation or type that introduces it. The same name
+may therefore carry different values in different results. For example,
+PublishMessage returns Published with a MessageId, while PublishNotice returns
+Published with a NoticeId. The operation determines which Published result is
+meant.
 
-An operation signature can introduce its alternatives directly rather than
-naming a separate result type. A bare outcome name without a payload, such as
-Raised or Cancelled, denotes a singleton alternative in that result. When such
-an alternative appears as a Result parameter, the same convention applies:
-Result<Raised, ShieldsTooDamaged> has either Raised or
-Rejected { reason: ShieldsTooDamaged }. It does not imply undeclared mutable
-objects named Raised and ShieldsTooDamaged. A previously declared type name
-continues to denote that type, including all of its alternatives.
+An operation may name its result alternatives directly. A bare name such as
+Raised or Cancelled is an alternative with no associated value. Thus
+`Result<Raised, ShieldsTooDamaged>` contains either Raised or
+`Rejected { reason: ShieldsTooDamaged }`. A declared type name continues to mean
+the complete type it declares.
 
-Opaque identity declarations, including a comma-separated declaration of
-several identity types, introduce distinct types. An `abstract type` hides its
-representation; an `ordered type` additionally has the ordering defined by its
-own clause. These forms do not supply fields that can be accessed without a
-separate query or record declaration.
+Each opaque identity declaration introduces a distinct type. An `abstract type`
+hides its representation. An `ordered type` also has an ordering defined by its
+own clause. Neither form provides accessible fields unless another declaration
+defines them.
 
 Collections have one notation throughout the model:
 
@@ -55,28 +49,22 @@ Collections have one notation throughout the model:
 type Result<T, Error> = T | Rejected { reason: Error };
 ```
 
-Here T excludes the Rejected alternative. This alias keeps each operation's
-named successful outcomes, such as Raised or Captured. Cancellation and lifecycle
-outcomes are stated separately when they are possible. A rejection says why the
-operation stopped; it does not promise that no earlier effects occurred or that
-they were rolled back. Optional expresses absence, not rejection.
-The declared domain determines
-whether counts, quantities or identities are valid. Type aliases such as Energy
-and Damage retain their units even when their notation resembles a scalar.
+Here T excludes Rejected. A rejection states why the operation stopped; it does
+not imply that earlier effects were undone. Cancellation and lifecycle outcomes
+are named separately where they can occur. Optional expresses absence rather
+than rejection. A value is valid only within its declared domain, and quantities
+such as Energy and Damage keep their units even when both are written as numbers.
 
-For example, `devices: Map<Device, DeviceState>` associates every one of the
-nine Device values with its own device state. Square brackets select a mapping
-entry; a dot selects a named field. These are mathematical observations, not
-requirements to use a JavaScript Map, array or mutable object. In query and
-operation signatures, the colon after the parameter list gives the result type.
-Named types can refer to other named types in the abstract model.
+Square brackets select a map entry, and a dot selects a record field. For
+example, selecting WARP_ENGINES from `devices` gives the warp-engine record;
+that record's `damage` field gives its damage. These expressions do not require
+a JavaScript Map, array or mutable object. In a query or operation signature,
+the type after the parameter list is the result type.
 
-The query `ship(game, actor)` selects the ship identified by actor. A command
-may bind that ship to s and then write `s.energy` or
-`s.devices[WARP_ENGINES].damage`. A `ShipId` is an identity, not itself a Ship
-record. Reading an optional value requires it to be present. Rules that act on
-the position of an active, positioned ship use the contained Position value;
-rules for admission and release handle absence explicitly.
+The query `ship(game, actor)` returns the ship identified by actor. A command may
+bind that ship to s and then refer to `s.energy`. A ShipId identifies a ship but
+is not itself a Ship record. An optional value must be present before a rule can
+use its contents.
 
 Pseudocode describes the meaning of an operation:
 
@@ -89,25 +77,21 @@ else {
 }
 ```
 
-`=` assigns a value to its named destination. Assigning a local variable changes
-only that local binding. Assigning a game-state property, such as s.energy,
-updates that property. An operation's state-effects clause determines which
-updates occur; a query does not update game state.
+`=` assigns a value. Assignment to a local name changes that binding; assignment
+to a game-state property changes the property. A query never changes game state.
 
-`==` states equality, including in preconditions and postconditions; `!=` states
-inequality. A Unit result carries no additional value and does not by itself assert success.
-The equals sign in a type declaration introduces its definition,
-and in a default parameter supplies its default value. Neither changes game state.
+`==` tests equality and `!=` tests inequality. A Unit result carries no value and
+does not by itself assert success. In a type declaration, `=` introduces the
+definition; in a parameter, it supplies a default. Neither use changes game state.
 `let name: T = value` introduces a local binding. A local's type may be omitted
 when its value or the immediately preceding definition determines it. A
 conditional expression `condition ? a : b` selects a when the condition is true
 and b otherwise. Only the selected expression is evaluated.
 
-`requires` states a precondition of an operation or a defined substep; `ensures`
-states a condition at its completion. `invariant` states a property of every
-valid observable state in its declared scope. These words express requirements,
-not runtime checks or automatic error handling. A command's rejection clauses
-still determine what happens when player input cannot satisfy a precondition.
+`requires` states a precondition. `ensures` states a condition at completion.
+`invariant` states a property of every valid observable state in its declared
+scope. These are specification requirements, not implicit runtime checks. A
+command's rejection clauses define what happens when a precondition is not met.
 
 A record value is written `Name { field: value, ... }`; a bare name denotes
 a variant with no payload. Declared payload names identify the same fields when
@@ -124,8 +108,8 @@ order whenever order affects observations. Bounded loops state their bounds.
 Short English predicates and effects within pseudocode refer to the rules in
 the surrounding clause; they are not additional fields or callable services.
 
-`emit` produces an observable game event or response; it is a separate effect,
-and its terminal rendering is specified separately.
+`emit` produces an observable game event or response. Terminal rendering is
+specified separately.
 `reject` ends the current operation with the named diagnostic. Unless a rule
 states otherwise, rejection does not undo effects that have already occurred.
 An operation's own effects leave unmentioned state unchanged. This is a
@@ -134,15 +118,11 @@ actions cannot change the same world while it is in progress. Interactive
 input, elapsed time and simultaneous actions have explicit rules; pseudocode
 alone does not make a whole command atomic.
 
-A postcondition applies at the completion of the operation or substep it names.
-It does not claim the value persists after another permitted event changes it.
-Likewise, an invariant must identify a scope in which it holds throughout;
-a relationship stated only at completed admission, release or construction
-must not be promoted to an invariant of their intermediate states. For example,
-the maintained installation counters have their own update points and need not
-match a fresh count during an unfinished installation transition. Their typed
-fields remain defined even when that completed-transition relationship does
-not hold.
+A postcondition applies when its operation or substep completes. A later event
+may change the value. An invariant states its own scope. A relationship required
+after admission, release or construction need not hold during that transition.
+For example, installation counters may temporarily differ from a fresh count
+while an installation change is in progress.
 
 `+=` and `-=` add to or subtract from a named value. `floor(x)` is the greatest
 integer no greater than x. Lists in pseudocode use positions starting at one;
@@ -151,16 +131,17 @@ this is a notation convention, not a required indexing scheme.
 A local name bound to a ship or another state record denotes that same game
 entity. Updating a field through that name changes the entity's state.
 
-Entity identity and value equality are distinct: two ship observations identify
-the same ship when their ShipId values match, even if its resources changed
-between observations. Record values compare equal when corresponding fields
-compare equal. Lists compare by length and corresponding elements; sets compare
-by membership; maps compare by keys and their associated values. Different
-variant tags are unequal. Quantities compare within their declared units;
-an energy quantity is not interchangeable with damage merely because the
-numerical values match.
+Identity and value equality are different. Two observations refer to the same
+ship when their ShipId values match, even if the ship's state changed between
+observations. Records compare by fields, lists by position, sets by membership
+and maps by corresponding entries. Different union alternatives are unequal.
+Quantities compare only within the same unit.
 
 ## Quantities and identities
+
+The model uses distinct identities for game entities and named quantity types
+for values with different meanings. It also distinguishes sector positions from
+points and displacement vectors used while calculating movement.
 
 ```text
 type ShipId, CaptainId, BaseId, PlanetId, TractorBeamId, MessageId
@@ -211,28 +192,22 @@ type SectorVector = {
 };
 ```
 
-`GridPoint` is an absolute point in the galaxy's coordinate space and may have
-fractional coordinates while a path is being traced. `Position` is the refinement
-of GridPoint whose two coordinates are whole numbers from 1 through 75; it
-therefore identifies an actual sector. A GridPoint can be used where Position
-is required only after both constraints have been established. `SectorVector`
-is a displacement measured in sectors, not an absolute point; its components
+`GridPoint` is an absolute point and may have fractional coordinates while a
+path is being traced. `Position` is the subset of GridPoint whose coordinates
+are whole numbers from 1 through 75, so every Position names a sector.
+`SectorVector` is a displacement rather than an absolute point; its components
 may be positive, negative or fractional.
 
-The identities distinguish entities. Names and name-matching order are separate
-language rules. Arithmetic uses mathematical quantities. Rounding is applied only where a
-rule explicitly requires a discrete result or a formatted display. Historical
-word limits, overflow and intermediate truncation do not apply. This does not
-change the command grammar or permit new game mechanics.
+Arithmetic uses mathematical quantities. A rule rounds only when it explicitly
+requires a discrete result or formatted display. PDP-10 word limits, overflow
+and intermediate truncation do not apply.
 
 ### Quantity arithmetic
 
-Energy, Damage, Percentage, Duration and Points have real numerical magnitudes
-in their declared units. Their type names alone impose no rounding, lower bound
-or upper bound. A field or operation can impose such a bound explicitly. For
-example, a fatal hit can leave energy negative, a score can be negative, and a
-base-hit observation can retain negative strength. These values are not silently
-replaced with zero by assigning them a quantity type.
+Energy, Damage, Percentage, Duration and Points are real magnitudes in their
+declared units. The type name alone does not round or limit a value. A field or
+operation states any required bound. Energy, score and reported strength may
+therefore be negative when a rule produces a negative result.
 
 Addition, subtraction and comparison require quantities of the same kind.
 Multiplication or division by a dimensionless real preserves the quantity kind;
@@ -242,11 +217,10 @@ different kinds states the conversion explicitly. Thus ApplyShipHit adds a
 numerical amount in damage units to hull damage and subtracts the same numerical
 amount in energy units from energy; Energy and Damage are still distinct types.
 
-Percentage is measured in percentage points: 100% has magnitude 100 and 5%
-has magnitude 5. Adding 5 percentage points to 20% produces 25%. Multiplying
-20% by 0.5 produces 10%. In a formula using a strength magnitude S, `S/100`
-is its dimensionless fraction. It does not divide an already fractional value
-by 100 again.
+Percentage is measured in percentage points: 100% has magnitude 100 and 5% has
+magnitude 5. Adding 5 percentage points to 20% produces 25%; multiplying 20% by
+0.5 produces 10%. For a strength magnitude S, `S/100` is its dimensionless
+fraction.
 
 Subtracting two TimePoint values on the same elapsed-time axis gives a Duration.
 Adding a Duration to a TimePoint gives a TimePoint on that axis. TimePoint is not
@@ -260,6 +234,16 @@ command form. Explicit conversion, rounding, caps and fatal thresholds in the
 operation clauses take precedence over any informal expectation about a resource.
 
 ### Sector geometry
+
+Rectangles define inclusive regions of the galaxy. Each of their four limits is
+a sector coordinate within the 75 by 75 grid.
+
+```text
+type Rectangle = {
+    minVertical, maxVertical: Coordinate
+    minHorizontal, maxHorizontal: Coordinate
+};
+```
 
 `distance` is the Chebyshev distance between two sector positions:
 
@@ -322,15 +306,10 @@ examines Federation ships in the order below, then Empire ships in that order.
 The initial world has twenty planets and ten bases for each faction. Placement
 and initialization are defined in [galaxy creation](session-rules.md#galaxy-creation-and-placement).
 
-```text
-type Rectangle = {
-    minVertical, maxVertical: Coordinate
-    minHorizontal, maxHorizontal: Coordinate
-};
-
-```
-
 ## Score quantities
+
+A score records points by the event that earned or lost them. This keeps each
+category available for the POINTS report as well as for calculating the total.
 
 ```text
 enum ScoreCategory = ENEMY_DAMAGE | ENEMY_KILLS | BASE_DAMAGE
@@ -340,14 +319,17 @@ enum ScoreCategory = ENEMY_DAMAGE | ENEMY_KILLS | BASE_DAMAGE
 type Score = Map<ScoreCategory, Points>
 ```
 
-Score is expressed in the units shown by the POINTS command. Category values
-can be negative, and totals are their sum. A ship's pending score changes are
-distinct from its accumulated score until turn accounting commits them.
-Scoring rates and destruction bonuses are defined with the corresponding actions.
+Category values can be negative, and the total score is their sum. Pending score
+changes remain separate from accumulated score until turn accounting commits
+them. Each action defines its own scoring rate and destruction bonus.
 
 **Source basis:** [score categories and display](../../legacy/utexas/DECWAR.FOR#L2893).
 
 ## Ships
+
+A Ship record contains the persistent state of one named vessel. It combines
+its commission, location, resources, damage, equipment, score and current
+relationships with the rest of the game.
 
 ```text
 type Shields = {
@@ -382,15 +364,12 @@ type Ship = {
 ```
 
 A new commission begins with 5000 energy units, ten torpedoes, no hull or device
-damage, a life-support reserve of 5, shields up at 100%, and green condition.
-`commissioned` is the ship's active-participation flag used by the stated
-presence and targeting checks. A recognized combat destruction sets it false,
-but leaves the captain association until ReleaseCommission. That association
-identifies the captain who can still receive the final hit and exit reports.
-Other resource changes can leave commissioned true at zero energy or fatal
-hull damage until a rule explicitly deactivates or releases the ship. Neither
-a fatal numerical threshold alone nor commissioned false means release has
-already completed or that another captain may take the ship.
+damage, a life-support reserve of 5, shields up at 100% and green condition.
+`commissioned` marks active participation for rules that test presence or choose
+targets. Combat destruction clears it but retains the captain association until
+ReleaseCommission, allowing the captain to receive final reports. A fatal value
+or a cleared commissioned flag does not by itself complete release or make the
+ship available to another captain.
 
 ### Life-support reserve
 
@@ -462,6 +441,10 @@ resource, not an additional property of either propulsion device.
 
 ## Installations
 
+Bases and planets are installations at fixed sectors. Bases belong to a faction
+and have defensive strength. Planets may be neutral or owned, and their builds
+record progress toward conversion into a base.
+
 ```text
 type Base = {
     id: BaseId;
@@ -478,13 +461,11 @@ type Planet = {
 };
 ```
 
-A base survives while its strength is positive. An owner of `none` denotes a
-neutral planet. A planet's builds count construction stages; it is not a
-fractional resource. Removing or converting a planet removes its record from
-world.planets. Destroying a base instead retains its record in world.bases,
-with strength zero after destruction cleanup; it removes the base's sector
-presence. A later BUILD can reactivate that same base identity. Enumeration
-order, where observable, is specified separately from identity.
+A base survives while its strength is positive. A planet with no owner is
+neutral, and its builds value is an integer count of construction stages.
+Removing or converting a planet removes it from `world.planets`. Destroying a
+base removes its sector presence but retains its record in `world.bases` with
+zero strength, so a later BUILD may reactivate that identity.
 
 Each faction has ten base identities in the fixed order `world(game).baseOrder[t]`.
 That order is unchanged by destruction or construction; an inactive base's identity
@@ -494,6 +475,10 @@ a surviving base is the next available identity for that faction. This order
 defines selection and report numbering, without prescribing a storage location.
 
 ## Tractor beams and Romulan activity
+
+Tractor beams relate pairs of player ships. The Romulan types describe the
+autonomous ship currently in the galaxy and the activity that continues between
+its appearances.
 
 ```text
 type TractorBeam = {
@@ -524,20 +509,21 @@ ordering. Acquiring or releasing an association must establish the corresponding
 relationships on both ships. A movement command identifies which endpoint moves
 first for that action, without changing the beam's membership.
 
-World.romulan describes the currently present autonomous ship. RomulanActivity
-describes the continuing activity across its appearances: cadence counts enabled
-driver invocations since the last reset, turns counts activations that pass the
-cadence gate, and appearances counts created Romulans. The two readiness values
-are weapon deadlines. Its score is cumulative across appearances in that galaxy.
-Destroying a Romulan removes World.romulan but does not by itself reset any
-RomulanActivity property. A new galaxy initializes cadence, turns, appearances
-and every score category to zero, and both deadlines to its elapsed-time origin.
-The [autonomous rules](autonomous.md) define later changes.
+`World.romulan` describes the autonomous ship currently present.
+`RomulanActivity` continues across appearances: cadence counts enabled driver
+invocations since the last reset, turns counts activations that pass the cadence
+gate, and appearances counts created Romulans. The readiness values are weapon
+deadlines, and the score accumulates across appearances. Destroying the current
+Romulan removes `World.romulan` without resetting this activity. A new galaxy
+resets the counters and score, and sets both deadlines to its elapsed-time origin.
 
 **Source basis:** [tractor association](../../legacy/utexas/DECWAR.FOR#L4432),
 [score categories and display](../../legacy/utexas/DECWAR.FOR#L2893).
 
 ## Information and communication
+
+These records describe captain preferences, shared faction knowledge, radio
+messages and the delivery state needed for communication between ships.
 
 ```text
 type TeamKnowledge = {
@@ -582,9 +568,9 @@ type RadioService = {
 };
 ```
 
-The recipients name the audience of a message. Message-delivery state is
-specified separately from that original audience. Turning a radio off and
-gagging a sender are distinct actions. The delivery rules determine which
+`recipients` records a message's original audience; `remainingRecipients`
+records which members of that audience have not consumed it. Turning a radio off
+and gagging a sender are separate actions. Delivery rules determine which
 messages can be received and when.
 
 RadioService.messages contains published messages in publication order.
@@ -769,6 +755,9 @@ define the values recorded for each kind of hit.
 
 ## World
 
+World collects the shared state of one galaxy: its entities, faction records,
+global counters, autonomous activity and communication services.
+
 ```text
 type World = {
     elapsedOrigin: Optional<ClockOrigin>;
@@ -832,9 +821,9 @@ cumulative commission counts and installation counts are separate quantities.
 
 ## Game state and operations
 
-`GameState` represents a galaxy and its participating sessions. Its representation
-is unspecified. The preceding records describe properties that the specification can
-observe; they do not require mutable objects, tables or a particular database.
+`GameState` represents a galaxy and its participating sessions. The preceding
+records name properties that the specification can observe. They do not require
+mutable objects, tables or a particular database.
 
 ```text
 abstract type GameState
@@ -848,15 +837,12 @@ query tractorBeam(game: GameState, id: TractorBeamId): TractorBeam
 query sector(game: GameState, position: Position): Optional<SectorObject>
 ```
 
-Queries describe the current state without changing it. Operations describe
-permitted changes and observations. Their names are specification vocabulary,
-not additional commands or a required software interface. The command chapters
-define the operations and their outcomes alongside the grammar that invokes them.
-Within a game operation, `game` denotes the current GameState. A query or pure
-function has no implicit permission to change it. The result type follows the
-parameter list's colon. Vertical bars separate alternatives; braces name their
-associated values. A rejection outcome carries its declared reason; it is not
-terminal text or a command that the player can enter.
+Queries describe current state without changing it. Operations describe allowed
+changes and observations. Their names are specification vocabulary rather than
+player commands or a required programming interface. The command chapters pair
+these operations with the grammar that invokes them. Within an operation,
+`game` denotes the current GameState. A rejection carries its declared reason;
+it is neither terminal text nor player input.
 
 ### Query domains
 
@@ -873,12 +859,11 @@ by itself prove that an entity is present in this game.
 | tractorBeam | A TractorBeamId in the current beam set; returns that association. |
 | sector | An in-galaxy Position; returns the interaction object at that position, or none for an empty sector. |
 
-A query outside its declared domain has no result defined by this specification.
-It does not create a default entity, return a record remembered from an earlier
-observation, or introduce a player-visible error message. An operation that
-accepts an absent identity states its own check and result before querying the
-entity. For example, RemovePlanet returns NoPlanet when its target is absent;
-that branch does not evaluate planet(game, target).
+A query outside its domain has no defined result. It does not create a default
+entity or produce a player-visible error. An operation that accepts an absent
+identity must check for absence before making the query. For example,
+RemovePlanet returns NoPlanet for an absent target without evaluating
+`planet(game, target)`.
 
 Optional results describe permitted absence inside a query's domain. Thus an
 empty sector is a valid result, while a coordinate outside the galaxy is not a
@@ -901,11 +886,10 @@ An operation contract states:
   effects that follow the action.
 
 In a contract, `before(x)` and `after(x)` refer to a property immediately before
-and after the named semantic event. An equation between them is a requirement,
-not an assignment or a prescribed update order. Where ordering matters, the
-contract names separate events and states their ordering. Other world activity
-may occur during an operation under the multiplayer rules; these contracts
-do not imply that every command is one indivisible transaction.
+and after a named event. An equation between them states a required relationship,
+not an assignment or update order. When order matters, the contract names the
+events and their sequence. Multiplayer activity may occur during an operation;
+a contract does not make the entire command indivisible.
 
 Command and shared-rule clauses combine these contracts with the pseudocode
 notation defined above. An operation name alone does not define its meaning:
@@ -913,10 +897,10 @@ its command or shared-rule clause must supply the contract.
 
 ## Coordination and overlapping operations
 
-A command can contain a **coordinated phase**: an interval in which another
-session cannot enter a coordinated phase in the same domain. This constrains
-permitted execution order; it does not require a particular threading model,
-mutex, database or storage layout. The Austin core distinguishes two domains:
+A command may contain a **coordinated phase**. While that phase is active, no
+other session may enter a coordinated phase in the same domain. This rule
+constrains execution order without requiring a particular threading model,
+lock, database or storage layout. Austin has two coordination domains:
 
 ```text
 enum CoordinationDomain = WORLD_CHANGE | SHARED_SERVICE
