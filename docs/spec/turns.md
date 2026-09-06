@@ -1,8 +1,8 @@
 # Turns and elapsed time
 
 This chapter defines the completion operations used by command semantics.
-Detailed Romulan actions, score reporting and interruption
-rules are still being converted. The named operations below identify those
+Score reporting and interruption rules are still being converted.
+The [autonomous chapter](autonomous.md) defines Romulan actions. Named operations identify
 remaining dependencies; their names alone are not complete definitions.
 
 ## Time model
@@ -71,7 +71,7 @@ CompleteTurn(ship, automaticRepair):
         PlanetDefense(ship)
         BaseReplenishment(ship)
         if world.romulanEnabled:
-            RomulanAction(ship)
+            AdvanceRomulan(ship.captain)
 
     ship.stardate := ship.stardate + 1
     world.teamTurns[ship.team] := world.teamTurns[ship.team] + 1
@@ -101,12 +101,15 @@ hull damage. The session rules determine when death is subsequently processed.
 ## Automatic installation defenses
 
 These operations run when turn accounting activates world defenses. A player
-context supplies the acting ship's faction. A Romulan context has no player
-faction. The Romulan action rules determine when it invokes these operations;
+context supplies the acting ship's faction. A Romulan context activates both
+factions but retains its triggering captain for notification audiences.
+The Romulan action rules determine when it invokes these operations;
 they do not run on an independent elapsed-time schedule.
 
-An eligible player target is commissioned and visibly present at its recorded
-sector. Temporarily absent or concealed ships are skipped. Attack decisions are
+An eligible player target has `commissioned == true`, a recorded position and
+a nonempty sector query at that position. The queried object need not be the
+ship itself: the temporary BlackHoleObject during HELP or GRIPE does not prevent
+these installations from attacking that ship. Empty sectors are skipped. Attack decisions are
 made as the sequence proceeds, so destruction by an earlier installation prevents
 a later installation from selecting that ship as a commissioned target.
 
@@ -140,10 +143,11 @@ if the Romulan exists and is within four sectors:
 player PHASERS command's input, energy charge, overheating or bank deadlines.
 Installation credit goes directly to `world.teamScores[base.team]`.
 
-For a player context, ship-hit announcements address the acting faction within
-ten sectors of the victim, everyone within four sectors, and the victim itself.
+Ship-hit announcements address the triggering captain's faction within ten
+sectors of the victim, everyone within four sectors, and the victim itself.
+This audience rule also applies in a Romulan context: activating both factions'
+bases does not replace the triggering captain's faction for the ten-sector group.
 Romulan-hit announcements address everyone within ten sectors of the Romulan.
-The complete announcement audience in a Romulan context remains under review.
 
 ### PlanetDefense
 

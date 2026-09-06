@@ -1494,6 +1494,12 @@ Do not place a per-commission value in the acting-ship column. Finally report
 score per turn: the ship's own completed turns for its column, and accumulated
 turns for each faction or the Romulan for theirs.
 
+The Romulan column reads world(game).romulanActivity: score for its category
+values, appearances for commissions, and turns for its turn count. These values
+remain reportable while no Romulan ship is present; destruction does not reset
+them. New-galaxy initialization and later increments are defined by the
+[autonomous activity contract](autonomous.md#activation-and-appearance).
+
 ```text
 total(score) := sum of its eight category values
 pointsPerCommission := total / cumulativeCommissions
@@ -1502,9 +1508,8 @@ pointsPerTurn := total / completedTurns
 
 Ratios retain fractions until terminal formatting. The display of a ratio with
 a zero denominator remains unresolved; it is not implicitly zero, and this
-draft does not require a machine arithmetic exception. The lifecycle rules must
-complete Romulan commission-count initialization and lifecycle effects.
-Faction admission increments are defined in the session rules.
+draft does not require a machine arithmetic exception. Faction admission
+increments are defined in the session rules.
 
 POINTS changes no score, resource, knowledge or stardate. A report does not
 recompute damage or turn credits and does not reconcile team totals to the sum

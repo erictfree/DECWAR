@@ -100,6 +100,7 @@ consequences without prescribing how a new implementation realizes them.
 | commands.md | Each command's syntax, preconditions, state changes, outputs and completion. |
 | world-rules.md | Shared paths, towing, damage, scoring and installation transitions. |
 | turns.md | Time, automatic repair, action accounting and command completion. |
+| autonomous.md | Romulan activity, appearance, target choice, pursuit, weapons and follow-up defenses. |
 | communication.md | Message operations, audiences, consumption and capacity. |
 | session-rules.md | Session phases, commission and lifecycle operations. |
 | information.md | Help/news bindings and feedback-record semantics. |

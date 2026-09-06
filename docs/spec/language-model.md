@@ -232,6 +232,7 @@ record World:
     beams: collection of TractorBeam
     teamScores: Team -> Score
     romulan: Optional<Romulan>
+    romulanActivity: RomulanActivity
 ```
 
 This is the portion of world state used by the converted command families.
@@ -373,6 +374,13 @@ type Score = mapping from ScoreCategory to Points
 record Romulan:
     position: Position
     energy: Energy
+
+record RomulanActivity:
+    cadence: integer
+    turns: Stardate
+    appearances: integer
+    phaserReady: TimePoint
+    torpedoesReady: TimePoint
     score: Score
 ```
 
@@ -388,6 +396,16 @@ Score is expressed in the units shown by the POINTS command. Category values
 can be negative, and totals are their sum. A ship's pending score changes are
 distinct from its accumulated score until turn accounting commits them.
 Scoring rates and destruction bonuses are defined with the corresponding actions.
+
+World.romulan describes the currently present autonomous ship. RomulanActivity
+describes the continuing activity across its appearances: cadence counts enabled
+driver invocations since the last reset, turns counts activations that pass the
+cadence gate, and appearances counts created Romulans. The two readiness values
+are weapon deadlines. Its score is cumulative across appearances in that galaxy.
+Destroying a Romulan removes World.romulan but does not by itself reset any
+RomulanActivity property. A new galaxy initializes cadence, turns, appearances
+and every score category to zero, and both deadlines to its elapsed-time origin.
+The [autonomous rules](autonomous.md) define later changes.
 
 **Source basis:** [tractor association](../../legacy/utexas/DECWAR.FOR#L4432),
 [score categories and display](../../legacy/utexas/DECWAR.FOR#L2893).

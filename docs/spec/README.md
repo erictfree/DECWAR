@@ -89,6 +89,7 @@ profile criteria will be defined separately rather than silently relaxing output
 - [Commands and their meaning](commands.md): operation contracts and semantic rules.
 - [Shared world rules](world-rules.md): paths, tractor associations, damage and installations.
 - [Turns and elapsed time](turns.md): repair, action accounting and pacing.
+- [Autonomous Romulan](autonomous.md): appearance, targets, movement and attacks.
 - [Radio communication](communication.md): publication, recipients and delivery.
 - [Sessions and commissions](session-rules.md): activities and release.
 - [Information resources](information.md): help, news and feedback content.

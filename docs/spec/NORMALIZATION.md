@@ -211,9 +211,10 @@ acquisition, including acquisition of a too-short body, preserves the documented
 loss of a selected recipient's entire unread backlog. That is a bounded-service
 policy with observable effects, expressed without linked-list machinery.
 
-TELL's autonomous path also applies its gag update to local session state. Its
-relationship to the triggering captain remains an explicit review dependency
-with the Romulan driver; it has not been silently discarded as an address alias.
+TELL's autonomous path also applies its gag update to the triggering captain's
+radio preferences. ROMDRV changes the actor kind but retains that captain. The
+autonomous contract therefore preserves recipient ungagging on that captain,
+without enabling the captain's radio or modifying other captains' preferences.
 
 **Source basis:** [SET](../../legacy/utexas/DECWAR.FOR#L3624),
 [USRNAM](../../legacy/utexas/WARMAC.MAC#L3415),
@@ -381,3 +382,67 @@ multiplayer admission policy from the routine names alone.
 [world-end exit](../../legacy/utexas/DECWAR.FOR#L961),
 [TRACTR/TRCOFF](../../legacy/utexas/DECWAR.FOR#L4432),
 [LOCK/UNLOCK](../../legacy/utexas/WARMAC.MAC#L3764).
+
+
+## Autonomous Romulan state and decisions
+
+The generalized model separates the currently present Romulan (position and
+energy) from RomulanActivity (cadence, turns, appearances, weapon deadlines and
+accumulated score). All activity fields lie in the new-galaxy clearing range;
+DEADRO removes presence without clearing them, and appearance changes only the
+new ship's energy, placement, cadence and appearance count. Score is not lost
+merely because the current Romulan is absent. Initial energy is 200+I(200) game
+energy units; this variable is not on the player-ship energy's scaled basis.
+
+DIST selects group minima using squared Euclidean distance and then supplies
+Chebyshev range. Its initial minimum is 75*75+1, not infinity. The normative
+selection contract currently covers states with an eligible candidate at squared
+distance at most 5625 (Euclidean distance at most 75). With every candidate
+farther away or absent, the routine reads retained/uninitialized group identities
+and positions. Do not turn that into an arbitrary target in the generalized
+model, or silently extend the domain by inventing idle/pursuit behavior. The
+book labels this domain limit as unresolved, not as a new gameplay range rule.
+Empty-group comparisons can consume draws that cannot affect the final eligible
+winner; they do not require fictitious entities in the ADT.
+
+Candidate eligibility preserves the Federation/Empire commission-test asymmetry.
+A positive sector read is not a same-identity check. In particular ESHP's positive
+black-hole substitution during HELP/GRIPE does not exclude the ship from DIST,
+BASPHA or PLNATK. Revised the earlier general defense wording to avoid implying
+immunity from that substitution. Stale positions, concurrent replacements and
+negative/invalid object representations still need their broader normalization
+and interleaving analysis.
+
+ROMDRV's movement traces for min(original target range,4), even though its aiming
+point is shortened by one on each nonzero axis. An obstructed trace tests lower
+vertical and then lower horizontal candidates from its last clear position;
+failed avoidance leaves the original position, not that intermediate point.
+Its exact weapon deadline comparisons are retained, including choosing torpedoes
+when the phaser deadline equals now and the torpedo deadline is still later.
+These are ordered game decisions, not integer-overflow artifacts.
+
+ROMTOR retains star-first aiming, an at-most-three-shot burst, misfire stopping
+after its own shot, obstruction-specific retargeting, different accidental planet
+thresholds, and per-launched-shot deadlines. The ignored deflection draw at a
+cancelled post-misfire iteration does not create an extra shot or outcome.
+Ordinary arithmetic retains damage fractions; the shared discrete trace-length
+selection remains unchanged. Each impact uses its own destruction result, not
+an unrelated earlier hit's stored flag. A self-destructive nova skips the burst's
+readiness update, but the driver's later speech and installation calls remain
+unless world termination has already exited.
+
+ROMDRV runs with the triggering captain's identity and faction still available.
+This establishes the autonomous TELL ungag effect on that captain's radio
+preferences and BASPHA's triggering-faction ten-sector notification audience,
+even when both factions' bases are activated. The Romulan has no faction
+allegiance as an attacker. Its phasers consume no energy and add no player-style
+heat or device penalty. Both weapon paths credit its persistent score directly.
+
+**Source basis:** [state and clearing bounds](../../legacy/utexas/HISEG.FOR#L1),
+[galaxy clearing](../../legacy/utexas/SETUP.FOR#L171),
+[DIST](../../legacy/utexas/DECWAR.FOR#L836),
+[ROMDRV and damage entries](../../legacy/utexas/DECWAR.FOR#L3233),
+[ROMSTR and ROMTOR](../../legacy/utexas/DECWAR.FOR#L3400),
+[TELL](../../legacy/utexas/DECWAR.FOR#L3977),
+[BASPHA](../../legacy/utexas/DECWAR.FOR#L375),
+[PLNATK](../../legacy/utexas/DECWAR.FOR#L2800).

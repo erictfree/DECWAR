@@ -116,8 +116,15 @@ The general discrete-choice notation applies; this chapter does not prescribe a
 random-number generator. Exact probability
 and reproducibility requirements remain in the randomness work.
 
-**Open:** Whether autonomous speech changes the triggering captain's radio
-preferences still needs resolution with the complete Romulan action contract.
+An autonomous speech event runs on behalf of the triggering captain identified
+by [AdvanceRomulan](autonomous.md#activation-and-appearance). It does not enable
+that captain's radio or require that ship's radio device to be undamaged.
+After validating the chosen audience, remove those recipients from the
+triggering captain's own gaggedSenders set. This ungagging occurs before
+publication, so it remains even if publication fails. Other captains' gag choices
+are unchanged. The triggering ship is not excluded from a Romulan audience.
+Recipient-validation diagnostics, including an empty-audience report, are
+available to the triggering captain; they are not new radio publications.
 
 **Source basis:** [ROMSPK](../../legacy/utexas/WARMAC.MAC#L4672),
 [TELL's autonomous path](../../legacy/utexas/DECWAR.FOR#L3977).

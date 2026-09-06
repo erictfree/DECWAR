@@ -2243,3 +2243,46 @@ port/tool attribution remain separate.
 - No runtime, live-server or legacy archive changes. The goal remains active;
   remaining command contracts, complete combat/autonomous behavior, lifecycle,
   multiplayer/presentation bindings and variant amendments still require work.
+
+
+## Specification checkpoint — autonomous Romulan operations (2026-09-05)
+
+- Continued the explicit ADT work from movement checkpoint 6f1dfcf. Device state
+  remains a total Device-to-DeviceState mapping, with damage selected explicitly
+  as ship.devices[WARP_ENGINES].damage; hull damage and shield strength are separate.
+- Added the compiled autonomous chapter with typed activation, target selection,
+  pursuit and torpedo-burst operations. Separated the current Romulan's position
+  and energy from persistent activity counters, weapon deadlines and score.
+- Derived activation gates, deferred appearance, empty-sector placement, target
+  ranking/ties, pursuit tracing/avoidance, deadline comparisons, phaser and torpedo
+  effects, post-weapon defenses, accidental planet hits and score persistence.
+  Preserved observable ordering and costs without PDP-10 storage representations.
+- Rechecked Austin DECWAR.FOR ROMDRV 3233–3397, ROMSTR 3400–3418, ROMTOR
+  3419–3514, DIST 836–892, TELL 3977–4065, BASPHA 375–430, PLNATK 2800–2860,
+  BASBLD 317–338, PLACE 2765–2796 and main turn completion 230–253; checked
+  HISEG.FOR/SETUP.FOR initialization and WARMAC.MAC ROMSPK. Source derivation,
+  residual target-selection state and normalization choices remain outside the book.
+- Closed related speech and defense details: validated autonomous audiences clear
+  the triggering captain's matching gag preferences before publication; temporary
+  HELP/GRIPE sector substitution does not grant installation-attack immunity.
+  Both-faction Romulan defenses retain the triggering faction for the specified
+  announcement audience. POINTS reads persistent activity even when no Romulan exists.
+- Added EX-MODEL-190 through 208 for activation, appearance, target ranking,
+  movement, deadline equality, weapon costs, burst completion, planet destruction,
+  self-destruction, gag updates and temporary-sector attack eligibility.
+- Kept absent/distant-target selection, concurrent world changes, interrupted
+  publication and planet-update refusal conditions explicit as incomplete contracts;
+  did not invent pursuit limits, idle behavior or new random failure probabilities.
+- Validation: spec build passed 13 included sections, 268 local links, 208 semantic
+  example rows and 324 source fragments. Source audit passed 135 file hashes,
+  83 declarations, 33 main commands, 16 pregame commands and both variant population
+  checks. These are document/source checks, not executable semantic conformance.
+- Logs: logs/spec-autonomous-build.log, logs/spec-autonomous-final.log and
+  logs/spec-autonomous-audit.log. Rebuilt the 104-page PDF; visually reviewed the
+  model, autonomous chapter and new example pages in tmp/pdfs/spec-autonomous/.
+  Rerendered example pages at higher resolution to verify full identifier display.
+  Generated PDF/HTML/LaTeX/Markdown outputs remain ignored.
+- No runtime, live-server or immutable archive changes. Separate experiments/,
+  docs/status.md and unrelated WORK_LOG additions remain outside this checkpoint.
+  The goal remains active: remaining command contracts, lifecycle/multiplayer,
+  randomness, presentation bindings, variants and full conformance review remain.

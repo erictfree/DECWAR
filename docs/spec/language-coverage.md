@@ -27,7 +27,7 @@ remaining dependencies below still limit end-to-end conformance claims.
 | PHASERS | [PHASERS](commands.md#phasers) | Concurrent target changes, random distributions and complete delivery/presentation. |
 | TORPEDOS | [TORPEDOS](commands.md#torpedos) | Malformed continuations, concurrent target changes and complete delivery/presentation. |
 | LIST, SUMMARY, BASES, PLANETS, TARGETS | [Galaxy reports](commands.md#list-summary-bases-planets-and-targets) | Mixed selector edge cases, label aggregation, concurrent reporting and terminal presentation. |
-| POINTS | [POINTS](commands.md#points) | Initial lifecycle counts, zero-denominator presentation and terminal formatting. |
+| POINTS | [POINTS](commands.md#points) | Zero-denominator presentation, concurrent counts and terminal formatting. |
 | TYPE | [TYPE](commands.md#type) | Complete preference/session definitions and terminal formatting. |
 | TIME | [TIME](commands.md#time) | Environment clock/accounting binding and duration formatting. |
 | USERS | [USERS](commands.md#users) | Session metadata binding, admission interleavings and terminal formatting. |
@@ -67,14 +67,21 @@ coverage does not establish lifecycle, concurrency or terminal conformance.
 - Lexical and command grammar: source-derived clauses retained with normalized
   numbers; malformed forms and some continuations still need complete productions.
 - Turns: completion classes, automatic repair, pacing, accounting, base and planet
-  defense and base replenishment drafted; Romulan actions, randomness and detailed
-  interleavings remain.
+  defense and base replenishment drafted. Installation eligibility during HELP/GRIPE
+  and the Romulan context's triggering-faction notice audience are specified;
+  randomness and detailed interleavings remain.
 - Shared world rules: typed path results and beam release/following contracts, phaser damage,
   torpedo damage, blast displacement, novas, Romulan weapon damage and installation
-  transitions drafted; complete Romulan actions and world-end ordering remain.
+  transitions drafted; complete shared-operation contracts and world-end ordering remain.
+- Autonomous Romulan: persistent activity state, cadence, appearance, target
+  ranking/ties, pursuit/avoidance, weapon deadlines, phasers, torpedo bursts,
+  star aiming, accidental planet hits and follow-up defenses drafted in
+  [the autonomous chapter](autonomous.md). Empty or all-distant target selection,
+  full random distributions, concurrent/invalid sector states and interruptions
+  remain unresolved. The target-domain limit is not a new pursuit-radius rule.
 - Communication: message identities, recipient filtering, publication order,
-  capacity loss, consumption and gagging drafted. Complete interleavings and
-  autonomous speech's effects on captain preferences remain.
+  capacity loss, consumption and gagging drafted. Autonomous speech's ungag effect
+  on the triggering captain is specified; complete interleavings remain.
 - Sessions: startup, pregame ACTIVATE, admission, faction/ship selection,
   galaxy creation, initialization commands, HELP/GRIPE activity, release and
   world termination drafted. Name acquisition, concurrent claims/cancellation,
@@ -86,7 +93,7 @@ coverage does not establish lifecycle, concurrency or terminal conformance.
   commands introduced; remaining differences and complete command amendments remain.
 - Examples: resources, scans/reports, tractor, movement, construction, capture,
   phaser, torpedo, nova, defense, report visibility, knowledge, scoring, preferences
-  and communication cases drafted;
+  communication and autonomous activity cases drafted;
   broader command, lifecycle and multiplayer cases remain.
 
 No game code or legacy source is changed to conform to this draft.
