@@ -575,10 +575,10 @@ the existing domains without changing coordinate bounds, geometry, accepted
 input or movement behavior. A focused declaration and usage check is recorded
 in logs/spec-position-refinement-review.log.
 
-The sector-geometry clause now names its existing maximum-coordinate formula
-as Chebyshev distance (the maximum metric or L-infinity distance). The formula
-remains the normative definition, avoiding dependence on a library's naming or
-distance convention.
+The sector-geometry clause names its maximum-coordinate formula as Chebyshev
+distance. Its surrounding prose retains only the adjacency consequence and the
+vector-addition rule used by path semantics; unused aliases and duplicated type
+facts were removed.
 
 The galaxy model now ties RomulanObject directly to `World.romulan` and contrasts
 it with a roster-backed PlayerShip. This explains the semantic reason for the

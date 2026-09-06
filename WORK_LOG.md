@@ -4392,6 +4392,17 @@ formula remains normative. Build passed 100 productions, 671 scenario rows,
 12; no clipping or overfull/undefined warnings. No formula, coordinate domain
 or gameplay changed.
 
+Follow-up editorial pass removed the maximum-metric/L-infinity aliases, the
+library-conformance aside, an unused subtraction rule and repeated descriptions
+of Position/GridPoint/SectorVector. Retained the Chebyshev name and formula,
+adjacency consequence, and vector-addition/result-domain rule used by path
+semantics. Compacted the adjacent SectorObject union and explanation after the
+first reflow stranded one explanatory line at a page boundary. No semantic rule
+changed. Final build passed 100 productions, 671 scenario rows, 14 units and
+686 links in logs/spec-sector-geometry-editorial-build-2.log; the initial layout
+is retained in the preceding build log. Inspected final PDF pages 12–13 with no
+clipping or overfull/undefined warnings.
+
 ## Specification: integrate the Romulan sector distinction
 
 Replaced the isolated statement that the Romulan is not a player commission

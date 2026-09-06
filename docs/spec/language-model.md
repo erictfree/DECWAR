@@ -261,8 +261,7 @@ operation clauses take precedence over any informal expectation about a resource
 
 ### Sector geometry
 
-`distance` is the **Chebyshev distance**, also called the maximum metric or
-L-infinity distance, between two sector positions. For positions a and b:
+`distance` is the Chebyshev distance between two sector positions:
 
 ```text
 function distance(a: Position, b: Position): nonnegative integer {
@@ -273,17 +272,11 @@ function distance(a: Position, b: Position): nonnegative integer {
 }
 ```
 
-Thus diagonal and orthogonal neighbors both have distance one. The formula,
-rather than any particular library function or name, defines conformance.
+Sectors sharing an edge or corner therefore have distance one.
 
-A Position names a sector inside the galaxy. A GridPoint is a mathematical
-point whose coordinates may be fractional or outside the galaxy. A SectorVector
-describes direction and displacement; its components can be negative, zero or
-fractional. Subtracting two positions gives the vector from the second to the
-first. Adding a vector to a position or GridPoint adds corresponding components
-and gives a GridPoint. It denotes a Position only when both components are whole
-coordinates inside the galaxy. Path rules state any rounding and boundary
-handling explicitly.
+Adding a SectorVector to a Position or GridPoint adds corresponding components
+and produces a GridPoint. The result is a Position only when both coordinates
+are whole numbers from 1 through 75.
 
 ## Galaxy and roster
 
@@ -293,23 +286,16 @@ A sector is empty or has one interaction object of the following kind:
 
 ```text
 type SectorObject =
-    | PlayerShip { id: ShipId }
-    | Starbase { id: BaseId }
-    | PlanetObject { id: PlanetId }
-    | RomulanObject
-    | StarObject
-    | BlackHoleObject
+    | PlayerShip { id: ShipId } | Starbase { id: BaseId }
+    | PlanetObject { id: PlanetId } | RomulanObject
+    | StarObject | BlackHoleObject
 ```
 
-The sector query returns the object with which a sector-based observation or
-action interacts, or none for an empty sector. These alternatives are abstract
-object kinds, not numeric encodings. The position supplied to the query locates
-a star or black hole; the other alternatives identify the corresponding entity.
-PlayerShip refers to a member of the fixed player roster and its commission
-state. RomulanObject instead refers to the optional autonomous ship in
-`World.romulan`; it cannot be assigned to a captain as a player commission.
-This distinction lets movement, scanning and combat recognize both kinds at a
-sector while their lifecycle and behavior remain separate.
+The sector query returns one of these values, or none for an empty sector.
+PlayerShip identifies a member of the fixed player roster; RomulanObject refers
+to `World.romulan` and cannot carry a player commission. Both participate in
+spatial rules while retaining separate lifecycle and behavior rules. The
+alternatives are abstract object kinds, not numeric encodings.
 
 During HELP or GRIPE, a ship can retain its commission and position while its
 sector has a different temporary interaction kind, as defined in
