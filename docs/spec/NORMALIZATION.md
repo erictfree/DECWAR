@@ -1541,3 +1541,14 @@ opened source and failure to open that source; only the former can proceed to
 the paying source. The four group-presence checks are stated as record groups,
 not storage offsets. Record contents, ranking, partial-read failures and complete
 output still require their own contracts.
+
+### CompuServe standings record and placement types
+
+The record uses account/name/date/points/duration/mission/marker values rather
+than the ten-word format. UPDSTA's initial argument-six threshold is elapsed
+milliseconds from its callers, despite the comment calling it a score test.
+The comparison favors a longer elapsed value at equal score. Only same-account
+records above the proposed insertion are excluded; lower duplicates are not
+removed. The commented memorial-list offset does not define a live routing rule.
+The generalized query specifies placement over valid contiguous lists; durable
+updates and malformed persisted records remain outside this completed subrule.

@@ -188,7 +188,8 @@ coverage does not establish lifecycle, concurrency or terminal conformance.
   validation are specified. Direct-reply token ordering, body choices, fallback
   qualifiers and uninterrupted relocation are drafted; the origin-wording binding
   and publication/concurrent return paths remain open. Explicit HONORROLL source selection, empty/open-failure continuation and
-  source-boundary interruption are now specified. Full standings records, privilege,
+  source-boundary interruption are now specified. Standings record fields and placement order are now defined; complete durable
+  updates, caller status, privilege,
   lifecycle/concurrency and presentation
   amendments remain. Separate CompuServe examples cover the new clauses.
 - Examples: resources, scans/reports, tractor, movement, construction, capture,

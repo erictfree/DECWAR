@@ -162,8 +162,8 @@ For each attempted source:
    without an Honor Roll heading or an invented missing-file diagnostic. Do not
    proceed to the other source on this path.
 2. Read and close the source. If all four record groups are empty, omit its
-   heading and faction sections. The groups are Federation active records,
-   Federation memorial records, Empire active records and Empire memorial
+   heading and faction sections. The groups are Federation primary records,
+   Federation memorial records, Empire primary records and Empire memorial
    records; their membership and ordering remain to be specified.
 3. Otherwise display the Honor Roll heading and its applicable faction
    sections. A NON_PAYING source adds the notice
@@ -191,6 +191,75 @@ continuation, not a complete HONORROLL conformance claim.
 [DOCUMENT and HONORROLL actions](../../legacy/compuserve/fortran%201978/SETUP.FOR#L162),
 [pregame name table](../../legacy/compuserve/fortran%201978/SETUP.FOR#L505),
 [standings reader](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L5885).
+
+
+### Standings records and placement
+
+```text
+type RecordedDate
+
+type CompuServeStanding = {
+    account: AccountIdentity;
+    captainName: Text;
+    shipName: Text;
+    recordedDate: RecordedDate;
+    score: Points;
+    elapsed: Duration;
+    missionNumber: nonnegative integer;
+    markedMissing: Boolean;
+};
+
+type StandingsPlacement = BelowCut | EarlierAccountRecord
+    | InsertAt { position: positive integer };
+
+query FindStandingsPlacement(records: List<CompuServeStanding>,
+                            candidate: CompuServeStanding): StandingsPlacement
+```
+
+A standings list contains at most ten records, in displayed rank order. This
+query concerns a valid list without vacant entries between records. Account
+identity is distinct from the displayed captain and ship names. RecordedDate
+is a date value supplied by the environment; its calendar and conversion binding
+remain to be specified. elapsed is commission elapsed time, not ship turns or
+CPU execution time. The current display names are preserved as record values;
+a later rename does not rewrite an existing record.
+
+FindStandingsPlacement scans from position one. Select the first position whose
+existing record has a lower score than candidate.score, or has the same score
+and a shorter elapsed time than candidate.elapsed. If none qualifies and fewer
+than ten records exist, select the position after the last record. If neither
+condition holds, return BelowCut.
+
+Before accepting a selected position, examine only the records above it. If any
+has the candidate's account identity, return EarlierAccountRecord. Otherwise
+return InsertAt with that one-based position. Equal score and equal elapsed
+time do not place the candidate before the existing entry. This rule does not
+prefer shorter missions or compare captain names to identify accounts.
+
+When the standings update accepts InsertAt, insert the candidate at that
+position, shift the following records down one rank and retain only the first
+ten. Do not remove a matching account below the insertion point as part of this
+step. The source's earlier-account check is not a general one-record-per-account
+invariant. The placement query itself changes neither the list nor the game.
+
+The update path considers only commissions with at least 1000 milliseconds of
+recorded elapsed time. A shorter elapsed time returns before standings access,
+placement, or the destruction-count update. This is not a minimum-score test.
+The record's score comes from the final committed POINTS total supplied by its
+caller. A qualifying update chooses its faction's primary list even when
+markedMissing is true; the supplied update path does not route that entry into
+the memorial list. Memorial records can still be read and displayed.
+
+**OPEN QUESTION:** The full update operation still needs caller-specific missing
+status, mission/destruction counters, source initialization, date binding,
+write failures and concurrent access. The placement rule does not promise a
+durable write or define the treatment of malformed preexisting records. It does
+not reclassify a losing commission as a destroyed physical ship.
+
+**Source basis:** [record update and ranking](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L5694),
+[record fields](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L5833),
+[ten-entry limit](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L231),
+[elapsed-time caller](../../legacy/compuserve/fortran%201978/GETCMD.FOR#L114).
 
 ## Ctrl-G during command input
 

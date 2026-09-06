@@ -3273,3 +3273,18 @@ output remain unfinished. DOCUMENT's continued-literal whitespace remains open.
 The final build is `logs/spec-comp-standings-selection-build-reviewed.log`;
 physical PDF page 214 was visually inspected after the final wording edit.
 Earlier build output is retained. Runtime and immutable archives unchanged.
+
+### Specification checkpoint: CompuServe standings records and placement
+
+Defined typed standings values and FindStandingsPlacement over valid lists of
+at most ten records. Preserved descending score, longer elapsed tie preference,
+only-earlier duplicate-account suppression and shift/drop insertion. Corrected
+primary-versus-memorial terminology: live update routing does not use the
+commented memorial offset. The caller proves the 1000-unit entry threshold is
+elapsed milliseconds, not score. Persistence, status/counters, dates and failures
+remain separate work.
+
+`logs/spec-comp-standings-records-source-reviewed.log` passes static checks;
+the initial extraction failed on whitespace after the label and was corrected.
+`logs/spec-comp-standings-records-build.log` passes. Physical PDF pages 215–216
+were visually reviewed. No gameplay or immutable archive changes.
