@@ -372,3 +372,18 @@ would establish a candidate binding, not the archived output. Resolving
 U-C-DOCUMENT requires the original compiled literal or applicable compiler
 behavior plus its source-input conventions. The normative notice remains
 explicitly incomplete at this separator; no game behavior is blocked by it.
+
+
+## Fixed base records versus planet membership
+
+The abstract installation paragraph previously conflated destruction of a base
+with removal of a planet record. Austin weapon destruction (DECWAR.FOR
+4217–4223) changes the base count, clears its sector and sets strength zero;
+it retains the base identity and coordinates. BUILD (551–570) scans the fixed
+base identities for nonpositive strength, then writes the selected record's
+position and strength. PLNRMV (2864 onward), in contrast, removes the selected
+planet from the ordered current planet collection. The model now agrees with
+its existing BUILD, RemoveWeaponDestroyedBase and RemovePlanet contracts:
+world.bases retains inactive records, while world.planets loses removed records.
+This corrects a contradictory membership statement without prescribing arrays,
+reusing historical numeric indices as identities, or changing gameplay.

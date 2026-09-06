@@ -3677,3 +3677,17 @@ passed 659 scenarios, 100 productions, 324 fragments, 14 chapters and 546 links.
 Inspected PDF physical pages 12–13; readable quantity and geometry sections.
 No gameplay/archive changes. Whole-book dimensional/type review remains; full
 goal stays active.
+
+### Specification: correct installation membership
+
+Corrected a contradictory model sentence claiming destruction removes every
+installation record. Base destruction retains a fixed record for BUILD reuse;
+planet removal changes current planet membership. Distinguished record count,
+maintained counters, sector presence and operation eligibility. Source and
+existing BUILD/weapon/removal clauses agree; no runtime change.
+
+Validation: logs/spec-base-membership-review.log checks destruction/reuse source
+and existing contracts. logs/spec-base-membership-build.log passed 659 scenarios,
+100 productions, 324 fragments, 14 chapters and 546 links. Inspected PDF physical
+pages 14 and 17; readable record and installation clauses. Full identity/query
+and concurrency review remains; goal stays active.

@@ -372,3 +372,10 @@ points and TimePoint/Duration operations centrally. Existing negative energy,
 base-hit observations, signed scores and nonpositive wait requests remain valid;
 field-specific bounds and clamps still belong to their operations. This clarifies
 the ADT vocabulary without claiming a whole-book dimensional or type proof.
+
+
+Entity-membership review corrected the abstract installation paragraph: base
+destruction retains the fixed record for BUILD reuse; planet removal changes
+current planet membership. The base set size is distinct from maintained and
+surviving-base counts. This matches existing operation contracts and source;
+full identity/optional-query domain review remains ongoing.

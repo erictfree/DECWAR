@@ -412,6 +412,14 @@ relative order of the surviving planets under [RemovePlanet](world-rules.md#plan
 These are abstract membership and ordering properties, not a requirement for
 any particular container.
 
+The base set contains the fixed records identified by both factions' baseOrder
+lists, including bases with nonpositive strength. Its size is not the number
+of surviving bases. Likewise, a ship record remains in the roster when its
+commission ends. By contrast, the planet list contains the current planets;
+removed planets can remain in earlier observations without remaining members.
+A record's membership, its sector presence and its eligibility for an operation
+are distinct properties. The operation's own tests decide eligibility.
+
 baseCounts is the maintained number of bases for each faction;
 capturedPlanetCounts is its maintained number of owned planets. These counters
 are explicit state because installation transitions update them at specified
@@ -557,12 +565,14 @@ type Planet = {
 
 A base survives while its strength is positive. An owner of `none` denotes a
 neutral planet. A planet's builds count construction stages; it is not a
-fractional resource. Destruction and conversion remove an installation from
-the world's collection of that kind. Enumeration order, where observable, is
-specified separately from identity.
+fractional resource. Removing or converting a planet removes its record from
+world.planets. Destroying a base instead retains its record in world.bases,
+with strength zero after destruction cleanup; it removes the base's sector
+presence. A later BUILD can reactivate that same base identity. Enumeration
+order, where observable, is specified separately from identity.
 
 Each faction has ten base identities in the fixed order `world(game).baseOrder[t]`.
-That order is unchanged by destruction or construction; a removed base's identity
+That order is unchanged by destruction or construction; an inactive base's identity
 can be reused. The two factions' identities are distinct. A base's team agrees
 with the faction whose order contains its identity. The first identity without
 a surviving base is the next available identity for that faction. This order
