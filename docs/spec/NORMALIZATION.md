@@ -151,3 +151,74 @@ existing meanings; no new switch is introduced.
 [TIME](../../legacy/utexas/DECWAR.FOR#L4066),
 [STAT](../../legacy/utexas/WARMAC.MAC#L2187),
 [pregame TYPE invocation](../../legacy/utexas/SETUP.FOR#L121).
+
+## ADT contracts and capture
+
+The normative model treats GameState as an abstract data type and commands as
+operations with preconditions, state effects, outcomes and observations.
+Records expose semantic properties; they are not a translation of COMMON blocks.
+CAPTURE now states ownership, fortification and energy postconditions and then
+specifies the defensive attack as a separate ordered event. This preserves a
+successful capture followed by the capturing ship's destruction without requiring
+separate ownership fields, board updates or locking instructions.
+
+CAPTUR's subtraction of 500 stored energy units per build is 50 displayed energy
+units; its 1000 pending score units are 100 displayed points. The defense retains
+50+30*builds strength from the former planet and former-faction attribution. The
+five-second deadline begins at command entry and gains one second per build.
+No energy-sufficiency check is added. Ordinary shared turn completion still follows.
+
+The lock-failure report remains an observable surrender refusal; its complete
+multiplayer precondition is unresolved. It is not converted into a random refusal
+probability. CAPTUR invokes BASKIL before decrementing the former faction's count
+and changing the planet owner. This docking dependency remains recorded here and
+explicitly open in the contract rather than being replaced by an invented
+post-capture docking update. The early PRIDIS calls select notification recipients;
+they are not installation discovery updates. The contract therefore does not
+invent a capture-induced discovery change.
+
+**Source basis:** [CAPTUR](../../legacy/utexas/DECWAR.FOR#L600),
+[BASKIL](../../legacy/utexas/DECWAR.FOR#L339),
+[POINTS](../../legacy/utexas/DECWAR.FOR#L2893).
+
+## Preferences and message identities
+
+SET NAME updates the captain's abstract display name, including before
+commissioning. The source's pregame use of an unset ship index does not prescribe
+an unrelated JOB-field overwrite. Twelve-character retention, printable-character
+case transformation, whitespace handling and the one additional prompt remain
+language rules. Packed six-bit encoding does not determine meanings for embedded
+nonprinting input; that lexical edge case remains unresolved.
+
+TTYTYPE's ordered matching retains the first matching profile during an ambiguous
+reply, and leaves no profile after an unmatched alphanumeric reply. The model uses
+an optional terminal profile for that state. Rendering with no selected profile
+needs a presentation contract; no invalid table read or invented fallback is
+required.
+
+Radio messages have distinct sender identities, immutable original audiences,
+and separate remaining-recipient sets. GETMSG can fail after its notification
+counter led OUTMSG to expect a message; the old body buffer is retained and can
+be printed again. The generalized ReceiveMessage operation returns NoMessage
+instead. Counter/buffer disagreement is not a second message publication.
+Likewise, OUTMSG's modulo-derived index for a Romulan sender can read BITS(0)
+and alias unrelated state. A Romulan is not any player ship in the ADT, so
+player-ship gag selections cannot match it by that address accident.
+
+MAKMSG's Ctrl-C path can reach cleanup before a queue entry was reserved. The
+abstract cancellation publishes nothing and does not require deletion of an
+unrelated entry through a stale index. By contrast, capacity pressure after body
+acquisition, including acquisition of a too-short body, preserves the documented
+loss of a selected recipient's entire unread backlog. That is a bounded-service
+policy with observable effects, expressed without linked-list machinery.
+
+TELL's autonomous path also applies its gag update to local session state. Its
+relationship to the triggering captain remains an explicit review dependency
+with the Romulan driver; it has not been silently discarded as an address alias.
+
+**Source basis:** [SET](../../legacy/utexas/DECWAR.FOR#L3624),
+[USRNAM](../../legacy/utexas/WARMAC.MAC#L3415),
+[OUTMSG](../../legacy/utexas/DECWAR.FOR#L2599),
+[TELL](../../legacy/utexas/DECWAR.FOR#L3977),
+[message capacity](../../legacy/utexas/WARMAC.MAC#L2589),
+[MAKMSG and GETMSG](../../legacy/utexas/WARMAC.MAC#L2963).

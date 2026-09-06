@@ -6,13 +6,14 @@ The University of Texas at Austin
 
 Department of Arts and Entertainment Technologies
 
-**Draft in progress.** This edition is being rewritten around grammar, abstract
-game types and command semantics in readable pseudocode. Fifteen commands are
-converted, including resources, reports, tractor beams, movement, construction,
-capture and phasers, with shared path, damage and turn rules.
-Other command families, world evolution, sessions,
-complete responses and variant amendments remain in progress. The earlier
-source analysis is retained as companion research outside this book.
+**Draft in progress.** This edition is being rewritten around grammar and
+operations on a game-state abstract data type (ADT). Command contracts define
+preconditions, state effects, outcomes, observations and completion; readable
+pseudocode supplements those contracts where useful. The
+[language coverage](language-coverage.md) records drafted commands and remaining
+work. World evolution, sessions, complete responses and variant amendments
+remain incomplete. The earlier source analysis is retained as companion research
+outside this book.
 
 This specification defines the Austin reconstruction's
 game language and recognizable game behavior independently of implementation
@@ -83,11 +84,12 @@ profile criteria will be defined separately rather than silently relaxing output
 
 ## Current sections
 
-- [Abstract game model](language-model.md): identities, quantities and state.
+- [Abstract game model](language-model.md): game-state ADT, identities and quantities.
 - [Lexical rules](lexical.md) and [command grammar](grammar.md).
-- [Commands and their meaning](commands.md): state transitions in pseudocode.
+- [Commands and their meaning](commands.md): operation contracts and semantic rules.
 - [Shared world rules](world-rules.md): paths, tractor associations, damage and installations.
 - [Turns and elapsed time](turns.md): repair, action accounting and pacing.
+- [Radio communication](communication.md): publication, recipients and delivery.
 - [Semantic examples and conformance](language-conformance.md).
 - [CompuServe variant](variants.md).
 

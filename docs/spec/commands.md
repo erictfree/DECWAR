@@ -698,65 +698,106 @@ World termination during conversion also needs its final lifecycle ordering.
 
 ## CAPTURE
 
-### Syntax and prerequisites
+### Syntax
 
 ```text
 CaptureCommand ::= "CAPTURE" [Location]
 ```
 
 Location supplies exactly two coordinate items. Missing input prompts for
-coordinates; an empty continuation cancels. The target must be within one
-sector, must be a planet, and must not already belong to the acting team.
-Invalid targets produce the relevant target/range/ownership diagnostic.
+coordinates; an empty continuation cancels. Coordinate interpretation follows
+the ordinary location rules.
 
-At entry set the deadline to `now + 5000 milliseconds`. Attempt the shared
-planet-update operation before changing ownership. If unavailable, report that
-the government refuses to surrender and make no capture changes or turn.
-
-### Ownership, fortification and defense
-
-Save the former owner and number of builds, b. Re-evaluate the former faction's
-docking before changing ownership; update the factions' captured-planet counts.
-The former owner may be neutral, in which case there is no former-faction count
-or score update.
+### Operation and preconditions
 
 ```text
-CapturePlanet(ship, planet, formerOwner, b):
-    deadline := deadline + b * 1000 milliseconds
-    ship.energy := ship.energy - 50 * b energy units
-    planet.builds := 0
-    planet.owner := ship.team
-    end the planet-update operation
+operation Capture(actor: ShipId, target: Position)
+    on GameState -> CaptureOutcome
 
-    attack := phaser attack from the formerly owned planet
-    attack.strength := 50 + 30 * b
-    attack.distance := distance(planet.position, ship.position)
-    result := apply that attack to ship under the shared phaser rule
-    if formerOwner != none:
-        add result.reportedDamage to formerOwner's ENEMY_DAMAGE score
-        if result.destroyed:
-            add 500 points to formerOwner's ENEMY_KILLS score
+CaptureOutcome = Captured(planet: PlanetId)
+               | Rejected(reason: CaptureRejection)
+               | Cancelled
 
-    emit PlanetCaptured(planet, formerOwner, ship.team)
-    notify the capture/defensive-hit audience
-    ship.pendingScore[PLANET_CAPTURE] += 100 points
-    record remaining delay until deadline
-    CompleteTurn(ship, automaticRepair = true)
+CaptureRejection = NotAdjacent | NotAPlanet
+                 | AlreadyOwned | SurrenderRefused
 ```
 
-The capture succeeds before the defensive attack. A fortified planet costs 50
-engine-energy units and adds one second to the deadline per build, in addition
-to the resulting defensive phaser damage. Resetting construction does not weaken
-that attack: it uses the saved b. Even an unfortified neutral planet attacks
-with strength 50. The shot uses the former ownership for its attribution.
+These outcome names describe semantics; they are not literal terminal messages.
+For a resolved target, check the following conditions in order:
 
-The defensive hit can destroy the capturing ship. Ownership and capture credit
-are not rolled back; the command emits its faction-specific death report and
-still follows normal turn completion before subsequent lifecycle handling.
+1. Its distance from the acting ship is at most one sector.
+2. It contains a planet.
+3. The planet does not already belong to the acting ship's faction.
 
-The final hit notification is available to the acting faction within distance
-10 of the ship, and to captains of either faction within distance 4. Complete
-notification rendering and concurrent audience changes remain under review.
+Failure gives the corresponding rejection and diagnostic. The diagnostic for
+`NotAPlanet` distinguishes the kind of object at the target. A valid target can
+also yield `SurrenderRefused`, reported as “The planet's government refuses to
+surrender.” Rejection or cancellation makes no capture changes, incurs no
+capture energy charge and does not complete a turn.
+
+**Open:** The multiplayer conditions under which a valid capture is refused,
+and the resolution of simultaneous changes to the target, still need a complete
+contract. Surrender refusal is not a random chance or a new diplomatic mechanic.
+
+### Successful state effects
+
+Let p be the target planet, s the acting ship, t its faction, o the planet's
+owner before capture, and b the planet's builds before capture. The capture
+event has these effects:
+
+```text
+after(p.owner)  == t
+after(p.builds) == 0
+after(s.energy) == before(s.energy) - 50 * b energy units
+```
+
+The planet's identity and position are unchanged. The capturing faction gains
+one owned planet; if o is a faction, that faction loses one. Fortifications are
+consumed. No minimum-energy precondition is added: an energy cost that the ship
+cannot survive does not turn an accepted capture into a rejection.
+
+Capture is followed by one defensive phaser attack on s:
+
+```text
+defensiveStrength = 50 + 30 * b
+defensiveDistance = distance(p.position, s.position)
+defensiveOwner    = o
+```
+
+The shared phaser-damage rule determines the attack's effects, including shield,
+hull, device and energy changes. These effects are additional to the capture
+energy charge above. Even an unfortified neutral planet attacks, with strength
+50. Reports attribute the defensive attack to the planet under its former
+ownership; consuming the fortifications does not reduce this attack's strength.
+
+If o is a faction, its ENEMY_DAMAGE score increases by the attack's reported
+damage, expressed in points. If that attack destroys s, o also earns 500
+ENEMY_KILLS points. A neutral former owner receives no faction score.
+
+The capture contributes 100 points to s's pending PLANET_CAPTURE score, committed
+by normal turn accounting. Its outcome is `Captured(p.id)` even if the defensive
+attack destroys s. Destruction does not restore former ownership or cancel the
+capture credit. Subsequent world and lifecycle events have their own effects.
+
+### Observations and completion
+
+The actor receives the capture and defensive-hit reports. A fatal outcome also
+produces the faction-specific death report. The final hit notification is
+available to the acting faction within distance 10 of the ship and to captains
+of either faction within distance 4.
+
+The capture deadline is command-entry time plus five seconds plus one second
+per former build. Time spent supplying coordinates and resolving capture counts
+toward that deadline. Only the remaining interval contributes to the command's
+completion delay under the shared timing rules.
+
+An accepted capture completes one turn with automatic device repair. The shared
+turn rules apply even after a fatal defensive hit; lifecycle handling follows
+those rules. The state effects above describe the capture and its defense, not
+an exemption from other events in turn completion.
+
+**Open:** Former-faction docking effects, concurrent audience changes and complete
+notification rendering still need their final shared-rule contracts.
 
 **Source basis:** [CAPTUR](../../legacy/utexas/DECWAR.FOR#L600),
 [phaser damage](../../legacy/utexas/DECWAR.FOR#L4166),
@@ -1336,3 +1377,215 @@ session-change interleavings remain part of the multiplayer rules.
 
 **Source basis:** [USERS](../../legacy/utexas/DECWAR.FOR#L4600),
 [user-information fields](../../legacy/utexas/WARMAC.MAC#L2187).
+
+## SET
+
+### Syntax
+
+```text
+SetCommand ::= "SET" [Setting]
+Setting ::= "NAME" [NameText]
+          | "OUTPUT" ["SHORT" | "MEDIUM" | "LONG"]
+          | "TTYTYPE" [TerminalName]
+          | "PROMPT" ["NORMAL" | "INFORMATIVE"]
+          | "SCANS" ["SHORT" | "LONG"]
+          | "ICDEF" ["ABSOLUTE" | "RELATIVE"]
+          | "OCDEF" ["ABSOLUTE" | "RELATIVE" | "BOTH"]
+          | "ROMOPT" | "ENDFLG" | "BHREMV"
+```
+
+Resolve setting names in the order shown. The last three settings are recognized
+only with privilege. An absent or unrecognized setting prompts for one; an empty
+continuation cancels. SET changes one setting per invocation. It has no ordinary
+energy charge or turn completion.
+
+### Presentation preferences
+
+| Setting | State change |
+| --- | --- |
+| OUTPUT | Set `captain.outputLength` to SHORT, MEDIUM or LONG. |
+| PROMPT | Set `captain.promptStyle` to NORMAL or INFORMATIVE. |
+| SCANS | Set `captain.scanStyle` to SHORT or LONG. |
+| ICDEF | Set `captain.inputCoordinates` to ABSOLUTE or RELATIVE. |
+| OCDEF | Set `captain.outputCoordinates` to ABSOLUTE, RELATIVE or BOTH. |
+
+For these five settings, a missing or nonalphanumeric value prompts for a value.
+An empty reply cancels. An alphanumeric value that matches none of the setting's
+choices ends the command with that preference unchanged; it does not prompt
+again or diagnose an unknown choice. Subsequent arguments are ignored.
+
+Preferences affect later input interpretation and output; they do not move a
+ship, change its sensors, or alter an already published message. Explicit command
+coordinate modes still override the input default where that command allows them.
+SET ICDEF BOTH is not an additional way to select an input default.
+
+### Terminal profile
+
+The terminal names, in matching order, are ACT-IV, ADM-2, ADM-3A, DATAPOINT,
+ACT-V, SOROC, BEEHIVE and CRT. Ordinary five-character keyword matching applies.
+A missing or nonalphanumeric value prompts; an empty reply cancels.
+
+When an alphanumeric candidate is tested, clear the current terminal selection
+and select the first matching profile, if any. If there is one match, finish.
+If several profiles match, diagnose ambiguity, list the available names and
+prompt again; the first match remains selected while awaiting another answer.
+If none matches, list the available names and prompt again, leaving no profile
+selected. Cancelling at that point does not silently restore an earlier profile.
+The presentation binding must specify how an unselected profile is handled;
+the unselected case remains unresolved.
+
+### Captain name
+
+NAME reads name text from the original line, beginning immediately after the
+delimiter following NAME. Additional spaces are part of the name; it is not a
+sequence of independently parsed name tokens. A separate name prompt begins at
+the first character of its reply. Use at most twelve characters, stop at the
+end of the acquired text, and apply the lexical case transformation to printable
+characters. Spaces are retained. The result replaces the captain's display name
+when it contains a nonspace character. It does not change ship, faction or
+account identity.
+
+If no name is obtained from the command line, prompt once for a name. An empty
+or all-space reply leaves the name unchanged and ends the command. NAME consumes
+the rest of the acquired command line, including text that would otherwise form
+another command. Embedded nonprinting name characters remain an explicit lexical
+edge case.
+
+### Privileged settings
+
+```text
+SET ROMOPT:
+    world.romulanEnabled := true
+
+SET BHREMV:
+    remove every black hole from the galaxy
+
+SET ENDFLG:
+    request world termination
+    perform the world-end operation for this session
+```
+
+ROMOPT enables future Romulan activity; it does not immediately create a Romulan
+or provide an OFF form. BHREMV removes existing black holes without changing the
+option reported by TYPE OPTION. ENDFLG uses the shared termination and final
+scoring rules; it is not an ordinary turn. No value after these settings is needed.
+
+**Source basis:** [SET](../../legacy/utexas/DECWAR.FOR#L3624),
+[terminal names](../../legacy/utexas/DECWAR.FOR#L480),
+[USRNAM](../../legacy/utexas/WARMAC.MAC#L3415).
+
+## TELL
+
+### Syntax and recipient names
+
+```text
+TellCommand ::= "TELL" [Recipient {Recipient}] [";" MessageText]
+Recipient ::= ShipName | GroupName | "ROMULAN"
+```
+
+The body after the first semicolon belongs to message text, not command tokens.
+It retains its original case, spaces and punctuation. Without an inline body,
+TELL prompts `Msg: ` after recipient selection succeeds.
+
+If radio-device damage is at least 300 units, reject before changing radio state
+or reading recipients. Otherwise enable the sender's radio. If recipients were
+omitted, prompt for them; an empty continuation cancels, leaving the radio on.
+
+For each recipient token, first recognize ROMULAN and skip it: Austin player
+TELL does not address the Romulan or cause a reply. For any other recipient,
+repeated command input is rejected before name lookup. Then try ship names in
+roster order, before checking group names. Group abbreviations must match exactly
+one group name; matching several names is ambiguous even if they denote the same
+faction. Unknown or ambiguous recipients are diagnosed and skipped; other tokens
+can still supply valid recipients.
+
+| Group name | Ship identities selected |
+| --- | --- |
+| ALL | Both factions. |
+| KLINGON, EMPIRE | Empire. |
+| HUMAN, FEDERATION | Federation. |
+| FRIENDLY | The sender's faction. |
+| ENEMY | The opposing faction. |
+
+Groups contribute only currently commissioned ships. Explicit ship names can
+select an uncommissioned ship for the later availability diagnostic. Combine
+selections as a set, so duplicate names or overlapping groups do not cause
+duplicate delivery. Explicitly naming oneself produces the self-recipient notice.
+
+### Filtering and state changes
+
+Examine selected ships in roster order. A selected ship whose radio damage is
+at least 300 units is unreachable and is removed. Otherwise an uncommissioned
+ship is unavailable and is removed; otherwise a ship whose radio is off is
+unreachable and is removed. Diagnose each removal in that order of precedence.
+No distance or faction restriction applies.
+
+```text
+recipients := validated selected ships, excluding the sender
+captain.radio.gaggedSenders -= recipients
+if recipients is empty:
+    emit NoRecipients
+    return
+acquire and publish message body for recipients
+```
+
+Sending to a ship ungags that ship in the sender's own radio settings. It does
+not alter the recipient's gag choices. The radio-on and ungag effects happen
+before body acquisition; cancelling the body or failing to publish does not
+undo them. Recipient readiness is checked here, not continuously throughout
+composition or delivery.
+
+### Body and completion
+
+If the current acquired line contains a semicolon, use the raw text following
+its first semicolon. Otherwise acquire a line at the message prompt using the
+ordinary line-editing rules. Ctrl-C during that prompt cancels with no message
+published. Empty or one-character bodies produce `No message sent`. For longer
+bodies, retain the first 75 characters. The full acquired body is consumed even
+when its retained text reaches that limit.
+
+Publication and subsequent delivery follow [radio communication](communication.md).
+TELL completes no turn and charges no energy. Successful submission is distinct
+from a recipient displaying the message: it can later be gagged, discarded on
+release or lost under the bounded pending-message policy.
+
+**Source basis:** [TELL](../../legacy/utexas/DECWAR.FOR#L3977),
+[default groups](../../legacy/utexas/SETUP.FOR#L358),
+[message acquisition](../../legacy/utexas/WARMAC.MAC#L2963).
+
+## *PASSWORD
+
+```text
+PasswordCommand ::= "*PASSWORD" [PasswordToken]
+```
+
+The Austin password is `*MINK`. Compare the retained token exactly, using the
+language's case transformation; a prefix is insufficient. An exact match enables
+session privilege. Any other value, including an omitted password, clears it.
+There is no password prompt or success/failure text in this command. Ignore
+further arguments. It changes no resources and completes no turn.
+
+Privilege affects the commands and observations that explicitly test it. It
+does not rename a ship, change factions or make every game rule optional. The
+password's representation is not a new authentication protocol.
+
+**Source basis:** [PASWRD](../../legacy/utexas/DECWAR.FOR#L2626),
+[password constant](../../legacy/utexas/PARAM.FOR#L15).
+
+## *DEBUG
+
+```text
+DebugCommand ::= "*DEBUG"
+```
+
+Without privilege, report an unknown command and the help hint. With privilege,
+report collected execution-timing observations under the headings Name, Calls,
+Total and High: the measured operation's name, completed call count, total
+execution time and largest measured call time. These are diagnostic observations,
+not ship scores or game turns. Which operations are instrumented, their reporting
+order and the time-unit binding remain environment-dependent research items.
+
+The command ignores trailing arguments and changes no game resources, scores or
+turn counts. Its availability before commissioning does not create a ship.
+
+**Source basis:** [DEBUG and timing observations](../../legacy/utexas/WARMAC.MAC#L3600).

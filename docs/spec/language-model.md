@@ -1,7 +1,54 @@
 # Abstract game model
 
-This chapter defines the abstract values used in the command semantics. The
-world and session model is still being extended.
+This chapter defines the game-state abstract data type (ADT), its observable
+properties and the operations used in the command semantics. The world and
+session model is still being extended.
+
+## Game state and operations
+
+`GameState` represents a galaxy and its participating sessions. Its representation
+is unspecified. The records below describe properties that the specification can
+observe; they do not require mutable objects, tables or a particular database.
+
+```text
+abstract type GameState
+
+query ship(game: GameState, id: ShipId) -> Ship
+query planet(game: GameState, id: PlanetId) -> Planet
+query captain(game: GameState, id: CaptainId) -> Captain
+query world(game: GameState) -> World
+
+operation Capture(actor: ShipId, target: Position)
+    on GameState -> CaptureOutcome
+```
+
+Queries describe the current state without changing it. Operations describe
+permitted changes and observations. Their names are specification vocabulary,
+not additional commands or a required software interface. For example, the
+CAPTURE grammar determines how player input invokes the `Capture` operation.
+
+An operation contract states:
+
+- **Inputs and preconditions:** the values it accepts and conditions required
+  for success, including the order of checks when that affects a diagnostic.
+- **State effects:** the relationships between properties before and after
+  the action, including resource costs and information disclosure.
+- **Outcome and observations:** success, rejection or cancellation, and the
+  reports or events available to participants.
+- **Completion:** elapsed-time requirements and any shared turn or lifecycle
+  effects that follow the action.
+
+In a contract, `before(x)` and `after(x)` refer to a property immediately before
+and after the named semantic event. An equation between them is a requirement,
+not an assignment or a prescribed update order. Where ordering matters, the
+contract names separate events and states their ordering. Other world activity
+may occur during an operation under the multiplayer rules; these contracts
+do not imply that every command is one indivisible transaction.
+
+The CAPTURE clause establishes this contract form. Other drafted clauses still
+use the pseudocode below and are being brought into the same form. An operation
+name alone does not define its meaning: its command or shared-rule clause must
+supply the contract.
 
 ## Notation
 
@@ -37,13 +84,17 @@ entity. Updating a field through that name changes the entity's state.
 ## Quantities and identities
 
 ```text
-type ShipId, CaptainId, BaseId, PlanetId, TractorBeamId
+type ShipId, CaptainId, BaseId, PlanetId, TractorBeamId, MessageId
 type Text = sequence of characters
 type Boolean = true | false
 
 enum Team       = FEDERATION | EMPIRE
 enum ShieldMode = UP | DOWN
 enum Condition  = GREEN | YELLOW | RED
+enum OutputLength = SHORT | MEDIUM | LONG
+enum PromptStyle = NORMAL | INFORMATIVE
+enum ScanStyle = SHORT | LONG
+enum CoordinateMode = ABSOLUTE | RELATIVE | BOTH
 enum Device     = SHIELDS | WARP_ENGINES | IMPULSE_ENGINES
                 | LIFE_SUPPORT | TORPEDO_TUBES | PHASERS
                 | COMPUTER | RADIO | TRACTOR_BEAM
@@ -242,14 +293,24 @@ record RadioSettings:
 
 record Captain:
     id: CaptainId
-    ship: ShipId
+    ship: Optional<ShipId>
+    displayName: Text
+    privileged: Boolean
+    outputLength: OutputLength
+    promptStyle: PromptStyle
+    scanStyle: ScanStyle
+    inputCoordinates: CoordinateMode
+    outputCoordinates: CoordinateMode
+    terminalProfile: Optional<Text>
     radio: RadioSettings
     phaserReady: pair of TimePoint
     torpedoesReady: TimePoint
 
 record Message:
-    sender: ShipId | ROMULAN
+    id: MessageId
+    sender: ShipId | ROMULAN | SYSTEM
     recipients: Set<ShipId>
+    remainingRecipients: Set<ShipId>
     body: Text
 ```
 

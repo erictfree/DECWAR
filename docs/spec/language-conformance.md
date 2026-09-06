@@ -102,6 +102,32 @@ defense phases. Other ships and installations do not alter the stated result.
 | EX-MODEL-89 | Pregame session; TIME IGNORED | Omit both commission-specific rows and ignore the trailing token. |
 | EX-MODEL-90 | Nonprivileged captain using SHORT output; USERS; an enemy captain is beyond sensor range | Include that captain's six ordinary fields. Omit location; do not omit the row merely because it is remote. |
 | EX-MODEL-91 | Privileged captain using LONG output; USERS | Include the header and each commissioned captain's six fields plus location, in roster order. |
+| EX-MODEL-92 | Adjacent planet has two builds and belongs to the other faction; successful CAPTURE | At the capture event, ownership changes, builds become zero and energy decreases by 100. The subsequent defense has strength 110 and former-faction attribution. |
+| EX-MODEL-93 | Same capture begins at elapsed time 20 seconds; coordinates are supplied at 26 seconds | Capture deadline is 27 seconds, leaving at most one second of capture delay after the reply. Defense and shared turn effects still apply. |
+| EX-MODEL-94 | Adjacent planet already belongs to the actor's faction; CAPTURE | AlreadyOwned rejection; no capture energy charge, fortification removal, defense, score or turn. |
+| EX-MODEL-95 | Valid adjacent neutral planet; surrender is refused | SurrenderRefused outcome and government-refusal diagnostic. No capture effects or turn. This case does not define the unresolved cause of refusal. |
+| EX-MODEL-96 | Output is LONG; SET OUTPUT BOGUS | Leave LONG unchanged; no extra value prompt or unknown-choice diagnostic. No turn. |
+| EX-MODEL-97 | SET OUTPUT, followed by MEDIUM at the value prompt | Output becomes MEDIUM. Ship resources and stardate are unchanged. |
+| EX-MODEL-98 | Input default ABSOLUTE; SET ICDEF BOTH | Leave the input default ABSOLUTE. BOTH is not an accepted input-default choice. |
+| EX-MODEL-99 | SET OCDEF BOTH | Output-coordinate mode becomes BOTH. Input-coordinate mode is unchanged. |
+| EX-MODEL-100 | SET TTYTYPE ADM, then an empty reply to the ambiguity prompt | Diagnose ambiguity; the first match, ADM-2, remains selected. |
+| EX-MODEL-101 | CRT profile selected; SET TTYTYPE BOGUS, then an empty reply | No profile remains selected. The presentation binding for this state is unresolved. |
+| EX-MODEL-102 | SET NAME abcdefghijklmnop | Captain display name becomes ABCDEFGHIJKL. Ship and account identities are unchanged. |
+| EX-MODEL-103 | Privilege enabled; *PASSWORD *MIN | Clear privilege: a prefix of the retained password is insufficient. No password prompt. |
+| EX-MODEL-104 | Privilege disabled; *PASSWORD *MINK | Enable privilege; no success text, resource change or turn. |
+| EX-MODEL-105 | Sender's radio off, device damage 299; TELL followed by an empty recipient reply | Cancel recipient selection, but leave the sender's radio on. |
+| EX-MODEL-106 | Same command with radio damage exactly 300 | Reject before enabling the radio or prompting for recipients. |
+| EX-MODEL-107 | Sender has gagged Wolf; Wolf commissioned with working radio on; TELL WOLF followed by Ctrl-C at Msg: | No publication; sender's radio stays on and Wolf is removed from the sender's gagged-sender set. Wolf's own settings are unchanged. |
+| EX-MODEL-108 | Eligible Wolf; TELL WOLF WOLF;Hi | Publish one message with body Hi and one recipient, Wolf. No duplicated delivery or turn. |
+| EX-MODEL-109 | Eligible Wolf; TELL WOLF;A | Report No message sent; no publication. Earlier radio and ungag effects remain. |
+| EX-MODEL-110 | Eligible Wolf; TELL WOLF with an 80-character body | Retain the first 75 characters in one message; consume the complete input body. |
+| EX-MODEL-111 | Message to Farragut and Wolf; Farragut receives first | Remove Farragut only from remaining recipients. Wolf still has an unread message; its displayed audience still names both ships. |
+| EX-MODEL-112 | Wolf has an unread message from Farragut, then gags Farragut before receiving | Consume the message with Suppressed outcome and no display. Other recipients are unaffected. |
+| EX-MODEL-113 | Wolf's working radio was on during recipient selection, then is turned off before receiving | Already addressed message remains receivable; delivery-time gagging still applies. |
+| EX-MODEL-114 | All 32 message places occupied; oldest is addressed only to Farragut; several later messages also address Wolf | Next publication removes Farragut from every unread audience. Wolf retains its unread messages; the oldest message frees capacity. |
+| EX-MODEL-115 | Same capacity state, but acquired TELL body is one character | Capacity loss can precede No message sent. No new message is published, and lost backlog is not restored. |
+| EX-MODEL-116 | A message was displayed earlier; subsequent reception obtains none | NoMessage outcome; do not display the previous body again. |
+| EX-MODEL-117 | TELL ROMULAN with no other recipients | No recipient remains; diagnose that fact. No message prompt or autonomous reply. |
 
 EX-MODEL-06 deliberately uses fractional shield strength. Historical loss of
 that fraction is excluded by the numerical normalization policy. The grammar,

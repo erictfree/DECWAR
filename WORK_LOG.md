@@ -1983,3 +1983,58 @@ port/tool attribution remain separate.
     git diff --check. Source and generated-data checks remain unchanged.
   - Documentation-only checkpoint; no game code, build tool, legacy source,
     running galaxy or transport behavior changed. No server restart.
+
+
+- 2026-09-05 — Game-state ADT contracts, captain preferences and communication.
+  - Responded to the request for operations on an ADT by defining GameState,
+    read-only queries, operation contracts and before/after event notation in
+    language-model.md. Records expose semantic properties rather than storage.
+    Updated PLAN.md to require this form for the existing command drafts too;
+    conversion is incomplete, and a signature alone is not a finished contract.
+  - Replaced CAPTURE's procedural ownership/update sequence with a Capture
+    operation: typed outcomes, ordered preconditions, ownership/build/energy
+    postconditions, a subsequent defensive attack, scoring, reports and timing.
+    Preserved 50 energy/build, strength 50+30*builds, 100 capture points,
+    former-owner defense credit, entry-based five seconds plus one second/build,
+    and successful capture despite fatal defense. Removed lock and board-update
+    mechanisms from the core. Surrender-refusal conditions and former-faction
+    docking remain explicit dependencies; no random refusal rule was invented.
+    Sources: DECWAR.FOR CAPTUR 600–698, BASKIL 339, PHADAM 4166, main turn 223–252.
+  - Completed the pending SET, TELL, *PASSWORD and *DEBUG command drafts.
+    SET retains its actual switch grammar, preference choices, terminal matching,
+    twelve-character name limit and privileged options. TELL retains recipient
+    precedence, group ambiguity, damage/commission/radio filtering, sender ungag
+    effects, body acquisition, 75-character retention and cancellation effects.
+    Password and diagnostic behavior remain source-derived; instrumentation and
+    lifecycle bindings are still open. Sources: DECWAR.FOR 2626, 3624–3738,
+    3977–4065; SETUP.FOR 358; WARMAC.MAC 2963–3100, 3415–3457 and DEBUG.
+  - Added communication.md to the book with PublishMessage and ReceiveMessage
+    operation contracts: message identity, immutable original audience, per-ship
+    consumption, publication order, capacity 32 and recipient-backlog loss,
+    delivery-time gagging and autonomous speech choices. Concurrency admission
+    and Romulan speech's effect on the triggering captain remain explicit review
+    items. Source: WARMAC.MAC 2589–2771, 2963–3100, 4672 onward; DECWAR.FOR OUTMSG
+    2599 and TELL 3977. No queue allocation or linked-list algorithm is prescribed.
+  - Recorded normalization of pregame name indexing, optional terminal profile,
+    retained message-buffer replay, Romulan sender identity and pre-reservation
+    Ctrl-C cleanup in NORMALIZATION.md. These are specification decisions only;
+    no runtime repair or legacy source edit was made.
+  - Coverage now records 29/33 main-game command clauses. GRIPE, HELP, NEWS and
+    QUIT remain, as do full sessions, world evolution, randomness, interleavings,
+    terminal presentation and variant amendments. Removed the stale fifteen-
+    command claim from the book introduction in favor of the coverage record.
+  - Added 26 source-reviewed semantic examples (117 total), including capture
+    postconditions/deadline/refusal, preferences, password, messaging, delivery,
+    capacity pressure and cancellation. These are reviewed specification cases,
+    not executable conformance tests or native differential observations.
+  - Initial build caught a blank line splitting the conformance table; fixed it
+    and retained logs/spec-adt-communication-build.log. Final build passed:
+    10 included sections, 180 local links, 117 parsed example rows and 324 source
+    message fragments (logs/spec-adt-communication-final.log). The assembled
+    PDF is 73 pages. Inspected physical pages 7, 35, 36, 48, 63, 64, 70 and 72;
+    renders in tmp/pdfs/spec-adt/page-*.png. No layout defects found in those pages.
+  - npm run audit:check passed (logs/spec-adt-source-audit.log): 135 hashes,
+    83 declarations, 33 main-game and 16 pregame slots, 324 strings; preserved
+    Austin 18 ships/20 planets and CompuServe 10 ships/60 planets. git diff --check
+    passed. No gameplay tests required for this documentation-only checkpoint.
+    No game code, source archive, server or running galaxy changed.

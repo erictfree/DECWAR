@@ -31,16 +31,21 @@ Earlier chapters contain valuable source analysis but often describe internal
 operations instead of language meaning. Retain that analysis as companion
 research while rewriting the normative document around these layers:
 
-1. **Abstract types and state:** named identities, records, enumerations, sets,
+1. **Abstract types and state:** a game-state ADT with queries and semantic
+   operations; named identities, records, enumerations, sets,
    sequences and quantities in game units. Use language-neutral typed records and readable pseudocode
    familiar to TypeScript readers, without importing JavaScript numeric or object
    semantics. No memory maps, packed fields, numeric object codes or aliases.
 2. **Lexical syntax and grammar:** define complete productions and abbreviation
    resolution. Interactive continuations are syntax in their own right.
-3. **Commands:** each command groups its production, defaults and prompts,
+3. **Commands:** each command defines an operation contract, grouping its production, defaults and prompts,
    preconditions, changes to abstract state, results, failure/cancellation effects,
    and game-time/resource consequences. Common semantic operations are defined
    once and named by their game meaning, not by historical routine names.
+   State effects are pre/postconditions and observable event relationships.
+   Use pseudocode to clarify those relationships, not to transliterate source
+   control flow. CAPTURE is the initial contract example; convert existing
+   command drafts to this form as well as completing the remaining commands.
 4. **World rules:** movement, combat, autonomous entities, time and multiplayer
    interactions describe events and state transitions independently of commands.
 5. **Presentation:** player-visible responses and an exact terminal presentation
