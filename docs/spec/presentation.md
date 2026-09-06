@@ -716,3 +716,91 @@ separate binding requirement.
 **Source basis:** [scan display and axes](../../legacy/utexas/WARMAC.MAC#L2482),
 [two-character labels](../../legacy/utexas/WARMAC.MAC#L1814),
 [scan command and rejection](../../legacy/utexas/DECWAR.FOR#L3527).
+
+
+## Galaxy-report lines
+
+LIST, SUMMARY, BASES, PLANETS and TARGETS use the ReportGalaxy observations.
+Selection, ordering and knowledge changes are defined by their
+[semantic operation](commands.md#detail-summaries-and-knowledge). These line
+recipes disclose only information already present in an observation. A detail's
+recorded affiliation determines faction-sensitive labels; presentation does not
+look up a planet's later owner or infer hidden strength.
+
+### Detail lines
+
+For a ReportDetail, emit `"*"` when opposingMarker is true and one space when
+it is false. Emit the entity's object label with no added trailing space:
+the roster ship name or initial, the appropriate base or planet label from its
+affiliation, or the Romulan label. Pad to column 14 in LONG or column 5 otherwise.
+This uses the ordinary column-padding rule, not a constant number of spaces
+after every name.
+
+Append telemetry according to its alternative:
+
+| Telemetry | Text after the label and column padding |
+| --- | --- |
+| OutOfRange | `"out of range"`; no position, strength or percent suffix. |
+| ShipTelemetry | Position, then the signed shield reading with Exactly(6), followed by `%` outside SHORT. |
+| RomulanTelemetry | Position, then its reported percentage with NEGATIVE_ONLY and Exactly(6), followed by `%` outside SHORT. |
+| BaseTelemetry | Position; if strength is present, append it with NEGATIVE_ONLY and Exactly(6), followed by `%` outside SHORT. |
+| PlanetTelemetry | Position; if builds is nonzero, append the integer count with NEGATIVE_ONLY and Exactly(6). In MEDIUM append `" b"`; in LONG append `" build"` for one and `" builds"` otherwise. SHORT has no build suffix. |
+
+Every position uses FormatLocation with Exactly(2) and the viewer's current
+output-coordinate preference and output length. Relative values use the viewer's
+position at presentation, not the earlier origin used to test sensor range.
+Numeric fields immediately follow the position; no extra separator is inserted
+before their own left padding. Quantities use the output length's ordinary
+precision. Every detail finishes with a conditional blank-line request.
+
+Base and Romulan readings here use NEGATIVE_ONLY: they have no leading plus
+when positive. This differs from a ship's explicitly signed shield-mode reading
+and from combat's base/Romulan strength display. A planet with zero builds has
+no count or suffix. An admitted remote base can show coordinates without
+strength, and an admitted remote planet can show both coordinates and builds.
+These differences come from the observation alternatives, not from a fresh
+visibility decision by the renderer.
+
+For MEDIUM absolute output, a friendly Excalibur at (20,20) with raised shields
+at 100% has this line:
+
+```text
+" E  @20-20  +100.0%\r\n"
+```
+
+For the same output context, an opposing Empire base at (50,50) whose telemetry
+withholds strength has `"*)( @50-50\r\n"`. A remote Wolf represented by
+OutOfRange has `"*W  out of range\r\n"`. TARGETS uses a space instead of the
+asterisk because its observations have opposingMarker false.
+
+### Summary lines
+
+ReportSummary has a positive count. Emit that count with zero fractional digits,
+NEGATIVE_ONLY and Exactly(3). If knownQualifier is true, append `" known"`.
+Then append one space and the category's singular text:
+
+| Category | Singular text |
+| --- | --- |
+| RomulanSummary | `"Romulan"` |
+| ShipSummary(FEDERATION) / ShipSummary(EMPIRE) | `"Federation ship"` / `"Empire ship"` |
+| BaseSummary(FEDERATION) / BaseSummary(EMPIRE) | `"Federation base"` / `"Empire base"` |
+| PlanetSummary(none) | `"neutral planet"` |
+| PlanetSummary(FEDERATION) / PlanetSummary(EMPIRE) | `"Federation planet"` / `"Empire planet"` |
+| TargetSummary | `"target"` |
+
+Append `"s"` when count differs from one. In MEDIUM or LONG, append
+`" in range"`, `" in specified range"` or `" in game"` for SENSOR_RANGE,
+SPECIFIED_RANGE or WHOLE_GALAXY respectively. SHORT omits this scope suffix.
+Finish with a conditional blank-line request. Zero counts have no ReportSummary
+and produce no line; do not introduce a zero-count row or a new absence message.
+
+For example, a MEDIUM ReportSummary for two known Empire bases over the whole
+galaxy displays `"  2 known Empire bases in game\r\n"`. One SHORT Federation
+ship displays `"  1 Federation ship\r\n"`. A RomulanSummary count greater than
+one remains plural according to its count, as required by the existing group
+selection semantics; formatting does not replace that count with one.
+
+**Source basis:** [detail lines](../../legacy/utexas/DECWAR.FOR#L2084),
+[summary lines](../../legacy/utexas/DECWAR.FOR#L2060),
+[grouped observations](../../legacy/utexas/DECWAR.FOR#L1959),
+[range and category strings](../../legacy/utexas/MSG.MAC#L89).

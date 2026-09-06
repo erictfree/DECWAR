@@ -26,7 +26,7 @@ remaining dependencies below still limit end-to-end conformance claims.
 | CAPTURE | [CAPTURE](commands.md#capture): explicit ADT operation contract. | Surrender-refusal conditions, final lifecycle and responses; former-faction docking ordering is specified. |
 | PHASERS | [PHASERS](commands.md#phasers): ADT operation contract. | Concurrent target changes, random distributions and complete delivery/presentation. |
 | TORPEDOS | [TORPEDOS](commands.md#torpedos): ADT operation contract. | Malformed continuations, concurrent target changes and complete delivery/presentation. |
-| LIST, SUMMARY, BASES, PLANETS, TARGETS | [Galaxy reports](commands.md#list-summary-bases-planets-and-targets): ADT operation contract. | Exhaustive selector-order coverage, concurrent reporting, interrupted output and terminal presentation. |
+| LIST, SUMMARY, BASES, PLANETS, TARGETS | [Galaxy reports](commands.md#list-summary-bases-planets-and-targets): ADT operation contract. | Exhaustive selector-order coverage, concurrent reporting, interrupted output, grouped separators and terrain/absence presentation. |
 | POINTS | [POINTS](commands.md#points): ADT operation contract. | Zero-denominator presentation, concurrent counts and terminal formatting. |
 | TYPE | [TYPE](commands.md#type): ADT operation contract. | Unselected terminal profile, concurrent observations and full terminal controls. |
 | TIME | [TIME](commands.md#time): ADT operation contract. | Environment clock/accounting binding and unavailable origins. |
@@ -121,7 +121,9 @@ coverage does not establish lifecycle, concurrency or terminal conformance.
   base emergency paragraphs and exact spacing. Radio headings preserve the original
   audience and retain their body-ending blank line. STATUS fields, DAMAGES headings/rows,
   TIME durations, TYPE preference/option lines and complete scan-grid axes/rows
-  now compose their typed report values. Complete control/transport behavior
+  now compose their typed report values. LIST-family detail and summary lines
+  use recorded affiliation and visible telemetry; grouped separators and terrain/absence
+  output still need complete rules. Complete control/transport behavior
   and remaining command/report recipes still remain; the source-analysis terminal
   chapter stays outside the book.
 - Information resources: help topic sections, news continuation boundaries and

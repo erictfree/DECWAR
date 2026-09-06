@@ -564,6 +564,16 @@ defense phases. Other ships and installations do not alter the stated result.
 | EX-MODEL-551 | Scan interruption is observed after the first row in `EX-MODEL-548` | That exact prefix is the complete partial grid; omit both later rows and bottom axis, retaining discovery performed before display. |
 | EX-MODEL-552 | Output length LONG, scan style SHORT, SRSCAN with explicit bounds | Use one-character scan marks; neither LONG output length nor SRSCAN overrides scanStyle. |
 | EX-MODEL-553 | RejectedSyntax from SCAN CORNER with only one extent | Emit `"%Syntax error\r\n"` without the scan-grid separator or axes; no discovery occurs. |
+| EX-MODEL-554 | MEDIUM absolute LIST detail for friendly Excalibur at (20,20), shields UP at 100% | Line is `" E  @20-20  +100.0%\r\n"`; preserve label padding and the signed shield field. |
+| EX-MODEL-555 | MEDIUM absolute LIST detail for opposing Empire base at (50,50), strength absent | Line is `"*)( @50-50\r\n"`; no strength, percent suffix or out-of-range text is appended. |
+| EX-MODEL-556 | MEDIUM LIST detail for opposing Wolf with OutOfRange telemetry | Line is `"*W  out of range\r\n"`; neither coordinates nor shields are disclosed. |
+| EX-MODEL-557 | Same detail selected through TARGETS | Line is `" W  out of range\r\n"`; TARGETS suppresses the opposition marker. |
+| EX-MODEL-558 | Planet detail observes Federation ownership; ownership changes before the stored observation is rendered | Use the observation's Federation planet label; do not relabel it using the later owner. |
+| EX-MODEL-559 | MEDIUM absolute Romulan detail at (20,20), energy-derived telemetry 30% | Line is `"*?? @20-20    30.0%\r\n"`; no leading plus is added to this list reading. |
+| EX-MODEL-560 | MEDIUM summary of two Empire bases, known qualifier true, whole-galaxy scope | Line is `"  2 known Empire bases in game\r\n"`. |
+| EX-MODEL-561 | SHORT summary of one Federation ship, any scope | Line is `"  1 Federation ship\r\n"`; singular form, no range suffix. |
+| EX-MODEL-562 | MEDIUM RomulanSummary count two from repeated qualifying groups, sensor-range scope | Line is `"  2 Romulans in range\r\n"`; preserve report multiplicity without creating another Romulan. |
+| EX-MODEL-563 | Planet detail with zero builds | Omit both the build-count field and suffix; coordinates remain present. |
 
 EX-MODEL-06 deliberately uses fractional shield strength. Historical loss of
 that fraction is excluded by the numerical normalization policy. The grammar,

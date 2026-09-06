@@ -2927,3 +2927,24 @@ preserves declarations; it does not prove all operation contracts or invariants.
 The broader guide-alignment review still includes declaration order, consistent
 operation effects, invariants, failure behavior and concurrency. Remaining game
 specification work is unchanged. No game code, servers or archives changed.
+
+## 2026-09-05 — Specify galaxy-report detail and summary lines
+
+Added LIST/SUMMARY/BASES/PLANETS/TARGETS detail and summary line presentation
+using ReportDetail/ReportTelemetry/ReportSummary values. ReportDetail now records
+the already observed affiliation for faction-sensitive labels, instead of a later
+planet-owner lookup. Preserved remote-base position with absent strength, ship/
+Romulan OutOfRange concealment, TARGETS marker suppression, unsigned base/Romulan
+list readings, signed ship shields, field/coordinate widths and build suffixes.
+Summary count multiplicity, known qualifier, scope and singular/plural forms
+remain unchanged. Group separators and terrain/absence paths are still open.
+
+Source: Austin DECWAR.FOR LSTOUT/LSTSUM/LSTOBJ 1959–2141, MSG 89–125;
+reviewed LSTFLG named/coordinate and group paths as preparation for remaining
+presentation. Added EX-MODEL-554–563. Eight line compositions and eleven source
+literals pass logs/spec-galaxy-report-line-review.log. Build passes 14 chapters,
+409 links, 563 scenario rows and 324 source fragments:
+logs/spec-galaxy-report-line-build.log. Audit passes:
+logs/spec-galaxy-report-line-audit.log. Reviewed PDF pages 60, 148–149 and 191;
+no clipping or overflow. The working draft is 192 pages. Source-derived example
+review is not runtime or native parity. No game/server/archive changes.

@@ -1678,6 +1678,7 @@ type ReportTelemetry = ShipTelemetry(Position, ShieldMode, Percentage)
 
 type ReportDetail = {
     entity: ReportEntity
+    affiliation: ReportAffiliation
     opposingMarker: Boolean
     telemetry: ReportTelemetry
 }
@@ -1902,9 +1903,11 @@ p.builds). A visible Romulan has its current position and one percentage point
 of displayed strength per ten energy units. For a ship or Romulan, outOfRange
 instead produces OutOfRange telemetry.
 
-The returned entity is unchanged. opposingMarker is true for a Romulan or an
-object owned by the opposing faction, except that TARGETS sets it false for
-every detail. ObserveReportDetail changes no state; emitting the resulting
+The returned entity is unchanged. affiliation records the ship/base faction,
+planet ownership (NEUTRAL when unowned), or ROMULAN when observed. It supplies
+the detail's faction-sensitive label without a later ownership lookup.
+opposingMarker is true for ROMULAN or the opposing faction, except that TARGETS
+sets it false for every detail. ObserveReportDetail changes no state; emitting the resulting
 Detail observation is followed by discovery only on the deferred path below.
 Position telemetry denotes the absolute position. Relative terminal coordinates
 use the viewer's position when formatted, not the saved distance-test origin.
@@ -1976,9 +1979,12 @@ WholeGalaxy. Its scope label combines the attempted candidates' group scopes;
 when there were no attempted candidates, use WHOLE_GALAXY. A failed CLOSEST
 search uses this same absence observation.
 
-**Open:** Exact terminal rendering, interrupted output and concurrent changes
-that remove or replace an entity between selection and its detail remain part
-of the report and multiplayer work. No whole-command snapshot is implied.
+Detail and summary lines follow the [galaxy-report presentation](presentation.md#galaxy-report-lines).
+
+**Open:** Complete grouped separators, terrain/absence presentation, interrupted
+output and concurrent changes that remove or replace an entity between selection
+and its detail remain part of the report and multiplayer work. No whole-command
+snapshot is implied.
 
 These commands do not spend energy, complete a turn, repair devices or change
 physical objects. Their persistent game effect is the knowledge update described

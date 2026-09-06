@@ -1249,3 +1249,15 @@ or class API is required. Assignment notation now explicitly distinguishes local
 bindings from game-state properties, correcting the former prose that treated
 every := as a state update even in pure formatting and geometry calculations.
 This changes notation and explanatory precision only, not any game rule.
+
+
+Galaxy-report line presentation uses typed telemetry, recorded affiliation,
+output context and named display operations. ReportDetail now carries the
+already observed affiliation needed for its base/planet label; this avoids
+re-reading a planet owner after the observation and does not disclose a new
+property. Exact field padding and the unsigned base/Romulan list readings remain
+distinct from signed ship shields and combat presentation. Summary multiplicity,
+known/scope labels and singular/plural forms remain semantic observations.
+Source: DECWAR.FOR LSTOUT/LSTSUM/LSTOBJ 1959–2141. Group separators, terrain
+fallback and incomplete absence text remain under review; no new generic
+no-results line is substituted.
