@@ -4240,3 +4240,18 @@ logs/spec-news-output-build.log records successful build (100 productions, 671
 scenarios, 658 links, 324 fragments). PDF pages 90, 160 and 240 visually reviewed
 without clipping/overlap. git diff --check passed. Environment cleanup failures
 and asynchronous control delivery remain separate review domains.
+
+
+## GRIPE refusal and storage diagnostics — 2026-09-06
+
+Specified RED refusal and storage-warning output, distinguishing modification
+retry, open/read/write failure and failure during record extension. Preserved
+partial-record uncertainty rather than inventing cancellation or atomic rollback.
+Checked five distinct warning texts and complete RED literal across variants;
+CompuServe storage warnings add CRLF. No gameplay/archive changes.
+
+logs/spec-gripe-failures-review.log records source checks;
+logs/spec-gripe-failures-build.log records successful build (100 productions,
+671 scenarios, 667 links, 324 fragments). PDF pages 160 and 241 visually reviewed
+without clipping/overlap. git diff --check passed. Full failure/control and
+whole-book review remains; this closes ordinary diagnostic wording only.

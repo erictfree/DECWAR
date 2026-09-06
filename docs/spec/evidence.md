@@ -903,3 +903,16 @@ prefix in the command overview. WARN's HUNGUP gates govern warning/flush output;
 CompuServe's macro supplies the only added warning ending. Ordinary NEWS body
 comparison is recorded in logs/spec-news-output-review.log. Resource cleanup
 failures and asynchronous control arrival remain separate environment questions.
+
+### GRIPE storage diagnostic paths
+
+Austin grip.4–grip.8 (4057–4107) distinguishes modification-in-progress retry
+from other open failures, old-record allocation/read failure and final write
+failure. WARN prefixes percent and has no Austin suffix. OGCH 4114–4124 warns
+and returns from the character-extension helper, not the whole GRIPE operation;
+no transactional or cancellation repair is inferred. Cleanup restores terminal
+output, temporary presence and cancellation state without a confirmation or
+ending request. The RED rejection is a separate literal before input. CompuServe
+has the same five distinct storage-warning texts and appends CRLF via ASCIL.
+logs/spec-gripe-failures-review.log records shared literal checks. Partial-record
+recovery and cleanup failure remain explicitly unestablished.

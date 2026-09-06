@@ -338,6 +338,44 @@ environment failure.
 **Source basis:** [NEWS output and exits](../../legacy/utexas/WARMAC.MAC#L3811),
 [warning expansion](../../legacy/utexas/WARMAC.MAC#L28).
 
+## GRIPE refusal and storage diagnostics
+
+Rejection under RED alert emits exactly
+`"\r\nYou are not permitted to GRIPE\r\nwhile under RED alert!\r\n"`
+and returns before feedback input or temporary information activity. The prompt
+and line-limit notices are specified in the [GRIPE input contract](commands.md#input-and-observations).
+
+The following storage diagnostics are independent of output length:
+
+| Condition | Warning text |
+| --- | --- |
+| Open for recording fails for a reason other than modification in progress | `"%Can't write DECWAR.GRP"` |
+| Modification in progress prevents entry | `"%DECWAR.GRP being modified; trying again"` |
+| Resources cannot be obtained to combine existing records with the new record | `"%Can't get core to read DECWAR.GRP"` |
+| Reading the existing records fails | `"%Can't read DECWAR.GRP"` |
+| Writing the assembled records fails | `"%Can't write DECWAR.GRP"` |
+| Resources cannot be obtained while extending the record being assembled | `"%Can't get more core"` |
+
+For each warning, request delivery of pending buffered terminal output before
+emitting its text. In Austin, these strings have no appended ending. If
+disconnection has already been detected, suppress the flush request and warning;
+that suppression does not choose another recovery path.
+
+Only the modification-in-progress path uses the specified three-second retry.
+Failure while extending the record is not defined as immediate cancellation of
+the entire command: it returns from that attempted extension, and the eventual
+record contents remain outside this draft's defined failure domain. Other
+failures follow the [recording and cleanup rules](commands.md#gripe).
+No storage warning promises that an old record was preserved atomically or
+that the new record was saved. Ordinary cleanup adds no success confirmation
+or final line ending of its own. Endings inside stored feedback remain separate
+from terminal output.
+
+**Source basis:** [RED refusal](../../legacy/utexas/WARMAC.MAC#L3858),
+[recording failures and cleanup](../../legacy/utexas/WARMAC.MAC#L4057),
+[record-extension failure](../../legacy/utexas/WARMAC.MAC#L4114),
+[warning output](../../legacy/utexas/WARMAC.MAC#L28).
+
 ## TELL command responses
 
 Player TELL makes no initial conditional blank-line request. RadioUnavailable

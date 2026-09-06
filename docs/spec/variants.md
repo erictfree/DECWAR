@@ -99,6 +99,14 @@ prompt and ordinary viewing-exit output follow the core sequence.
 **Source basis:** [NEWS](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L4658),
 [warning expansion](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L59).
 
+CompuServe uses the same [GRIPE refusal and storage diagnostic texts](presentation.md#gripe-refusal-and-storage-diagnostics).
+Its storage warnings each append CRLF; the RED-alert refusal already contains
+its own endings and is unchanged. Warning suppression and recovery follow the
+stated command and environment contracts, not a new retry for every failure.
+
+**Source basis:** [GRIPE storage warnings](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L4932),
+[extension warning](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L4992).
+
 Amending [movement relocation](commands.md#traversal-resource-cost-and-relocation),
 CompuServe Move can additionally return RelocationRefused. This is a semantic
 outcome, not command syntax or a new terminal message. When a required relocation
