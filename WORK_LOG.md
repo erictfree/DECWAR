@@ -3961,3 +3961,18 @@ logs/spec-torpedo-responses-check.log. Correct full build passed in
 logs/spec-torpedo-responses-build.log: 662 scenarios, 100 productions, 324
 fragments, 14 chapters and 596 links. Inspected PDF physical pages 164–165;
 response clause readable. No gameplay/archive changes; full goal active.
+
+### Specification: MOVE and IMPULSE responses
+
+Added propulsion/range diagnostics, output-length-specific warnings, overheat
+damage and repair-estimate numeric fields, and fixed obstruction text. Clarified
+that ordinary movement has no destination confirmation. Recorded estimate
+normalization separately and defined escaped quote notation for exact literals.
+
+Validation: logs/spec-movement-responses-review.log checks sixteen fragments,
+range order, numeric widths and obstruction-only response. Builds passed in
+logs/spec-movement-responses-build.log and final -build-2.log after quote notation:
+662 scenarios, 100 productions, 324 fragments, 14 chapters and 602 links.
+Inspected PDF physical pages 155,165–166: notation and response clause readable.
+No gameplay/archive changes. Special zero-item retry, concurrent relocation and
+other full-specification obligations remain open; goal active.

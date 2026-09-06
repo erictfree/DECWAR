@@ -979,7 +979,8 @@ After this relocation, an existing
 beam invokes [FollowTractorBeam](world-rules.md#following-a-moving-endpoint)
 with s.id and trace.step. If s does not change sector, its partner does not move.
 
-With an obstruction, report it and give:
+With an obstruction, emit the fixed collision-averted response under
+[movement presentation](presentation.md#movement-command-responses) and give:
 
 ```text
 Obstructed { position: trace.lastClear, at: trace.obstruction.position }

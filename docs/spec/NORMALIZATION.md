@@ -1728,3 +1728,14 @@ Percentages use points (100% has magnitude 100); attenuation formulas explicitly
 convert that magnitude to a fraction. TimePoint differences are durations on a
 single elapsed-time axis, not dates or stardates. No formula, command grammar,
 resource bound or runtime representation changes with this clarification.
+
+### Movement repair estimate presentation
+
+The overheating report's approximate repair duration is potentialDamage divided
+by 30 damage units, rendered with one fractional digit outside SHORT. Source
+MOVE computes TIME = RANDAM/30 and OFLT then interprets the scaled value; the
+modern quantity equation removes intermediate integer truncation. It is a
+reported estimate, not an event deadline or a guarantee of future repairs.
+The damage field has integer width3 and the estimate width2. This clarifies
+presentation without changing overheating, repair rates or movement timing.
+Source Austin DECWAR.FOR 2157–2160,2204–2215; WARMAC.MAC 1940–1970.

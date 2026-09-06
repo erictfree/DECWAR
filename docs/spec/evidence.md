@@ -653,3 +653,18 @@ TORP06 tube-damage warning precede travel, without displaying damage magnitude.
 The planet-entry failure message at 2800 is not proof of empty tubes. Added these
 recipes, MSG.MAC 341–348 and shared literals, without changing unresolved target
 components or firing semantics. Normal completion adds no direct confirmation.
+
+### MOVE and IMPULSE direct responses
+
+MOVE 2141–2254 distinguishes unavailable propulsion, own-sector retry, impulse,
+damaged-warp and maximum-range text. A >6 request takes the maximum-range branch
+before the damaged-engine branch, but chooses suffix3 when damage is positive.
+Warp5/6 always warns before the stochastic overheat test. On overheating,
+OFLT(randam,3) reports damage and non-SHORT OFLT(time,2) reports the repair
+estimate before adding device damage. OFLT's second argument is integer-field
+width, not precision (WARMAC.MAC 1940 onward). In ordinary units the estimate
+is potentialDamage/30; historical integer truncation is omitted consistently
+with numerical normalization. No repair schedule is inferred from that number.
+MOVE10 is a fixed collision-averted line, not an object/location report, and
+clear traversal prints no direct success. Added these recipes from MSG.MAC
+131–145, preserving embedded CRLFs and quote characters. No gameplay change.

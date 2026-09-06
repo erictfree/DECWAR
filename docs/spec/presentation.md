@@ -9,7 +9,8 @@ information without claiming this terminal presentation.
 Spaces, capitalization, punctuation and line endings in quoted strings are
 significant. Quotation marks delimit a string and are not emitted. In quoted
 strings, `\r`, `\n`, `\t` and `\b` denote carriage return, line feed, tab and
-backspace. Concatenation inserts no additional separator. A publication boundary
+backspace; `\"` denotes a literal double-quote character inside the string.
+Concatenation inserts no additional separator. A publication boundary
 is not implicitly a line boundary.
 
 The archive defines application terminal interaction. Network addressing,
@@ -574,6 +575,61 @@ automatic inventory report.
 [burst completion and direct responses](../../legacy/utexas/DECWAR.FOR#L4401),
 [torpedo strings](../../legacy/utexas/MSG.MAC#L341),
 [coordinate prompt](../../legacy/utexas/MSG.MAC#L38).
+
+## Movement command responses
+
+MOVE and IMPULSE have no initial blank-line request of their own. A failed
+propulsion check emits `"Warp engines damaged."` or
+`"Impulse engines damaged."`, respectively, with one unconditional line ending.
+The location reader supplies coordinate prompts and diagnostics after that check.
+An own-sector location uses the [PHASERS own-sector text](#phaser-command-responses),
+then follows MOVE's coordinate retry rules rather than PHASERS completion.
+
+The [movement contract](commands.md#move-and-impulse) determines range rejection:
+
+- ImpulseRangeExceeded emits `"Maximum speed warp 1."`; LONG first emits
+  `"Captain, the impulse engines won't take it.  "` without a separator.
+- DamagedWarpRangeExceeded emits `"Engines damaged, warp 3 max."` in SHORT or
+  MEDIUM, or `"Captain, our warp engines are damaged.  I can only give you warp 3."`
+  in LONG.
+- WarpRangeExceeded emits `"Maximum warp "` in SHORT or MEDIUM. LONG instead
+  emits the concatenation of `"Engineering Officer:  The engines won't take it Captain."`
+  and `"\r\nI can only give you warp "`. Append `"3."` if the warp engines have
+  positive damage, otherwise `"6."`.
+
+Each range response ends with one unconditional line ending. A damaged ship
+requesting more than six sectors takes WarpRangeExceeded's text with the `"3."`
+suffix; it does not skip to the damaged-engine range response.
+
+Before the overheating test for intended warp distance five or six, SHORT emits
+`"Engines overheating."`; MEDIUM and LONG emit
+`"Captain, our engines are overheating!"`. LONG first emits
+`"Engineering Officer:  "` without an added separator. Append one unconditional
+line ending. This warning does not by itself mean that damage occurred.
+
+When overheating occurs, emit the concatenation of
+`"EEEEERRRRRROOOOOOOMMMMMmmmmm!!"` and
+`"\r\nCaptain, the engines suffered "`. Append potentialDamage in damage units,
+using FormatNumber with an integer-part width of three, NEGATIVE_ONLY sign,
+and zero fractional digits in SHORT or one in MEDIUM/LONG. Emit
+`" units of damage."` and one unconditional line ending.
+
+Outside SHORT, then emit `"Captain, repairs will take approximately "`, followed
+by the estimate `potentialDamage / (30 damage units)` as a number with
+integer-part width two, NEGATIVE_ONLY sign and one fractional digit. Finish with
+`" stardates."` and one unconditional line ending. The estimate is a report,
+not a new repair deadline or a promise that subsequent automatic repair will
+run uninterrupted. These reports precede applying the overheating damage.
+
+If traversal reports an obstruction, emit the complete string
+`"\r\nNavigation Officer:  \"Collision averted, Captain!\""` followed by one
+unconditional line ending. This response prints neither the obstruction kind
+nor its position. Unobstructed movement has no direct success or destination
+report. Later turn, combat and lifecycle output remains separate.
+
+**Source basis:** [MOVE and IMPULSE](../../legacy/utexas/DECWAR.FOR#L2141),
+[movement strings](../../legacy/utexas/MSG.MAC#L131),
+[numeric report fields](../../legacy/utexas/WARMAC.MAC#L1940).
 
 ## Combat observation bodies
 
