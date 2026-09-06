@@ -40,6 +40,14 @@ formatting selected entities. Shared wording does not imply identical admission,
 waiting or delivery behavior. The movement response strings also remain the same,
 subject to the additional early return below.
 
+The [SET prompt and response sequence](presentation.md#configuration-command-responses)
+also applies: preference assignment is silent, and terminal-type retries retain
+the unknown-versus-ambiguous distinction and supported-name display. CompuServe
+input waiting and world termination still use their variant contracts.
+
+**SET source basis:** [command selection and prompts](../../legacy/compuserve/fortran%201978/SET.FOR#L27),
+[terminal-type retry](../../legacy/compuserve/fortran%201978/SET.FOR#L78).
+
 Amending [movement relocation](commands.md#traversal-resource-cost-and-relocation),
 CompuServe Move can additionally return RelocationRefused. This is a semantic
 outcome, not command syntax or a new terminal message. When a required relocation

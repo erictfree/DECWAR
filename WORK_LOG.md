@@ -4039,3 +4039,18 @@ records successful build (100 productions, 671 scenarios, 614 links, 324 source
 fragments). PDF pages 159–160 visually reviewed with no clipping/overlap.
 Interrupted input/output and nonprinting-name domains remain separate work;
 these checks do not establish full terminal conformance.
+
+
+## CompuServe SET presentation inheritance — 2026-09-06
+
+Compared SET executable text and all eleven response fragments between the
+archives. All executable lines preceding BHREMV traversal match; Austin's local
+coordinate copies in that traversal are the only routine difference. Added
+explicit SET presentation inheritance to the appendix, retaining separate input
+waiting, lifecycle and name-edge domains. logs/spec-comp-set-review.log preserves
+the exact comparison. No gameplay or source-archive changes.
+
+logs/spec-comp-set-build.log records successful publication build: 100 grammar
+productions, 671 scenarios, 617 links, 324 source fragments. PDF page 237 was
+visually checked: no clipping or overlap. git diff --check passed. This is a
+bounded response comparison, not complete variant or whole-spec conformance.

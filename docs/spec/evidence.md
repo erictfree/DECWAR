@@ -724,3 +724,16 @@ Successful ordinary assignments have no direct confirmation. ROMOPT/BHREMV
 also return without one; ENDFLG calls ENDGAM and retains that separate lifecycle.
 This closes ordinary SET response ordering, not interrupted input/output or
 nonprinting name semantics.
+
+### CompuServe SET response inheritance
+
+Compared Austin SET in DECWAR.FOR with CompuServe SET.FOR after trimming only
+line-edge whitespace and omitting blank/comment lines. All executable lines
+before BHREMV's traversal match, including ordinary selection, prompt suffixes,
+TTYTYPE retry, silent assignment and ENDFLG's call to ENDGAM. The only remaining
+routine difference introduces local coordinate copies in Austin's black-hole
+traversal; it is not an added prompt or response. All eleven SET001–010/TTYS00
+fragments match byte-for-byte, including CRLF, case and spacing. The appendix
+therefore inherits the direct SET response recipe without claiming that input
+waiting, name-helper edge domains or world termination are identical.
+logs/spec-comp-set-review.log preserves the comparison and exact-text checks.
