@@ -251,3 +251,9 @@ compatibility. The notation now explicitly limits unchanged-state claims to an
 operation's own effects and distinguishes completed-state postconditions from
 invariants over intermediate transitions. Remaining type review must examine
 those stronger properties rather than treating this scan as semantic proof.
+
+BUILD review now includes separate scenarios for failed phase entry retaining
+the fifth stage (EX-MODEL-594) and last-planet conversion terminating before base
+installation (EX-MODEL-595). These complement the existing no-free-identity,
+discovery-transfer and maintained-count examples rather than treating all
+conversion failures as rollback. Intermediate sector observation remains open.

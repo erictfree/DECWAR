@@ -3381,3 +3381,16 @@ remain unresolved; no atomic conversion or rollback is introduced.
 `logs/spec-build-conversion-order-build.log` passes; physical PDF pages 54–56
 were visually inspected. The first image lookup used an unpadded filename; the
 actual padded render files were then inspected. Runtime/archive unchanged.
+
+### Specification checkpoint: BUILD boundary examples
+
+Added EX-MODEL-594–595 for retained fifth-stage effects after failed phase
+entry and world termination before replacement-base installation. Reviewed
+against BUILD/ENDGAM and the existing maintained-count/removal contracts.
+These supplement, rather than duplicate, the earlier capacity-failure and
+normal-conversion examples.
+
+`logs/spec-build-boundary-examples-review.log` records source reasoning;
+`logs/spec-build-boundary-examples-build.log` passes. Physical PDF page 213
+was visually inspected. These are specification scenarios, not native runtime
+tests. No game or source archive changes; full goal remains active.
