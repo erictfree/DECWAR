@@ -4357,3 +4357,27 @@ chain checks. Build passed 100 productions, 671 scenario rows, 14 units and
 686 links (logs/spec-notice-type-order-build.log). Inspected PDF pages 19–21,
 103 and 133; no clipped text or overfull/undefined warnings. Whole-book semantic,
 example and final layout review remain open. No gameplay changes.
+
+## Specification: resource examples review
+
+Reviewed 20 cases EX-MODEL-01–09 and 11–21 against Austin SHIELD, RADIO,
+ENERGY, DOCK, REPAIR and turn accounting. Rational checks confirm fractional
+shield/energy values and device/hull repair arithmetic. Tightened EX-MODEL-15
+to state positive captured-planet count and no adjacent friendly base; case 16
+inherits those conditions. Expected results unchanged. Evidence:
+logs/spec-resource-examples-review.log. These are source-derived checks, not
+native execution. The subsequent position-refinement build incorporates this
+change and passes; inspected PDF page 189 shows the affected table without
+clipping. Gameplay unchanged.
+
+## Specification: Position as a constrained GridPoint
+
+Recast Position as a refinement of GridPoint: GridPoint holds real absolute
+coordinates used during path tracing, while Position requires Coordinate values
+(whole numbers in 1..75) and identifies an actual sector. SectorVector remains
+a signed or fractional displacement measured in sectors. Defined refinement
+notation explicitly. logs/spec-position-refinement-review.log verifies declaration
+order, retained bounds and usage scope. Build passed 100 productions, 671 scenario
+rows, 14 units and 686 links in logs/spec-position-refinement-build.log. Inspected
+PDF pages 11 and 189; no clipping or overfull/undefined warnings. This clarifies
+the existing domains and changes no movement, coordinate input or gameplay rule.

@@ -113,6 +113,10 @@ A record value is written `Name { field: value, ... }`; a bare name denotes
 a variant with no payload. Declared payload names identify the same fields when
 an outcome is constructed, inspected or described in an example.
 
+`type Refined = Existing where { ... }` defines a subtype of Existing whose
+values also satisfy the listed field constraints. It preserves Existing's
+fields and does not add storage or prescribe a runtime validation mechanism.
+
 `value with { field: replacement }` produces a record value with those fields
 replaced and every other field preserved. It does not update the original.
 `for (item in values)` visits a list in its order; a set requires an explicit
@@ -189,8 +193,14 @@ type TimePoint  = elapsed-time instant
 type Stardate   = integer count of game turns
 type Points     = quantity in displayed game points
 type UnitDraw   = real number in [0, 1)
+type GridCoordinate = real number
 
-type Position = {
+type GridPoint = {
+    vertical: GridCoordinate;
+    horizontal: GridCoordinate;
+};
+
+type Position = GridPoint where {
     vertical: Coordinate;
     horizontal: Coordinate;
 };
@@ -199,12 +209,15 @@ type SectorVector = {
     vertical: real number of sectors;
     horizontal: real number of sectors;
 };
-
-type GridPoint = {
-    vertical: real coordinate;
-    horizontal: real coordinate;
-};
 ```
+
+`GridPoint` is an absolute point in the galaxy's coordinate space and may have
+fractional coordinates while a path is being traced. `Position` is the refinement
+of GridPoint whose two coordinates are whole numbers from 1 through 75; it
+therefore identifies an actual sector. A GridPoint can be used where Position
+is required only after both constraints have been established. `SectorVector`
+is a displacement measured in sectors, not an absolute point; its components
+may be positive, negative or fractional.
 
 The identities distinguish entities. Names and name-matching order are separate
 language rules. Arithmetic uses mathematical quantities. Rounding is applied only where a

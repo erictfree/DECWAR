@@ -552,3 +552,25 @@ unchanged after whitespace normalization. The explicit dependency chain is
 checked in logs/spec-notice-type-order-review.log. This closes the identified
 World-to-notice type dependency; it is not a proof of every operation's typing,
 valid observations, or concurrency behavior.
+
+### Resource-example semantic review
+
+EX-MODEL-01–09 and 11–21 were reviewed against Austin SHIELD, RADIO, ENERGY,
+DOCK, REPAIR and turn completion. Rational arithmetic checks confirm shield
+fractions, recipient-capacity charges and repair amounts. EX-MODEL-15 now
+states the positive captured-planet count and absence of nearby friendly bases
+needed for its one-planet replenishment; EX-MODEL-16 inherits that setup.
+The preserved expected results match the reviewed branches. Evidence and scope:
+logs/spec-resource-examples-review.log. These 20 cases are source-derived
+semantic checks, not original-executable runs; lexical case 10 and the remaining
+examples are not certified by this pass.
+
+### Position and path-coordinate relationship
+
+The abstract model now makes Position an explicit refinement of GridPoint.
+GridPoint permits fractional absolute coordinates during path tracing; Position
+requires two whole coordinates in 1..75 and therefore identifies a sector.
+SectorVector remains a displacement rather than a location. This reorganizes
+the existing domains without changing coordinate bounds, geometry, accepted
+input or movement behavior. A focused declaration and usage check is recorded
+in logs/spec-position-refinement-review.log.
