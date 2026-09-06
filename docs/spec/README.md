@@ -80,7 +80,8 @@ packed fields, finite-word overflow, corrupted token values or accidental
 cross-field changes. Commands MUST preserve the game-state changes and player
 observations established by their semantic clauses under ordinary arithmetic. A graphical implementation
 can claim a future game-semantics profile without claiming terminal conformance;
-profile criteria will be defined separately rather than silently relaxing output.
+the [conformance domains](language-conformance.md#conformance-domains) distinguish
+these claims without silently relaxing output.
 
 ## Current sections
 

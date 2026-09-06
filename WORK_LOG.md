@@ -3314,3 +3314,17 @@ Group award descriptions are report headings, not new game resources.
 and group calls. `logs/spec-comp-standings-groups-build.log` passes; physical
 PDF pages 217–218 were visually reviewed. Persistence, remaining domains and
 complete terminal/interruption behavior remain active work. Runtime unchanged.
+
+### Specification checkpoint: conformance domains and claims
+
+Defined command-language, game-semantics and terminal assessment domains, with
+revision/variant/binding/evidence declarations and draft-only scoped claims.
+Separated implementation-defined choices from unresolved questions; included
+intermediate-state, nondeterminism, random-replay and terminal evidence limits.
+These criteria organize assessment under the project scope and add no gameplay
+rule or implementation architecture. Updated the scope link and coverage matrix.
+
+`logs/spec-conformance-domains-build.log` passes. Physical PDF pages 165–166
+were visually inspected. Criteria are now drafted; they do not certify the
+whole specification or any implementation. Full semantic review remains active.
+Runtime and source archives unchanged.

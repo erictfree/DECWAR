@@ -1,5 +1,84 @@
 # Semantic examples and conformance
 
+
+## Conformance domains
+
+Conformance is assessed against an identified edition, source variant and set
+of clauses. Austin is the default variant. A CompuServe claim applies its
+explicit amendments to the core; it cannot select whichever variant is most
+convenient for each command. Numerical normalization is the ordinary arithmetic
+of this specification, not a separate license to change costs or balance.
+
+The following domains distinguish the requirements being assessed. They do
+not declare this working draft complete or certify any implementation.
+
+| Domain | Required correspondence |
+| --- | --- |
+| Command language | Character and token rules, accepted and rejected forms, abbreviation precedence, defaults, interactive continuations and the operation selected by each accepted input. |
+| Game semantics | Abstract values and identities, preconditions, ordered state effects, observations, resource/score changes, information access, lifecycle, timing, random choices and multiplayer interactions. |
+| Terminal presentation | The command-language and game-semantics requirements, plus prescribed text, numeric formatting, spacing, line/control behavior, prompts and the declared terminal/transport binding. |
+
+A game-semantics assessment can concern a graphical interface. It must identify
+how user actions invoke the specified operations and preserve their arguments,
+preconditions and effects. That assessment does not establish command-language
+or terminal correspondence. A command-language assessment alone likewise does
+not establish that the selected operation has been implemented correctly.
+Changing a display does not authorize disclosing knowledge the captain lacks.
+
+## Declaring a claim
+
+While this edition remains a working draft, claims MUST identify the specific
+reviewed clauses and their domains. An unqualified claim of complete DECWAR
+conformance is unavailable. A declaration records:
+
+1. The specification revision, Austin or CompuServe variant, and assessed clauses.
+2. The input, environment and terminal bindings used by those clauses, including
+   documented implementation-defined choices.
+3. Unresolved clause dependencies, unsupported domains and separately enabled
+   repairs or extensions that affect the assessment.
+4. Evidence for the claim and its limits: source review, abstract scenarios,
+   implementation tests or native observations, distinguished from one another.
+
+An unresolved question is not an implementation-defined choice. A claim cannot
+fill it with an arbitrary behavior and describe that behavior as required by
+this specification. A clause whose result depends on such a question can be
+assessed only within its explicitly defined domain. Extensions and playable
+repairs must be distinguished from the assessed behavior; their existence does
+not alter the Austin core or silently amend CompuServe.
+
+## Assessing behavior
+
+Compare executions using the same stated initial abstract state, operation or
+command inputs, environment events and admissible random choices. Identity
+names may differ between implementations if their correspondence preserves all
+relationships and observations; stored representations need not match.
+
+For deterministic rules, the resulting values and observations must agree.
+For ordered multi-step rules, compare the intermediate effects and their stated
+ordering as well as final state. An implementation must not erase an allowed
+observation by making a command indivisible when the clause requires observable
+intermediate effects. Nor may it introduce an ordering, timeout or eventual
+completion promise that the clause does not establish and treat that promise
+as a DECWAR requirement.
+
+For nondeterministic rules, an observed result must belong to the specified
+possibilities under the stated conditions. One permitted run does not establish
+the required probability distribution, independence or timing behavior. Random
+replay checks conditioned choices; distribution claims require separate evidence.
+The supplied examples are witnesses of particular cases, not an exhaustive test
+suite or a substitute for reviewing an operation's full stated domain.
+
+Terminal assessment compares the prescribed output and control behavior within
+the identified binding. Transport framing or local client echo must be separated
+from game-generated output according to that binding. An unavailable binding
+prevents the corresponding terminal claim; a visually similar screenshot alone
+does not establish exact terminal correspondence.
+
+These criteria organize evidence and claims. They add no command, gameplay
+operation, scoring rule, scheduling policy or required implementation architecture.
+
+## Semantic examples
+
 The examples below use the abstract model and ordinary game-unit arithmetic.
 They describe commands in an otherwise unchanged world, with no intervening
 actions or incoming combat. Passing these examples alone does not establish
