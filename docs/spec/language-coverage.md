@@ -432,6 +432,8 @@ the wording-table gap without supplying a modern network lookup.
 
 CompuServe ordinary coordination now specifies targeted release, repeated entry
 for successfully held resources, positive-wait release/reacquisition and the
-fresh-versus-existing-input distinction. Complete resource mapping, remembered
+fresh-versus-existing-input distinction. Input-readiness waiting now separately
+covers buffered/initialization input bypass, nonpositive polling, positive wait
+release/reacquisition and readiness tests. Complete resource mapping, remembered
 selection, pending/interrupted acquisition and environment failures remain open.
 The amendment no longer leaves the entire ordinary wait sequence undescribed.

@@ -3802,3 +3802,18 @@ release paths. logs/spec-comp-coordination-build.log passed 662 scenarios,
 100 productions, 324 fragments, 14 chapters and 547 links. Inspected PDF physical
 pages 243–244; readable ordinary amendment and open scope. No gameplay/archive
 changes. Full goal stays active.
+
+### Specification: CompuServe input-readiness waiting
+
+Added the ordinary input-readiness contract separately from fresh-line input
+and elapsed waiting: buffered/initialization input bypasses suspension; positive
+wait releases and reacquires the remembered resource; nonpositive polling does
+not; readiness tests include hangup and interrupt. No PAUSE cap/deadline loop.
+Recorded public/internal entry selection evidence and the still-unresolved
+three-sector movement coordination grouping outside the normative book.
+
+Validation: logs/spec-comp-input-readiness-review.log checks source branch order
+and absence of PAUSE timing logic. logs/spec-comp-input-readiness-build.log
+passed 662 scenarios, 100 productions, 324 fragments, 14 chapters and 548 links.
+Inspected PDF physical page 244: readable complete waiting section. No gameplay
+or archive changes. Full mapping and interrupted entry remain open; goal active.

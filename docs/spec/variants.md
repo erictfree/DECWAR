@@ -1004,6 +1004,17 @@ acquired line. Continuing to parse input already acquired does not perform this
 fresh-input release. The presence of typed input alone therefore does not prove
 that the waiting operation has returned or reacquired its resource.
 
+Checking input readiness has its own waiting rule. If a remainder of the current
+command line is available, or initialization-file input is active, report input
+ready without releasing a resource. Otherwise, a positive requested wait saves
+and releases the remembered resource, suspends until the input notification or
+requested timeout, and retries reacquisition before checking readiness. A
+nonpositive readiness wait skips suspension and resource release. This readiness
+wait does not use the elapsed-wait cap and deadline-recheck sequence above.
+After the wait, hangup, available terminal input or a pending command interrupt
+reports input ready; otherwise report input not ready. Reporting readiness does
+not itself read or execute a command.
+
 The requested input or delay can finish while reacquisition still waits. These
 rules impose no finite total wait, fairness or automatic rollback guarantee.
 They amend Austin's rule that waiting alone retains coordination.
@@ -1017,6 +1028,7 @@ replace the ordinary sequences above with Austin's release-all behavior.
 
 **Source basis:** [CompuServe waiting](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L4010),
 [fresh input](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L1679),
+[input readiness](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L3871),
 [entry and repeated entry](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L4468),
 [targeted and explicit release-all paths](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L4594).
 

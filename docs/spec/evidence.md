@@ -506,3 +506,24 @@ The appendix now states these ordinary sequences in resource terms. Shared
 scratch overwrite during interruption, pending request entries and the full
 remembered-resource caller mapping remain outside that completed scope.
 Sources: CompuServe WARMAC.MAC 1679–1692, 4010–4046, 4468–4501, 4594–4640.
+
+### Input readiness and remembered-resource selection
+
+CompuServe WARMAC.MAC 3871–3902 tests buffered command remainder and negative
+INIFLG before inspecting the requested readiness delay. Nonpositive delay jumps
+to INPT.1. Positive delay saves LOCKED, releases through UNLO., requests HIBER
+with character-ready wakeup, and retries LOCK. on LKFAIL before INPT.1 checks
+HUNGUP, SKPINC and CCFLG. Unlike PAUSE, INPUT neither clamps to 10000 nor loops
+against an elapsed deadline. The appendix now distinguishes this readiness
+operation from line acquisition and elapsed waiting. Monitor failure and
+interrupted reacquisition remain outside the ordinary sequence.
+
+Caller inventory also establishes that public LOCK (4470–4471) selects LOCKED
+before entry, while internal LOCK. does not; public UNLOCK (4594–4597) clears
+that selection regardless of its argument. Queue operations, captain-count and
+standings updates use internal LOCK. These observations do not yet establish a
+complete abstract resource mapping. In particular MOVE.FOR 129–143 coordinates
+BOARD groups containing three horizontal sectors, not individual sectors.
+A platform-independent mapping must explicitly resolve that grouping rather
+than silently claim per-sector coordination. No such normalization is selected
+by this readiness clarification.
