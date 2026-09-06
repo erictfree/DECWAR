@@ -4,92 +4,6 @@ This chapter defines the game-state abstract data type (ADT), its observable
 properties and the operations used in the command semantics. The world and
 session model is still being extended.
 
-## Game state and operations
-
-`GameState` represents a galaxy and its participating sessions. Its representation
-is unspecified. The records below describe properties that the specification can
-observe; they do not require mutable objects, tables or a particular database.
-
-```text
-abstract type GameState
-
-query ship(game: GameState, id: ShipId): Ship
-query base(game: GameState, id: BaseId): Base
-query planet(game: GameState, id: PlanetId): Planet
-query captain(game: GameState, id: CaptainId): Captain
-query world(game: GameState): World
-query tractorBeam(game: GameState, id: TractorBeamId): TractorBeam
-query sector(game: GameState, position: Position): Optional<SectorObject>
-
-operation Capture(actor: ShipId, target: Position): CaptureOutcome
-```
-
-Queries describe the current state without changing it. Operations describe
-permitted changes and observations. Their names are specification vocabulary,
-not additional commands or a required software interface. For example, the
-CAPTURE grammar determines how player input invokes the `Capture` operation.
-Within a game operation, `game` denotes the current GameState. A query or pure
-function has no implicit permission to change it. The result type follows the
-parameter list's colon. Vertical bars separate alternatives; braces name their
-associated values. Thus
-`Rejected { reason: CaptureRejection }` is an outcome carrying a reason, not
-terminal text or a command that the player can enter.
-
-### Query domains
-
-An entity query requires an identity belonging to the corresponding current
-game-state domain. The identity type distinguishes kinds of entity; it does not
-by itself prove that an entity is present in this game.
-
-| Query | Required domain and result |
-| --- | --- |
-| ship | A roster ShipId; returns that ship record, including when it has no current commission. |
-| base | A BaseId in the fixed base roster; returns the record even when its strength is zero. |
-| planet | A PlanetId in the current planet collection; returns that planet record. |
-| captain | A CaptainId represented by a participating session; returns that captain record. |
-| tractorBeam | A TractorBeamId in the current beam set; returns that association. |
-| sector | An in-galaxy Position; returns the interaction object at that position, or none for an empty sector. |
-
-A query outside its declared domain has no result defined by this specification.
-It does not create a default entity, return a record remembered from an earlier
-observation, or introduce a player-visible error message. An operation that
-accepts an absent identity states its own check and result before querying the
-entity. For example, RemovePlanet returns NoPlanet when its target is absent;
-that branch does not evaluate planet(game, target).
-
-Optional results describe permitted absence inside a query's domain. Thus an
-empty sector is a valid result, while a coordinate outside the galaxy is not a
-Position. A ship's absent position also does not prevent querying its roster
-record; it prevents using that optional position as a Position without checking
-presence. Concurrent invalidation between a check and use is governed by the
-operation's coordination contract; these domain rules do not make the pair atomic.
-
-### Operation contracts
-
-An operation contract states:
-
-- **Inputs and preconditions:** the values it accepts and conditions required
-  for success, including the order of checks when that affects a diagnostic.
-- **State effects:** the relationships between properties before and after
-  the action, including resource costs and information disclosure.
-- **Outcome and observations:** success, rejection or cancellation, and the
-  reports or events available to participants.
-- **Completion:** elapsed-time requirements and any shared turn or lifecycle
-  effects that follow the action.
-
-In a contract, `before(x)` and `after(x)` refer to a property immediately before
-and after the named semantic event. An equation between them is a requirement,
-not an assignment or a prescribed update order. Where ordering matters, the
-contract names separate events and states their ordering. Other world activity
-may occur during an operation under the multiplayer rules; these contracts
-do not imply that every command is one indivisible transaction.
-
-Resource controls, movement, tractor beams, construction, CAPTURE, information
-commands and session operations use this contract form. Other drafted clauses
-still use the pseudocode below and are being brought into the same form.
-An operation name alone does not define its meaning: its command or shared-rule
-clause must supply the contract.
-
 ## Notation
 
 The type notation is inspired by TypeScript and algebraic data types. It is
@@ -742,7 +656,7 @@ specify which current properties of a known remote installation are disclosed.
 Counting an object in a whole-game summary need not reveal its location or add
 it to knowledge. A detailed installation report can perform that discovery update.
 
-Score reports use the following counters, where w is world(game):
+Score reports use the following counters, where w denotes the World record:
 
 ```text
 w.teamCommissions[team]          faction commission count
@@ -763,6 +677,87 @@ not yet a complete world, combat or session model.
 [new ship state](../../legacy/utexas/SETUP.FOR#L367),
 [distance](../../legacy/utexas/WARMAC.MAC#L3720),
 [radio controls](../../legacy/utexas/DECWAR.FOR#L3129).
+
+## Game state and operations
+
+`GameState` represents a galaxy and its participating sessions. Its representation
+is unspecified. The preceding records describe properties that the specification can
+observe; they do not require mutable objects, tables or a particular database.
+
+```text
+abstract type GameState
+
+query ship(game: GameState, id: ShipId): Ship
+query base(game: GameState, id: BaseId): Base
+query planet(game: GameState, id: PlanetId): Planet
+query captain(game: GameState, id: CaptainId): Captain
+query world(game: GameState): World
+query tractorBeam(game: GameState, id: TractorBeamId): TractorBeam
+query sector(game: GameState, position: Position): Optional<SectorObject>
+```
+
+Queries describe the current state without changing it. Operations describe
+permitted changes and observations. Their names are specification vocabulary,
+not additional commands or a required software interface. The command chapters
+define the operations and their outcomes alongside the grammar that invokes them.
+Within a game operation, `game` denotes the current GameState. A query or pure
+function has no implicit permission to change it. The result type follows the
+parameter list's colon. Vertical bars separate alternatives; braces name their
+associated values. A rejection outcome carries its declared reason; it is not
+terminal text or a command that the player can enter.
+
+### Query domains
+
+An entity query requires an identity belonging to the corresponding current
+game-state domain. The identity type distinguishes kinds of entity; it does not
+by itself prove that an entity is present in this game.
+
+| Query | Required domain and result |
+| --- | --- |
+| ship | A roster ShipId; returns that ship record, including when it has no current commission. |
+| base | A BaseId in the fixed base roster; returns the record even when its strength is zero. |
+| planet | A PlanetId in the current planet collection; returns that planet record. |
+| captain | A CaptainId represented by a participating session; returns that captain record. |
+| tractorBeam | A TractorBeamId in the current beam set; returns that association. |
+| sector | An in-galaxy Position; returns the interaction object at that position, or none for an empty sector. |
+
+A query outside its declared domain has no result defined by this specification.
+It does not create a default entity, return a record remembered from an earlier
+observation, or introduce a player-visible error message. An operation that
+accepts an absent identity states its own check and result before querying the
+entity. For example, RemovePlanet returns NoPlanet when its target is absent;
+that branch does not evaluate planet(game, target).
+
+Optional results describe permitted absence inside a query's domain. Thus an
+empty sector is a valid result, while a coordinate outside the galaxy is not a
+Position. A ship's absent position also does not prevent querying its roster
+record; it prevents using that optional position as a Position without checking
+presence. Concurrent invalidation between a check and use is governed by the
+operation's coordination contract; these domain rules do not make the pair atomic.
+
+### Operation contracts
+
+An operation contract states:
+
+- **Inputs and preconditions:** the values it accepts and conditions required
+  for success, including the order of checks when that affects a diagnostic.
+- **State effects:** the relationships between properties before and after
+  the action, including resource costs and information disclosure.
+- **Outcome and observations:** success, rejection or cancellation, and the
+  reports or events available to participants.
+- **Completion:** elapsed-time requirements and any shared turn or lifecycle
+  effects that follow the action.
+
+In a contract, `before(x)` and `after(x)` refer to a property immediately before
+and after the named semantic event. An equation between them is a requirement,
+not an assignment or a prescribed update order. Where ordering matters, the
+contract names separate events and states their ordering. Other world activity
+may occur during an operation under the multiplayer rules; these contracts
+do not imply that every command is one indivisible transaction.
+
+Command and shared-rule clauses combine these contracts with the pseudocode
+notation defined above. An operation name alone does not define its meaning:
+its command or shared-rule clause must supply the contract.
 
 ## Coordination and overlapping operations
 

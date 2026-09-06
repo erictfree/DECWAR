@@ -1184,12 +1184,12 @@ the ordinary location rules.
 ### Operation and preconditions
 
 ```text
-operation Capture(actor: ShipId, target: Position): CaptureOutcome
+type CaptureRejection = NotAdjacent | NotAPlanet
+                 | AlreadyOwned | SurrenderRefused
 
 type CaptureOutcome = Result<Captured { planet: PlanetId }, CaptureRejection> | Cancelled
 
-type CaptureRejection = NotAdjacent | NotAPlanet
-                 | AlreadyOwned | SurrenderRefused
+operation Capture(actor: ShipId, target: Position): CaptureOutcome
 ```
 
 These outcome names describe semantics; they are not literal terminal messages.

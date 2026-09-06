@@ -4314,3 +4314,18 @@ records scope and the initial grammar false positives. No normative or gameplay
 change; no PDF rebuild needed. Next: improve declaration/introduction order and
 continue whole-book operation/domain review, without treating lexical checks as
 semantic verification.
+
+## Specification: model reading order
+
+Moved GameState query/domain/contract section after the entity declarations;
+notation now opens the model chapter. Removed the premature illustrative Capture
+signature and placed CAPTURE rejection/outcome definitions before its signature.
+Updated directional prose and the guide coverage finding. Seven query signatures
+remain identical; the eight record/position query types precede the query section.
+logs/spec-model-reading-order-review.log records the bounded checks. Final build
+logs/spec-model-reading-order-build-3.log passes 100 productions, 671 scenario
+rows, 14 units and 676 links. Earlier two builds retained while correcting
+layout-discovered directional prose. Inspected PDF pages 8, 19, 20 and 59, then
+rechecked final page 20; no overfull/undefined warnings. Full-book layout and
+remaining declaration dependencies are not yet certified. No game behavior or
+runtime changes.
