@@ -179,9 +179,21 @@ the surrounding clause; they are not additional fields or callable services.
 and its terminal rendering is specified separately.
 `reject` ends the current operation with the named diagnostic. Unless a rule
 states otherwise, rejection does not undo effects that have already occurred.
-An operation leaves unmentioned state unchanged. Interactive input, elapsed
-time and simultaneous actions have explicit rules; pseudocode alone does not
-make a whole command atomic.
+An operation's own effects leave unmentioned state unchanged. This is a
+restriction on what that operation changes, not a promise that other permitted
+actions cannot change the same world while it is in progress. Interactive
+input, elapsed time and simultaneous actions have explicit rules; pseudocode
+alone does not make a whole command atomic.
+
+A postcondition applies at the completion of the operation or substep it names.
+It does not claim the value persists after another permitted event changes it.
+Likewise, an invariant must identify a scope in which it holds throughout;
+a relationship stated only at completed admission, release or construction
+must not be promoted to an invariant of their intermediate states. For example,
+the maintained installation counters have their own update points and need not
+match a fresh count during an unfinished installation transition. Their typed
+fields remain defined even when that completed-transition relationship does
+not hold.
 
 `+=` and `-=` add to or subtract from a named value. `floor(x)` is the greatest
 integer no greater than x. Lists in pseudocode use positions starting at one;

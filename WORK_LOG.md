@@ -3341,3 +3341,17 @@ The initial heuristic capitalized-word scan was triage, not a type checker.
 `logs/spec-type-notation-build.log` passes; physical PDF page 9 was visually
 inspected. Property access and invariant review remain unfinished. Runtime and
 source archives unchanged.
+
+### Specification checkpoint: property names and state-effect scope
+
+Checked common Ship/Captain/World property references against their declared
+fields; no unmatched names in this inventory. Clarified that unchanged-state
+requirements constrain an operation's own effects, and completed-state
+postconditions are not automatically intermediate-state invariants. This retains
+the existing concurrency and maintained-counter contracts.
+
+`logs/spec-state-property-review.log` records the limited name audit and its
+non-proof of alias binding, units or optional presence.
+`logs/spec-state-effect-scope-build.log` passes; physical PDF pages 10–11 were
+visually inspected. Stronger type/invariant and behavioral review remain open.
+No runtime or source archive changes.

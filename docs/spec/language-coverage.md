@@ -242,3 +242,12 @@ tags; a simple capitalized-word scan is not a type checker. The notation chapter
 now explicitly scopes result tags and explains bare singleton outcomes within
 Result. This closes a presentation ambiguity, not the whole type/property audit.
 Field accesses, operation inputs and invariant consistency still require review.
+
+The next type-review pass found no unmatched property names in the included
+book's lexical property inventory, and checked the common s/c/w field references
+against Ship (18 fields), Captain (13) and World (22). This is field-name
+inventory, not proof of alias binding, optional-value presence, units or type
+compatibility. The notation now explicitly limits unchanged-state claims to an
+operation's own effects and distinguishes completed-state postconditions from
+invariants over intermediate transitions. Remaining type review must examine
+those stronger properties rather than treating this scan as semantic proof.
