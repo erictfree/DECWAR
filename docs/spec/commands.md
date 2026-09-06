@@ -814,8 +814,9 @@ ensures after(s.tractorBeam) == b.id
 ensures after(r.tractorBeam) == b.id
 ```
 
-The outcome is Engaged { beam: b.id }, and both endpoints receive the tractor-engagement
-notification. Positions, energy, shields, device damage, condition, docking and
+After establishing the association, publish TractorEvent { value: ACTIVATED }
+to both endpoints under the combat-notice rules. The outcome is Engaged { beam: b.id };
+publication does not guarantee immediate display or add a direct success response. Positions, energy, shields, device damage, condition, docking and
 stardates are unchanged. Either endpoint may subsequently move using the same
 association; engagement does not choose a permanent towing ship.
 

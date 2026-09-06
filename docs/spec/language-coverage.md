@@ -53,14 +53,14 @@ remaining dependencies below still limit end-to-end conformance claims.
 | Command | Grammar and semantic clause | Remaining dependencies |
 | --- | --- | --- |
 | SHIELDS | [SHIELDS](commands.md#shields): ADT operation contract and complete ordinary prompt/response strings. | Session, interrupted output and concurrent confirmation; transfer confirmation prints no numeric amount. |
-| RADIO | [RADIO](commands.md#radio): ADT operation contract. | Message delivery and response rules. |
+| RADIO | [RADIO](commands.md#radio): ADT operation contract. | Message delivery and interruptions; ordinary preference responses are specified. |
 | ENERGY | [ENERGY](commands.md#energy): ADT operation contract. | Notification delivery and session; ordinary sender responses are specified. |
 | DOCK | [DOCK](commands.md#dock): ADT operation contract. | Concurrent world and interrupted reporting; ordinary docking and optional STATUS response sequence specified. |
 | REPAIR | [REPAIR](commands.md#repair): ADT operation contract. | Concurrent world and interrupted reporting; silent repair and optional DAMAGE sequence specified. |
 | SCAN, SRSCAN | [SCAN and SRSCAN](commands.md#scan-and-srscan): ADT operation contract. | Full transport/control delivery and concurrent installation changes. |
 | STATUS | [STATUS](commands.md#status): ADT operation contract and ordered field presentation. | Full terminal controls and multiplayer observations. |
 | DAMAGES | [DAMAGES](commands.md#damages): ADT operation contract, title observation and row presentation. | Full terminal controls and multiplayer observations. |
-| TRACTOR | [TRACTOR](commands.md#tractor): ADT operation contract. | Occupied trailing sectors, concurrent acquisition and responses. |
+| TRACTOR | [TRACTOR](commands.md#tractor): ADT operation contract. | Occupied trailing sectors and concurrent acquisition; direct responses and activation publication are specified. |
 | MOVE, IMPULSE | [MOVE and IMPULSE](commands.md#move-and-impulse): ADT operation contract. | Zero-item reply after an own-sector target, crowded towing, concurrent relocation, random distributions and responses. |
 | BUILD | [BUILD](commands.md#build): ADT operation contract. | Planet-update availability, conversion/world-end ordering and responses. |
 | CAPTURE | [CAPTURE](commands.md#capture): explicit ADT operation contract. | Coordination entry-failure binding, racing targets, final lifecycle and responses; refusal is explicitly tied to failed phase entry. |

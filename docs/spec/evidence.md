@@ -596,3 +596,19 @@ leading space. DOCKIN begins with CRLF, and the ended-commission branch is silen
 REPAIR itself has no OUT or CRLF; DAMAGE supplies optional report output, while
 later turn effects remain separate. This closes ordinary response recipes, not
 interruption, transport or simultaneous-state guarantees.
+
+### RADIO and TRACTOR response/delivery distinction
+
+RADIO (Austin DECWAR.FOR 3129–3180) requests CRLF after nonempty action input
+but not after empty cancellation; its separate name prompt does not add that
+request. GAG/UNGAG append ODISP without a trailing space then CRLF; ON/OFF use
+OUT with one unconditional suffix. Targeting self is silent. Added these paths
+and exact MSG.MAC 248–255 strings to presentation.
+
+TRACTR 4432–4510 emits direct rejection text, with ODISP plus one space for
+target-beam and target-shield refusals. TRACT4 contains an embedded CRLF.
+Engagement writes both endpoints then calls MAKHIT, as release clears the
+association then publishes. Replaced the unqualified receipt wording
+in the engagement contract with publication of TractorEvent ACTIVATED. Exact
+strings are MSG.MAC 349–357, plus the shared name/absence/adjacency messages.
+This adds no notification, command or delivery guarantee.

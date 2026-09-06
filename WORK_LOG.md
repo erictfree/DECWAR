@@ -3901,3 +3901,18 @@ label, preserving output text. Retry passed in logs/spec-resource-responses-buil
 662 scenarios, 100 productions, 324 fragments, 14 chapters, 567 links. Inspected
 PDF physical pages 159–160: tables and prose readable. No gameplay/archive
 changes; interrupted delivery and the full specification goal remain open.
+
+### Specification: RADIO and TRACTOR responses
+
+Added ordinary RADIO prompts, action-reply blank-line behavior, direct setting
+confirmations and silent self/cancel paths. Added TRACTOR direct rejection table,
+embedded self-target CRLF and target-label prefixes. Corrected engagement wording
+to publish ACTIVATED after association creation rather than promise receipt.
+Updated coverage; actual notice delivery remains governed by communication.
+
+Validation: logs/spec-radio-tractor-responses-review.log checks 14 exact strings,
+action-cancel order and activation-before-publication. Build passed in
+logs/spec-radio-tractor-responses-build.log: 662 scenarios, 100 productions,
+324 fragments, 14 chapters and 574 links. Inspected PDF physical pages 160–162:
+response sections and following combat section readable. No gameplay/archive
+changes. Full goal remains active.

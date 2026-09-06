@@ -340,6 +340,62 @@ their own output rules.
 [docking strings](../../legacy/utexas/MSG.MAC#L47),
 [REPAIR](../../legacy/utexas/DECWAR.FOR#L3190).
 
+## Radio preference responses
+
+RADIO begins with a conditional blank-line request. Action prompting emits
+`"Turn radio ON or OFF, GAG or UNGAG individual ship?  "` with no appended line
+ending. After a nonempty action reply, request another conditional blank line
+before examining the action. An empty reply cancels without this additional
+request. An unrecognized action repeats the prompt.
+
+The separate ship-name prompt is `"Ship name:  "`, without an appended line
+ending. A non-name reply repeats it, and an empty reply cancels. An unknown
+roster name emits `"Unknown ship name."` followed by one unconditional line
+ending. Selecting the actor's own ship produces no confirmation.
+
+ON emits `"Radio turned on, Captain."` and OFF emits
+`"Radio turned off, Captain."`, each with one unconditional line ending.
+GAG emits `"Radio gagged against "`; UNGAG emits `"Radio ungagged against "`.
+Append the selected ship's object label without an added trailing space, then
+make a conditional blank-line request. The prefix is independent of output
+length; the object label follows the ordinary SHORT/MEDIUM/LONG rule. These
+are direct confirmations of the [radio preference changes](commands.md#radio),
+not radio messages delivered to the selected ship.
+
+**Source basis:** [RADIO](../../legacy/utexas/DECWAR.FOR#L3129),
+[radio strings](../../legacy/utexas/MSG.MAC#L248).
+
+## Tractor command responses
+
+TRACTOR begins with a conditional blank-line request. Its target prompt is
+`"Ship to apply tractor beam to:  "`, without an appended line ending. The
+[command's selection and validation rules](commands.md#tractor) determine which
+of the following responses occurs. Every listed response ends with one
+unconditional line ending, in addition to any CRLF inside its text.
+
+| Condition | Text or composition |
+| --- | --- |
+| OFF with no beam | `"Tractor beam not in operation at this time, Captain."` |
+| Actor already has a beam | `"Tractor beam already active, Captain."` |
+| Unknown target name | `"Unknown ship name."` |
+| Target is actor | `"Beg your pardon, Captain?  You want to apply a tractor\r\nbeam to your own ship?"` |
+| Enemy target | `"Can not apply tractor beam to enemy ship."` |
+| Target not commissioned | `"Player not in game."` |
+| Target not adjacent | `"Not adjacent to destination ship."` |
+| Target already has a beam | Target object label, one space, `"already has tractor beam active."` |
+| Actor's shields raised | `"Can not apply tractor beam through shields, Captain."` |
+| Target's shields raised | Target object label, one space, `"has his shields up.  Unable to apply tractor beam."` |
+
+The fixed strings do not vary with output length. The two prefixed responses
+use the target's ordinary object label. Empty target input cancels without a
+new response. Successful engagement and release have no direct success string:
+they publish TractorEvent observations, whose delivery and rendering follow
+the combat-notice rules. The direct-response table does not bypass those rules.
+
+**Source basis:** [TRACTR and release](../../legacy/utexas/DECWAR.FOR#L4432),
+[tractor strings](../../legacy/utexas/MSG.MAC#L349),
+[shared adjacency response](../../legacy/utexas/MSG.MAC#L70).
+
 ## Combat observation bodies
 
 These recipes present a CombatObservation that passed ReceiveNotice's reception
