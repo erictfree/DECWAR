@@ -509,6 +509,35 @@ defense phases. Other ships and installations do not alter the stated result.
 | EX-MODEL-496 | The same critical hit also destroys the target | The destruction presentation omits the shield/strength and device-detail suffixes, while the immutable result retains those values. |
 | EX-MODEL-497 | A Romulan torpedo and a player torpedo each produce a deflected zero-damage WeaponHit; output LONG | The player report uses deflection wording. The Romulan report uses ordinary zero-damage torpedo wording; both retain the same deflection effect. |
 | EX-MODEL-498 | Player-started nova produces a hit near a different captain | The observation origin is the exploding star; the initiating player remains relevant to scoring and the publisher remains relevant to delivery order. These are distinct roles. |
+| EX-MODEL-499 | INFORMATIVE prompt; life-support damage 300, reserve 2; shields UP at 10%; hull damage 2000; energy 1000 | The prompt string is `"2LSDE> "`, including its final space and no implicit newline. Equality triggers every warning. |
+| EX-MODEL-500 | INFORMATIVE prompt; life-support damage 299.9; shields UP at 10.1%; hull damage 1999.9; energy 1000.1 | The prompt string is `"> "`, regardless of a separately recorded RED condition. |
+| EX-MODEL-501 | NORMAL prompt with all four warning conditions present | The prompt is still `"Command: "`; warning prefixes belong only to INFORMATIVE. |
+| EX-MODEL-502 | Relative coordinate output, Free fields, reported position equal to the viewer's position | FormatLocation gives the empty string. It does not give `"0,0"` or change the coordinate preference. |
+| EX-MODEL-503 | BOTH/MEDIUM, Free fields, viewer and reported position (20,20) | FormatLocation gives `"@20-20"`, with no trailing space or zero-relative suffix. |
+| EX-MODEL-504 | BOTH/MEDIUM, Free fields, viewer (20,20), observation at (21,20) | FormatLocation gives `"@21-20 +1,0"`; the horizontal zero has no plus sign. |
+| EX-MODEL-505 | MEDIUM output displays damage 12.39, then another operation uses that damage quantity | The field displays `"12.3"`; the underlying quantity remains 12.39. Display precision does not alter later damage arithmetic. |
+| EX-MODEL-506 | Ordinary MEDIUM numeric field for -0.59 in the generalized presentation | Display `"-0.5"`; preserve its sign without restoring a machine-quotient sign-loss artifact. |
+| EX-MODEL-507 | ALWAYS_ZERO_NEGATIVE, Free width, value zero with one fractional digit | Display `"-0.0"`; no negative-zero game quantity is introduced. |
+| EX-MODEL-508 | FormatNumber(-12, 0, NEGATIVE_ONLY, Exactly(2)) | Display `"-*"`; preserve the minus sign within the two-character integer field. |
+| EX-MODEL-509 | FormatNumber(123.49, 1, NEGATIVE_ONLY, Exactly(2)) | Display `"**.4"`; the fractional suffix is outside the overflowing two-character integer field. |
+| EX-MODEL-510 | A combat observation contains Romulan energy 300; MEDIUM output | Its strength-style numeric suffix is `"+30.0%"`; the value still means 300 energy units and does not create Romulan shields. |
+| EX-MODEL-511 | SHORT condition text for a docked green ship; MEDIUM text for the same observation | Use `"D+G"` and `"Docked+Green"`, with no extra separator or trailing space. |
+| EX-MODEL-512 | Output is already at the left margin after an empty completed line; a conditional blank-line request is followed by one unconditional line ending | The conditional request adds nothing; the unconditional request still emits one `"\r\n"` pair. |
+| EX-MODEL-513 | MEDIUM/ABSOLUTE; TorpedoObservation shot 2, MISSED at (12,13), body starts at a line boundary | Body is `"T2 miss @12-13\r\n"`; a shot ordinal is printed without a decimal fraction. |
+| EX-MODEL-514 | MEDIUM/ABSOLUTE; RomulanDetected at (12,13) | Body is `"??  @12-13\r\n"`; retain the two spaces after the Romulan label. |
+| EX-MODEL-515 | MEDIUM; Excalibur sends 90 received energy units to Farragut | Body is `"E 90.0 > F \r\n"`, including the recipient label's trailing space before the ending. |
+| EX-MODEL-516 | LONG presentation of the same energy observation | Body is `"Excalibur  transfers 90.0 units of energy to the  Farragut \r\n"`. Keep both doubled spaces and the trailing space. |
+| EX-MODEL-517 | LONG/ABSOLUTE; StarObservation UNAFFECTED at (12,13) | Body is `"Star @12-13  UNAFFECTED by Photon Torpedo!\r\n"`; retain both spaces before UNAFFECTED. |
+| EX-MODEL-518 | SHORT/ABSOLUTE; Excalibur at (10,10), UP 100%; phaser damage 50 to surviving Wolf at (12,12), DOWN 80%; no critical | Body is `"E 10-10 +100  50P  W 12-12 -80\r\n"`. The damage and target separators are both two spaces. |
+| EX-MODEL-519 | MEDIUM/ABSOLUTE presentation of the same impact | Body is `"E @10-10, +100.0%  50.0 unit P  W @12-12, -80.0%\r\n"`; target coordinates are formatted SHORT with their separate preceding `@`. |
+| EX-MODEL-520 | LONG impact on a ship; current column after the damage phrase is 41 | Make the conditional blank-line request before its target label. At column 40, that request is not made. |
+| EX-MODEL-521 | LONG impact on a planet; current column after the damage phrase is 41 | Do not apply the ship/base target-break rule to the planet. |
+| EX-MODEL-522 | SHORT tractor activation, then a separate LONG tractor-activation body | The bodies are `"Trac. Beam on\r\n"` and `"\r\nTractor beam activated, Captain.\r\n"`; LONG reception's earlier conditional separator is separate. |
+| EX-MODEL-523 | LONG nova destroys a base by black-hole displacement | Include the base emergency and generic destruction text; omit the separate black-hole destruction line, while retaining the BLACK_HOLE effect in the observation. |
+| EX-MODEL-524 | MEDIUM radio message from Excalibur, original recipients Farragut and Wolf, body Hello | Display `"\r\nMessage from E to  F W\r\nHello\r\n\r\n"`, including the doubled space after `to` and final blank line. |
+| EX-MODEL-525 | Farragut has already read the message in `EX-MODEL-524`; Wolf now receives it | Wolf's heading still contains `" F W"`, because it shows the original audience. |
+| EX-MODEL-526 | SYSTEM radio sender, body Hello | Display `"Hello\r\n\r\n"`, with no heading or leading radio separator. |
+| EX-MODEL-527 | A gagged player message is consumed under LONG output | Suppressed produces no heading, body or blank-line request; do not apply the separate combat-reception separator. |
 
 EX-MODEL-06 deliberately uses fractional shield strength. Historical loss of
 that fraction is excluded by the numerical normalization policy. The grammar,

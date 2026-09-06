@@ -1153,3 +1153,52 @@ FREE clears captain association and active position. A just-destroyed ship still
 needs release; commissioned false alone is not availability for admission. This
 resolves inconsistent prose, not a new death or reentry mechanic. Source:
 DECWAR.FOR 1082–1137, 2310–2321, 4153–4163.
+
+
+## Generalized terminal numeric and coordinate fields
+
+presentation.md describes FieldWidth as Free, Exactly or AtLeast and numeric
+values in report units, replacing legacy sign-of-width conventions and scaled
+integer arguments. SHORT shows whole-number precision; MEDIUM/LONG show one
+decimal digit. Discarding display digits toward zero is a presentation rule,
+not a loss of fractional game state. Signs are selected before display precision:
+negative fractions keep their sign, removing OFLT's accidental sign loss when
+its integer quotient becomes zero. ALWAYS_ZERO_NEGATIVE retains the deliberate
+OSFLT zero-sign convention; it does not introduce a negative-zero state value.
+Integer-field overflow retains the sign and uses asterisks, and the fractional
+suffix remains outside the specified integer-field width. Source: WARMAC.MAC
+1880–1968.
+
+Coordinate rendering preserves absolute/relative/BOTH order, signed zero rules,
+Free-field omission at the viewer's own position and caller-selected SHORT
+format for impact target positions (DECWAR.FOR 3078–3102, 2492–2495). Romulan
+combat readings retain the source's energy/10 numeric display and percent glyph;
+the abstract entity still has Energy, not Shields. Source: DECWAR.FOR 2427–2432,
+2498–2502, 2714–2716, 3291.
+
+The initial presentation chapter specifies ordinary printable text and CR/LF
+layout. It does not import packed-character counters or silently substitute
+conventional tab stops for the historical tab-accounting expression. Full tab,
+cursor-control and transport binding remains explicitly open. Literal labels,
+prompt thresholds in generalized units and conditional versus unconditional
+line endings are retained. No game, transport or archive code changes.
+
+
+Combat presentation now composes the typed values directly. It retains literal
+spacing (including doubled and trailing spaces), conditional versus unconditional
+line endings, SHORT impact-target coordinate formatting, the LONG line-break
+threshold before ship/base targets, base emergency paragraphs and the different
+Romulan/player deflection wording. All strings are stated in the book, without
+numeric IWHAT selectors or source-register field names. Caller-owned reception
+suppression remains separate from body rendering. Source: DECWAR.FOR 2417–2597,
+MSG.MAC 161–195, 291, 340, 371. This does not claim that every other terminal
+report or the transport/control binding is complete.
+
+
+Radio presentation treats the 75 retained characters as text, with MAKMSG's
+forced CR/LF and OUTMSG's additional unconditional CR/LF expressed as two body
+endings in the terminal binding. They do not consume abstract text capacity.
+The heading preserves the original audience's spaced initials, with full sender
+names only in LONG, and system messages omit the heading. Existing normalization
+still excludes stale-body duplicate delivery and Romulan indexing into an
+unrelated player's gag state. Source: DECWAR.FOR 2599–2621; WARMAC.MAC 2994–3007.

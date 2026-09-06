@@ -112,6 +112,14 @@ coverage does not establish lifecycle, concurrency or terminal conformance.
   delivery, pregame SET NAME, administrative schema/write failures, concurrent claims/cancellation,
   destroyed-base spawn exclusions, reused action-phase state, resume, full
   control behavior and terminal presentation remain.
+- Terminal presentation: a new included chapter defines PresentationContext,
+  FormatNumber/FormatLocation, display-only precision, labels, prompts and ordinary
+  line/column composition. Combat bodies now compose the typed observations,
+  including recipient-specific critical detail, Romulan deflection wording,
+  base emergency paragraphs and exact spacing. Radio headings preserve the original
+  audience and retain their body-ending blank line. Complete control/transport behavior
+  and remaining command/report recipes still remain; the source-analysis terminal
+  chapter stays outside the book.
 - Information resources: help topic sections, news continuation boundaries and
   feedback records drafted; complete headers and storage-failure bindings remain.
 - CompuServe appendix: population, names, initial preferences and extra pregame

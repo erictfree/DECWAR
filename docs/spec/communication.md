@@ -121,7 +121,8 @@ is absent when m.sender is SYSTEM. Otherwise the heading contains m.sender
 and the members of m.recipients in roster order. Displayed player and Romulan
 messages identify the sender and show those original recipient initials,
 followed by the body. The audience shown does not shrink as others receive it.
-Terminal presentation supplies line endings and separators. A suppressed
+The [radio presentation](presentation.md#radio-message-bodies-and-headings)
+supplies line endings and separators; they are not part of the retained body text. A suppressed
 message produces no MessageObservation.
 
 **Open:** The complete scheduling and shared-state availability rules for message
@@ -433,7 +434,8 @@ friendly-object neutralization has a separate TorpedoObservation.
 These composition rules consume existing effect results. They add no draw,
 weapon charge, score credit, displacement or turn. They also do not broaden an
 impact's recipients: the firing, installation or nova clause still determines
-its audience. The complete character-level rendering and concurrent snapshot
+its audience. The [combat presentation](presentation.md#combat-observation-bodies) supplies
+body composition. Complete control-character behavior and concurrent snapshot
 boundaries remain part of the terminal and multiplayer work.
 
 **Source basis:** [base defense](../../legacy/utexas/DECWAR.FOR#L375),
@@ -611,7 +613,7 @@ until no corresponding unread item remains; it does not advance a turn. A
 publication arriving during that activity follows the same next-item selection
 rule if it is observed before draining completes.
 
-**Open:** Complete terminal rendering, concurrent observation boundaries,
+**Open:** Complete terminal-control behavior, concurrent observation boundaries,
 publication/reception interleavings and the release-versus-new-publication window
 remain to be closed. This contract preserves complete observations; it does not
 make the entire firing command, drain loop or commission release indivisible.

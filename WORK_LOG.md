@@ -2832,3 +2832,30 @@ WORK_LOG/status/experiments work.
 - Clarified commissioned as the existing active-participation predicate, distinct from retained captain association and completed release, resolving inconsistent prose around a just-destroyed recipient. No gameplay or source change.
 - Added EX-MODEL-478–498. Validation: logs/spec-impact-observation-build-final-2.log passes 13 chapters, 346 links, 498 scenario rows and 324 source fragments. logs/spec-observation-values-audit.log passes the archive/generated audit. The 172-page PDF's new definitions, semantics, examples and changed release/model pages were visually reviewed at 144 dpi. Earlier successful build logs retained for editorial iterations; an intermediate review command correctly stopped while its build was still running. git diff --check passes. Scenario checks validate the document, not execution of those cases or native parity.
 - Remaining work includes full terminal composition, control/resume and concurrent lifecycle boundaries, malformed caller cases and CompuServe amendments. Work remains documentation-only.
+
+## 2026-09-05 — Specify terminal presentation of typed combat and radio observations
+
+Added the included presentation chapter: context, decimal fields, coordinate
+fields, object/device/condition labels, prompt warnings and conditional versus
+unconditional line endings. Defined combat body composition from typed
+observations, including recipient-specific critical details, Romulan torpedo
+wording, base emergency/destruction paragraphs and exact significant spaces.
+Radio headings retain the original audience and body-ending blank line.
+Ordinary game quantities remain independent of display precision; documented
+negative-fraction display normalization outside the normative book.
+
+Source review: Austin WARMAC.MAC numeric/label/location/prompt output and
+DECWAR.FOR OUTHIT/OUTMSG, with MSG/SETMSG literal comparisons. Added EX-MODEL-499
+through EX-MODEL-527. Build passes 14 chapters, 374 local links, 527 scenario rows
+and 324 named fragments: logs/spec-terminal-presentation-build-reviewed.log.
+Literal/composition review: logs/spec-presentation-literal-review.log,
+logs/spec-combat-presentation-composition-review.log and
+logs/spec-radio-presentation-review.log. These checks validate written examples
+against source-derived composition, not original-executable parity or execution
+of every scenario. Archive audit passes: logs/spec-terminal-presentation-audit.log.
+Reviewed final PDF pages 134–141 and 179–181 across the retained renders; no
+clipping or overflow found. The compiled working draft has 182 pages.
+
+No runtime/server/archive changes. Remaining work includes command/report
+presentation, controls and lifecycle, concurrency, CompuServe amendments and
+cross-chapter consistency. The specification goal remains active.
