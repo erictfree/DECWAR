@@ -212,6 +212,15 @@ and informational reports are not thereby turned into queued combat notices.
 
 ```text
 abstract type CombatObservation
+enum CombatObservationKind = WEAPON_HIT | NOVA_HIT
+    | STAR_EXPLOSION | STAR_UNAFFECTED
+    | TORPEDO_MISS | TORPEDO_ABSORBED | TORPEDO_NEUTRALIZED
+    | BASE_DISTRESS | BASE_DESTROYED | ROMULAN_DETECTED
+    | ENERGY_TRANSFER | TRACTOR_ACTIVATED | TRACTOR_BROKEN
+
+query observationKind(observation: CombatObservation)
+    -> CombatObservationKind
+
 abstract type NoticeId
 ordered type PublicationOrder
 
@@ -237,7 +246,7 @@ operation PublishNotice(publisher: ShipId, recipients: Set<ShipId>,
     on GameState -> Published(NoticeId) | NotPublished
 
 operation ReceiveNotice(receiver: ShipId)
-    on GameState -> Displayed(NoticeId) | NoNotice
+    on GameState -> Displayed(NoticeId) | Suppressed(NoticeId) | NoNotice
 
 operation DiscardNotices(receiver: ShipId)
     on GameState -> Discarded
@@ -250,6 +259,9 @@ nor constructs missing weapon fields. It cannot substitute an arbitrary TELL
 body for the observation. Its detailed presentation belongs to the observation's
 terminal binding; this ADT defines preservation, selection and loss independently
 of a rendering or network format.
+observationKind distinguishes the listed game events; a deflected torpedo hit
+is WEAPON_HIT, with its deflected property in the hit result. A producing clause
+determines the kind; it is not a recipient-selected filtering option.
 
 Let service be world(game).combatNotices. Each present notice has a nonempty
 remainingRecipients set, contained in its original recipients. Distinct notices
@@ -305,13 +317,24 @@ Calling this query has no state effect.
 ReceiveNotice requires a receiver with a captain association, including a ship
 that has just been destroyed but has not completed commission release. If
 nextNotice returns none, give NoNotice and emit nothing. Otherwise let n be the
-selected notice. Remove receiver from n.remainingRecipients, then present
-n.observation and give Displayed(n.id). Remove n from service when no recipients
-remain. Other recipients retain the same observation and their unread status.
+selected notice. Remove receiver from n.remainingRecipients and remove n from
+service when no recipients remain. Other recipients retain the same observation
+and their unread status. The terminal binding's leading conditional blank-line
+request in LONG output precedes the following presentation check.
 
-No radio-enabled, radio-damage or sender-gag check is repeated during reception.
-Those properties cannot suppress an already addressed combat notice. Presentation
-uses the receiver's current output and coordinate preferences. Positions and
+For BASE_DISTRESS or BASE_DESTROYED, suppress the observation body if the
+receiver's radio is off or its radio-device damage is greater than 300 damage
+units. Give Suppressed(n.id); the notice has still been consumed. Damage exactly
+300 does not suppress it. This reception check is additional to the producing
+operation's faction and radio-on recipient selection. Restoring the radio later
+does not restore a consumed notice. The leading LONG-format separator can still
+have been emitted before suppression.
+
+All other kinds give Displayed(n.id) and present n.observation regardless of
+radio-enabled or radio-damage state. No notice kind uses sender-gag filtering.
+For base kinds that pass their reception check, also present n.observation and
+give Displayed(n.id). Presentation uses the receiver's current output and
+coordinate preferences. Positions and
 resource values contained in the observation remain the published ones; relative
 coordinates are displayed from the receiver's current position. Rendering a
 notice cannot apply the associated hit or award its score a second time.

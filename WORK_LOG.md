@@ -2817,3 +2817,10 @@ These checks validate the document and source inventory, not executable parity.
 Continue with observation presentation, lifecycle/control, multiplayer,
 malformed caller forms and CompuServe amendments. Preserve concurrent unrelated
 WORK_LOG/status/experiments work.
+
+### Specification checkpoint: base-notice reception correction
+
+- Rechecked Austin DECWAR.FOR OUTHIT (2402–2408, 2559–2580): base distress/destruction bodies are consumed but suppressed when the recipient radio is off or RADIO damage is greater than 300; exactly 300 passes. Other hit kinds ignore that gate, and all ignore sender gagging. LONG's leading conditional blank-line request occurs before suppression.
+- Added observation-kind classification, Suppressed reception outcome and EX-MODEL-473–477; narrowed the earlier radio-independent example to a nova hit. This corrects the preceding documentation checkpoint, not game behavior.
+- Validation: logs/spec-combat-notice-radio-gate-build.log passes 13 chapters, 328 links, 477 scenario rows and 324 source fragments. The 166-page PDF's changed ADT, reception clause and examples were visually reviewed at 144 dpi. git diff --check passes. No executable or archive changes; prior archive audit remains applicable.
+- Next: replace the remaining abstract observation-body placeholder with source-grounded typed report values, then finish presentation and lifecycle gaps.

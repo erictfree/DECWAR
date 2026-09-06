@@ -97,7 +97,8 @@ coverage does not establish lifecycle, concurrency or terminal conformance.
   binding acceptance and complete multiplayer/control event ordering remain.
 - Communication: CombatNoticeService defines immutable observations, forty-notice
   capacity per publisher, delivery priority, oldest-publication eviction,
-  reception/discard and hit-before-radio drain order. Full observation/terminal
+  reception/discard, delivery-time base-radio suppression and hit-before-radio
+  drain order. Full observation/terminal
   catalogue and concurrency remain. Radio message identities, recipient filtering, publication order,
   capacity loss, consumption and gagging drafted. Autonomous speech's ungag effect
   on the triggering captain is specified; complete interleavings remain.

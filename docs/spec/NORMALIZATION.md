@@ -1094,3 +1094,15 @@ polling observes pending items. Meaningful typed observation values replace
 shared scratch cleanup; notice publication never reapplies game damage or score.
 Evidence: DECWAR.FOR FREE 1120–1137, GETCMD 1184–1237, OUTHIT 2402–2541.
 No executable, server or immutable source changes.
+
+
+A subsequent full OUTHIT check corrected the initial CombatNoticeService reception
+clause: base distress/destruction have a second radio gate at delivery, in addition
+to publication's radio-on filter. Radio off or damage strictly greater than KCRIT
+suppresses the body after consumption; exactly 300 generalized damage is allowed.
+The legitimate leading LONG blank-line request precedes that gate and remains.
+Other notice kinds ignore radio state and all ignore sender gagging. Named
+CombatObservationKind values express that distinction without numeric IWHAT
+codes or overloaded payload fields. Evidence: DECWAR.FOR OUTHIT 2402–2408,
+2559–2580. EX-MODEL-463 is narrowed to a nova hit; EX-MODEL-473–477 cover the
+base exception and threshold. This corrects documentation, not game behavior.
