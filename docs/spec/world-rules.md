@@ -185,6 +185,77 @@ introduced by this draft.
 
 ## Weapon damage to ships and bases
 
+### Operation and value types
+
+```text
+type DamageTarget = ShipBody(ShipId) | BaseBody(BaseId)
+type InstallationOrigin = BaseOrigin(BaseId)
+                        | PlanetOrigin(PlanetId, Optional<Team>)
+type AttackSource = PlayerAttack(ShipId) | RomulanAttack
+                  | InstallationAttack(InstallationOrigin)
+
+enum ImpactWeapon = PHASER | TORPEDO
+enum DestructionCause = DIRECT_DAMAGE | BLACK_HOLE
+
+type CriticalHit = DeviceCritical(Device, Damage) | BaseCritical
+type DisplacementResult = Stayed | Moved(Position)
+                        | Swallowed(Position)
+type TargetDefense = ShipDefense(ShieldMode, Percentage)
+                   | BaseDefense(Percentage)
+
+record WeaponHit:
+    target: DamageTarget
+    weapon: ImpactWeapon
+    damage: Damage
+    critical: Optional<CriticalHit>
+    deflected: Boolean
+    defense: TargetDefense
+    displacement: DisplacementResult
+    destruction: Optional<DestructionCause>
+
+type TorpedoHitOutcome = Applied(WeaponHit) | TargetAlreadyFatal
+
+operation PhaserHit(source: AttackSource, target: DamageTarget,
+                    strength: real, distance: nonnegative integer)
+    on GameState -> WeaponHit
+
+operation TorpedoHit(source: AttackSource, target: DamageTarget,
+                     step: SectorVector)
+    on GameState -> TorpedoHitOutcome
+```
+
+DamageTarget selects either a ship's state or a base's state by identity.
+The target has a recorded position. The source identifies the origin of this
+attack; it does not change the target's faction. PlanetOrigin includes the
+owner at firing, which can differ from its current owner during capture.
+Installation attacks do not automatically receive the player weapon command's
+energy costs, damage penalties, deadlines or score-accounting policy.
+
+strength is the nonnegative phaser-strength quantity supplied by the invoking
+rule. distance is that rule's selected distance; these operations do not
+perform command grammar, faction or range validation. They do not wait for
+weapon readiness or complete a turn. A source ship's device state is consulted
+only where the damage formula below requires it.
+
+WeaponHit describes a single impact. Initially critical
+and destruction are absent, deflected is false, and displacement is Stayed.
+damage is the ordinary reported hit damage after any critical adjustment;
+DeviceCritical separately records the device and damage added to it. BaseCritical
+identifies a critical hit on a base.
+Deflection has zero reported damage and no critical hit.
+
+defense contains a ship's shield mode and strength after damage, or a base's
+strength when its hit is resolved. In the base case that observation precedes
+the final destruction cleanup: it can be nonpositive even though the destroyed
+base's stored strength is subsequently zero. Do not replace this observation
+with a later query of the base. Swallowed identifies the black-hole destination,
+distinct from the destroyed object's last occupied position.
+
+The firing or defense rule uses this result to select recipients and emit hit
+notifications. Distress and destruction announcements, tractor release and
+installation-owned score updates remain the caller's stated effects. Returning
+a result does not itself deliver a radio message or choose an audience.
+
 The firing command supplies an attacker, target and weapon parameters.
 The phaser calculation also serves installation defense. In the following formulas,
 H is damage measured in damage units; S is shield or base strength measured in
@@ -193,9 +264,10 @@ the named game quantities.
 
 ### Phaser impact
 
-Draw b and c with `UnitDraw()`. Let `F = (0.9 + 0.02*c)^distance`. If a player
-ship is firing and either its phasers or computer has positive damage, multiply
-F by 0.8. Installation attacks and Romulan attacks do not receive this reduction.
+Draw b and c with `UnitDraw()`. Let `F = (0.9 + 0.02*c)^distance`. For
+PlayerAttack(attacker), let s be ship(game, attacker). If either
+s.devices[PHASERS].damage or s.devices[COMPUTER].damage is positive, multiply
+F by 0.8. InstallationAttack and RomulanAttack do not receive this reduction.
 
 For a ship with shields down, `H = 8*F*firingStrength`; shield strength does not
 change. For a shielded ship or base, use its strength before this attack:
@@ -209,12 +281,17 @@ newStrength := S - 0.03 *
 Set a ship's shield strength to `max(0, newStrength)` percentage points. Set a
 base's strength to `newStrength` percentage points; the base resolution below
 handles nonpositive strength. Then resolve H using the following rules.
+Return WeaponHit with weapon PHASER and displacement Stayed. PhaserHit has no
+initial already-fatal-resource test; callers must not infer the torpedo guard
+below for phasers or assume that repeating an impact is idempotent.
 
 ### Torpedo impact
 
-A torpedo does not damage a ship whose energy is already nonpositive or whose
+TorpedoHit returns TargetAlreadyFatal for a ship whose energy is already nonpositive or whose
 hull damage is already at least 2500 units, or a base whose strength is already
-nonpositive. Otherwise draw a, b and c with `UnitDraw()` and let
+nonpositive. This return precedes random draws and leaves damage, position,
+score and defense state unchanged; it supplies no WeaponHit. Otherwise draw a,
+b and c with `UnitDraw()` and let
 `rawDamage = 400 + 400*c` damage units.
 
 For a ship with shields down, set H to rawDamage and leave shield strength
@@ -224,7 +301,7 @@ unchanged. For a shielded ship or a base, first test deflection using its curren
 if b - (S/100)*a + 0.1 <= 0:
     H := 0
     strength := max(0, S - 5*b) percentage points
-    report TorpedoDeflected
+    result.deflected := true
 else:
     H := rawDamage * (1 - S/100)
     strength := S - 0.03 * (rawDamage * max(S/100, 0.1) + 1)
@@ -236,6 +313,8 @@ A deflected hit skips critical damage and ordinary hull, energy and base-strengt
 damage. It still lowers exhausted shields, sets a ship's condition red, and
 attempts to displace a surviving ship. A hit that was not deflected applies the
 critical, ordinary-damage and score rules below, using b from this impact.
+Set result.deflected true on the deflection path and result.weapon to TORPEDO
+on both paths. Return Applied(result) when this impact has been resolved.
 
 After damage, a surviving ship is displaced along the torpedo's trace step.
 Destruction by that displacement earns the same 500-point ship kill credit.
@@ -244,6 +323,7 @@ the victim's tractor beam after the hit notification, including a deflected hit.
 
 ### Critical ship damage
 
+For ShipBody(id), target in the following equations means ship(game, id).
 If `H*(b+0.1) >= 170`, a ship takes a critical hit:
 
 ```text
@@ -255,79 +335,210 @@ if device == SHIELDS:
 H := criticalDamage + 100 * (UnitDraw() - 0.5)
 ```
 
+Set result.critical to DeviceCritical(device, criticalDamage). This field records
+the amount added to the selected DeviceState; result.damage is the adjusted H.
 The critical-damage report names the device and the damage added to it. H after
 the final adjustment is the ordinary hit damage reported and applied to hull
 and engine energy. An attack that does not meet the critical condition leaves
 device damage unchanged.
 
 ```text
-ApplyShipHit(target, H):
-    target.hullDamage += H damage units
-    target.energy -= H energy units
+operation ApplyShipHit(source: AttackSource, targetId: ShipId, H: Damage)
+    on GameState -> Survived | Destroyed
+
+ApplyShipHit(source, targetId, H):
+    target := ship(game, targetId)
+    amount := numerical value of H in damage units
+    target.hullDamage += amount damage units
+    target.energy -= amount energy units
     if target.shields.strength <= 0%:
         target.shields.mode := DOWN
+    apply eligible ordinary attack credit for H
     target.condition := RED
     if target.hullDamage >= 2500 damage units or target.energy <= 0:
         remove target's presence from the galaxy
         target.commissioned := false
-        report target destroyed
+        return Destroyed
+    return Survived
 ```
 
+ApplyShipHit changes hull damage and energy by equal numerical amounts in their
+respective units. It does not change the position record, device damage, docking,
+tractor association or session phase. Its ordinary score effect uses
+AddAttackCredit and the faction rules below, before setting condition and
+testing destruction. Removing presence means the former
+sector becomes empty; it is not a commission-release operation. The enclosing
+impact records DIRECT_DAMAGE destruction on Destroyed and supplies its score
+and notification effects. A torpedo with Survived next invokes Displace using
+its supplied step; a Swallowed result records BLACK_HOLE destruction. A deflected
+torpedo uses H zero for these ship effects and can still be displaced.
+
+Set result.defense to ShipDefense(target.shields.mode, target.shields.strength)
+after applying the damage. Displacement does not change either defense property.
 Phaser damage does not displace the target. Shield-device damage by itself does
 not invoke SHIELDS UP's validation rule; the critical-device selection and
 strength rules above determine whether these hits lower shields.
 
 ### Base damage
 
+```text
+record BaseHitResolution:
+    creditedDamage: Damage
+    critical: Boolean
+    reportedStrength: Percentage
+    destroyed: Boolean
+
+operation ResolveBaseHit(source: AttackSource, targetId: BaseId,
+                         H: Damage, b: UnitDraw)
+    on GameState -> BaseHitResolution
+
+operation RemoveWeaponDestroyedBase(source: AttackSource, targetId: BaseId)
+    on GameState -> Destroyed
+```
+
+These operations follow the weapon's initial strength reduction. In the following
+rules, base means base(game, targetId). ResolveBaseHit starts with creditedDamage
+zero, critical false and destroyed false.
+
 When `H*(b+0.1) >= 170`, draw `IntegerDraw(5)`. A result of 5 takes the critical
 base path immediately; otherwise apply ordinary base damage. Below the threshold,
 apply ordinary base damage without this choice.
 
 Ordinary base damage subtracts `0.01*H` percentage points, with a floor of zero.
-A positive result completes that hit. Nonpositive strength takes the critical
-base path.
+It sets creditedDamage to H and applies the eligible ordinary attack credit
+through AddAttackCredit before testing the resulting strength. A positive strength result completes that hit with
+reportedStrength equal to the resulting strength. Nonpositive strength takes
+the critical base path, retaining that creditedDamage.
 
 ```text
-CriticalBaseHit(base):
+critical base path:
+    critical := true
     base.strength -= (5 + 10 * UnitDraw()) percentage points
-    report a critical base hit
-    if IntegerDraw(10) == 10 or base.strength <= 0%:
-        DestroyBase(base)
+    reportedStrength := base.strength
+    destroyed := IntegerDraw(10) == 10 or base.strength <= 0%
+    if destroyed:
+        RemoveWeaponDestroyedBase(source, base.id)
 ```
+
+Return BaseHitResolution with these four values. The enclosing impact retains
+H as result.damage, records BaseCritical when critical is true, and records
+DIRECT_DAMAGE destruction when destroyed is true. Its result.defense is
+BaseDefense(reportedStrength), not a post-removal strength query.
 
 The early critical path skips ordinary base damage and ordinary damage-score
 credit. Its hit report still carries the originally calculated H. A destroyed
 base has zero strength and no presence in its sector. On this weapon-damage path,
 docking re-evaluation occurs before removing the base or setting its strength to
-zero. Consequently, a base destroyed by the random critical outcome while still
+zero. RemoveWeaponDestroyedBase performs that docking re-evaluation for the
+base's faction, subtracts one from world.baseCounts[base.team], removes the base's
+sector presence and sets its strength to zero. Between the count change and
+sector removal, it applies the 1000-point destruction credit through
+AddAttackCredit. Its identity and position are
+retained for reports and possible later reuse; it does not remove the base
+identity from the fixed roster of installations or perform a world-end check.
+Consequently, a base destroyed by the random critical outcome while still
 at positive strength can itself preserve a nearby ship's docking at that step.
 The firing command supplies the subsequent destruction notification.
 
 ### Score and result
 
-For a ship-fired attack, ordinary H damage to an opposing ship contributes H
+```text
+operation AddAttackCredit(source: AttackSource, category: ScoreCategory,
+                          amount: Points)
+    on GameState -> Credited | CallerAccounts
+```
+
+```text
+AddAttackCredit(source, category, amount):
+    match source:
+        PlayerAttack(id):
+            ship(game, id).pendingScore[category] += amount
+            return Credited
+        RomulanAttack:
+            world(game).romulanActivity.score[category] += amount
+            return Credited
+        InstallationAttack(origin):
+            return CallerAccounts
+```
+
+CallerAccounts changes neither score: the invoking installation rule determines
+any owning-faction credit. This operation does not commit a player's pending
+score or complete a turn.
+
+For a PlayerAttack, ordinary H damage to an opposing ship contributes H
 points to ENEMY_DAMAGE; ordinary H damage to an opposing base contributes H
-points to BASE_DAMAGE. A player attacker accrues these as pending score. Romulan
-attacks update the Romulan's score directly. The early critical-base path has no
-ordinary H damage credit. Destroying a ship adds 500 ENEMY_KILLS points; destroying
-a base adds 1000 BASE_DAMAGE points for ship-fired attacks.
+points to BASE_DAMAGE. A same-faction target receives no ordinary damage credit
+on this shared weapon path. RomulanAttack credits either faction's ships and
+bases directly, in those same respective categories. BaseHitResolution's
+creditedDamage identifies the ordinary amount before this faction test; the
+resolution operation awards the eligible credit once. The early critical-base path has zero ordinary credit
+even though the hit reports H. A deflection likewise supplies zero damage credit.
+
+For PlayerAttack and RomulanAttack, destroying a ship adds 500 ENEMY_KILLS
+points and destroying a base adds 1000 BASE_DAMAGE points. These kill bonuses
+have no additional opposing-faction predicate in the shared operation; command
+target checks occur separately. Ship destruction by torpedo displacement also
+earns the 500-point bonus exactly once for this impact.
+
+Ordinary damage credit occurs before the final ship condition/destruction and
+displacement checks, or before the ordinary base path's destruction resolution.
+Kill credit occurs on the destruction path. These effects are not rolled back
+merely because the attacker later dies. No whole-impact atomicity or deferred
+score transaction is implied by the result record.
+
+For a ship, the enclosing impact applies the kill bonus after direct removal
+or fatal displacement. For a base, RemoveWeaponDestroyedBase applies it at the
+point defined above. Returning or reporting WeaponHit does not award it again.
 
 An installation caller handles its owning faction's score separately from these
 ship-fired credits. The returned hit describes damage, critical damage/device,
 shield mode and strength after the hit, and destruction. Recipient selection
 and rendering belong to the invoking command or defense rule.
 
+**Open:** The caller's report behavior after TargetAlreadyFatal, concurrent
+target removal or replacement, interruptions between these effects and complete
+hit-delivery ordering still require the multiplayer and terminal bindings.
+TargetAlreadyFatal does not manufacture a new zero-damage hit notification.
+
 **Source basis:** [PHADAM and shared damage](../../legacy/utexas/DECWAR.FOR#L4089),
 [displayed score units](../../legacy/utexas/DECWAR.FOR#L2994).
 
 ## Damage to the Romulan
+
+```text
+record RomulanHit:
+    weapon: ImpactWeapon
+    damage: Damage
+    remainingEnergy: Energy
+    destroyed: Boolean
+
+operation RomulanPhaserHit(strength: real, distance: positive integer)
+    on GameState -> RomulanHit
+
+operation RomulanTorpedoHit()
+    on GameState -> RomulanHit
+```
+
+These operations require a present Romulan. Phaser strength is nonnegative;
+distance must be positive because it is the divisor in this damage rule.
+The source, recipients, score policy and any subsequent torpedo displacement
+are supplied by the caller. Neither operation changes player resources,
+weapon deadlines, stardates or score by itself.
 
 The Romulan has its own energy-based damage rule. A phaser attack of strength p
 at distance d reports damage
 `(100 + IntegerDraw(100))*p/(100*d)` damage units. A torpedo reports
 `min(IntegerDraw(4000), 2000)/10` damage units. Deduct that same numerical amount
 in energy units from the Romulan. If energy becomes nonpositive, remove the
-Romulan from the galaxy and report destruction.
+Romulan from the galaxy and record destruction in the result.
+
+Set result.damage to the calculated damage and result.remainingEnergy to the
+energy after subtraction, without flooring it to zero. result.weapon is PHASER
+or TORPEDO as appropriate. Set result.destroyed when remainingEnergy is
+nonpositive. On destruction, the former Romulan sector becomes empty and
+world.romulan becomes absent. The result preserves the remaining-energy
+observation even though no Romulan object can then be queried. Persistent
+RomulanActivity counts, deadlines and accumulated score remain available.
 
 For a player-fired weapon, add the reported damage in points to the pending
 ROMULAN category, plus 500 points when the Romulan is destroyed. Installation
@@ -336,26 +547,46 @@ player's torpedo, `IntegerDraw(10) > 7` attempts displacement along the trace
 step. Destruction by that displacement also earns the 500-point bonus. Phaser
 hits do not invoke that displacement.
 
+The caller combines result.destroyed with a subsequent Swallowed displacement
+to decide that single bonus. It does not call Displace on an already destroyed
+Romulan. Installation-owned damage and kill credit likewise use result.damage
+and result.destroyed once, according to the owning-faction rule.
+
 **Source basis:** [PHAROM, TOROM and DEADRO](../../legacy/utexas/DECWAR.FOR#L3382),
 [player phaser credit](../../legacy/utexas/DECWAR.FOR#L2711).
 
 ## Blast displacement
 
+```text
+type DisplacementTarget = DamageTarget | RomulanBody
+
+operation Displace(target: DisplacementTarget, step: SectorVector)
+    on GameState -> DisplacementResult
+```
+
+The target has a recorded position; for RomulanBody the Romulan must exist.
 `Displace(target, step)` uses a direction step from a torpedo path or from an
 exploding star to the affected sector. Compute the candidate by rounding each
 coordinate of `target.position + step` down to a whole sector. If the candidate
 is outside the galaxy, is not exactly one sector away in Chebyshev distance,
-or contains an object other than a black hole, nothing moves.
+or contains an object other than a black hole, return Stayed without changing
+the target or any sector.
 
 For an empty candidate, move the target there and update its galaxy presence.
 A displaced player ship becomes undocked and red. Displacement itself does not
 charge energy, change shields, or release a tractor association.
+Return Moved(candidate). A base or Romulan changes its position and sector
+presence without gaining a ship's docking or condition fields.
 
 For a black hole, remove the target from its old sector without replacing the
 black hole. A ship receives 2500 hull-damage units and ceases to be commissioned;
-a base receives zero strength; the Romulan ceases to exist. Report displacement
-into the black hole. Keep the target's last occupied position distinct from that
+a base receives zero strength; the Romulan ceases to exist. Keep the target's
+last occupied position distinct from that
 reported destination. The caller performs its destruction scoring and notices.
+Return Swallowed(candidate). This result does not advance a turn or end a
+captain's session. A ship swallowed by a black hole retains its other resource,
+device, docking and condition values; in particular this branch does not apply
+the undocking effect of displacement into an empty sector.
 
 **Source basis:** [JUMP](../../legacy/utexas/DECWAR.FOR#L1283).
 
@@ -436,6 +667,8 @@ If positive, attempt displacement away from the star. If the base is destroyed,
 a player initiator receives 1000 pending BASE_DAMAGE points for an enemy base
 or loses 1000 for a friendly base; a Romulan initiator receives 1000 directly.
 Update the faction's surviving-base count and re-evaluate docking.
+The count update subtracts one from world.baseCounts[base.team] before that
+re-evaluation.
 
 Announce the hit within ten sectors of the resulting or last occupied position.
 For a destroyed base, remove its remaining presence and announce destruction to
@@ -468,6 +701,9 @@ Removing a planet removes its identity from the planet collection and preserves
 the relative order of the remaining planets. A surviving planet does not change
 identity because another planet was removed. A conversion to a base transfers
 each team's knowledge of the planet to knowledge of the new base.
+For a faction-owned planet, subtract one from world.capturedPlanetCounts[owner]
+before docking re-evaluation and before removing its identity. Neutral-planet
+removal changes neither faction's captured-planet count.
 
 The game ends when there are no planets and at least one faction has no surviving
 bases. If there are no bases on either side, the result is total destruction;
@@ -476,13 +712,27 @@ request can also end the world independently of that condition. Final score
 reports and session release are specified by the lifecycle rules still in progress.
 
 Docking re-evaluation is invoked during installation loss or ownership changes.
+Its operation is:
+
+```text
+operation ReevaluateDocking(team: Team)
+    on GameState -> Completed
+```
+
 It visits that faction's docked ships in roster order. A nearby surviving friendly
-base preserves docking. Otherwise, when the faction has a positive captured-planet
-count, a nearby friendly planet preserves docking; if that search fails, set the
+base preserves docking when world.baseCounts[team] is positive. Otherwise, when
+world.capturedPlanetCounts[team] is positive, a nearby friendly planet preserves
+docking; if that search fails, set the
 ship undocked and red. With a nonpositive captured-planet count, this operation
 leaves docking unchanged. The command describes when this check occurs relative
 to ownership and removal; the departing installation can still participate in
 a check made before its removal.
+The nearby test is distance at most one. Base candidates must have positive
+strength; planet candidates use current ownership. The ship need not have its
+commissioned flag set, but a docked ship must have a recorded position for these
+tests. ReevaluateDocking does not change resources, scores, installation counts
+or membership. With zero capturedPlanetCounts and no adjacent base, the ship
+remains docked in that branch.
 
 **Open:** Full interleavings of base conversion, world termination and concurrent
 installation changes remain under review. This chapter does not make the entire

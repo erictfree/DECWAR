@@ -229,6 +229,8 @@ record World:
     ships: collection of Ship
     bases: collection of Base
     baseOrder: Team -> Sequence<BaseId>
+    baseCounts: Team -> nonnegative integer
+    capturedPlanetCounts: Team -> nonnegative integer
     planets: collection of Planet
     knowledge: Team -> TeamKnowledge
     playerCount: integer
@@ -248,6 +250,13 @@ record World:
 This is the portion of world state used by the converted command families.
 Ordered iteration is stated wherever it affects a result; a collection does
 not imply a particular container or an arbitrary permission to reorder effects.
+
+baseCounts is the maintained number of bases for each faction;
+capturedPlanetCounts is its maintained number of owned planets. These counters
+are explicit state because installation transitions update them at specified
+points. They need not equal a fresh count of positive-strength bases or current
+planet owners during an unfinished conversion or removal. Admission population,
+cumulative commission counts and installation counts are separate quantities.
 
 **Source basis:** [world limits](../../legacy/utexas/PARAM.FOR#L5),
 [roster](../../legacy/utexas/DECWAR.FOR#L489),

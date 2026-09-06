@@ -2634,3 +2634,55 @@ are preserved and excluded from this checkpoint.
 Remaining goal work includes complete shared combat/turn operation contracts,
 lifecycle/concurrency/control and terminal bindings, malformed grammar cases,
 randomness and the CompuServe appendix; this checkpoint does not complete the goal.
+
+
+## 2026-09-05 — Shared combat, turn completion and installation-count ADTs
+
+Connected shared PhaserHit/TorpedoHit to DamageTarget, AttackSource, WeaponHit,
+critical/defense/destruction observations and explicit score credit. Defined
+ApplyShipHit, ResolveBaseHit, RemoveWeaponDestroyedBase, AddAttackCredit,
+RomulanPhaserHit/RomulanTorpedoHit and Displace, and updated player, Romulan and
+installation callers. Distinguished the torpedo-only fatal-resource guard,
+ordinary versus early-critical base credit, pre-cleanup reported base strength,
+negative remaining Romulan energy, and black-hole displacement's retained
+position/docking/condition. Caller-owned notices and Romulan-target score remain
+separate from result construction. Fatal-target report and interleaving cases
+remain explicitly open rather than receiving invented behavior.
+
+Defined CompleteTurn, CommitPendingScore, DefenseContext and life-support
+observations. Automatic repair precedes the life-support test; zero reserve is
+not fatal; docking skips the decrement but not a negative-reserve test; fatal
+hull assignment is exactly 2500. Fatal damage can precede the rest of a normal
+turn's accounting, while session-ending control transfers stop later steps.
+Pending scores commit by category once to ship and faction without adding a
+report-triggered commit or atomic whole-turn transaction.
+
+Named World.baseCounts/capturedPlanetCounts and ReevaluateDocking. Construction,
+capture, removal, nova and weapon cleanup now refer to the specified count-update
+stages. Fixed the base-conversion collection equation to replace an existing
+identity's record, not union in a second record of the same identity. World-end
+checks use maintained counts, including construction's increment before base
+activation. Sources and normalization reasoning are recorded in the spec.
+
+Added 34 examples (339–372). Exact rational arithmetic checks of source-scaled
+weapon formulas pass in logs/spec-shared-combat-arithmetic-review.log. Final
+source audit logs/spec-shared-combat-adt-audit-final.log verifies 135 hashes,
+83 declarations, 33 game/16 pregame entries and 324 strings, with Austin 18 ships
+and CompuServe 10. Final book build logs/spec-shared-combat-turn-adt-build-final-2.log
+passes 13 chapters, 309 local links and 372 scenario rows. The PDF has 145 pages.
+Reviewed pages 80, 83–85, 89, 91–92, 141 and 143, plus final revised renders at
+80, 82, 86, 89 and 143 in tmp/pdfs/spec-shared-combat-turn-adt/.
+
+Retained failed logs: spec-shared-combat-adt-build.log caught a bare example
+cross-reference being counted as another table ID; literal formatting corrected
+that reference. spec-shared-combat-turn-adt-build.log caught one overwide inline
+score path; a displayed match/assignment operation resolved it. Successful
+intermediate build spec-shared-combat-turn-adt-build-final.log is also retained.
+Checks validate documentation structure, source integrity and the stated
+arithmetic examples, not a complete executable conformance suite or native parity.
+No gameplay, server, archive or generated source-data changes. Other work in
+WORK_LOG.md, docs/status.md and experiments/ is preserved and excluded.
+
+The goal remains active: nova/removal operation closure, grammar boundary cases,
+multiplayer/control/lifecycle and terminal bindings, probability/reproducibility,
+CompuServe amendments and a full cross-chapter conformance audit remain.

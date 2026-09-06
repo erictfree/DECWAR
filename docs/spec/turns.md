@@ -81,53 +81,118 @@ additional player setting or a change to device-repair units.
 
 ## Turn accounting
 
-World state includes an action counter, the number of participants,
-and each team's accumulated turns. Each captain has pending score changes in
-the game's score categories. A turn completes in this order:
-
 ```text
-CompleteTurn(ship, automaticRepair, repairSelection):
-    if automaticRepair:
-        AutomaticRepair(ship.id, repairSelection)
+type DefenseContext = PlayerDefense(ShipId) | RomulanDefense(CaptainId)
+type TurnOutcome = Completed | SessionEnded
+type TurnObservation = LifeSupportWarning(integer)
 
-    world.actionCount := world.actionCount + 1
-    if world.actionCount >= world.playerCount:
-        world.actionCount := 0
-        EnemyBaseDefense(ship)
-        PlanetDefense(ship)
-        BaseReplenishment(ship)
-        if world.romulanEnabled:
-            AdvanceRomulan(ship.captain)
+operation CompleteTurn(actor: ShipId, automaticRepair: Boolean,
+                        repairSelection: AutomaticRepairSelection = STANDARD)
+    on GameState -> TurnOutcome
 
-    ship.stardate := ship.stardate + 1
-    world.teamTurns[ship.team] := world.teamTurns[ship.team] + 1
-
-    if ship.devices[LIFE_SUPPORT].damage >= 300 damage units:
-        if not ship.docked:
-            ship.lifeSupportReserve := ship.lifeSupportReserve - 1
-        if ship.lifeSupportReserve < 0:
-            ship.hullDamage := 2500 damage units
-        if captain.promptStyle == NORMAL:
-            emit LifeSupportWarning(ship.lifeSupportReserve)
-
-    for each score category:
-        add the pending change to ship and team totals
-        clear that pending change
+operation CommitPendingScore(actor: ShipId)
+    on GameState -> Committed
 ```
 
-The defensive actions use the acting ship's team and context. They are triggered
-by accumulated actions, rather than an independent wall-clock tick. Life-support
-reserve reaching zero is not the fatal boundary; falling below zero sets fatal
-hull damage. The session rules determine when death is subsequently processed.
+CompleteTurn requires an existing ship with a captain association and a positive
+world.playerCount. That association can still be present after fatal damage has
+cleared the ship's commissioned flag; completion does not impose an additional
+survival test. The command decides whether its path reaches this operation.
+repairSelection matters only when automaticRepair is true and is chosen by the
+input rule above.
 
-world.playerCount includes reserved admissions as defined in the session rules;
-it is not recomputed by counting commissioned roster ships at each turn.
+Let s be ship(game, actor), c be captain(game, s.captain), and w be world(game).
+The captain association must be present when c is obtained. A normal completion
+performs the following steps in order:
 
-**Source basis:** [command dispatch](../../legacy/utexas/DECWAR.FOR#L57),
-[turn accounting](../../legacy/utexas/DECWAR.FOR#L237),
-[repair](../../legacy/utexas/DECWAR.FOR#L3190).
+```text
+CompleteTurn(actor, automaticRepair, repairSelection):
+    if automaticRepair:
+        AutomaticRepair(actor, repairSelection)
+
+    w.actionCount += 1
+    if w.actionCount >= w.playerCount:
+        w.actionCount := 0
+        context := PlayerDefense(actor)
+        EnemyBaseDefense(context)
+        PlanetDefense(context)
+        BaseReplenishment(context)
+        if w.romulanEnabled:
+            outcome := AdvanceRomulan(c.id)
+            if outcome == GalaxyEnded:
+                return SessionEnded
+
+    s.stardate += 1
+    w.teamTurns[s.team] += 1
+
+    if s.devices[LIFE_SUPPORT].damage >= 300 damage units:
+        if not s.docked:
+            s.lifeSupportReserve -= 1
+        if s.lifeSupportReserve < 0:
+            s.hullDamage := 2500 damage units
+        if c.promptStyle == NORMAL:
+            emit LifeSupportWarning(s.lifeSupportReserve)
+
+    CommitPendingScore(actor)
+    return Completed
+```
+
+PlayerDefense identifies the acting ship's faction and its associated captain
+for reports. RomulanDefense retains its triggering captain, while activating
+both factions as defined below. Defensive actions are triggered by accumulated
+actions, not by an independent wall-clock tick. world.playerCount includes
+reserved admissions; it is not recomputed by counting commissioned roster ships.
+
+A completed turn advances the acting ship and faction counts exactly once, even
+if those defense phases destroyed the actor without ending the session. Completed
+does not mean the ship survived. A session-ending control transfer, including
+GalaxyEnded, prevents later steps; prior repair, counter, damage and score effects
+remain. This operation does not independently release a commission, drain hit or
+radio notifications, display POINTS, or wait out the command's remaining delay.
+
+Automatic repair precedes the life-support test. Life-support damage below 300
+therefore skips both reserve consumption and the warning, without replenishing
+reserves. At or above 300, docking prevents the decrement but does not bypass
+the negative-reserve test. Zero reserve is not fatal; a negative reserve assigns
+hull damage exactly 2500, rather than adding damage or taking a maximum. The
+NORMAL prompt preference emits the warning even while docked. INFORMATIVE
+suppresses that warning without changing the state effects.
+
+CommitPendingScore visits ScoreCategory in its declared order. For each category k:
+
+```text
+amount := s.pendingScore[k]
+s.score[k] += amount
+w.teamScores[s.team][k] += amount
+s.pendingScore[k] := 0 points
+```
+
+Each amount is used once for the ship and once for its faction, including zero
+and negative values. This commits only the actor's pending score. It does not
+change another ship's pending score, the Romulan's score, stardates or commission
+counts. Repeating it with all pending values zero makes no further score change.
+POINTS can therefore observe different values before and after this operation;
+its own report does not perform this commitment.
+
+**Open:** Interruption between category updates, simultaneous changes to the
+participant threshold and the complete session-control precedence need the
+multiplayer binding. No whole-turn transaction or automatic rollback is implied.
+
+**Source basis:** [command completion dispatch](../../legacy/utexas/DECWAR.FOR#L63),
+[turn accounting and score commitment](../../legacy/utexas/DECWAR.FOR#L223),
+[repair](../../legacy/utexas/DECWAR.FOR#L3190),
+[Romulan activation](../../legacy/utexas/DECWAR.FOR#L3233).
 
 ## Automatic installation defenses
+
+```text
+operation EnemyBaseDefense(context: DefenseContext)
+    on GameState -> Completed
+operation PlanetDefense(context: DefenseContext)
+    on GameState -> Completed
+operation BaseReplenishment(context: DefenseContext)
+    on GameState -> Completed
+```
 
 These operations run when turn accounting activates world defenses. A player
 context supplies the acting ship's faction. A Romulan context activates both
@@ -151,11 +216,12 @@ identity order, skipping bases with nonpositive strength. For each base:
 ```text
 for each opposing ship in roster order:
     if eligible and within four sectors of the base:
-        hit := PhaserHit(base, ship,
+        source := InstallationAttack(BaseOrigin(base.id))
+        hit := PhaserHit(source, ShipBody(ship.id),
             strength = 200/world.playerCount,
             distance = Distance(base.position, ship.position))
         world.teamScores[base.team][ENEMY_DAMAGE] += hit.damage in points
-        if hit destroyed the ship:
+        if hit.destruction != none:
             world.teamScores[base.team][ENEMY_KILLS] += 500 points
         announce the hit
 
@@ -163,7 +229,7 @@ if the Romulan exists and is within four sectors:
     hit := RomulanPhaserHit(strength = 200/world.playerCount,
                            distance = distance from base)
     world.teamScores[base.team][ROMULAN] += hit.damage in points
-    if hit destroyed the Romulan:
+    if hit.destroyed:
         world.teamScores[base.team][ROMULAN] += 500 points
     announce the hit
 ```
@@ -189,10 +255,13 @@ for each ship in roster order:
     if eligible and not of the planet's faction
        and within two sectors of the planet:
         strength := (50 + 30*planet.builds)/world.playerCount
-        hit := PhaserHit(planet, ship, strength, distance to ship)
+        origin := PlanetOrigin(planet.id, planet.owner)
+        source := InstallationAttack(origin)
+        hit := PhaserHit(source, ShipBody(ship.id), strength, distance to ship)
         if planet.owner != none:
             credit hit.damage to owner's ENEMY_DAMAGE total
-            if destroyed, credit 500 to owner's ENEMY_KILLS total
+            if hit.destruction != none:
+                credit 500 to owner's ENEMY_KILLS total
         announce the hit
 
 if the Romulan exists and is within two sectors:
@@ -200,7 +269,7 @@ if the Romulan exists and is within two sectors:
     hit := RomulanPhaserHit(strength, distance to Romulan)
     if planet.owner != none:
         credit hit.damage to owner's ROMULAN total
-        if destroyed, credit 500 to owner's ROMULAN total
+        if hit.destroyed, credit 500 to owner's ROMULAN total
     announce the hit
 ```
 

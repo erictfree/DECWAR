@@ -200,6 +200,9 @@ both weapons and does not wait inside this activation for a later deadline.
 
 Romulan phasers use strength 200 against the selected ship or base, applying
 [shared phaser damage and scoring](world-rules.md#weapon-damage-to-ships-and-bases).
+This is PhaserHit with source RomulanAttack and target ShipBody or BaseBody
+for the selected identity. Its WeaponHit supplies the damage, critical,
+defense and destruction observations for the ensuing report.
 They have no firing-energy charge, overheating test or player-device penalty.
 Damage and kill points accrue directly to a.score.
 
@@ -286,6 +289,11 @@ ten, stop the burst. Otherwise repeat the neighboring-star aim substitution and
 recompute displacement from the current Romulan position. A shot whose planet
 update was refused skips this retargeting and retains its aim. An unobstructed
 shot also skips retargeting. The misfire still prevents a following launch.
+
+For ship and base impacts, TorpedoHit receives RomulanAttack, the encountered
+ShipBody or BaseBody identity, and the trace step. Applied(hit) provides the
+hit observations and has already applied the shared Romulan score effects.
+The TargetAlreadyFatal caller-report case remains open in the shared contract.
 
 At normal completion, including a misfire stop or out-of-range retarget, set
 `a.torpedoesReady = now + accumulated delay` and give Finished with the number

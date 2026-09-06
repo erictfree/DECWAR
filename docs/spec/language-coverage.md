@@ -64,19 +64,25 @@ coverage does not establish lifecycle, concurrency or terminal conformance.
   defined separately from shared device damage. Report groups, admissions, telemetry and summary observations, terminal profiles and world-ended state, token categories, acquired-line/command input values, radio service and message observations, scan marks/rows,
   ordered status observations, device-damage rows, type/time/user observations, typed score columns/rows and ratio operands,
   session reporting metadata and commission clock baselines are defined. Sector objects, geometric points/vectors, PathResult,
-  symmetric beam membership and fixed base-identity order are defined. The main-command clauses use that form; shared operations and their dependencies
+  symmetric beam membership and fixed base-identity order are defined. Shared
+  AttackSource/DamageTarget, WeaponHit/BaseHitResolution/RomulanHit and displacement
+  result types separate target state, credited damage and report observations. The main-command clauses use that form; shared operations and their dependencies
   still require review. Identities, quantities,
   roster, installations, radio, tractor associations, preferences and score
   categories drafted; full lifecycle remains.
 - Lexical and command grammar: source-derived clauses retained with normalized
   numbers; malformed forms and some continuations still need complete productions.
-- Turns: completion classes, automatic repair, pacing, accounting, base and planet
+- Turns: CompleteTurn, CommitPendingScore, automatic-repair selection, DefenseContext
+  and life-support observations now use explicit contracts. Completion classes, pacing, base and planet
   defense and base replenishment drafted. Installation eligibility during HELP/GRIPE
   and the Romulan context's triggering-faction notice audience are specified;
   randomness and detailed interleavings remain.
-- Shared world rules: typed path results and beam release/following contracts, phaser damage,
-  torpedo damage, blast displacement, novas, Romulan weapon damage and installation
-  transitions drafted; complete shared-operation contracts and world-end ordering remain.
+- Shared world rules: typed path, beam, PhaserHit/TorpedoHit, ship/base damage,
+  score-credit, Romulan-hit and Displace contracts now connect to their callers.
+  Novas and installation transitions are drafted; full operation contracts for
+  nova/removal sequences, fatal-target caller reports and world-end ordering remain.
+  Maintained base/owned-planet counts and ReevaluateDocking are explicit;
+  construction reuses a fixed base identity and updates counts before activation.
 - Autonomous Romulan: persistent activity state, cadence, appearance, target
   ranking/ties, pursuit/avoidance, weapon deadlines, phasers, torpedo bursts,
   star aiming, accidental planet hits and follow-up defenses drafted in

@@ -979,8 +979,7 @@ location, check the following in order:
 2. `sector(game, target)` is PlanetObject(id); otherwise NotAPlanet.
    Let p be `planet(game, id)` for the remaining checks.
 3. `p.owner == s.team`; otherwise NotOwned.
-4. If `p.builds == 4`, the faction must have fewer than ten surviving bases;
-   otherwise BaseLimitReached.
+4. If `p.builds == 4` and `w.baseCounts[s.team] == 10`, give BaseLimitReached.
 
 The fourth check applies only at four builds. These rejections produce their
 diagnostics without changing builds or pending points and without completing
@@ -1026,7 +1025,9 @@ The crew report does not define a new random failure or player-controlled crew
 resource.
 
 With an available identity, conversion contributes a further 250 pending
-BASE_CONSTRUCTION points. It removes p as a planet and introduces a base n at
+BASE_CONSTRUCTION points and increments w.baseCounts[s.team]. It then removes
+p as a planet, decrementing w.capturedPlanetCounts[s.team] before docking
+re-evaluation and the world-end check. After that removal returns, it introduces a base n at
 that location belonging to s.team. On normal completion:
 
 ```text
@@ -1035,8 +1036,12 @@ n.team == s.team
 n.position == p.position
 n.strength == 100%
 after(w.planets) == before(w.planets) minus {p}
-after(w.bases) == before(w.bases) union {n}
 ```
+
+The base collection retains its existing identities; the selected entry is now
+n. Conversion replaces that entry's former position and strength, rather than
+adding a second base with the same identity. The base-count increment precedes
+this entry's activation, and can therefore already affect a world-end check.
 
 Remaining planets keep their identities and relative report order. For each
 faction, let k denote its TeamKnowledge. The knowledge effects are:
@@ -1143,7 +1148,9 @@ after(s.energy) == before(s.energy) - 50 * b energy units
 ```
 
 The planet's identity and position are unchanged. The capturing faction gains
-one owned planet; if o is a faction, that faction loses one. Fortifications are
+one in w.capturedPlanetCounts[t]; if o is a faction, first subtract one from
+w.capturedPlanetCounts[o]. These count changes follow the former owner's docking
+check and precede the defensive attack. Fortifications are
 consumed. No minimum-energy precondition is added: an energy cost that the ship
 cannot survive does not turn an accepted capture into a rejection.
 
@@ -1288,6 +1295,12 @@ Phasers do not destroy a planet when its build count reaches zero. They do not
 perform path traversal through intervening sectors. A phaser hit on a ship does
 not itself invoke tractor release.
 
+For a ship or base, invoke PhaserHit with PlayerAttack(actor), the target's
+ShipBody or BaseBody identity, the selected strength and distance. Its WeaponHit
+supplies the ensuing hit observations; its score effects are already applied
+to pending score. For a Romulan, use RomulanPhaserHit and apply the caller-owned
+ROMULAN credit described in that operation's section.
+
 An enemy base at exactly 100% strength makes a distress call before the hit.
 If destroyed, it makes a destruction call after the hit notification. Those
 calls address its faction's captains whose radios are on. For ship/base hit
@@ -1304,7 +1317,7 @@ s.condition := RED
 c.phaserReady[bank] := now
     + (w.pacingClass + 1) * 1500 milliseconds
     + s.devices[PHASERS].damage * 10 milliseconds per damage unit
-CompleteTurn(s, automaticRepair = false)
+CompleteTurn(s.id, automaticRepair = false)
 ```
 
 The readiness delay starts after the hit and its notifications, rather than
@@ -1481,6 +1494,13 @@ A full-strength enemy base makes its faction-wide distress call before damage.
 A destroyed base makes its faction-wide destruction call after the hit notice.
 These two calls address captains of the base's faction whose radios are on.
 
+For a ship or base, use TorpedoHit with PlayerAttack(actor), the target's
+ShipBody or BaseBody identity and the PathResult.step. Applied(hit) supplies
+the damage, defense, displacement and destruction observations. It already
+includes the shared weapon score effects. The TargetAlreadyFatal report case
+remains open as stated in the shared damage contract. For a Romulan, use
+RomulanTorpedoHit before the caller's possible displacement and ROMULAN credit.
+
 A planet hit first requires an accepted planet update. If refused, output
 “Sorry, Captain, but the torpedo tubes are empty!” and stop without updating the
 readiness deadline or completing a turn, giving PlanetUpdateRefused(shots).
@@ -1502,7 +1522,7 @@ result; an earlier destroyed object does not make a later surviving planet die.
 
 ```text
 c.torpedoesReady := now + accumulatedReloadDelay
-CompleteTurn(s, automaticRepair = false)
+CompleteTurn(s.id, automaticRepair = false)
 ```
 
 This happens once for a normally completed burst, including a burst cut short

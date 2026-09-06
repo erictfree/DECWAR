@@ -859,3 +859,81 @@ substituting commissioned-ship count for NUMPLY.
 Evidence: Austin DECWAR.FOR DOCK dispatch 80–85, DOCK 893–938, LOCATE 1404,
 REPAIR 3190–3222, turn dispatch/accounting 223–258; SETUP.FOR 165–168.
 No executable or source-archive edits.
+
+
+## Shared weapon and displacement result contracts
+
+Added DamageTarget, AttackSource (player, Romulan, installation), snapshot
+PlanetOrigin ownership, WeaponHit, CriticalHit, TargetDefense, destruction and
+displacement values. Shared PhaserHit/TorpedoHit now expose their target effects
+and observations independently of firing commands and notification delivery.
+ApplyShipHit applies ordinary eligible credit before condition/destruction;
+ResolveBaseHit distinguishes reported H from the ordinary damage eligible for
+credit. RemoveWeaponDestroyedBase preserves the source order of docking check,
+base-count decrement, kill credit, sector removal and zero strength. The
+returned base defense captures its critical-path strength before final clearing;
+negative or positive reported strength is not replaced by a later zero query.
+No whole-impact transaction or double credit on report delivery is implied.
+
+TorpedoHit's resource guard returns TargetAlreadyFatal before draws or changes.
+PHADAM lacks that guard; the book does not add it. A fresh WeaponHit replaces
+shared report scratch values with named per-impact observations. The invoking
+caller's behavior when TORDAM returned before filling those values remains open,
+rather than silently inventing a fresh zero-damage notification. Installation
+callers own faction scoring; player attacks accumulate pending damage/kill
+credit and Romulan attacks update persistent activity score. Ordinary player
+credit tests opposing faction, whereas the shared kill bonus has no separate
+faction predicate. Source command targeting still controls valid attacks.
+
+RomulanPhaserHit/RomulanTorpedoHit return damage, remaining energy and destruction
+without performing caller-owned score or displacement. Negative remaining energy
+is retained in the result after the Romulan object is removed. Displace now
+returns Stayed, Moved or Swallowed, preserving the distinct destination and last
+occupied position. Its black-hole branch does not apply the ordinary empty-sector
+undocking/red effects. A torpedo already sets red before invoking it; a standalone
+or nova displacement can therefore retain a prior condition/docked state.
+
+Source evidence: Austin TORDAM/PHADAM and shared score/base cleanup
+DECWAR.FOR 4089–4220; PHAROM/TOROM/DEADRO 3382–3398; JUMP 1283–1331;
+BASKIL 339–369; PHACON callers 2700–2748, TORP 4340–4380,
+BASPHA 375–431, PLNATK 2800–2863 and capture defense 625–659.
+Critical-ship IRAN(5) evaluation that can have no selected effect remains outside
+the abstract random-event sequence under the existing normalization policy;
+no packed result widths or stale message fields enter the new ADTs. Existing
+ordinary damage/percentage arithmetic is unchanged. No gameplay, server or
+source archive changes.
+
+
+CompleteTurn now has an explicit actor, automatic-repair selection and outcome;
+DefenseContext distinguishes player-triggered and Romulan-triggered installation
+phases. CommitPendingScore updates the eight declared categories in order without
+adding a report-triggered commit or a whole-turn transaction. Fatal damage alone
+does not skip the remaining source turn steps: CAPTURE can reach label 3400 after
+destruction, and defense phases can kill the actor before label 3501. The captain
+association remains until release even when ALIVE has been cleared. Automatic
+repair precedes the critical life-support test; docking skips the decrement but
+not the negative-reserve test; the fatal assignment is exactly 2500 generalized
+hull units, not an additive hit or a maximum. INFORMATIVE suppresses the warning
+without changing those effects. A session-ending control transfer stops later
+steps rather than promising unconditional stardate and score commitment.
+Evidence: Austin DECWAR.FOR dispatch 63–85, repair/turn/life/score 223–258,
+ROMDRV 3233–3319, ENDGAM 961–1007. No executable changes.
+
+
+World.baseCounts and World.capturedPlanetCounts now name maintained installation
+counts explicitly. These are semantic state during partial transitions, not a
+mandated storage scheme or an always-fresh collection count. New galaxies begin
+at ten bases and zero owned planets per faction. BUILD tests the maintained
+count for equality with ten at stage four, increments before planet removal,
+and activates the reused base entry only after PLNRMV/ENDGAM return. Corrected
+the old base-collection union equation: conversion replaces a fixed identity's
+record rather than creating a duplicate identity. CAPTURE adjusts owner counts
+after its old-owner docking check. Owned-planet removal decrements before that
+check and record removal. Weapon base destruction checks docking before count
+decrement; nova base destruction decrements first. CheckWorldEnd uses the
+maintained base counts. ReevaluateDocking's zero-captured-count branch leaves
+existing docking unchanged; it is not replaced with an intuitive undock rule.
+Evidence: SETUP.FOR 173–231; DECWAR.FOR BUILD 523–580, CAPTUR 625–643,
+BASKIL 339–369, PLNRMV 2864–2892, ENDGAM 961–1007, nova 2332–2352 and
+weapon cleanup 4216–4224. Interrupted conversion geometry and concurrent writes
+remain open; this change does not invent a safe alternate end-state.

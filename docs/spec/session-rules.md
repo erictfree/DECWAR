@@ -424,6 +424,8 @@ Thus star count ranges from 100 to 350 in steps of five; hole count ranges from
 Initial faction scores, discoveries and cumulative faction commission counts
 are zero; there are no published messages or tractor associations.
 In particular, world.teamCommissions maps each Team to zero.
+world.baseCounts maps each Team to ten, and world.capturedPlanetCounts maps
+each Team to zero.
 World.radioService starts with an empty messages sequence and an empty
 publicationsInProgress set.
 World.ended starts false.
@@ -584,7 +586,7 @@ operation CheckWorldEnd(viewer: CaptainId)
     on GameState -> Continues | Ended
 
 endCondition = no planets remain
-    and (Federation has no bases or Empire has no bases)
+    and (w.baseCounts[FEDERATION] == 0 or w.baseCounts[EMPIRE] == 0)
 ```
 
 Let w be world(game). If w.ended is false and the end condition is false,
@@ -592,6 +594,8 @@ return Continues. Otherwise set w.ended to true and retire the galaxy from
 new admission. Perform the following end observations and session effects for
 viewer. SET ENDFLG can set w.ended before invoking this operation, without
 waiting for the ordinary end condition.
+Base-count tests in this operation use w.baseCounts, including updates already
+made by a construction or removal that has not finished all its other effects.
 
 Announce the end. If no planets and no bases of either faction remain, announce
 total destruction. Then test each faction's base count and give the corresponding
