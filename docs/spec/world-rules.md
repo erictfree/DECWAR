@@ -6,16 +6,172 @@ at their point of use.
 
 ## Random choices in semantic rules
 
-`UnitDraw()` supplies a value in [0,1). `Choice(values)` selects one member of a
-finite ordered collection. `IntegerDraw(n)` supplies an integer from 1 through n.
-These are abstract random inputs, not a prescribed generator or seed encoding.
-An example can supply their results explicitly to make an outcome reproducible.
-The full probability and reproducibility requirements remain under review.
+### Values and probabilities
 
-The rules distinguish choices that select a discrete outcome from rounding of
-a continuous calculation. Device selection is discrete; damage and shield
-strength retain fractions after arithmetic. Calls or numerical artifacts with
-no game-state or output effect do not themselves define extra game events.
+Random choices are inputs to game operations. Their mathematical distributions
+are:
+
+```text
+UnitDraw() -> real uniformly distributed in [0,1)
+IntegerDraw(n: positive integer) -> integer uniformly distributed in 1..n
+Choice(values: nonempty ordered collection) -> one uniformly selected member
+```
+
+For UnitDraw, the probability of an interval `[a,b)` contained in `[0,1)` is
+b-a. IntegerDraw(n) assigns probability 1/n to each permitted integer. Choice
+assigns equal probability to each position in its collection; Choice(Device)
+therefore selects each of the nine devices with probability 1/9. Zero is a
+valid unit-draw value but not a valid IntegerDraw result. One is not a valid
+unit-draw result. A boundary example may supply a particular real value even
+though a single value has zero probability in the continuous model.
+
+Each separate draw is independent in this mathematical model. Reusing a value
+already drawn preserves that value and its dependencies; it does not make
+another draw. Thus a shared weapon formula that uses its b twice uses the same
+b both times. A conditional effect uses its declared draw only when that branch
+requires it. No rule promises a fixed number of successes in a short sequence.
+
+The random-source binding supplies reproducible pseudorandom realizations of
+these distributions. It identifies its algorithm, version, finite precision and
+initialization policy; these are not game commands or prescribed data structures.
+The probability model does not require a specific generator or seed encoding,
+and finite samples need not have exactly the expected frequencies. Selecting
+only one permitted outcome every time does not implement a uniform distribution.
+
+The rules distinguish discrete choices from continuous arithmetic. Device
+selection is discrete; damage and shield strength retain fractions. Only draws
+explicitly specified by a semantic clause belong to its random-event sequence.
+An early draw required by that clause remains part of the sequence even if a
+later cancellation leaves its value unused.
+
+### Choice order and ownership
+
+The chapter or command containing a draw establishes its place among state
+changes and observations. Nested operations consume their choices when invoked,
+before the caller resumes. A failed or cancelled command can already have used
+random input; cancellation does not restore earlier choices or effects.
+
+The performing captain identifies the random context. Shared damage,
+installation defense, nova chains and autonomous Romulan activity invoked by a
+captain's action inherit that captain's context. The Romulan's persistent score
+is not a separate random context. Creating a galaxy and placing its initial
+objects uses the creating captain's context; later admissions have their own
+initializations. This describes random-event ownership, without prescribing
+where a generator is stored or how concurrent execution is scheduled.
+
+A reproducibility record can describe random input with the following values:
+
+```text
+RandomRequest = UnitRequest | IntegerRequest(positive integer)
+              | ChoiceRequest(positive integer)
+RandomValue = UnitValue(UnitDraw) | IndexValue(positive integer)
+
+record RandomEvent:
+    captain: CaptainId
+    request: RandomRequest
+    value: RandomValue
+```
+
+UnitRequest requires UnitValue. An IntegerRequest(n) or ChoiceRequest(n) requires
+an IndexValue in 1..n; the latter chooses that position in the stated ordered
+collection. The event must match the request reached by the operation. Supplying
+an index outside its domain or a value for the wrong request is an invalid
+replay input, not a new game outcome. No particular record serialization is
+required. Random events do not replace player input, clock observations or
+shared-world events in a complete replay.
+
+The generalized rules specify their choice sequence explicitly. An otherwise
+unspecified calculation is not an extra required draw merely because a former
+implementation performed it. Implementations using the same binding must follow the declared
+sequence to obtain that binding's reproducible results. A differently grouped
+set of independent draws can have the same distribution while failing an
+advertised deterministic replay contract.
+
+### Derived game probabilities
+
+The following consequences illustrate the declared distributions. Conditional
+probabilities apply only after the command reaches the corresponding branch;
+they are not independent replacement rolls for the complete action.
+
+| Event | Meaning | Probability |
+| --- | --- | --- |
+| Warp speed risk | Overheating at warp five, after reaching that speed-risk test. | 1/10 |
+| Warp speed risk | Overheating at warp six, after reaching that speed-risk test. | 1/5 |
+| Torpedo misfire | A launched shot's IntegerDraw(100) exceeds 96. | 1/25 |
+| Tube damage | A player misfire's further IntegerDraw(5) equals five. | 1/5 given misfire |
+| Star hit | A torpedo's struck star begins a nova on a draw at most 80. | 4/5 |
+| Chain selection | A neighboring star is selected, when pending capacity permits. | 4/5 |
+| Planet hit | An accepted torpedo planet update subtracts one build. | 1/4 |
+| Critical device | A reached ship-critical branch chooses a particular device. | 1/9 |
+| Base emergency | A sufficiently large base hit takes its early emergency branch. | 1/5 |
+| Base destruction | A base emergency's random test destroys it even if strength remains positive. | 1/10 |
+| Romulan displacement | A surviving Romulan struck by a player torpedo attempts displacement. | 3/10 |
+
+Torpedo maximum path lengths 7, 8, 9 and 10 have probabilities 1/8, 1/2, 1/4
+and 1/8 respectively. These are path limits, not guarantees of distance traveled:
+an earlier obstruction can end the path. A misfired shot still receives a path
+limit and can hit something. Player tube damage has unconditional probability
+1/125 per shot that reaches the misfire check; a burst that stopped earlier
+has no further shots on which to apply that probability.
+
+A nova's ship/base damage H has 1000 equally likely values from `8*d+0.1`
+through `8*d+100`, separated by 0.1 damage unit. Conditional on H, ship energy
+loss is uniform from zero inclusive to H exclusive. Conditional on severity d,
+each device increment is uniform from zero inclusive to 4*d exclusive.
+The shield-device increment can change whether a later shield-strength draw
+occurs, as defined by NovaImpact.
+
+A Romulan torpedo hit's damage is not uniform across 0.1 through 200 units.
+Each value 0.1, 0.2, ..., 199.9 has probability 1/4000; damage 200 has probability
+2001/4000 because every integer draw from 2000 through 4000 gives that value.
+Phaser attenuation, critical tests and shield deflection likewise use their
+stated formulas; they are not replaced by a uniform damage interval.
+
+Romulan target ties are sequential comparisons. If all four candidate groups
+have equally distant winners, their selection probabilities in group order are
+1/8, 1/8, 1/4 and 1/2. Equal distance within a group retains its first eligible
+member. Neither level of selection chooses uniformly among every tied object.
+
+### Initial galaxies and tournament keys
+
+The galaxy-creation formulas choose each of the 51 star counts, 100 through
+350 in steps of five, with probability 1/51. Each of the 41 potential black-hole
+counts, 10 through 50, has probability 1/41. Choose the star count first, then
+the potential black-hole count even if holes are later declined.
+
+Placement attempts choose vertical then horizontal coordinates independently
+from 1 through 75. Rejecting a sector repeats both choices. For a fixed nonempty
+eligible set this gives a uniform distribution over that set. There is no
+fixed retry count or finite-time success promise; with unchanged eligibility
+the probability of eventual success is one. Changing occupancy or eligibility
+can change this conditional distribution under multiplayer ordering.
+
+REGULAR creation uses the environment's ordinary random initialization. A
+nonempty TOURNAMENT key selects a repeatable initialization within the declared
+random-source binding. Keys are the retained, case-transformed token text;
+they are not parsed as numeric seeds. Two inputs with the same retained key
+select the same initialization in that binding. Distinct keys need not guarantee
+distinct galaxies. An empty key is accepted and uses ordinary initialization,
+without the nonempty-key reproducibility promise.
+
+The same nonempty key, binding version, creation options and ordered creation
+inputs reproduce the initial galaxy. A key alone does not reproduce an entire
+multiplayer game: later captains' random initializations, commands, clock
+observations and shared-event ordering also matter. Two independent bindings
+need not map the same key to the same galaxy. Cross-implementation replay instead
+supplies the same random events and other semantic inputs for every operation
+within the completed contract.
+
+**Open:** Complete control and multiplayer event ordering, and acceptance criteria
+for finite-precision random-source bindings, remain part of the conformance and
+environment work. These gaps do not permit changing the stated game odds.
+
+**Source basis:** [random interfaces](../../legacy/utexas/WARMAC.MAC#L2285),
+[initialization and populations](../../legacy/utexas/SETUP.FOR#L169),
+[placement](../../legacy/utexas/DECWAR.FOR#L2765),
+[weapon branches](../../legacy/utexas/DECWAR.FOR#L4089),
+[Romulan targeting](../../legacy/utexas/DECWAR.FOR#L836),
+[nova effects](../../legacy/utexas/DECWAR.FOR#L2259).
 
 ## Sector paths
 

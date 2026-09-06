@@ -450,8 +450,9 @@ exclusion is established by this reconstruction's placement behavior.
 **Open:** The treatment of destroyed-base positions in later ship placement
 and action-cycle phase when an expired galaxy is reinitialized require
 normalization review. Initial placement has no destroyed bases. Exact
-random distributions, tournament-key mapping, admission interruption during
-creation and exhausted eligible-placement domains remain to be specified.
+admission interruption during creation and exhausted eligible-placement
+domains remain to be specified. Random distributions and tournament-key
+reproducibility follow the [random-choice contract](world-rules.md#random-choices-in-semantic-rules).
 No arbitrary retry limit or extra safe-spawn radius is introduced.
 
 **Source basis:** [new-galaxy dialogue and population](../../legacy/utexas/SETUP.FOR#L173),

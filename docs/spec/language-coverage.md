@@ -78,7 +78,7 @@ coverage does not establish lifecycle, concurrency or terminal conformance.
   and life-support observations now use explicit contracts. Completion classes, pacing, base and planet
   defense and base replenishment drafted. Installation eligibility during HELP/GRIPE
   and the Romulan context's triggering-faction notice audience are specified;
-  randomness and detailed interleavings remain.
+  detailed interleavings remain.
 - Shared world rules: typed path, beam, PhaserHit/TorpedoHit, ship/base damage,
   score-credit, Romulan-hit and Displace contracts now connect to their callers.
   NovaContext/NovaHit, NovaImpact/ExplodeStar and RemovePlanet now define
@@ -90,8 +90,11 @@ coverage does not establish lifecycle, concurrency or terminal conformance.
   ranking/ties, pursuit/avoidance, weapon deadlines, phasers, torpedo bursts,
   star aiming, accidental planet hits and follow-up defenses drafted in
   [the autonomous chapter](autonomous.md). Empty or all-distant target selection,
-  full random distributions, concurrent/invalid sector states and interruptions
+  concurrent/invalid sector states and interruptions
   remain unresolved. The target-domain limit is not a new pursuit-radius rule.
+- Randomness: ideal distributions, conditional probabilities, draw ownership,
+  random-event replay and tournament-key reproducibility are explicit. Finite
+  binding acceptance and complete multiplayer/control event ordering remain.
 - Communication: message identities, recipient filtering, publication order,
   capacity loss, consumption and gagging drafted. Autonomous speech's ungag effect
   on the triggering captain is specified; complete interleavings remain.

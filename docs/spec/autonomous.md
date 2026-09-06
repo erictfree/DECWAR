@@ -273,8 +273,8 @@ from the current Romulan position along its aim displacement with the selected
 step count and deflection.
 
 An unobstructed shot has no miss notification and retains the same aim displacement
-for the next shot. For an obstructed shot, draw q with IntegerDraw(100) and apply
-the encountered object's rule:
+for the next shot. For an obstructed shot, apply the encountered object's rule.
+The star branch obtains q with IntegerDraw(100):
 
 | Object | Effect |
 | --- | --- |

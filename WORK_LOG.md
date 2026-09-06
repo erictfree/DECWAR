@@ -2751,3 +2751,38 @@ pagination adjustment and clearer column ordering. Reviewed pages 22–24 and
 source/document checks, not executable conformance tests. Remaining scope
 includes random semantics/reproducibility, lifecycle, terminal/control binding,
 multiplayer and variant amendments. Concurrent unrelated work stays unstaged.
+
+
+## 2026-09-05 — Generalized random semantics and tournament replay
+
+Defined uniform unit/integer/ordered-choice distributions, reuse and ownership
+of random events, conditional game probabilities and tournament initialization
+versus full multiplayer replay. Added RandomRequest/RandomValue/RandomEvent as
+abstract replay inputs, without a mandated generator or serialization. Nonempty
+retained tournament keys reproduce within a binding; an empty key preserves the
+ordinary initialization fallback. Added EX-MODEL-435–452 (18 scenarios).
+
+NORMALIZATION explicitly distinguishes ideal independent distributions from the
+finite biased/correlated historical generator. Retained source thresholds and
+formulas, including clipped Romulan torpedo damage's 2001/4000 mass at 200 and
+four-group equal-distance probabilities 1/8, 1/8, 1/4, 1/2. Moved the generalized
+Romulan obstruction roll into its star branch, matching the existing player
+contract and excluding an otherwise unused nonstar draw. Explicit early draws
+such as MOVE potential damage still remain on cancellation. No executable,
+server or source archive changes.
+
+Evidence: WARMAC.MAC random interfaces/generator 2285–2324; SETUP.FOR 169–193,
+215–235; DECWAR.FOR PLACE 2765–2797, DIST 836–891, NOVA 2259–2390 and
+weapons 4089–4419. Checked actual source statements and prior excluded derivations;
+no outside DECWAR material. Finite binding acceptance and complete control/shared
+event ordering remain open, without changing defined odds.
+
+Validation: logs/spec-random-semantics-build.log passes 13 chapters, 322 links,
+452 scenario rows and 324 source messages; PDF is 161 pages. Archive/catalogue
+validation passes in logs/spec-random-semantics-audit.log. Exact enumeration and
+rational probability review is in logs/spec-random-semantics-probability-review.log;
+it checks generalized math, not historical generator uniformity or executable
+conformance. Visually reviewed pages 80–83,158–160 under
+tmp/pdfs/spec-random-semantics/: types, probability table and scenario layout
+remain readable. Remaining goal scope includes control/lifecycle, multiplayer,
+terminal/environment bindings, malformed caller cases and variant amendments.

@@ -445,6 +445,24 @@ defense phases. Other ships and installations do not alter the stated result.
 | EX-MODEL-432 | Same named ship and position but the sector is empty | TargetAbsent. |
 | EX-MODEL-433 | COMPUTED ROMULAN, Exactly(2), computer functional and Romulan absent | TargetAbsent, not UnknownTarget. |
 | EX-MODEL-434 | COMPUTED with one invalid name, Exactly(2), functional computer, unprivileged captain, advertisedSpeed 1200 | The 2400-millisecond delay precedes UnknownTarget. Rejection does not remove the already incurred delay. |
+| EX-MODEL-435 | Replay supplies IndexValue(0) for IntegerRequest(5) | Invalid replay input. IntegerDraw(5) has results 1 through 5; do not reinterpret zero as the first alternative. |
+| EX-MODEL-436 | Replay supplies UnitValue(1) for UnitRequest | Invalid replay input; the unit interval excludes one. UnitValue(0) is within its domain. |
+| EX-MODEL-437 | Replay supplies IndexValue(10) for ChoiceRequest(9) used by Choice(Device) | Invalid replay input; no tenth device is created. |
+| EX-MODEL-438 | A weapon rule has already drawn b=0.25 and uses b in two expressions | Both expressions use 0.25. No second draw is made for the second use. |
+| EX-MODEL-439 | Galaxy creation receives starDraw=0 and holeDraw=0 | Select 100 stars and potential count 10 holes, in that draw order. Declining holes later does not undo the potential-count choice. |
+| EX-MODEL-440 | Galaxy creation receives starDraw=50/51 and holeDraw=40/41 | Select 350 stars and potential count 50 holes. These interval boundaries belong to the upper outcomes. |
+| EX-MODEL-441 | Torpedo path-limit unit draw is respectively 1/8, 5/8 or 7/8 | Maximum path lengths are respectively 8, 9 and 10. Reaching those boundaries does not select the preceding interval. |
+| EX-MODEL-442 | RomulanTorpedoHit integer draw is respectively 1999, 2000 or 4000 | Hit damage is respectively 199.9, 200 or 200. Upper outcomes accumulate at 200 rather than being redistributed over smaller values. |
+| EX-MODEL-443 | Four defined Romulan candidate-group winners have equal distance; all three tie draws are 2 | Retain the Federation ship. Its probability is 1/8 under independent fair tie draws. |
+| EX-MODEL-444 | Same four-way tie; the final tie draw is 1 | Select the Empire base regardless of the first two tie draws. Its probability is 1/2, not 1/4. |
+| EX-MODEL-445 | Same random binding, creation options and ordered inputs; tournament keys supplied as ALPHABET and ALPHANUM | Both retain ALPHA and select the same initialization and initial galaxy. Extra characters beyond the retained key do not distinguish them. |
+| EX-MODEL-446 | Tournament keys supplied as 00001 and 1 | They are distinct retained text keys, not the same parsed numeric seed. The binding need not guarantee distinct resulting galaxies. |
+| EX-MODEL-447 | Separate tournament-key prompt receives a blank reply | Accept the empty key and use ordinary initialization; do not promise a repeatable empty-key galaxy or add a rejection prompt. |
+| EX-MODEL-448 | Placement first draws (10,20), which is occupied, then (11,21), which is eligible | Reject the first pair and use the second. Four coordinate draws were used; do not keep the first vertical coordinate while retrying only horizontal. |
+| EX-MODEL-449 | A player misfire check is reached | Misfire probability is 1/25. Tube damage probability is 1/5 conditional on misfire, giving 1/125 for both events on that check; this is not a guarantee of one such event in each 125 shots. |
+| EX-MODEL-450 | A player turn invokes Romulan activity, which fires and triggers a nova | The nested weapon and nova random events inherit the triggering captain's context. Romulan scoring does not switch the random-event owner to a new player. |
+| EX-MODEL-451 | MOVE passes its propulsion check and draws potential overheating damage, then receives cancelled coordinates | That declared early draw remains in the replay sequence despite no movement or applied overheating damage. Cancellation does not restore it. |
+| EX-MODEL-452 | Two games have the same tournament key but different later captain inputs, random initializations or clock observations | The key alone does not require the later games to match. Full replay must also supply the other semantic inputs and event order. |
 
 EX-MODEL-06 deliberately uses fractional shield strength. Historical loss of
 that fraction is excluded by the numerical normalization policy. The grammar,

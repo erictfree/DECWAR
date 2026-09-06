@@ -1014,3 +1014,51 @@ items. Missing target values subsequently read by malformed TORP or MOVE's
 own-location retry are still open caller cases, not fabricated coordinates or
 an invented diagnostic. Evidence: MOVE 2158–2178, PHACON 2657–2665,
 TORP 4247–4276, GTKN 1407–1439. No executable changes.
+
+
+## Generalized random distributions and replay
+
+The book now states an ideal uniform/independent probability model for UnitDraw,
+IntegerDraw and Choice. This is an explicit numerical normalization of the
+historical generator, not a claim that RAN/IRAN were exactly independent or
+uniform. WARMAC.MAC 2285–2324 has a finite per-execution recurrence; its quotient,
+modulo reduction and floating conversion produce finite-grid bias and correlated
+sequences. Even its real range is narrower than the interface's stated unit
+interval. These generator/word artifacts are excluded by the user's ordinary-
+arithmetic, platform-independent specification direction. Source discrete
+thresholds and ranges remain: no changed misfire, nova, critical, target-tie or
+population rule. Choice(Device) is the ideal form of INT(KNDEV*RAN+1),
+DECWAR.FOR 4130–4134. Finite-source conformance tolerances remain open rather than
+claiming an exact continuous generator is executable.
+
+Derived probabilities preserve conditional branch structure: misfire 4/100,
+tube damage 1/5 given misfire, star effects 4/5, planetary build loss 1/4,
+Romulan displacement 3/10, and clipped Romulan torpedo damage's 2001/4000 mass at
+200 units. Sequential four-group equal-distance ties are 1/8, 1/8, 1/4, 1/2, not
+uniform targets. Torpedo range probabilities follow the already-normalized
+piecewise path rule; no generic truncation requirement is reintroduced. RAN's
+finite support, unused compound-expression draws and prior shared scratch data
+do not prescribe new events. Source branch/draw orders that affect declared
+operations remain in their clauses and in the replay contract.
+
+RandomEvent is an abstract input record, not a generator data structure or new
+player command. A nested installation/Romulan/nova operation inherits the
+performing captain's random context. Historical random state is per execution;
+no new one-global-generator gameplay dependency is asserted. Nonempty tournament
+keys are retained text identities mapped by a documented random binding. Empty
+keys preserve SETRAN's ordinary-time initialization fallback rather than a
+promised deterministic empty-name galaxy. Equal keys within the same binding
+reproduce creation with the same ordered inputs; later multiplayer sessions
+require their own initialization and schedule. The binding does not carry over
+packed five-character integer seed values. Evidence: SETUP.FOR 169–193,215–235;
+WARMAC.MAC 2285–2324, DECWAR.FOR PLACE 2765–2797, DIST 836–891,
+NOVA 2259–2390 and shared/player weapons 4089–4419. No runtime changes.
+
+The generalized Romulan torpedo table now places its obstruction-effect draw
+in the star branch, matching the player table and removing the unused draw for
+nonstar obstructions. This changes a binding's future deterministic sequence,
+not the distribution or effects of those obstructions. Explicit early draws
+already required by a command, such as MOVE's potential overheating damage,
+remain even when later input cancels; normalization is not permission to reorder
+or skip a declared choice. This distinction closes an inconsistency in the
+previous statement that all unused results were automatically omitted.
