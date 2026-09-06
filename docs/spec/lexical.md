@@ -43,7 +43,20 @@ that limit completes the line without waiting for an additional terminator.
 | ESC after another nonignored character | Finish the new line. |
 
 A backspace or Ctrl-U received before ESC prevents the first-character repeat
-case even when the edited line is empty. TELL separately rejects repeated input.
+case even when the edited line is empty. Repetition reuses the entire last line
+acquired by this ordinary reader, not just the last slash-delimited command.
+Token access starts again at that line's beginning. A slash remainder consumed
+without fresh acquisition does not replace that remembered line, and its commands
+retain the line's repeated status.
+
+An ordinary argument continuation or message-body acquisition replaces the
+remembered line just as command acquisition does. ESC can therefore reuse an
+argument or message body at the next acquisition site; the caller interprets
+that text under its own grammar. No separate command-only history is implied.
+A newly acquired empty line also replaces the preceding line. This rule does
+not extend to the separate startup name reader. Repetition before any prior
+ordinary acquisition has no defined previous line in this draft.
+TELL separately rejects repeated input.
 These editing rules concern characters delivered to the game. Physical echo,
 delivery of keystrokes and output control sequences belong to the terminal binding.
 

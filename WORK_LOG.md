@@ -4255,3 +4255,18 @@ logs/spec-gripe-failures-build.log records successful build (100 productions,
 671 scenarios, 667 links, 324 fragments). PDF pages 160 and 241 visually reviewed
 without clipping/overlap. git diff --check passed. Full failure/control and
 whole-book review remains; this closes ordinary diagnostic wording only.
+
+
+## Ordinary-reader repetition scope — 2026-09-06
+
+Clarified ESC's remembered input: the whole most recently acquired ordinary
+line, including prompted arguments/bodies, not command-only history or the last
+slash command. Fresh empty acquisition replaces it; remainder consumption does
+not. Prior-to-first-acquisition contents remain undefined; separate startup-name
+input is not included. Grounded in INLI, GTKN, RELOC and MAKMSG branches.
+
+logs/spec-repeat-scope-review.log records source scope;
+logs/spec-repeat-scope-build.log records successful build (100 productions,
+671 scenarios, 667 links, 324 fragments). PDF pages 25–26 visually reviewed
+without clipping/overlap. git diff --check passed. No runtime/archive change;
+full control-delivery and whole-book review remain active.

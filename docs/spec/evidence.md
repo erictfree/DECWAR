@@ -916,3 +916,15 @@ ending request. The RED rejection is a separate literal before input. CompuServe
 has the same five distinct storage-warning texts and appends CRLF via ASCIL.
 logs/spec-gripe-failures-review.log records shared literal checks. Partial-record
 recovery and cleanup failure remain explicitly unestablished.
+
+### Ordinary-reader repetition scope
+
+INLI 1551–1583 takes the first-character repeat branch before clearing its
+character count or replacing LINBUF; fresh acquisition writes a new terminated
+line, even when empty. GTKN 1386–1408 resets its scanning position to the start
+only after INLI, while a slash remainder bypasses fresh acquisition and does
+not reset RPTFLG. MAKMSG 2979–2983 uses the same INLI for a prompted body;
+RELOC likewise acquires continuations through GTKN. The lexical clause now
+states that repetition recalls the latest ordinary acquired line and restarts
+its command sequence, not a command-only history. Separate startup-name input
+is not added to that history. No initial stale-buffer value is invented.
