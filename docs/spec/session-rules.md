@@ -428,6 +428,7 @@ world.baseCounts maps each Team to ten, and world.capturedPlanetCounts maps
 each Team to zero.
 World.radioService starts with an empty messages sequence and an empty
 publicationsInProgress set.
+World.combatNotices starts with an empty notices set.
 World.ended starts false.
 Set world.elapsedOrigin to the new galaxy's clock origin.
 

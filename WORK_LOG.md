@@ -2786,3 +2786,34 @@ conformance. Visually reviewed pages 80–83,158–160 under
 tmp/pdfs/spec-random-semantics/: types, probability table and scenario layout
 remain readable. Remaining goal scope includes control/lifecycle, multiplayer,
 terminal/environment bindings, malformed caller cases and variant amendments.
+
+
+## 2026-09-05 — Combat notice delivery specification
+
+Added CombatNoticeService and publication/reception/discard/query contracts to
+the renamed Communication chapter, with World.combatNotices initialized empty.
+Defined forty-notice capacity per publisher ship, first-unused delivery priority,
+oldest-publication eviction, roster/priority reception order, immutable observation
+values, independent unread audiences and departure cleanup. Nested autonomous
+notices use the performing captain's ship for publication while retaining the
+actual combat origin. Command acquisition drains combat notices before radio
+messages and its remaining post-command delay. Added EX-MODEL-453–472 (20 cases).
+
+Source: WARMAC.MAC capacities 183–187, SETQH 2526–2535, MAKHIT 2771–2872,
+GETHIT 2880–2950; DECWAR.FOR FREE 1120–1137, GETCMD 1184–1237,
+OUTHIT 2402–2541. NORMALIZATION separates observable capacity/selection from
+packed values, serial wrap, stale unread counters and partial cross-observation
+mixtures. Full observation-body catalogue, terminal rendering and concurrent
+publication/release ordering remain open; this is not a packet-layout spec or
+an assertion that whole commands are indivisible. No gameplay/server/source
+archive changes; no outside implementation material.
+
+Validation: logs/spec-combat-notice-adt-build.log passes 13 chapters, 328 links,
+472 scenario rows and 324 source fragments; assembled PDF is 165 pages.
+logs/spec-combat-notice-adt-audit.log passes 135 archive hashes and both variant
+catalogues. Visually reviewed pages 114–116,163–164 under
+tmp/pdfs/spec-combat-notice-adt/: ADT, prose and conformance table are readable.
+These checks validate the document and source inventory, not executable parity.
+Continue with observation presentation, lifecycle/control, multiplayer,
+malformed caller forms and CompuServe amendments. Preserve concurrent unrelated
+WORK_LOG/status/experiments work.

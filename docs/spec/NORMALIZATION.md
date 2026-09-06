@@ -1062,3 +1062,35 @@ already required by a command, such as MOVE's potential overheating damage,
 remain even when later input cancels; normalization is not permission to reorder
 or skip a declared choice. This distinction closes an inconsistency in the
 previous statement that all unused results were automatically omitted.
+
+
+## Combat-notice service abstraction
+
+CombatNoticeService expresses capacity and observable selection with notice
+identities, publisher identities, immutable observations, publication order and
+reusable delivery priorities. The forty priorities per publisher preserve the
+first-free-slot publication rule and roster/priority scan on reception. They
+are abstract ordering properties, not mandated arrays, addresses or packed
+words. At capacity the oldest published notice of that publisher is lost for
+all remaining recipients. It is not radio's recipient-backlog eviction and is
+not replaced by global chronological delivery. Source: WARMAC.MAC 183–187,
+MAKHIT 2771–2872, GETHIT 2880–2950.
+
+PublicationOrder is unbounded semantic order. The historical eighteen-bit serial
+wrap and packed signed/unsigned report transformations remain excluded numerical
+artifacts. Counter disagreement caused by overwriting unread entries does not
+create phantom observations or the incidental blank lines from unsuccessful
+OUTHIT fetches. A received observation is one immutable value, without partial
+cross-observation mixtures during replacement. Full operation interleavings
+remain open; this does not make a whole weapon command atomic. Source snapshot
+values remain fixed while current recipient preferences determine formatting.
+The body remains an abstract game observation with its detailed catalogue still
+required by the terminal work; no packet layout is being specified as game state.
+
+FREE clears the receiver's audience memberships, not every observation that
+receiver previously published. GETCMD drains combat hits before radio text and
+before its post-command pause, then repeats the same channel order when input
+polling observes pending items. Meaningful typed observation values replace
+shared scratch cleanup; notice publication never reapplies game damage or score.
+Evidence: DECWAR.FOR FREE 1120–1137, GETCMD 1184–1237, OUTHIT 2402–2541.
+No executable, server or immutable source changes.

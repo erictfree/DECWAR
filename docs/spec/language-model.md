@@ -244,6 +244,7 @@ record World:
     teamScores: Team -> Score
     romulan: Optional<Romulan>
     romulanActivity: RomulanActivity
+    combatNotices: CombatNoticeService
     radioService: RadioService
 ```
 

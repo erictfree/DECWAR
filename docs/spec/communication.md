@@ -1,4 +1,4 @@
-# Radio communication
+# Communication
 
 A radio message has an identity, sender, original recipient set, remaining
 recipient set and text body. Ship identities remain distinct from the Romulan
@@ -196,3 +196,159 @@ available to the triggering captain; they are not new radio publications.
 
 **Source basis:** [ROMSPK](../../legacy/utexas/WARMAC.MAC#L4672),
 [TELL's autonomous path](../../legacy/utexas/DECWAR.FOR#L3977).
+
+
+## Combat notices
+
+Combat notices convey game observations produced by weapon impacts, novas,
+base distress or destruction, Romulan appearance, energy transfers and tractor
+changes. They are distinct from the text messages composed by TELL. A notice
+can concern several ships, yet has one identity and one immutable observation.
+Whenever a game clause publishes one of these combat observations, it uses
+PublishNotice with that clause's selected recipients. Direct command diagnostics
+and informational reports are not thereby turned into queued combat notices.
+
+### Notice service ADT
+
+```text
+abstract type CombatObservation
+abstract type NoticeId
+ordered type PublicationOrder
+
+type NoticePriority = integer in 1..40
+
+record CombatNotice:
+    id: NoticeId
+    publisher: ShipId
+    priority: NoticePriority
+    publication: PublicationOrder
+    observation: CombatObservation
+    recipients: Set<ShipId>
+    remainingRecipients: Set<ShipId>
+
+record CombatNoticeService:
+    notices: Set<CombatNotice>
+
+query nextNotice(game: GameState, receiver: ShipId)
+    -> Optional<CombatNotice>
+
+operation PublishNotice(publisher: ShipId, recipients: Set<ShipId>,
+                        observation: CombatObservation)
+    on GameState -> Published(NoticeId) | NotPublished
+
+operation ReceiveNotice(receiver: ShipId)
+    on GameState -> Displayed(NoticeId) | NoNotice
+
+operation DiscardNotices(receiver: ShipId)
+    on GameState -> Discarded
+```
+
+CombatObservation is an immutable game observation supplied by the producing
+clause, such as a WeaponHit or NovaHit with its stated origin and target reports.
+The delivery service treats that value as a whole: it neither applies damage
+nor constructs missing weapon fields. It cannot substitute an arbitrary TELL
+body for the observation. Its detailed presentation belongs to the observation's
+terminal binding; this ADT defines preservation, selection and loss independently
+of a rendering or network format.
+
+Let service be world(game).combatNotices. Each present notice has a nonempty
+remainingRecipients set, contained in its original recipients. Distinct notices
+have distinct identities and publication orders. For a given publisher,
+priorities are unique among its present notices. PublicationOrder is chronological
+order of completed publication events; it has no wraparound or time unit.
+
+A publisher has capacity for forty notices. Its priorities determine delivery
+preference and reuse, not addresses or a required array. There are eighteen
+possible publisher ships, so the service holds at most 720 notices. Capacity
+belongs to the publisher, not to an individual recipient or the faction of the
+attacker named in the observation. A nested Romulan or installation action uses
+the ship of its performing captain as publisher, while retaining the actual
+attacker in the observation.
+
+### Publication and capacity loss
+
+The publisher must be a roster ship associated with the performing captain.
+An empty recipients set returns NotPublished without obtaining capacity or
+removing an existing notice. Recipient selection and any radio-on filtering
+belong to the producing game operation; publication does not repeat those tests.
+
+Among the publisher's priorities, choose the lowest one not currently used.
+If all forty are in use, choose the priority of that publisher's oldest notice
+by publication order, and remove that notice for every remaining recipient.
+This loss adds no score penalty and emits no separate warning. It does not
+discard any recipient's other notices or any other publisher's notices.
+
+Publish a new notice at the chosen priority with a fresh identity and a
+publication order later than preceding publication events. Its publisher and
+observation are the supplied values. Both recipient sets initially equal the
+supplied recipients. Return Published of the new identity.
+
+The observation, original recipients, publisher, priority and publication order
+remain fixed for that notice's lifetime. Only remainingRecipients shrinks.
+Receiving a notice does not move later notices to a different priority. Freed
+priorities can therefore be reused by a later publication before older notices
+at higher priorities have been read.
+
+A published observation is complete and independent of other observations.
+Publishing a base distress notice, for example, does not clear a following
+nova's damage value. Later target movement, damage or destruction cannot change
+the positions, strengths or amounts already included in a published observation.
+
+### Selection and reception
+
+nextNotice selects among notices whose remainingRecipients contains receiver.
+First prefer the publisher appearing earliest in ship roster order; among that
+publisher's notices, prefer the lowest priority. Return none if no notice is
+addressed to receiver. Publication time is not the delivery-order comparison.
+Calling this query has no state effect.
+
+ReceiveNotice requires a receiver with a captain association, including a ship
+that has just been destroyed but has not completed commission release. If
+nextNotice returns none, give NoNotice and emit nothing. Otherwise let n be the
+selected notice. Remove receiver from n.remainingRecipients, then present
+n.observation and give Displayed(n.id). Remove n from service when no recipients
+remain. Other recipients retain the same observation and their unread status.
+
+No radio-enabled, radio-damage or sender-gag check is repeated during reception.
+Those properties cannot suppress an already addressed combat notice. Presentation
+uses the receiver's current output and coordinate preferences. Positions and
+resource values contained in the observation remain the published ones; relative
+coordinates are displayed from the receiver's current position. Rendering a
+notice cannot apply the associated hit or award its score a second time.
+
+The delivery preference can make a later publication appear before an older
+one. A newly reused low priority precedes a still-unread higher priority from
+the same publisher, and every eligible notice from an earlier publisher precedes
+ones from a later publisher. Do not replace this rule with one chronological
+list of all battles.
+
+### Discarding and acquisition boundaries
+
+DiscardNotices removes receiver from every remainingRecipients set and removes
+notices whose remaining set is then empty. It emits nothing and changes no
+combat, radio or score state. Applying it when no notice is addressed to receiver
+has no effect. Commission release uses this operation for the departing ship.
+It does not erase notices merely because that ship was their publisher: other
+recipients can still receive observations it published before departure.
+
+Ordinary return to active command acquisition drains pending combat notices
+before pending radio messages, before the remaining post-command delay and the
+new command prompt. At a command-input polling boundary that finds pending
+notices or messages, drain combat notices first and radio messages second, then
+return to the command-state checks and prompt. Draining means repeated reception
+until no corresponding unread item remains; it does not advance a turn. A
+publication arriving during that activity follows the same next-item selection
+rule if it is observed before draining completes.
+
+**Open:** The complete observation-value catalogue and terminal rendering,
+publication/reception interleavings and the release-versus-new-publication window
+remain to be closed. This contract preserves complete observations; it does not
+make the entire firing command, drain loop or commission release indivisible.
+No extra battle is inferred from a failed attempt to obtain a next notice.
+
+**Source basis:** [notice capacity](../../legacy/utexas/WARMAC.MAC#L183),
+[publication](../../legacy/utexas/WARMAC.MAC#L2771),
+[reception](../../legacy/utexas/WARMAC.MAC#L2880),
+[command acquisition](../../legacy/utexas/DECWAR.FOR#L1184),
+[notice display](../../legacy/utexas/DECWAR.FOR#L2392),
+[release](../../legacy/utexas/DECWAR.FOR#L1120).
