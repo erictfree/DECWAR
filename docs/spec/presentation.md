@@ -280,6 +280,66 @@ STATUS report, resource adjustment or turn beyond the command's stated effects.
 [response strings](../../legacy/utexas/MSG.MAC#L280),
 [literal and line output](../../legacy/utexas/WARMAC.MAC#L1653).
 
+## Energy-transfer responses
+
+ENERGY begins with one conditional blank-line request. Missing or mistyped
+recipient/amount input requests `"Ship, energy: "` in SHORT or MEDIUM, or
+`"Destination ship name and energy to transfer: "` in LONG. The prompt has no
+appended line ending. Invalid replacement input repeats the request; an empty
+reply cancels without another response.
+
+The [ENERGY contract](commands.md#energy) determines rejection precedence. Each
+response below ends with one unconditional line ending. Concatenated LONG
+prefixes retain their two trailing spaces.
+
+| Result | SHORT or MEDIUM | LONG |
+| --- | --- | --- |
+| Unknown recipient name | `"Unknown ship name."` | Same |
+| Recipient is the actor | `"Transfer energy to US!?!"` | `"Beg your pardon, Captain?  Transfer energy to US!?!"` |
+| ShipNotInGame | `"Player not in game."` | Same |
+| Enemy recipient | `"Can not transfer energy to enemy ship."` | Same |
+| RecipientNotAdjacent | `"Not adjacent to destination ship."` | Same |
+| InsufficientEnergy | `"Insufficient ship energy."` | `"Captain, our ship doesn't possess that much energy!"` |
+| AmountMustBePositive | `"Transfer aborted."` | `"Illegal energy transfer.  Transfer aborted."` |
+| Successful transfer | `"Energy transferred, Captain."` | Same |
+
+The sender's success response does not include an amount. It precedes publication
+of EnergyReceived to the recipient, whose later rendering follows the combat
+observation rules and does include the received amount. A zero actual transfer
+to a recipient already at capacity has the same sender success text. These
+responses do not add a status report or a turn.
+
+**Source basis:** [ENERGY output paths](../../legacy/utexas/DECWAR.FOR#L1009),
+[energy strings](../../legacy/utexas/MSG.MAC#L67),
+[LONG self-transfer prefix](../../legacy/utexas/MSG.MAC#L10),
+[absent recipient](../../legacy/utexas/MSG.MAC#L152),
+[unknown name](../../legacy/utexas/MSG.MAC#L373).
+
+## Docking and repair responses
+
+For NoAdjacentFriendlyInstallation, DOCK requests a conditional blank line,
+emits the object label at the actor's current sector with one added trailing
+space, then emits `" not adjacent to base!!"` and one unconditional line ending.
+The leading space in that last string is additional to the label's trailing
+space. The wording is unchanged when the failed supply search included planets.
+
+Successful docking emits `"\r\nDOCKED."` followed by one unconditional line
+ending. Any requested STATUS report follows this confirmation under the
+[DOCK command rules](commands.md#dock). If supply shares exist but the commission
+has ended before replenishment, the command adds no docking response.
+
+REPAIR has no unconditional success, no-change or cancellation message and no
+initial blank-line request of its own. An accepted DAMAGE suffix invokes the
+[device-damage report](#device-damage-reports), including that report's own line
+composition. The [REPAIR contract](commands.md#repair) determines suffix acceptance,
+including the no-damage ALL exception, and subsequent turn behavior. Automatic
+repair itself adds no repair response. Later turn events or reports retain
+their own output rules.
+
+**Source basis:** [DOCK](../../legacy/utexas/DECWAR.FOR#L893),
+[docking strings](../../legacy/utexas/MSG.MAC#L47),
+[REPAIR](../../legacy/utexas/DECWAR.FOR#L3190).
+
 ## Combat observation bodies
 
 These recipes present a CombatObservation that passed ReceiveNotice's reception

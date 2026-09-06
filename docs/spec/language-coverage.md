@@ -54,9 +54,9 @@ remaining dependencies below still limit end-to-end conformance claims.
 | --- | --- | --- |
 | SHIELDS | [SHIELDS](commands.md#shields): ADT operation contract and complete ordinary prompt/response strings. | Session, interrupted output and concurrent confirmation; transfer confirmation prints no numeric amount. |
 | RADIO | [RADIO](commands.md#radio): ADT operation contract. | Message delivery and response rules. |
-| ENERGY | [ENERGY](commands.md#energy): ADT operation contract. | Notification delivery, session and response rules. |
-| DOCK | [DOCK](commands.md#dock): ADT operation contract. | Full report, concurrent world and response rules. |
-| REPAIR | [REPAIR](commands.md#repair): ADT operation contract. | Full report, concurrent world and response rules. |
+| ENERGY | [ENERGY](commands.md#energy): ADT operation contract. | Notification delivery and session; ordinary sender responses are specified. |
+| DOCK | [DOCK](commands.md#dock): ADT operation contract. | Concurrent world and interrupted reporting; ordinary docking and optional STATUS response sequence specified. |
+| REPAIR | [REPAIR](commands.md#repair): ADT operation contract. | Concurrent world and interrupted reporting; silent repair and optional DAMAGE sequence specified. |
 | SCAN, SRSCAN | [SCAN and SRSCAN](commands.md#scan-and-srscan): ADT operation contract. | Full transport/control delivery and concurrent installation changes. |
 | STATUS | [STATUS](commands.md#status): ADT operation contract and ordered field presentation. | Full terminal controls and multiplayer observations. |
 | DAMAGES | [DAMAGES](commands.md#damages): ADT operation contract, title observation and row presentation. | Full terminal controls and multiplayer observations. |

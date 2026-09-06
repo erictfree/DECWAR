@@ -583,3 +583,16 @@ the signed amount; Transferred.amount remains the semantic outcome. The
 presentation now separates it from the emitted text. UP prints SHLD06 before
 TRCOFF and SHLD07 afterward if energy is exhausted; notice delivery remains
 subject to its own reception rules. No gameplay change.
+
+### ENERGY, DOCK and REPAIR responses
+
+Reviewed ENERGY 1009–1072, DOCK 893–938 and REPAIR 3190–3220 in Austin
+DECWAR.FOR against MSG.MAC. Added ordinary prompt/response recipes. ENERGY's
+LONG prefixes concatenate without extra separators; sender confirmation has no
+amount, while the recipient's EnergyReceived carries it. Label 1700's generic
+failure text has no branch to it in ENERGY and is not added as a new rejection.
+DOCK's no-supply response has both ODISP's requested trailing space and DOCK01's
+leading space. DOCKIN begins with CRLF, and the ended-commission branch is silent.
+REPAIR itself has no OUT or CRLF; DAMAGE supplies optional report output, while
+later turn effects remain separate. This closes ordinary response recipes, not
+interruption, transport or simultaneous-state guarantees.

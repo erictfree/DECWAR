@@ -3886,3 +3886,18 @@ logs/spec-shield-responses-build.log passed 662 scenarios, 100 productions,
 324 fragments, 14 chapters and 555 links. Inspected PDF physical pages 159–160:
 response table and following section readable. No gameplay/archive changes;
 full goal active.
+
+### Specification: ENERGY, DOCK and REPAIR responses
+
+Added ordinary ENERGY prompts and all reachable rejection/success text with
+LONG prefixes and sender/recipient distinction; added DOCK success/failure
+spacing and silent ended-commission path, and REPAIR's optional-report-only
+output. Updated coverage. Unreachable ENERGY label1700 is not a new outcome.
+
+Validation: logs/spec-resource-responses-review.log checks literals, composed
+prefixes, source order and REPAIR silence. Initial PDF build caught an overwide
+table label (logs/spec-resource-responses-build.log); shortened that descriptive
+label, preserving output text. Retry passed in logs/spec-resource-responses-build-2.log:
+662 scenarios, 100 productions, 324 fragments, 14 chapters, 567 links. Inspected
+PDF physical pages 159–160: tables and prose readable. No gameplay/archive
+changes; interrupted delivery and the full specification goal remain open.
