@@ -50,6 +50,29 @@ Distinguish source quirks from new bugs introduced by the port.
 - Identify reconstruction provenance and compiler version differences. Do not
   introduce game-logic authority from unrelated histories or implementations.
 
+## Write the language specification for implementers
+
+The normative specification should help an implementer determine valid DECWAR
+behavior. Introduce each concept in plain language before presenting notation.
+Define terms and abstract data types before use, and place a rule where a reader
+first needs it. Prefer one direct sentence to several qualifications. Use
+pseudocode when prose would obscure a state transition.
+
+Keep only facts needed to define accepted input, game state, state transitions
+or observable behavior. Put source history, representation details, derivations,
+review notes and unresolved research in companion documents. Keep necessary edge
+cases with the operation they affect. If a paragraph does not help determine
+valid DECWAR behavior, remove it, shorten it or move it outside the normative
+book.
+
+Use valid TypeScript syntax for data records, unions and collection shapes.
+State semantic restrictions that TypeScript does not express clearly—such as
+opaque identity, units, numeric ranges and total-map requirements—in nearby
+prose. Do not add branding helpers or runtime representations merely to make the
+TypeScript compiler enforce those restrictions. Use separately identified
+pseudocode for queries, operations, contracts and transitions. A notation block
+must never be described as TypeScript unless it is valid TypeScript.
+
 ## Review before publishing
 
 Check defaults, commands, variant names, credits and license scope against the

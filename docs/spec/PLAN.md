@@ -32,10 +32,12 @@ operations instead of language meaning. Retain that analysis as companion
 research while rewriting the normative document around these layers:
 
 1. **Abstract types and state:** a game-state ADT with queries and semantic
-   operations; named identities, records, enumerations, sets,
-   sequences and quantities in game units. Use language-neutral typed records and readable pseudocode
-   familiar to TypeScript readers, without importing JavaScript numeric or object
-   semantics. No memory maps, packed fields, numeric object codes or aliases.
+   operations; named identities, records, enumerations, sets, sequences and
+   quantities in game units. Use valid TypeScript for data shapes and readable,
+   separately identified pseudocode for behavior. State opaque identity, units,
+   ranges and other semantic restrictions in prose instead of encoding them with
+   TypeScript implementation machinery. No memory maps, packed fields, numeric
+   object codes or aliases.
 2. **Lexical syntax and grammar:** define complete productions and abbreviation
    resolution. Interactive continuations are syntax in their own right.
 3. **Commands:** each command defines an operation contract, grouping its production, defaults and prompts,
@@ -79,16 +81,15 @@ consistent syntax, operation signatures, preconditions, effects, observations
 and examples. Define every state property and distinguish scalar quantities,
 entity identities, records and mappings. Prefer explicit paths in semantic
 predicates, such as `s.devices[WARP_ENGINES].damage`, to ambiguous equipment prose.
-The naming and type conventions are language-neutral; they do not mandate a
-TypeScript representation. The supplied Modern System Specification Guide is an
-additional editorial reference, not a source of DECWAR behavior. Use compact
-`type Name = { ... }` record declarations, tagged alternatives and consistent
-List, Set, Map, Optional and Result notation. The updated Markdown guide selects
-typed C-family pseudocode: braces for blocks and record values, colon return
-types, `=` for assignment and `==` for equality. Use `requires`, `ensures` and
-`invariant` for contracts, and named fields for tagged outcomes. Define copy-with
-notation and distinguish identity from value equality. Keep EBNF separate from
-these behavioral constructs; notation changes must not change accepted input.
+Data declarations use valid TypeScript syntax. Constraints that TypeScript
+cannot express clearly remain normative prose; the specification does not add
+brands or runtime storage solely to encode them. The supplied Modern System
+Specification Guide is an additional editorial reference, not a source of
+DECWAR behavior. Operations and contracts use labeled pseudocode with braces
+for blocks, `=` for assignment, `==` for equality, and `requires`, `ensures` and
+`invariant` for contracts. Define copy-with notation and distinguish identity
+from value equality. Keep EBNF separate from these behavioral constructs;
+notation changes must not change accepted input.
 Distinguish absence from operation failure, cancellation from rejection, local
 assignment from game-state updates, and emitted observations
 from state effects. Retain explicit units, bounds and nondeterministic choices.
@@ -96,6 +97,13 @@ Review vocabulary and type references, invariant coverage, failure behavior,
 ordering/atomicity and examples together; readable notation alone is not a
 semantic-completeness claim. Formal tooling is warranted only by a specific
 validation need, not by the appearance of rigor.
+
+Before final publication, convert declarations that use custom enum,
+tagged-alternative, refinement, opaque or ordered-type syntax into valid
+TypeScript data declarations plus explicit prose constraints. Validate the
+converted declaration blocks with the repository's TypeScript compiler. This is
+an editorial change only; it must preserve the defined domains and game
+semantics.
 
 ## Deliverables
 

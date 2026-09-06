@@ -4433,3 +4433,20 @@ chapters and 684 links. Inspected all compiled pages through the end of chapter 
 no clipping, overfull boxes or undefined references remain. Evidence:
 logs/spec-chapters-1-2-editorial-review.log and
 logs/spec-chapters-1-2-editorial-build.log.
+
+## Documentation language and notation policy
+
+Recorded the editorial standard for the normative specification: introduce
+concepts before notation, keep only facts needed to determine valid DECWAR
+behavior, use pseudocode when it clarifies a transition, and move provenance,
+derivation and review detail to companion documents.
+
+Selected valid TypeScript as the notation for data shapes. Semantic constraints
+that TypeScript does not express clearly, including opaque identity, units,
+ranges and total maps, remain normative prose rather than branded implementation
+types. Operations and contracts remain explicitly labeled pseudocode. The plan
+now records conversion and TypeScript validation of the existing custom
+declarations as a pre-publication task. No normative game rule changed.
+
+`npm run audit:check` passed; output is retained in
+logs/documentation-notation-policy-audit.log.
