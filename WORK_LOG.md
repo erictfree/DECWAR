@@ -3991,3 +3991,18 @@ Final build logs/spec-variant-response-inheritance-build-2.log passed 663
 scenarios, 100 productions, 324 fragments, 14 chapters and 609 links. Inspected
 PDF physical pages 234–236: example and amendment readable. No gameplay/archive
 changes; movement resource grouping and the full goal remain open.
+
+### Specification: focused direct-response examples
+
+Added EX-MODEL-615–622 with explicit output-position/comparison scope, covering
+fixed transfer confirmation, silent repair/self-gag, BUILD's missing suffix,
+post-wait strength rejection, SHORT/LONG empty ammunition, and fixed obstruction
+text. Examples distinguish semantic outcomes from printed fields and later
+turn/reader output. Updated current coverage count to 671.
+
+Validation: logs/spec-response-examples-review.log compares six exact response
+expectations, two silent source paths and state arithmetic. Build passed in
+logs/spec-response-examples-build.log: 671 scenarios, 100 productions, 324
+fragments, 14 chapters and 609 links. Inspected PDF physical pages 182,229–230;
+scope and examples readable. These are source-derived expectations, not native
+transcripts. No gameplay/archive changes; full goal remains active.

@@ -84,6 +84,13 @@ They describe commands in an otherwise unchanged world, with no intervening
 actions or incoming combat. Passing these examples alone does not establish
 complete conformance. The command and world-rule conversion is still incomplete.
 
+For EX-MODEL-615 through EX-MODEL-622, direct output begins after command-line
+acquisition, at the left margin following an empty completed line. Client echo,
+input-reader output and the next command prompt are outside that comparison.
+There are no intervening notices or interruptions; stated direct text is not a
+claim that subsequent lifecycle or turn output is absent. Characters inside
+quoted strings follow the terminal presentation notation.
+
 Unless a case says otherwise, a turn-completing example begins with world action
 count zero and two commissioned players, so that turn does not invoke automatic
 defense phases. Other ships and installations do not alter the stated result.
@@ -704,6 +711,14 @@ defense phases. Other ships and installations do not alter the stated result.
 | EX-MODEL-612 | Romulan at (10,10); eligible Federation ship at (15,10); positive-strength Federation base at (11,10) with nonempty sector, but maintained Federation base count zero during an unfinished transition; no other eligible candidates | Select the ship with range 5. Skip the entire Federation base group despite the nearby base record. Do not replace the maintained-count guard with a fresh count of surviving records. |
 | EX-MODEL-613 | DOCK with no nearby friendly base and one nearby friendly planet; maintained captured-planet count zero during an unfinished transition | The planet scan contributes no shares. Reject with NoAdjacentFriendlyInstallation; no replenishment or turn completion. |
 | EX-MODEL-614 | ReplenishAtDock for a commissioned ship with zero energy and torpedoes, hull damage 200, shields down at 20%, undocked; one adjacent friendly base at positive strength; maintained base count zero and no planet shares | The base still contributes two shares. Before separate turn completion: energy 1000, torpedoes 10, hull damage 100, shields down at 40%, docked and GREEN, life-support reserve 5. |
+| EX-MODEL-615 | Healthy actor, energy 1000 units, shields down at 50%; SHIELDS TRANSFER 1 | Direct output is `"Energy transferred, Captain.\r\n"`, with no numeric amount. Energy becomes 999 units and shield strength 50.04%; condition YELLOW. No turn. |
+| EX-MODEL-616 | All device damage zero; REPAIR with no DAMAGE suffix | NothingToRepair; no direct output, no device change and no turn. |
+| EX-MODEL-617 | Actor is Lexington; RADIO GAG LEXINGTON | Unchanged; no direct confirmation and no change to radio settings. |
+| EX-MODEL-618 | Actor adjacent to an opposing planet; BUILD at its valid absolute position | NotOwned; direct output is `"\r\nPlanet not yet captured."` with no appended ending. No construction or turn effects. |
+| EX-MODEL-619 | Healthy actor adjacent to a commissioned opposing ship at (21,20), both bank deadlines reached; PHASERS ABSOLUTE 501 21 20 | InvalidStrength after the selected bank wait; direct output is `"\r\nWeapons Officer:  Improper energy consumption for phaser hit, Captain.\r\n"`. No shot, charge or turn. |
+| EX-MODEL-620 | Healthy actor, zero torpedoes, SHORT output; TORPEDOS | NoAmmunition; direct output is `"0 torpedoes left.\r\n"`. No input prompt or turn. |
+| EX-MODEL-621 | Same inventory and devices as EX-MODEL-620, but LONG output | NoAmmunition; direct output is `"You have already used your supply of torpedoes!\r\n"`. No numeric inventory report or input prompt. |
+| EX-MODEL-622 | Actor at (20,20), undocked, shields down, energy 1000 units, undamaged devices and no beam; star at (21,20); MOVE ABSOLUTE 21 20 | Obstructed at (21,20), actor remains (20,20), energy becomes 996 units. Direct movement output is `"\r\nNavigation Officer:  \"Collision averted, Captain!\"\r\n"`, with no object or position fields. Normal movement turn with automatic repair follows. |
 
 EX-MODEL-06 deliberately uses fractional shield strength. Historical loss of
 that fraction is excluded by the numerical normalization policy. The grammar,

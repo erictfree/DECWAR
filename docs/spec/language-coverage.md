@@ -26,7 +26,7 @@ correct or complete semantic contract.
 | Session/configuration/lifecycle | session-rules admission, preferences, release, history, world end and SavedShipCondition | Drafted with explicit gaps. Saved values do not establish a working continuation; concurrent admission, final-report failure and interrupted lifecycle need resolution. |
 | Randomness and reproducibility | world-rules RandomEvent, distributions, conditional draws and tournament mapping | Replay validation, retained direct impact draws and finite-source disclosure are specified. Distribution qualification, complete nested draw/context ordering and interrupted replay remain unverified; no universal approximation tolerance is selected. |
 | Observable output | presentation; information; 324 named fragments verified against Austin | Many report recipes and literal fragments reviewed. Terrain, full terminal editing/transport, remaining command responses and resource failures prevent terminal-conformance claims. |
-| Conformance examples and claims | language-conformance has 663 scenario rows at this checkpoint; README limits claims | Examples present. Builder checks table structure and duplicate IDs, not their expected results. Claim domains and evidence requirements are defined; final scenario coverage and complete domain review are still needed. |
+| Conformance examples and claims | language-conformance has 671 scenario rows at this checkpoint; README limits claims | Examples present. Builder checks table structure and duplicate IDs, not their expected results. Claim domains and evidence requirements are defined; final scenario coverage and complete domain review are still needed. |
 | Single assembled publication and attribution | manifest metadata; builder; output PDF/Markdown/LaTeX | Build mechanism and credited draft exist; recent changed pages were visually checked. Final whole-document editorial/layout review remains required after substantive edits finish. |
 | Evidence, normalization and runtime preservation | source links; NORMALIZATION; WORK_LOG; source audit | Evidence organization established; recent changes are documentation only. Repeat archive audit and verify final diff at publication; current partial checks are not whole-goal proof. |
 
@@ -467,3 +467,12 @@ their ordinary response recipes while retaining variant services and names.
 MOVE's silent, charged relocation refusal is explicitly amended. Its resource
 grouping and interrupted requests remain unresolved; this comparison is not a
 claim of complete CompuServe conformance or helper/runtime identity.
+
+### Direct-response examples
+
+EX-MODEL-615–622 exercise the reviewed response contracts with an explicit
+output-position and comparison boundary: shield transfer without amount text,
+silent repair and self-gag, BUILD's missing suffix ending, post-wait phaser
+strength rejection, output-length-dependent empty torpedo inventory, and fixed
+movement obstruction text. These are source-derived expected examples, not
+native transcripts or an executable implementation test suite.
