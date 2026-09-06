@@ -245,12 +245,15 @@ Subsequent command acquisition may update condition from the new energy level.
 ### Syntax
 
 ```text
-DockCommand ::= "DOCK" ["STATUS" {StatusItem}]
+DockCommand ::= "DOCK" ["STATUS" {StatusItem} | "ALL"]
 ```
 
 STATUS is recognized only as the first argument. Its remaining arguments use
 the STATUS report rules. Other arguments do not prevent docking and do not
 request a report.
+ALL as the first argument selects full automatic device repair on successful
+completion. Its usual abbreviations also match. Other trailing tokens do not
+prevent docking; ALL after STATUS does not select full repair.
 
 ### Operation and preconditions
 
@@ -308,11 +311,13 @@ At command entry, set a deadline to the current elapsed time plus
 `(w.pacingClass + 1) * 1000 milliseconds`. After replenishment, emit the
 optional STATUS report and record the remaining delay to that deadline.
 Successful docking completes a turn with automatic device repair, as defined
-in [turn completion](turns.md). That completion still occurs when reporting has
+in [turn completion](turns.md), using ALL_DEVICES when its first argument
+matches ALL and STANDARD otherwise. That completion still occurs when reporting has
 already used up the delay. Failure before replenishment does not complete a turn.
 
 **Source basis:** [DOCK](../../legacy/utexas/DECWAR.FOR#L893),
-[completion](../../legacy/utexas/DECWAR.FOR#L80).
+[completion](../../legacy/utexas/DECWAR.FOR#L80),
+[automatic repair selection](../../legacy/utexas/DECWAR.FOR#L3209).
 
 ## REPAIR
 
@@ -2410,7 +2415,8 @@ when it contains a nonspace character. It does not change ship, faction or
 account identity.
 
 For SetCaptainName, text is the raw name portion acquired by the rules above,
-not the transformed text of a Token. For text consisting of printable characters:
+not the transformed text of a Token. The following state transition requires
+an active commission. For text consisting of printable characters:
 
 ```text
 name = case-transform(first 12 characters of text)
@@ -2431,6 +2437,11 @@ or all-space reply leaves the name unchanged and ends the command. NAME consumes
 the rest of the acquired command line, including text that would otherwise form
 another command. Embedded nonprinting name characters remain an explicit lexical
 edge case.
+
+This operation does not change the session's entryName. Its effect without an
+active commission is unspecified; recognizing SET in pregame does not establish
+a valid name assignment there. See [entry name](session-rules.md#entry-name)
+for initial-name acquisition and the name restored at a later commission.
 
 ### Privileged settings
 

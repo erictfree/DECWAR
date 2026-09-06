@@ -170,7 +170,7 @@ zero extent on both sides of that axis.
 shields = kw(SHIELDS) [kw(UP) | kw(DOWN) | kw(TRANSFER) [integer]]
 energy = kw(ENERGY) [ship-name integer]
 repair = kw(REPAIR) [integer | kw(ALL)] [kw(DAMAGE) {report-modifier}]
-dock = kw(DOCK) [kw(STATUS) {report-modifier}]
+dock = kw(DOCK) [kw(STATUS) {report-modifier} | kw(ALL)]
 tractor = kw(TRACTOR) [kw(OFF) | ship-name]
 ```
 
@@ -187,6 +187,10 @@ REPAIR recognizes an integer quantity or ALL at the first argument. DAMAGE is
 looked for at the next position after a recognized quantity, otherwise at the
 first argument. Other arguments are not a universal syntax failure. DOCK only
 tests STATUS at its first argument before invoking its report parser.
+At successful turn completion its first argument also selects full device
+repair when it matches ALL. See [automatic repair](turns.md#automatic-repair)
+for this selection rule, including the A abbreviation in coordinate commands
+and the effect of acquiring a continuation.
 
 TRACTOR with no argument while a beam is active attempts release. Otherwise it
 prompts for OFF or a ship name; empty continuation cancels. Engagement and
@@ -408,6 +412,7 @@ asset and message-length edge behavior remains in terminal/queue coverage.
 ```
 password = kw(*PASSWORD) [password-token]
 debug = kw(*DEBUG)
+zap = kw(*ZAP)                  ; pregame only
 ```
 
 Austin *PASSWORD sets privilege only for an exact five-character comparison
@@ -419,8 +424,10 @@ modern authentication recommendation.
 *DEBUG emits the unknown-command/help fragments without privilege; with privilege
 it prints the collected timer report. Instrumented diagnostic entries and empty
 timer records require host-profile definitions; no hidden gameplay ability is
-implied. Pregame *ZAP is recognized but its diagnostic/persistence effects remain
-under review. It must not be invented as an ordinary in-game command.
+implied. Pregame *ZAP silently does nothing without privilege. With privilege
+it attempts administrative recording and clears the statistics archives as
+defined by [ZapStatistics](session-rules.md#administrative-statistics).
+It ignores trailing tokens and must not be treated as an ordinary in-game command.
 
 **Evidence:** [PASWRD](../../legacy/utexas/DECWAR.FOR#L2626),
 [DEBUG](../../legacy/utexas/WARMAC.MAC#L3633),

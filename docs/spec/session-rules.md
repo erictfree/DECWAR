@@ -37,6 +37,7 @@ record OperationTiming:
 record Session:
     captain: CaptainId
     phase: SessionPhase
+    entryName: Optional<Text>
     account: AccountIdentity
     execution: ExecutionIdentity
     terminal: TerminalIdentity
@@ -150,10 +151,8 @@ There is no Beginner/Intermediate/Expert selection in this startup dialogue.
 The installation's command-initialization content is applied later, after ship
 placement; it is separate from these initial preferences.
 
-**Open:** The initial name reader has its own termination/editing rules, distinct
-from SET NAME and ordinary command input. Its complete character contract and
-interaction with pregame name changes remain to be normalized and specified.
-Pregame *ZAP and environment continuation also need their complete contracts.
+The initial name dialogue is defined below. Environment continuation, control
+delivery and some admission edge cases still need their complete contracts.
 
 **Source basis:** [main initialization](../../legacy/utexas/DECWAR.FOR#L1),
 [startup and pregame dispatch](../../legacy/utexas/SETUP.FOR#L76),
@@ -161,6 +160,150 @@ Pregame *ZAP and environment continuation also need their complete contracts.
 [initial name reader](../../legacy/utexas/WARMAC.MAC#L3213),
 [coordinate interpretation](../../legacy/utexas/DECWAR.FOR#L1403),
 [preference reports](../../legacy/utexas/DECWAR.FOR#L4560).
+
+### Entry name
+
+entryName is the name acquired for this execution, initially absent. It is
+separate from the current commission's display name. Its presence permits later
+identity acquisition to reuse the name without another name prompt.
+
+```text
+operation AcquireEntryName(viewer: CaptainId)
+    on GameState -> Named(Text) | SessionEnded
+
+operation AcceptEntryName(viewer: CaptainId, text: Text)
+    on GameState -> Named(Text) | RetryName
+```
+
+AcquireEntryName returns an existing entryName immediately. Otherwise it emits
+`Your name please: ` and acquires raw name text. This acquisition ignores NUL
+and carriage return. Line feed, ESC and Ctrl-G finish the name; none of these
+three terminators becomes part of it. Ctrl-C ends this acquisition and the
+startup session. ESC does not recall a previous command, and Ctrl-G does not
+request redisplay here. The ordinary command reader's editing rules do not
+apply. A terminal binding must specify any editing performed before characters
+reach this reader.
+
+StartSession uses the returned name as the captain's initial displayName before
+the startup dialogue; this also supplies the name for pregame feedback context.
+
+AcceptEntryName is defined for printable text as follows. Keep its first twelve
+characters. Convert lowercase letters to uppercase; retain spaces and printable
+characters from space through underscore. The remaining printable characters
+have these conversions, specific to the entry-name dialogue:
+
+| Input character | Name character |
+| --- | --- |
+| Grave accent | Space |
+| Left brace | Semicolon |
+| Vertical bar | Less-than sign |
+| Right brace | Equals sign |
+| Tilde | Greater-than sign |
+
+Let name be the converted text. If its first six characters contain no nonspace
+character, return RetryName and request a fresh name. Otherwise:
+
+```text
+session(game, viewer).entryName := name
+return Named(name)
+```
+
+Leading and embedded spaces count toward both limits. A nonspace character only
+in positions seven through twelve does not satisfy entry-name validation. Input
+beyond twelve characters does not create a longer name; character acquisition
+still waits for its terminator. The generalized text model does not assign
+effects on unrelated state to excess input. Embedded nonprinting characters,
+disconnection during this raw acquisition and terminal-provided editing remain
+outside this clause's defined domain; this is not an added rejection rule.
+
+When admission records a commission's identity, it sets the captain's display
+name to entryName. SET NAME during an active commission changes the display
+name, leaving entryName unchanged. A later commission in the same execution
+therefore begins with entryName again. Pregame SET NAME is recognized and
+consumes its name input, but its effect without a commissioned ship is
+unspecified; it does not supply an alternative entry-name mechanism.
+
+**Source basis:** [entry-name acquisition and conversion](../../legacy/utexas/WARMAC.MAC#L3208),
+[admission identity acquisition](../../legacy/utexas/SETUP.FOR#L156),
+[commission identity recording](../../legacy/utexas/SETUP.FOR#L365),
+[SET NAME](../../legacy/utexas/WARMAC.MAC#L3423).
+
+### Administrative statistics
+
+*ZAP is a pregame administrative operation. It has no arguments; trailing tokens
+do not select a statistics category. It is not a main-game command.
+
+```text
+enum StatisticsArchiveKind = REGULAR | FREE_ACCOUNT
+type StatisticId
+
+record HistoricalStatistics:
+    serial: integer
+    values: Mapping<StatisticId, real>
+
+record AdministrativeState:
+    statistics: HistoricalStatistics
+
+query administration(viewer: CaptainId) -> AdministrativeState
+
+operation ZapStatistics(viewer: CaptainId)
+    on GameState -> Ignored | Finished(Optional<StatisticsArchiveKind>)
+```
+
+StatisticId identifies an administrative score, count or other recorded statistic
+in the environment's statistics schema. This schema is distinct from the live
+galaxy's Score values and commission counts. AdministrativeState holds the
+execution's working statistics; newly initialized values, including serial,
+are zero. An environment binding supplies the two persistent archive resources
+and their schema. The core does not require a file layout or introduce an
+automatic standings-update service.
+
+ZapStatistics requires the PREGAME phase. If the captain lacks privilege, return
+Ignored without output, recording or archive access. Otherwise:
+
+1. Emit the statistics-clearing announcement. Obtain exclusive access to the
+   administrative statistics resource, retrying until access is obtained.
+2. Attempt an administrative feedback record with the current feedback context
+   and no body lines. Do not prompt for a gripe. Failure to record it does not
+   cancel the subsequent statistics operations.
+3. Set every value in administration(viewer).statistics.values to zero. Preserve
+   its serial. This working value supplies both archive writes; neither archive
+   is first read to obtain its own former serial.
+4. Attempt to open REGULAR for replacement. If opening fails, report that
+   failure and skip FREE_ACCOUNT. Otherwise write the cleared statistics, close
+   REGULAR, then attempt the same replacement of FREE_ACCOUNT. An open failure
+   there is reported without rolling back the REGULAR replacement.
+5. Release administrative access and emit the completion message. Return
+   Finished(none) if both replacements completed, or Finished(kind) identifying
+   the archive that could not be opened.
+
+The operation does not reset live scores, alter galaxy objects, commission a
+ship, change privilege or consume a game turn. The administrative feedback
+record has its normal context and closing separator, but no standings dump.
+Record-storage diagnostics and retry behavior follow the feedback binding.
+
+The historical terminal binding emits these texts, with the displayed escapes
+denoting control characters:
+
+```text
+announcement:  \r\nZapping statistics logs....
+open failure:  \r\n\r\nCan't open file for output!\r\n\r\n
+completion:    \r\nFinished!\r\n
+```
+
+The completion message also follows an archive-open failure; it is not proof
+that both archives were replaced. The rules above cover completed writes and
+explicit open failures. Write/close failures, interruptions while holding
+administrative access, the full persisted-statistic schema and interactions
+with other administrative writers still require environment-binding rules.
+No atomic two-archive transaction or rollback is implied.
+
+**Source basis:** [pregame privilege check](../../legacy/utexas/SETUP.FOR#L134),
+[statistics values](../../legacy/utexas/WARMAC.MAC#L575),
+[archive resources](../../legacy/utexas/WARMAC.MAC#L748),
+[administrative feedback path](../../legacy/utexas/WARMAC.MAC#L3878),
+[empty administrative body](../../legacy/utexas/WARMAC.MAC#L4049),
+[statistics clearing](../../legacy/utexas/WARMAC.MAC#L4636).
 
 ## Admission and faction selection
 

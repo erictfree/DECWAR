@@ -2590,3 +2590,47 @@ status edits and concurrent work-log additions remain outside this checkpoint.
 Next: initial name acquisition and remaining pregame behavior, followed by shared
 lifecycle/operation contracts, concurrency, terminal/environment bindings,
 CompuServe amendments and whole-document consistency/conformance review.
+
+
+## 2026-09-05 — Specification entry names, administrative statistics and turn review
+
+Defined Session.entryName and AcquireEntryName/AcceptEntryName, preserving the
+raw reader's NUL/CR ignoring, LF/ESC/BEL termination, first-six-character
+nonspace requirement, twelve-character name and printable character conversion.
+Separated the stored entry name from an active commission's SET NAME change;
+admission reuses the former. Narrowed the earlier blanket SET NAME state update
+to active commissions: the archive's pregame zero-ship access does not justify
+an invented safe pregame assignment. Documented long-input memory-safety
+normalization and remaining nonprinting/host-input cases outside the book.
+
+Added pregame ZapStatistics with HistoricalStatistics/AdministrativeState ADTs,
+silent unprivileged behavior, context-only administrative feedback, retained
+working serial, ordered REGULAR/FREE_ACCOUNT replacement and explicit partial
+open-failure outcomes. Finished! follows either success or open failure. The
+full archive schema, write/close failures and interruption binding remain open;
+no live score reset or active standings lifecycle was invented.
+
+A source follow-up found a missed automatic-repair selection: REPAIR(3) still
+checks the second token for ALL. Added AutomaticRepairSelection and corrected
+DOCK ALL, DOCK STATUS ALL and MOVE A versus MOVE ABSOLUTE semantics, including
+replacement of input by coordinate continuations. Kept the accepted source
+syntax/behavior rather than silently limiting every automatic repair to 30.
+Corrected turn-threshold prose to count reserved participants, not only ships
+already commissioned. Sources and normalization reasoning are in the spec.
+
+Validation: logs/spec-entry-administration-audit.log passes 135 source hashes,
+83 declarations, 33 main/16 pregame entries and 324 strings. The printable-name
+review checked all 95 character mappings (logs/spec-entry-name-character-review.log).
+Final build logs/spec-startup-turn-review-build.log passes 13 chapters, 308 local
+links and 338 scenario rows. Earlier successful build logs are retained as
+logs/spec-entry-administration-build.log and
+logs/spec-entry-administration-build-final.log. The rebuilt PDF has 137 pages;
+reviewed rendered pages 87, 102–104 and 135 in tmp/pdfs/spec-startup-turn-review/.
+These are documentation/source checks, not execution of a complete conformance
+suite or original-executable parity. No game code, servers, archives or source
+data changed. Unrelated experiments/, docs/status.md and other WORK_LOG additions
+are preserved and excluded from this checkpoint.
+
+Remaining goal work includes complete shared combat/turn operation contracts,
+lifecycle/concurrency/control and terminal bindings, malformed grammar cases,
+randomness and the CompuServe appendix; this checkpoint does not complete the goal.

@@ -324,7 +324,31 @@ defense phases. Other ships and installations do not alter the stated result.
 | EX-MODEL-311 | Same viewer; enemy Wolf at (52,37); BASES 52 37 | Identify Wolf with OutOfRange telemetry through COUNT admission. Do not emit NoObjectAt merely because the object is a ship, or disclose its position/shields as telemetry. |
 | EX-MODEL-312 | Same unknown remote base; LIST 52 37 | Emit SensorRangeExceeded. LIST's default detail-only mode cannot use the BASES count-admission exception. |
 | EX-MODEL-313 | Same viewer; star at (52,37); BASES 52 37 | Emit SensorRangeExceeded. The count-admission exception does not extend to remote stars, black holes or empty sectors. |
-
+| EX-MODEL-314 | No entry name; delivered name characters `eric` followed by ESC | Accept entryName `ERIC`; ESC terminates this name and does not recall a command. |
+| EX-MODEL-315 | No entry name; NUL, `a`, carriage return, `b`, Ctrl-G | Accept entryName `AB`; ignore NUL and carriage return; Ctrl-G terminates rather than redisplaying. |
+| EX-MODEL-316 | Entry-name reply contains six spaces followed by `ERIC`, then line feed | Retry the name prompt; a nonspace only after position six does not satisfy validation. |
+| EX-MODEL-317 | Entry-name reply contains five spaces followed by `E`, then line feed | Accept those five spaces followed by `E`; leading spaces are retained. |
+| EX-MODEL-318 | Entry-name reply `abcdefghijklmnop` followed by line feed | Accept `ABCDEFGHIJKL`; consume input through its terminator without giving the suffix effects on unrelated state. |
+| EX-MODEL-319 | Entry-name reply `a{~` followed by line feed | Accept `A;>` under entry-name conversion, distinct from command token conversion. |
+| EX-MODEL-320 | Initial name prompt pending; Ctrl-C delivered | End startup without accepting a name or beginning admission. |
+| EX-MODEL-321 | entryName `ERIC`; acquire identity for admission | Reuse `ERIC` without a name prompt. |
+| EX-MODEL-322 | entryName `ERIC`, active displayName `ERIC`; SET NAME CAPTAIN | Active displayName becomes `CAPTAIN`; entryName remains `ERIC`. |
+| EX-MODEL-323 | Previous example's commission ends; a new commission is admitted in the same execution | The new commission's displayName begins as `ERIC`. |
+| EX-MODEL-324 | Pregame, not privileged; *ZAP extra | Return Ignored, without announcement, feedback, archive access or world changes. |
+| EX-MODEL-325 | Privileged pregame; working statistics serial 17, nonzero values; REGULAR serial 11, FREE_ACCOUNT serial 22; *ZAP; recording and both writes succeed | Attempt context-only feedback, zero working values, and replace both archives with zero values and serial 17. Preserve live galaxy scores and counts; return Finished(none). |
+| EX-MODEL-326 | Same working statistics; REGULAR cannot be opened | Clear working values, preserve serial, report open failure, do not access FREE_ACCOUNT, then emit Finished! and return Finished(REGULAR). |
+| EX-MODEL-327 | Same working statistics; REGULAR replacement succeeds, FREE_ACCOUNT cannot be opened | Retain the REGULAR replacement, report open failure, emit Finished! and return Finished(FREE_ACCOUNT); no rollback. |
+| EX-MODEL-328 | Privileged pregame; administrative feedback recording fails and returns; both statistics replacements succeed | Continue clearing and replacing statistics despite the recording failure; return Finished(none). |
+| EX-MODEL-329 | Privileged pregame; *ZAP unwanted arguments; normal completion | Same statistics operation as bare *ZAP; trailing tokens do not select or limit a category. |
+| EX-MODEL-330 | Active commission, privileged; *ZAP | Unknown main-game command; do not invoke ZapStatistics or touch administrative archives. |
+| EX-MODEL-331 | Adjacent friendly installation; WARP_ENGINES damage 100, PHASERS damage 200; DOCK ALL; no intervening events | Dock successfully; automatic repair removes all device damage. Docking's ordinary supplies, hull repair and deadline still apply. |
+| EX-MODEL-332 | Same installation and damage; DOCK | STANDARD automatic repair leaves WARP_ENGINES damage 70 and PHASERS damage 170. |
+| EX-MODEL-333 | Same installation and damage; DOCK STATUS ALL | Perform the requested STATUS parsing/report, then STANDARD automatic repair; ALL is not the first command argument. |
+| EX-MODEL-334 | No adjacent friendly installation; device damage 200; DOCK ALL | Reject docking; no automatic repair and no turn. |
+| EX-MODEL-335 | Ship at (37,37), destination (38,37) empty, warp damage 100 and phaser damage 200; MOVE A 38 37; valid normal movement with no intervening events | Interpret A as ABSOLUTE for movement; at successful turn completion it also selects ALL_DEVICES, leaving all device damage zero. |
+| EX-MODEL-336 | Same movement state; MOVE ABSOLUTE 38 37 | Make the same movement with STANDARD automatic repair; warp damage becomes 70 and phaser damage 170. |
+| EX-MODEL-337 | Relative input default; bare MOVE obtains coordinate continuation `1 0`; same origin and damage | Move to (38,37); the continuation's second token is 0, so STANDARD automatic repair applies. |
+| EX-MODEL-338 | One commissioned actor plus one reserved admission, playerCount 2, actionCount 0; a normal completed turn | actionCount becomes 1; do not activate installation defenses merely because only one roster ship is commissioned. |
 
 EX-MODEL-06 deliberately uses fractional shield strength. Historical loss of
 that fraction is excluded by the numerical normalization policy. The grammar,

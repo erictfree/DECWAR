@@ -49,7 +49,7 @@ not complete end-to-end conformance claims.
 
 A clause for every command is not a complete command specification. Review the
 contracts together, close the dependencies above, and
-complete pregame *ZAP, name acquisition and remaining startup/admission edge cases. Command
+complete the remaining startup/admission edge cases and environment bindings. Command
 coverage does not establish lifecycle, concurrency or terminal conformance.
 
 ## Shared and variant work
@@ -86,9 +86,11 @@ coverage does not establish lifecycle, concurrency or terminal conformance.
 - Communication: message identities, recipient filtering, publication order,
   capacity loss, consumption and gagging drafted. Autonomous speech's ungag effect
   on the triggering captain is specified; complete interleavings remain.
-- Sessions: startup, pregame ACTIVATE, admission, faction/ship selection,
+- Sessions: startup, pregame ACTIVATE and *ZAP, entry-name acquisition and reuse,
+  admission, faction/ship selection,
   galaxy creation, initialization commands, HELP/GRIPE activity, release and
-  world termination drafted. Name acquisition, concurrent claims/cancellation,
+  world termination drafted. Nonprinting entry-name input and raw-input control
+  delivery, pregame SET NAME, administrative schema/write failures, concurrent claims/cancellation,
   destroyed-base spawn exclusions, reused action-phase state, resume, full
   control behavior and terminal presentation remain.
 - Information resources: help topic sections, news continuation boundaries and

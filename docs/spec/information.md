@@ -96,8 +96,10 @@ A failure during writing does not establish atomic persistence or rollback of
 all previously stored content; that failure boundary remains unresolved.
 
 Diagnostic and administrative recording can use the same resource without
-invoking the interactive GRIPE grammar. Their diagnostic bodies and metadata
-are separate environment operations and remain to be specified.
+invoking the interactive GRIPE grammar. Pregame
+[*ZAP](session-rules.md#administrative-statistics) records the current context
+with no body lines and the normal closing separator. It does not solicit text
+or include a standings dump. Other diagnostic bodies remain to be specified.
 
 **Source basis:** [context header](../../legacy/utexas/WARMAC.MAC#L2116),
 [session metadata](../../legacy/utexas/WARMAC.MAC#L2187),

@@ -791,3 +791,71 @@ detail-only path cannot use this exception, and remote terrain fails before
 object admission. The earlier broad remote-coordinate restriction was narrowed
 accordingly; no source predicate was replaced with an invented detail-only test.
 Evidence: Austin DECWAR.FOR LSTFLG 1750–1800 and LSTUPD 1925–1945.
+
+
+## Entry names and administrative statistics
+
+The startup name reader now has its own text operation and Session.entryName,
+separate from the active commission's Captain.displayName. JOBSTA reuses HAND;
+SET NAME writes JOB name fields without changing HAND. SETUP calls JOBSTA before
+admission and again to record the chosen ship's identity. Recommissioning in the
+same execution therefore restores the entry name. The generalized SET NAME
+assignment is restricted to an active commission: USRNAM uses WHO without a
+pregame guard, so the old blanket Captain.displayName assignment would have
+invented a safe pregame effect for an out-of-domain JOB access. Pregame name
+assignment remains unspecified, not silently repaired or rejected.
+
+Entry-name conversion is expressed as characters, not packed words. Its first-six
+nonspace check, twelve-character display limit, alphabetic fold and distinct
+printable punctuation conversions are preserved. The source raw writer has no
+bound although HAND reserves only two words (ten seven-bit character places,
+including its terminator). The book retains twelve name characters and consumes
+the rest through the terminator without modeling writes into neighboring state.
+This is a deliberate representation-safety normalization under the user's
+instruction to remove storage artifacts; it is not proof of native behavior for
+long input. NUL/CR ignoring and LF/ESC/BEL termination come from GNM0 directly.
+Nonprinting retained characters and the host INCHWL editing/disconnect contract
+are still open, not invented as the ordinary command reader's controls.
+
+ZapStatistics projects the administrative workspace into HistoricalStatistics:
+a retained serial and a mapping of statistic identities to ordinary values.
+The source clears indices 1 through 639, preserving index 0, then writes that
+same workspace through regular and free-account bindings without reading either
+archive. Neither serial is implicitly recovered from its own file. The schema
+and normal update lifecycle remain environment work; no live Score reset or
+automatic mission-standings service is inferred from dormant routines. The
+administrative GRIPE path has its SHOSTA call commented, so its record consists
+of context and closing separator, not a statistics dump. Open failures skip to
+cleanup, including Finished!, and do not roll back an earlier archive write.
+Unchecked write/close failure and interruption cases remain explicitly open.
+
+Sources: Austin WARMAC.MAC HAND 512, JOBSTA/GNM 3110–3254, USRNAM 3423–3455,
+statistics declarations 575–590, archive bindings 748–793, GRIPE 3860–4112,
+STAZAP 4636–4670; SETUP.FOR PREGAM 76–136 and identity calls 156, 365–372.
+No gameplay, server, source archive or generated evidence changes.
+
+
+## Automatic repair selection from accepted input
+
+A follow-up source check found that the old generalized rule "always at most
+30 damage units" was too broad. REPAIR(3) skips integer-size selection but still
+passes through the ALL comparison at DECWAR.FOR 3212. That comparison reads the
+second token of the currently acquired input. DOCK preserves its input, so
+DOCK ALL (including abbreviations A and AL) requests all-device completion
+repair. DOCK STATUS ALL does not. MOVE A V H is also a valid trigger: A matches
+ABSOLUTE in LOCATE and ALL at automatic completion. A fresh coordinate reply
+replaces that input, so the second reply token controls the same comparison.
+REPAIR ALL's explicit repair precedes its all-device automatic repair.
+
+This is preserved as an accepted-input rule and an AutomaticRepairSelection
+value, not a storage dependency in the ADT. Removing it would change reachable
+syntax and game semantics, beyond the authorized normalization of arithmetic
+and unsafe memory effects. No new keyword, full-repair setting or altered repair
+amount is introduced. Command failure still bypasses completion. The normal
+STANDARD allowance remains 30 regardless of docking. Turn prose also now calls
+playerCount participants, including reserved admissions, rather than silently
+substituting commissioned-ship count for NUMPLY.
+
+Evidence: Austin DECWAR.FOR DOCK dispatch 80–85, DOCK 893–938, LOCATE 1404,
+REPAIR 3190–3222, turn dispatch/accounting 223–258; SETUP.FOR 165–168.
+No executable or source-archive edits.

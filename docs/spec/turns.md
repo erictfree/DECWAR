@@ -41,28 +41,54 @@ mean that typing any recognized command necessarily consumes a turn.
 ## Automatic repair
 
 ```text
-AutomaticRepair(ship):
-    maximum := max(ship.devices[d].damage for d in Device)
+enum AutomaticRepairSelection = STANDARD | ALL_DEVICES
+
+operation AutomaticRepair(actor: ShipId,
+                          selection: AutomaticRepairSelection)
+    on GameState -> DevicesAdjusted
+
+AutomaticRepair(actor, selection):
+    s := ship(game, actor)
+    maximum := max(s.devices[d].damage for d in Device)
     if maximum > 0 damage units:
-        amount := min(30 damage units, maximum)
-        RepairDevices(ship.id, amount)
+        amount := maximum if selection == ALL_DEVICES
+                  else min(30 damage units, maximum)
+        RepairDevices(actor, amount)
 ```
 
 This operation uses the [RepairDevices contract](commands.md#shared-device-repair-operation).
-Docking does
-not increase its 30-unit allowance. It has no separate repair delay and does
-not recursively complete another turn.
+It has no separate repair delay and does not recursively complete another turn.
+Docking alone does not increase the STANDARD allowance.
+
+For a turn that includes automatic repair, select ALL_DEVICES when the second
+token of the most recently acquired command or continuation input matches ALL
+under the ordinary keyword rule. Otherwise select STANDARD. In a command line,
+this is the first argument; in a continuation reply, it is the second reply
+token. An absent token selects STANDARD. This selection does not itself make
+invalid command arguments valid or cause a rejected command to complete a turn.
+
+Thus successful DOCK ALL uses ALL_DEVICES; DOCK STATUS ALL uses STANDARD.
+REPAIR ALL also selects ALL_DEVICES at completion, after its explicit repair.
+The single-letter abbreviation A matches both ABSOLUTE in coordinate parsing
+and ALL in this completion rule: a successful MOVE A V H selects ALL_DEVICES.
+MOVE ABSOLUTE V H selects STANDARD. A newly acquired coordinate reply replaces
+the command input for this test. These are accepted-input effects, not an
+additional player setting or a change to device-repair units.
+
+**Source basis:** [automatic-repair dispatch](../../legacy/utexas/DECWAR.FOR#L223),
+[repair selection](../../legacy/utexas/DECWAR.FOR#L3190),
+[coordinate mode matching](../../legacy/utexas/DECWAR.FOR#L1404).
 
 ## Turn accounting
 
-World state includes an action counter, the number of commissioned players,
+World state includes an action counter, the number of participants,
 and each team's accumulated turns. Each captain has pending score changes in
 the game's score categories. A turn completes in this order:
 
 ```text
-CompleteTurn(ship, automaticRepair):
+CompleteTurn(ship, automaticRepair, repairSelection):
     if automaticRepair:
-        AutomaticRepair(ship)
+        AutomaticRepair(ship.id, repairSelection)
 
     world.actionCount := world.actionCount + 1
     if world.actionCount >= world.playerCount:
@@ -93,6 +119,9 @@ The defensive actions use the acting ship's team and context. They are triggered
 by accumulated actions, rather than an independent wall-clock tick. Life-support
 reserve reaching zero is not the fatal boundary; falling below zero sets fatal
 hull damage. The session rules determine when death is subsequently processed.
+
+world.playerCount includes reserved admissions as defined in the session rules;
+it is not recomputed by counting commissioned roster ships at each turn.
 
 **Source basis:** [command dispatch](../../legacy/utexas/DECWAR.FOR#L57),
 [turn accounting](../../legacy/utexas/DECWAR.FOR#L237),
