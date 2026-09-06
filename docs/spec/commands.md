@@ -1766,7 +1766,7 @@ type ReportSummary = {
 };
 
 type GalaxyReportObservation = Detail { value: ReportDetail }
-    | Terrain { kind: TerrainKind } | Summary { value: ReportSummary }
+    | Terrain { kind: TerrainKind, position: Position } | Summary { value: ReportSummary }
     | ShipAbsent { ship: ShipId } | RomulanDisabled | RomulanAbsent
     | SensorRangeExceeded { position: Position } | NoObjectAt { verb: ReportVerb, position: Position }
     | NoMatches { group: ReportGroup, scope: ReportScopeLabel,
@@ -1777,7 +1777,9 @@ OutOfRange replaces both position and strength for a ship or Romulan.
 A base always discloses position when its detail is admitted, but its optional
 strength can be absent. A planet detail contains its current builds value;
 zero is omitted by the display convention. Terrain observations belong only
-to LIST's exact-position path. Summary counts do not disclose positions.
+to LIST's exact-position path and retain the queried position with the observed
+kind. They do not give stars, black holes or empty space a shield or energy
+property. Summary counts do not disclose positions.
 
 ### Selector effects
 
@@ -2049,8 +2051,9 @@ search uses this same absence observation.
 
 Detail and summary lines follow the [galaxy-report presentation](presentation.md#galaxy-report-lines).
 
-**OPEN QUESTION:** Complete terrain presentation, interrupted
-output and concurrent changes that remove or replace an entity between selection
+**OPEN QUESTION:** The terrain suffix has no complete generalized contract;
+see the presentation chapter for its established prefix. Interrupted output
+and concurrent changes that remove or replace an entity between selection
 and its detail remain part of the report and multiplayer work. No whole-command
 snapshot is implied.
 

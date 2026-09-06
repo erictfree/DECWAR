@@ -3481,3 +3481,19 @@ logs/spec-comp-honor-rows-build-reviewed.log passed: 643 scenarios, 100 producti
 226–227, with legible rows, signatures and prose. These checks are not native
 terminal parity or calendar certification. Calendar/transport bindings, malformed
 records and other cross-chapter review remain; full goal stays active.
+
+### Specification: Austin terrain source-to-model review
+
+Traced LSTFLG coordinate admission, LSTOBJ prefix/dispatch, LIST initialization
+and LSTVAR clearing bounds. Terrain now retains its query Position. The book
+states the proven label/padding prefix and explicitly leaves the full suffix
+unresolved rather than adding terrain energy or importing scratch history.
+Detailed source analysis is in docs/spec/evidence.md, outside the compiled book.
+Updated commands, presentation, normalization and coverage; no gameplay edits.
+
+Validation: logs/spec-austin-terrain-review-source.log passed focused source-path
+and clearing-boundary assertions; HISEG identifies EROM as Romulan energy.
+logs/spec-austin-terrain-review-build.log passed: 643 scenarios, 100 productions,
+324 fragments, 14 chapters and 540 links. Inspected PDF physical pages 67 and
+163: readable ADT and scoped presentation text. This is a reviewed ambiguity,
+not completed terrain terminal parity. The full goal remains active.

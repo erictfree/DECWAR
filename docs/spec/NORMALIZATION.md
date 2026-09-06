@@ -1662,3 +1662,13 @@ loops, not from a required memory layout. The captain field is twelve printable
 characters with padding; account labels reuse the opaque account identity's
 terminal binding. Source: WARMAC.MAC DSPSTA 6020–6093, OSTBX 2145–2173,
 OSIX 2213 and ONUM 2286; date macro 34–44, O2DG 2180–2193.
+
+### Austin terrain observation boundary review
+
+Terrain now carries its queried Position as well as kind. The book specifies
+the shared label/padding prefix and ten-sector admission, but deliberately does
+not add energy/shield properties or define a replacement suffix. Evidence review
+in evidence.md explains why LSTFLG/LSTOBJ's inherited range flag and Romulan
+reading cannot be silently recast as terrain semantics. The earlier unresolved
+terrain item is now supported by a concrete source-to-ADT analysis; a full
+terrain suffix remains unresolved, not normalized into a label-only line.

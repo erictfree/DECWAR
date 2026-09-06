@@ -910,10 +910,27 @@ WHOLE_GALAXY. SHORT omits the scope suffix. Finish with a conditional blank-line
 request. For example, SHORT with knownQualifier true, affiliations {EMPIRE}
 and kinds {BASE} emits `"No known Empire bases"` before that request.
 
-**OPEN QUESTION:** Complete terrain-line presentation,
-interrupted output, and relative-origin availability remain unfinished. These
-absence recipes do not define a label-only terrain row or replace a source
-fallthrough with newly designed telemetry.
+### Terrain observations
+
+A Terrain observation retains an EMPTY, STAR or BLACK_HOLE kind and the exact
+position queried by LIST. It is admitted only within the ten-sector sensor
+limit, including for a privileged viewer. Its established output prefix is one
+space, the ordinary label for its kind, and column padding to column 14 in LONG
+or column 5 otherwise. It has no opposing marker. The padding follows the
+same column rule as detail lines.
+
+**OPEN QUESTION:** The complete suffix of a terrain line has no generalized
+contract in this draft. The source does not establish a terrain-specific
+strength or shield quantity. Do not infer such a property from numeric text,
+assume that the line ends immediately after its label, or substitute a newly
+designed status line. The observation's position records the query context;
+it does not by itself promise that the suffix prints that position. Exact
+terminal conformance for the complete terrain line remains unresolved. The
+accepted coordinate syntax, sensor limit and prefix are still specified.
+
+Interrupted output and unavailable relative origins remain separate environment
+questions. This terrain limitation does not change the ordinary detail and
+absence recipes above.
 
 **Source basis:** [coordinate and named observations](../../legacy/utexas/DECWAR.FOR#L1765),
 [no-match composition](../../legacy/utexas/DECWAR.FOR#L1891),

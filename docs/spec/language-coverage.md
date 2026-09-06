@@ -290,3 +290,9 @@ artifacts are explicitly normalized outside the book; ranking and game state
 are unchanged. Calendar/date acquisition, malformed records and asynchronous
 transport remain environment dependencies rather than guessed game rules.
 EX-COMP-45–48 cover rounded values and short/long name/account padding.
+
+Austin terrain review now traces both coordinate admission and the formatter.
+Terrain retains kind and query position; its prefix is specified. The remaining
+suffix is a reviewed source-to-model ambiguity, with evidence in evidence.md:
+it must not create terrain energy/shields or acquire a guessed replacement.
+Complete terminal conformance for that suffix remains open.

@@ -205,3 +205,27 @@ records, asynchronous changes between reads, or a differently compiled variant.
 
 The draft cannot support a complete game implementation yet. Compilation into
 one document verifies document structure; it does not establish semantic completeness.
+
+## Austin LIST terrain suffix review
+
+LSTFLG in DECWAR.FOR 1765–1775 sets side=0 for empty/star/black-hole
+coordinates, tests distance before admitting LIST, and calls LSTOBJ directly.
+This path does not call LSTUPD. LSTOBJ 2103–2119 emits the ordinary label and
+column padding, then its computed GOTO has only eight entity alternatives.
+Terrain falls through into the Romulan formatter: depending on XF it prints
+out-of-range text or position followed by EROM. EROM belongs to Romulan state,
+not terrain. XF is in LSTVAR's scratch state after LSTLZ; LIST 1378 clears only
+the region bounded by LSTFZ/LSTLZ. Thus the terrain path does not independently
+establish the range flag it tests, and carrying only terrain kind cannot define
+the historical suffix from current terrain properties.
+
+Disposition: retain the queried position in the abstract observation and state
+the established prefix. Keep the suffix explicitly unresolved in the generalized
+book. Do not add a terrain-energy field, invent deterministic telemetry, erase
+the suffix, or import scratch-word history into the game ADT. This is a reviewed
+source-to-model ambiguity, not a completed terminal-conformance contract.
+
+Sources: [LSTFLG coordinate path](../../legacy/utexas/DECWAR.FOR#L1765),
+[LSTOBJ](../../legacy/utexas/DECWAR.FOR#L2084),
+[LIST initialization](../../legacy/utexas/DECWAR.FOR#L1378),
+[LSTVAR bounds and scratch fields](../../legacy/utexas/LSTVAR.FOR#L1).
