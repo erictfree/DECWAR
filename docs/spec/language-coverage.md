@@ -489,3 +489,15 @@ were rechecked against their actual branches. Evidence records the bounded
 index audit in logs/spec-special-input-domain-review.log. Missing-value cases
 remain explicitly unspecified; this finding supplies no new rejection rule,
 stale-parser-state semantics or concurrent-input guarantee.
+
+
+### World-end call-site review
+
+Both variants' five explicit world-end check sites have been enumerated and
+reviewed. Austin's lifecycle clause now lists the guards and phases. The
+CompuServe ENDGAM executable-body comparison differs only by its active standings
+update, already represented by the appendix's report/update/release ordering.
+This closes the direct check-site inventory and ordinary caller propagation;
+it does not close interrupted final reporting, persistence failures, admission
+races or the time at which another session reaches its check. Evidence:
+logs/spec-world-end-sites-review.log and logs/spec-comp-world-end-review.log.

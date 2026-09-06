@@ -861,3 +861,19 @@ caller after session exit, retaining earlier effects; no whole-operation rollbac
 or universal post-update check is introduced. logs/spec-world-end-sites-review.log
 preserves the direct-call inventory. Environment exit failures, interrupted
 reporting and cross-session observation times are not established by that count.
+
+### CompuServe world-end propagation comparison
+
+CompuServe has the same five explicit ENDGAM calls: GETCMD.FOR 53 and 73,
+PLNRMV.FOR 57, SET.FOR 148 and SETUP.FOR 99. Their corresponding prompt/wait,
+post-removal, forced-end and guarded countdown positions match the core inventory.
+This does not identify the variants' input/coordination services as identical.
+Comparing executable ENDGAM text, with comments/blank lines omitted and line-edge
+whitespace trimmed, leaves only the active CompuServe UPDSTA call and its
+continuation. The existing standings amendment already specifies that update
+after final POINTS and before commission release, including caller marker
+selection and failure limits. No new normative change was needed. Both routines
+reach EXIT after ordinary terminating cleanup and do not resume their callers.
+logs/spec-comp-world-end-review.log preserves all direct sites and the routine
+diff; this establishes ordinary propagation, not interrupted persistence or
+cross-session timing.

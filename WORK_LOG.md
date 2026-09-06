@@ -4180,3 +4180,18 @@ successful build: 100 productions, 671 scenarios, 643 links, 324 fragments.
 PDF page 152 visually checked without clipping/overlap; git diff --check passed.
 Admission races, interrupted final reports and environment exit failures remain
 separate limits. The full goal remains active.
+
+
+## CompuServe world-end propagation audit — 2026-09-06
+
+Enumerated and reviewed all five CompuServe CALL ENDGAM sites. The complete
+executable ENDGAM-body comparison differs from Austin only by active UPDSTA
+and its continuation. Existing appendix already specifies its POINTS/update/
+release order and failure limits, so no normative change was needed. Added
+source evidence and coverage checkpoint.
+
+logs/spec-comp-world-end-review.log retains call sites and exact executable-line
+diff. git diff --check passed. Only companion documents and this log changed;
+no PDF rebuild, gameplay or source-archive change. Ordinary check placement and
+propagation are reviewed; interrupted reporting and cross-session timing remain
+outside this bounded result. The full specification goal remains active.
