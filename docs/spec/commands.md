@@ -258,8 +258,10 @@ operation ReplenishAtDock(actor: ShipId):
     | CommissionEnded
 ```
 
-Each surviving friendly base within one sector contributes two supply shares;
-each friendly planet within one sector contributes one. With no shares the
+Each surviving friendly base within one sector contributes two supply shares.
+Friendly planets are considered only when the faction's maintained captured-planet
+count is positive; each such planet within one sector contributes one share.
+With no shares the
 command fails without replenishment or a turn. If the commission ends before
 replenishment, the outcome is CommissionEnded without these changes.
 Let s be `ship(game, actor)` and w be `world(game)`:
@@ -267,12 +269,16 @@ Let s be `ship(game, actor)` and w be `world(game)`:
 ```text
 bases = {b in w.bases where b.team == s.team
          and b.strength > 0% and distance(b.position, s.position) <= 1}
-planets = {p in w.planets where p.owner == s.team
+planets = {p in w.planets where w.capturedPlanetCounts[s.team] > 0
+           and p.owner == s.team
            and distance(p.position, s.position) <= 1}
 shares = 2 * count(bases) + count(planets)
 ```
 
-Here braces describe a set of the matching entities. The share check precedes
+Here braces describe a set of the matching entities. The base scan has no
+maintained-base-count guard: positive-strength nearby friendly records contribute
+even if the maintained base count is temporarily zero. The planet count guard
+is not replaced by a fresh count of friendly records. The share check precedes
 the commission check. No adjacent installation gives its diagnostic and Rejected;
 an ended commission is handled by the session rules.
 

@@ -416,3 +416,18 @@ but intermediate-state selection no longer silently recounts bases.
 The same review reconfirmed the initialized squared-distance bound and undefined
 candidate data when no group installs a winner. It does not resolve the existing
 no-target/all-distant outcome by inventing inactivity or a pursuit radius.
+
+
+## DOCK supply-group guards
+
+Austin DOCK (DECWAR.FOR 899–914) scans positive-strength nearby friendly base
+records without consulting NBASE. It consults NUMCAP before scanning friendly
+planets. The replenishment clause now preserves this asymmetry using the
+maintained capturedPlanetCounts field; it previously omitted that planet guard.
+EX-MODEL-613–614 distinguish both guards under intermediate count/record
+mismatches. The resource formulas are unchanged. A commissioned ship at zero
+energy can reach the replenishment guard because this routine tests ALIVE,
+not energy, after supply-share selection; this does not guarantee that a caller
+will reach DOCK before a separate fatal-state check.
+Concurrent ownership/sector changes still require their complete interaction
+contract; this correction does not make a supply scan atomic.

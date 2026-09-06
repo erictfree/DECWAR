@@ -3731,3 +3731,16 @@ and example range. logs/spec-target-base-count-build.log passed 660 scenarios,
 100 productions, 324 fragments, 14 chapters and 546 links. Inspected PDF physical
 pages 123 and 222; readable rule and example. No gameplay/archive changes.
 No-target/all-distant and concurrent selection remain open; goal stays active.
+
+### Specification: DOCK supply count guards
+
+Preserved DOCK's maintained captured-planet-count guard, omitted by the prior
+clause, and explicitly retained the absence of a corresponding base-count guard.
+Added EX-MODEL-613–614 and source evidence. Replenishment formulas unchanged.
+
+Validation: logs/spec-dock-count-guards-review.log checks source guard order,
+commission check and example arithmetic. logs/spec-dock-count-guards-build.log
+passed 662 scenarios, 100 productions, 324 fragments, 14 chapters and 546 links.
+Inspected PDF physical pages 44 and 222; readable clause and examples. No
+gameplay/archive changes. Concurrent ownership and supply scans remain open;
+full goal stays active.
