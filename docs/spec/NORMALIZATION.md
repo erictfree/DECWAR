@@ -1384,8 +1384,10 @@ reply punctuation, qualifier draw branching, and actor-position read before
 the start-offset draw. Relocation uses ordinary sector coordinates and
 horizontal-outer/vertical-inner ordering, with no new nearest-distance policy.
 
-The origin-qualifier query is an explicit unresolved environment binding, not a
-license to infer geographic location or invent reply text. Busy-publication
+Origin-code acquisition is an explicit environment binding, not a license to
+infer geographic location. The qualifier query now uses the 46 source keys and
+unlisted-code fallback; the commented prefix tests cannot match after their
+actual masks and are not repaired into new rules. Busy-publication
 completion, interruption, and actor/Romulan changes during the wait are likewise
 not supplied by assumption. Accidental recipient-encoding effects stay outside
 the modern game model. No runtime or archive changes.

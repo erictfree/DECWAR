@@ -17,7 +17,7 @@ correct or complete semantic contract.
 | Requirement | Current authoritative evidence | Completion finding / remaining proof |
 | --- | --- | --- |
 | Concrete plan and scope | PLAN; README scope clauses; book manifest | Present. The scope remains all command families and cross-cutting semantics, not only the latest checkpoints. |
-| Austin authority and separate CompuServe amendments | README pins Austin revision; variants is the sole appendix; NORMALIZATION is outside the manifest | Structure established. Review every amendment against its affected core clause; standings types, ranking, numbering, ordinary writes and report formatting are drafted. Remaining variant obligations include direct-reply origin binding, damaged records, persistence failures and coordination. |
+| Austin authority and separate CompuServe amendments | README pins Austin revision; variants is the sole appendix; NORMALIZATION is outside the manifest | Structure established. Review every amendment against its affected core clause; standings types, ranking, numbering, ordinary writes and report formatting are drafted. Remaining variant obligations include environment origin-code acquisition, damaged records, persistence failures and coordination. |
 | Modern ADTs and ordinary arithmetic | language-model types/notation; operation signatures throughout commands and shared chapters | Drafted. Whole-book property/type references and invariants still need review. No checker currently proves type consistency. |
 | Lexical syntax and interactive grammar | lexical; grammar; grammar checker verifies 100 productions and 12 terminal categories | Reference integrity checked. Complete even-item torpedo forms and count rejection are specified. Absent target components and special empty continuations remain unresolved; this is not parser acceptance verification. |
 | Every command and pregame entry | commands has all 33 main commands; builder compares main and pregame tables to source coverage | Inventory and drafted contracts established. Source-table agreement alone does not prove each argument, failure and lifecycle path has a complete contract. |
@@ -421,3 +421,10 @@ Corrected the omitted base-defense faction-count gate and clarified replenishmen
 record-only scan/order. Placement, DIST, DOCK and docking-maintenance gates agree
 with their reviewed clauses. This does not establish atomic scans or complete
 planet ownership/sector behavior during concurrent updates.
+
+
+CompuServe direct-reply qualifier mapping is now defined for all 46 supplied
+origin codes and absence/unlisted-code fallback. Source masked comparisons do
+not establish the commented prefix matches. Origin-code acquisition remains
+an environment binding, not a game syntax or geolocation feature. This closes
+the wording-table gap without supplying a modern network lookup.

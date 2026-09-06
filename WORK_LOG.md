@@ -3772,3 +3772,19 @@ gates/order; logs/spec-installation-eligibility-build.log passed 662 scenarios,
 100 productions, 324 fragments, 14 chapters and 546 links. Inspected PDF physical
 pages 118 and 120; readable defense/replenishment clauses. No gameplay/archive
 changes. Concurrent scans and ownership observations remain open; goal active.
+
+### Specification: CompuServe origin qualifier table
+
+Defined all 46 exact origin-code qualifiers and absent/unlisted fallback.
+Preserved source spellings and trailing spaces. Confirmed that commented
+CLx/CSx/Qxx fallbacks cannot match after the actual masks; did not repair them.
+Origin-code acquisition remains an environment binding, not geolocation.
+Updated evidence, normalization and coverage.
+
+Validation: logs/spec-origin-qualifiers-review.log checks table keys/spaces and
+masked comparison bounds. logs/spec-origin-qualifiers-build.log passed 662
+scenarios, 100 productions, 324 fragments, 14 chapters and 546 links. Inspected
+PDF physical pages 241–242; readable complete table. Archive audit passed in
+logs/spec-source-baseline-audit.log: 135 hashes, 83 declarations, 33 game and
+16 pregame commands, 324 strings. Recent committed diff is documentation only;
+unrelated worktree changes remain untouched. Full goal stays active.

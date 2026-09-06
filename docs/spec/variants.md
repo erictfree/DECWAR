@@ -835,11 +835,67 @@ connection origin. It observes environment metadata; it changes no game state
 and makes no random choice. Its result is absent when the origin has no
 recognized qualifier. It does not infer a player's physical location or faction.
 
-**OPEN QUESTION:** The complete origin-to-wording binding remains unspecified.
-The supplied origin table and exceptional origin tests require a separate
-binding description. The query is not permission to invent qualifiers or replace
-it with a geolocation service. The following fallback rule is fully defined for
-an absent result and for branches that do not consult the query.
+The environment binding supplies the session's CompuServe origin code when
+available. This is connection metadata, not a game command, captain-entered
+location or inferred physical location. Match that code exactly against the
+following table. A listed code returns its qualifier, including one trailing
+space. An absent or unlisted code returns none. There is no prefix match,
+case-folding rule or geolocation lookup in this query.
+
+| Origin code | Qualifier |
+| --- | --- |
+| `AKR` | `Akron ` |
+| `ANA` | `Anahiem ` |
+| `ARL` | `Arlington ` |
+| `ATL` | `Atlanta ` |
+| `BOS` | `Boston ` |
+| `CAN` | `Canton ` |
+| `CGI` | `Chicago ` |
+| `CGO` | `Chicago ` |
+| `CIN` | `Cincinnatti ` |
+| `CSC` | `ISD ` |
+| `CSW` | `Wats user ` |
+| `CLG` | `Columbus ` |
+| `CVL` | `Cleveland ` |
+| `DAL` | `Dallas ` |
+| `DAY` | `Dayton ` |
+| `DEN` | `Colorado ` |
+| `DET` | `Detroit ` |
+| `FTW` | `Fort Worth ` |
+| `HOU` | `Houston ` |
+| `IND` | `Indianapolis ` |
+| `KCI` | `Kansas ` |
+| `KXT` | `Knoxville ` |
+| `LAN` | `Los Angeles ` |
+| `LOU` | `Louisville ` |
+| `MEM` | `Memphis ` |
+| `MIA` | `Florida ` |
+| `MIN` | `Minneapolis ` |
+| `NFK` | `Norfolk ` |
+| `NOL` | `Lousiana ` |
+| `NYC` | `New York ` |
+| `NYF` | `New York ` |
+| `NYN` | `New York ` |
+| `NYW` | `Wall Street ` |
+| `PIT` | `Pittsburgh ` |
+| `PNX` | `Phoenix ` |
+| `QBA` | `Quebec ` |
+| `SEA` | `Seattle ` |
+| `SFA` | `San Francisco ` |
+| `SFM` | `California ` |
+| `SJO` | `Silicon Gultch ` |
+| `SLC` | `Salt Lake City ` |
+| `STL` | `St. Louis ` |
+| `TSA` | `Tucson ` |
+| `TSB` | `Tucson ` |
+| `WES` | `West Port ` |
+| `WQB` | `Qube ` |
+
+Retain the supplied spellings, including Anahiem, Cincinnatti, Lousiana and
+Silicon Gultch. Codes with the same qualifier remain distinct origin codes.
+The environment binding must document how its connection metadata supplies
+these codes; a host with no applicable origin metadata supplies absence.
+The fallback selection below applies when the query returns none.
 
 Compose the body in this order:
 
@@ -930,7 +986,7 @@ of this amendment; no claim that all resources are released together follows.
 
 ## Remaining amendments
 
-The direct-reply origin binding, standings persistence, concurrency and other
+The environment origin-code acquisition binding, standings persistence, concurrency and other
 differences still require language-level descriptions. The earlier [CompuServe source
 analysis](compuserve.md) retains the derivations. Packed representations and
 machine side effects in that analysis are not requirements of this appendix.

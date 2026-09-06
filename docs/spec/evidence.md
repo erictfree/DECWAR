@@ -473,3 +473,18 @@ Defense scans the current planet sequence, applies the neutral attack choice
 and acting-faction exclusion, then tests targets; it has no captured-planet-count
 gate. No universal installation-alive predicate or cached recount should replace
 these distinctions. Concurrent sector/ownership changes remain a separate audit.
+
+
+## CompuServe direct-reply origin lookup
+
+WARMAC.MAC NODNAM (6350–6396) supplies 46 exact three-character keys and
+qualifiers; the appendix now states those mappings and preserves trailing spaces
+and misspellings. The binding supplies a connection-origin code rather than
+inferring a physical location. Source RMGPLY tries the exact table before its
+fallback tests. Those later tests are unreachable as written: ANDI T1,77 leaves
+at most octal 77, which cannot equal either SIXBIT 'CL ' or 'CS '; the later
+ANDI T1,7777 cannot enlarge that value to SIXBIT 'Q  '. Consequently comments
+about CLx/CSx/Qxx do not establish prefix matching. Unlisted codes reach the
+existing random qualifier fallback. No corrected mask or new origin is added.
+Acquiring the original connection metadata remains environment-specific; this
+review establishes the table and fallback, not a modern network service.
