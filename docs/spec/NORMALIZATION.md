@@ -1699,3 +1699,17 @@ context advancement, while avoiding an invented universal tolerance. Primitive
 sampling is below the semantic RandomEvent boundary. This clarifies existing
 ordinary-probability normalization; it does not select a new generator, seed
 format, device distribution or draw site.
+
+
+## Shared weapon-impact draw disposition
+
+The critical ship path omits the source's unused IRAN(5) compound-condition
+result (DECWAR.FOR 4128; compiled call at octal 440325 before the target-kind
+comparison). This makes explicit the existing unused-compound-expression
+normalization above: Choice(Device) and the final hit adjustment remain the
+ship's critical choices. No additional damage or probability is introduced.
+The base branch retains IntegerDraw(5). The core impact contracts
+retain the declared torpedo a/b/c draws before deflection and the base
+IntegerDraw(10) after critical strength loss, even when their result cannot
+change the immediate outcome. These are explicit abstract operation inputs;
+they must not be optimized away by a replay implementation. No runtime change.

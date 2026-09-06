@@ -549,7 +549,9 @@ hull damage is already at least 2500 units, or a base whose strength is already
 nonpositive. This return precedes random draws and leaves damage, position,
 score and defense state unchanged; it supplies no WeaponHit. Otherwise draw a,
 b and c with `UnitDraw()` and let
-`rawDamage = 400 + 400*c` damage units.
+`rawDamage = 400 + 400*c` damage units. These three draws occur in the
+order a, b, c before testing deflection. All three are consumed even when the
+hit is deflected or the target has shields down.
 
 For a ship with shields down, set H to rawDamage and leave shield strength
 unchanged. For a shielded ship or a base, first test deflection using its current S:
@@ -675,12 +677,17 @@ the critical base path, retaining that creditedDamage.
     critical = true;
     base.strength -= (5 + 10 * UnitDraw()) percentage points;
     reportedStrength = base.strength;
-    destroyed = IntegerDraw(10) == 10 or base.strength <= 0%;
+    let destructionChoice = IntegerDraw(10);
+    destroyed = destructionChoice == 10 or base.strength <= 0%;
     if (destroyed) {
         RemoveWeaponDestroyedBase(source, base.id);
     }
 }
 ```
+
+The destruction choice is made after the strength loss, including when that
+loss has already made strength nonpositive. Neither certainty of destruction
+nor a previously nonpositive strength skips this choice.
 
 Return BaseHitResolution with these four values. The enclosing impact retains
 H as result.damage, records BaseCritical when critical is true, and records

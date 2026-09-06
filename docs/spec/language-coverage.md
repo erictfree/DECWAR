@@ -332,3 +332,12 @@ The first phaser heat choice occurs even when overheating is impossible at the
 selected strength; late torpedo own-sector termination retains deflection choices.
 The review explicitly distinguishes the documented nonstar unused-draw
 normalization from native seeded parity. Full nested draw/context review remains.
+
+
+Shared weapon-impact review covers initial torpedo guards, phaser entry,
+deflection, critical-device selection and base destruction choice order.
+EX-MODEL-606–608 exercise retained initial draws, the no-draw fatal guard and
+reported-versus-stored base strength. Compiled inspection supports base choice
+ordering; the unused critical-ship compound choice remains normalized away.
+Nested displacement, caller continuation and concurrent target access still
+require their own review; this is not full seeded interaction verification.

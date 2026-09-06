@@ -3564,3 +3564,20 @@ logs/spec-random-entry-audit-build.log passed: 653 scenarios, 100 productions,
 324 fragments, 14 chapters and 546 links. Inspected PDF physical pages 59, 63
 and 217; readable changed rules and examples. Full nested/context, multiplayer
 and cross-chapter audit remains; goal stays active.
+
+### Specification: shared weapon-impact ordering
+
+Audited Austin TORDAM/PHADAM direct choices and critical-base resolution.
+Clarified retained torpedo a/b/c draws and explicit base destruction choice
+before the fatal-strength condition. Added EX-MODEL-606–608 and source evidence;
+made the existing unused critical-ship compound-choice normalization explicit.
+No gameplay or archive changes.
+
+Validation: logs/spec-shared-impact-review.log passed focused source-order and
+example arithmetic checks. Read-only compiled inspection logs
+spec-shared-hit-critical-image.log and spec-shared-hit-destruction-image.log
+confirm the relevant call order, not executed impacts or native seeded parity.
+logs/spec-shared-impact-build.log passed: 656 scenarios, 100 productions,
+324 fragments, 14 chapters and 546 links. Inspected PDF physical pages 99, 102,
+and 219; readable rules, pseudocode and final example. Nested displacement,
+caller continuation and multiplayer review remain; full goal stays active.

@@ -255,3 +255,28 @@ Sources: [movement entry and range](../../legacy/utexas/DECWAR.FOR#L2145),
 The unused-obstruction choice disposition is already recorded in NORMALIZATION.md;
 this review preserves it rather than equating the abstract replay with the
 historical generator's complete call sequence.
+
+
+## Austin shared weapon-impact choice audit
+
+The shared TORDAM/PHADAM body was compared with the abstract impact operations.
+This review covers direct impact choices, not nested displacement, caller
+notification or concurrent target access.
+
+| Path | Ordered choices and effects |
+| --- | --- |
+| Already-fatal torpedo target | TORDAM's ship/base guards precede all three unit draws and return without an impact result. PHADAM's separate entry bypasses these guards. |
+| Admitted torpedo impact | RAND, RANA and the raw-hit RAN call precede shield-mode and deflection branches. The abstract a, b, c remain consumed even for deflected hits and shields-down targets. |
+| Phaser impact | RANA precedes attenuation's RAN. These are abstract b and c; no torpedo a or initial fatal-resource guard is added. |
+| Critical ship | After the threshold, select a device, add half the damage, lower shields if that device is selected, then sample the final hit adjustment. |
+| Critical base | Sample the strength loss, then IRAN(10), then decide destruction. Nonpositive strength does not omit the integer choice. Report strength before removal resets stored strength to zero. |
+
+Source: [TORDAM and PHADAM](../../legacy/utexas/DECWAR.FOR#L4089).
+Read-only inspection of the preserved executable confirms the critical-base
+IRAN call at octal 441122 precedes the strength test. The companion critical
+threshold call at 440325 precedes the target-kind comparison: the executable
+also obtains an unused IRAN(5) for a critical ship. That unused compound-expression
+choice remains excluded by the existing normalization; it is not an extra
+ship-damage mechanic or an abstract RandomEvent. Consequently this audit does
+not establish native seeded parity. The inspection tool verifies the archived
+executable hash before decoding; it does not execute an impact.
