@@ -73,6 +73,17 @@ This amendment concerns terminal output, not line endings in stored feedback.
 **Source basis:** [token overflow](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L1715),
 [feedback prompt and limits](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L4733).
 
+
+For [HELP command lists and topic diagnostics](presentation.md#help-command-lists-and-topic-diagnostics),
+CompuServe emits `"Commands are:\r\n"` before the following conditional
+blank-line request. In a displayed ambiguity list, it emits `"  Could be:\r\n"`
+before the first matching name, placing the names on the next line. Austin
+appends no ending within either string. Matching order and visibility remain
+subject to this variant's command and help-topic declarations.
+
+**Source basis:** [command heading](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L5100),
+[ambiguity list](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L5232).
+
 Amending [movement relocation](commands.md#traversal-resource-cost-and-relocation),
 CompuServe Move can additionally return RelocationRefused. This is a semantic
 outcome, not command syntax or a new terminal message. When a required relocation

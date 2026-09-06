@@ -4148,3 +4148,18 @@ Austin call sites. logs/spec-ascil-followup-build.log records successful build:
 100 productions, 671 scenarios, 633 links, 324 fragments. PDF pages 91 and 239
 visually checked with no clipping/overlap; git diff --check passed. No runtime
 or source-archive edits. Full specification review continues.
+
+
+## HELP command-list and topic-diagnostic presentation — 2026-09-06
+
+Specified seven ten-character entries per command-list row from OLST's actual
+counter (its six-column comment is inaccurate), exact abbreviation labels,
+privilege visibility, ambiguity separators and unknown-topic output. Compared
+all 33 display labels across variants. Added CompuServe's embedded heading and
+ambiguity-prefix endings, retaining the shared conditional requests.
+
+logs/spec-help-list-review.log records source extraction and label comparison;
+logs/spec-help-list-build.log records successful build (100 productions, 671
+scenarios, 641 links, 324 fragments). PDF pages 159 and 240 visually checked
+without clipping/overlap. git diff --check passed. No runtime/archive edits.
+Help-resource failures and full section-control behavior remain separate review.

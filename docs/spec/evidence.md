@@ -836,3 +836,14 @@ uses the identical four texts at 1715,4733,4759,4761 with its CRLF-bearing macro
 now amended explicitly. HELP's command header/ambiguity list, environment removal
 notice and the WARN/FATAL macro expansions remain separate presentation review
 sites; no assumption of blanket same output is justified by macro names.
+
+### HELP list and ambiguity output
+
+Austin HLPALL 4209–4217 requests OCRL before and after its ASCIL heading.
+OLST 4357–4374 initializes the row counter to 7 and outputs each ten-character
+entry before decrementing; the six-column comment is inaccurate. Final-row
+padding applies only within real entries. SLST 4318–4348 appends the input,
+ambiguity phrase, Could be phrase and names with comma-space separators;
+OSTB 1781–1798 suppresses name padding. Austin ASCIL adds no ending; CompuServe
+HLPALL/SLST uses the CRLF-bearing expansion, now explicitly amended. The recipes
+make no claim about resource-error diagnostics or every help-section control.

@@ -245,6 +245,50 @@ prevent a claim of complete terminal conformance to this draft.
 [conditional blank line](../../legacy/utexas/WARMAC.MAC#L1696),
 [character output](../../legacy/utexas/WARMAC.MAC#L1309).
 
+## HELP command lists and topic diagnostics
+
+For a visible command-list request, first request a conditional blank line,
+emit `"Commands are:"`, and request another conditional blank line. Emit the
+visible entries in command-table order, seven per row. Each entry is ten
+characters, right-padded with spaces; retain that padding even on the last
+entry of a row. Request a conditional blank line after each completed row,
+including a partial final row. Do not pad a partial row with absent entries.
+
+The displayed labels, including abbreviation capitalization, are:
+
+```text
+BAses     BUild     Capture   DAmages   DOck      Energy    Gripe
+Help      Impulse   List      Move      News      PHasers   PLanets
+POints    Quit      RAdio     REpair    SCan      SEt       SHields
+SRscan    STatus    SUmmary   TArgets   TEll      TIme      TOrpedos
+TRactor   TYpe      Users     *Debug    *Password
+```
+
+The example layout includes the two privileged entries. Without privilege,
+omit *Debug and *Password; Users is the final entry. The ten-character field
+rule determines trailing spaces that are not visible in this illustration.
+The visible-command selection remains the [HELP rule](commands.md#topic-selection-and-observations),
+including when HELP is used before commissioning.
+
+For an ambiguous topic with matching names to display, emit the retained input
+text, `" is ambiguous."`, and `"  Could be:"`, without an inserted line ending.
+Immediately append the first matching display name without padding or an extra
+separator. Precede each further match with `", "`. Preserve matching-table order
+and display capitalization, then request a conditional blank line. A rejected
+command-table ambiguity does not start an extra-topic search.
+
+For an unknown extra topic, emit `"I don't know the term "`, followed by its
+retained text and a conditional blank line. These name fields end at their first
+space or after ten characters; the ordinary token-retention rule still limits
+the acquired input text. These recipes concern name selection and command-list
+output. The requested help section's text and unavailable-resource diagnostics
+remain governed by the help-content and environment contracts.
+
+**Source basis:** [HELP dispatch](../../legacy/utexas/WARMAC.MAC#L4134),
+[command heading](../../legacy/utexas/WARMAC.MAC#L4209),
+[ambiguity and list formatting](../../legacy/utexas/WARMAC.MAC#L4318),
+[display labels](../../legacy/utexas/DECWAR.FOR#L437).
+
 ## TELL command responses
 
 Player TELL makes no initial conditional blank-line request. RadioUnavailable
