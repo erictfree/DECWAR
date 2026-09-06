@@ -3014,3 +3014,23 @@ vocabulary table and expanded report grammar are readable without overflow.
 The working draft is 196 pages. Full acceptance, definition order, invariant,
 response, lifecycle/concurrency and variant work remains. No game, server or
 archive changes; unrelated worktree edits preserved.
+
+
+## Specification checkpoint: CompuServe startup and input amendments
+
+Expanded the modern-language appendix with the ten-ship roster, initial
+preferences and three experience presets, ordered startup recognition, the
+additional DOCUMENT and HONORROLL pregame commands, Ctrl-G input behavior, and
+Romulan speech checks. Added eleven amendment examples. HONORROLL persistence
+and ranking, complete radio differences and other remaining contracts stay
+explicitly open. Recorded numeric-value normalization separately; source
+representation effects are not normative game requirements.
+
+Validation: `logs/spec-compuserve-startup-build-final.log` checks 100 grammar
+productions, 12 terminal categories, 574 scenario rows, 439 local links and 324
+message fragments. The assembled PDF has 200 pages. Reviewed rendered physical
+pages 195–200 for layout and legibility; checked scenario identifiers on page
+195 against PDF text bounds. `logs/spec-compuserve-startup-source-review.log`
+records structural source checks, not execution. Source audit passed in
+`logs/spec-compuserve-startup-audit.log` (135 hashes, 83 declarations). No gameplay
+or immutable archive changes. The specification remains incomplete.

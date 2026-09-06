@@ -1331,3 +1331,28 @@ Source: WARMAC.MAC GTKN/NXTT/ANUM 1377–1540; DECWAR.FOR LOCATE 1404,
 LSTSCN 1530–1750, SET 3624, TELL 3977, PASWRD 2626; existing command derivations
 remain the authority for prompts and diagnostics. The grammar-reference checker
 verifies definitions and grouping only, not acceptance equivalence.
+
+
+## CompuServe startup and control amendments
+
+Expressed the experience selector as changes to Captain preferences. Initial
+zero-valued input/output modes mean BOTH; the location reader treats BOTH input
+as relative, while SET ICDEF still does not accept BOTH. Initial terminal-profile
+absence remains explicit, with its presentation unresolved. The selector compares
+numeric values without a category test. Under the generalized independent Token
+numericValue contract, a REAL spelling such as 1.0 therefore matches choice one.
+This removes representation-dependent comparisons of encoded REAL words with
+integer constants; it does not add an integer-category check or another keyword.
+Source: CompuServe DECWAR.FOR 30–69, LOWSEG.FOR 22–27, PARAM.FOR 153–161,
+TYPE.FOR 65–80; general LEX-4/5 numeric normalization applies.
+
+CompuServe startup checks HONORROLL before HELP, while its pregame table uses
+unique matching: H selects standings at startup but is ambiguous in pregame.
+DOCUMENT's active action only emits its notice; purchasing/launch calls are
+inactive. Exact continuation-literal whitespace remains unresolved instead of
+being reconstructed by assumption. Ctrl-G preserves input and has no echo or
+redisplay effect in the selected distribution. The early-return echo routines
+explain that result only in research, not in the language-level amendment.
+The Romulan speech tests retain their source positions and changed draw bounds.
+Source: SETUP.FOR 126–190, 505–565; WARMAC.MAC 980, 1313–1338, 1897–1901,
+1970–1972; ROMDRV.FOR 64 and 123. No game or runtime changes accompany the appendix.

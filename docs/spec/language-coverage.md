@@ -82,7 +82,7 @@ coverage does not establish lifecycle, concurrency or terminal conformance.
   scalar/position results, arity/type/range precedence, computed target validation
   and speed delay, including blank versus mode-only continuations. Shared grammar
   vocabulary distinguishes token categories, candidate names, raw text fragments
-  and input boundaries. All 96 current productions reference defined productions
+  and input boundaries. All 100 current productions reference defined productions
   or one of 12 explicit terminal categories; the build checks this and grouping.
   That reference check does not establish complete input acceptance. Malformed
   torpedo forms and exceptional zero-item caller paths still need complete rules.
@@ -138,8 +138,11 @@ coverage does not establish lifecycle, concurrency or terminal conformance.
   chapter stays outside the book.
 - Information resources: help topic sections, news continuation boundaries and
   feedback records drafted; complete headers and storage-failure bindings remain.
-- CompuServe appendix: population, names, initial preferences and extra pregame
-  commands introduced; remaining differences and complete command amendments remain.
+- CompuServe appendix: population, names, explicit initial preferences and selection,
+  startup versus pregame matching, DOCUMENT effects, HONORROLL entry/continuation,
+  Ctrl-G behavior and the two speech probabilities are specified. Full standings,
+  Romulan direct replies/audiences, privilege, lifecycle/concurrency and presentation
+  amendments remain. Separate CompuServe examples cover the new clauses.
 - Examples: resources, scans/reports, tractor, movement, construction, capture,
   phaser, torpedo, nova, defense, report visibility, knowledge, scoring, preferences
   communication and autonomous activity cases drafted;

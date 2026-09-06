@@ -6,6 +6,9 @@ progress; unlisted differences are not assumed absent.
 
 ## Population and names
 
+Amends the [galaxy and roster](language-model.md#galaxy-and-roster), admission
+and faction-based groups.
+
 CompuServe allows ten captains, five per faction, and begins with sixty planets.
 The galaxy is still 75 by 75 sectors, with ten initial bases per faction.
 
@@ -18,29 +21,165 @@ The galaxy is still 75 by 75 sectors, with ten initial bases per faction.
 | Yorktown | Wolf |
 
 When a partial name matches more than one ship, name resolution uses the order
-shown within its faction, with Federation names preceding Empire names.
+shown within its faction, with Federation names preceding Empire names. Ordinary
+radio faction groups contain the five ships of their faction. Iteration over
+the roster uses this same order; the USERS faction separator precedes Cobra.
+Autonomous Romulan speech audiences remain part of the communication amendment.
+
+**Source basis:** [roster names](../../legacy/compuserve/fortran%201978/BLKDAT.FOR#L84),
+[USERS roster order](../../legacy/compuserve/fortran%201978/USERS.FOR#L42).
 
 ## Initial preferences
 
-The initial dialogue offers BEGINNER, INTERMEDIATE and EXPERT, also accepted as
-1, 2 and 3 respectively. Their initial preferences are:
+Amends [startup and pregame](session-rules.md#startup-and-pregame) and the
+initial Captain preferences. The initial dialogue offers BEGINNER, INTERMEDIATE
+and EXPERT, also selected by numeric values 1, 2 and 3 respectively. These choices
+are presentation preferences, not difficulty levels that alter combat or resources.
 
-| Choice | Preferences |
+```text
+CompuServeExperienceReply ::= EmptyInput | TokenInput {TokenInput}
+
+enum ExperienceChoice = BEGINNER | INTERMEDIATE | EXPERT
+
+operation SelectCompuServeExperience(viewer: CaptainId,
+    candidate: Optional<Token>): Selected { choice: ExperienceChoice } | Unchanged
+```
+
+Let c be captain(game, viewer). Before this question, its initial preferences
+are long scans, medium output, normal prompt, BOTH input coordinates, BOTH output
+coordinates and no selected terminal profile. BOTH input uses the relative
+interpretation in the shared location reader. This initial value does not add
+BOTH to the values accepted by SET ICDEF.
+
+Process only the first reply token. Check BEGINNER, INTERMEDIATE and EXPERT in
+that order. A choice matches when the token's numeric value equals the associated
+number or its retained text matches the associated word under ordinary keyword
+matching. Absence or no match gives Unchanged and continues without reprompting.
+For a match, give Selected and make exactly these preference assignments:
+
+| Choice | Captain state effects |
 | --- | --- |
-| BEGINNER | Long scans, medium output, normal prompt, absolute input coordinates. |
-| INTERMEDIATE | Long scans, medium output, informative prompt, relative input coordinates. |
-| EXPERT | Short scans, short output, informative prompt, relative input coordinates. |
+| BEGINNER | c.scanStyle = LONG; c.outputLength = MEDIUM; c.promptStyle = NORMAL; c.inputCoordinates = ABSOLUTE. |
+| INTERMEDIATE | c.scanStyle = LONG; c.outputLength = MEDIUM; c.promptStyle = INFORMATIVE; c.inputCoordinates = RELATIVE. |
+| EXPERT | c.scanStyle = SHORT; c.outputLength = SHORT; c.promptStyle = INFORMATIVE; c.inputCoordinates = RELATIVE. |
 
-An unmatched choice does not cause this question to repeat. This dialogue is
-absent from Austin.
+Neither selection nor an unmatched reply changes output coordinates or selects
+a terminal profile. Other state is unchanged. This operation has no turn,
+resource charge or ship placement effect.
 
-## Additional pregame commands
+Display the version and experience question before reading the reply. After
+selection, request the TYPE OUTPUT, TYPE OPTION and SUMMARY observations in
+that order, then enter the startup dialogue. Selection does not itself enter
+ACTIVE play. After later ship placement, begin ordinary command acquisition;
+the Austin initialization-command sequence is not a CompuServe startup step.
 
-CompuServe adds DOCUMENT and HONORROLL to the pregame language. They participate
-in the same abbreviation and ambiguity rules as other pregame commands.
-DOCUMENT displays its documentation notice. HONORROLL displays recorded mission
-standings. Their complete productions, responses and standings rules remain to
-be converted into this appendix.
+**OPEN QUESTION:** The presentation of an initially unselected terminal profile,
+and report fields before a galaxy exists, require the corresponding environment
+and presentation rules. No profile name or invented initial galaxy is supplied
+by this amendment.
+
+**Source basis:** [initial dialogue and main entry](../../legacy/compuserve/fortran%201978/DECWAR.FOR#L30),
+[preference domains](../../legacy/compuserve/fortran%201978/PARAM.FOR#L153),
+[TYPE observations](../../legacy/compuserve/fortran%201978/TYPE.FOR#L34).
+
+## Additional startup and pregame commands
+
+Amends [command selection](grammar.md#gram-2--command-selection) and the startup
+dialogue. CompuServe adds DOCUMENT and HONORROLL to pregame. Its full pregame
+matching order is:
+
+```text
+ACTIVATE DOCUMENT GRIPE HELP HONORROLL NEWS POINTS QUIT SET SUMMARY
+TIME TYPE USERS *DEBUG *PASSWORD *ZAP
+```
+
+Pregame command selection still requires a unique match over that list. Thus H
+is ambiguous between HELP and HONORROLL, while HO selects HONORROLL. These two
+additions do not become main-game commands.
+
+```text
+CompuServeStartupReply ::= EmptyInput | "HONORROLL" | "HELP" | "PREGAME"
+DocumentCommand ::= "DOCUMENT"
+HonorRollCommand ::= "HONORROLL"
+```
+
+The startup dialogue uses ordered tests instead of pregame command-table
+ambiguity detection: empty input starts admission; otherwise test HONORROLL,
+HELP and PREGAME in that order. HONORROLL requests the mission standings and
+repeats the startup prompt. HELP displays the general help and command list,
+then repeats the prompt. PREGAME enters pregame command acquisition. An
+unrecognized reply repeats the startup prompt. Consequently H at the startup
+question selects HONORROLL, even though H at the pregame command prompt is
+ambiguous. HO and HELP have their ordinary distinct effects in both contexts.
+
+### DOCUMENT
+
+```text
+operation ShowCompuServeDocumentNotice(viewer: CaptainId): Completed
+```
+
+Require the viewer's session phase to be PREGAME. Emit the documentation notice
+and return to pregame command acquisition. Ignore trailing arguments. No game
+state changes, resource charge, turn, purchase or external document launch occurs.
+The pregame introduction's wording about purchasing documentation does not add
+such an effect to this operation.
+
+The notice begins with `This is where CompuServe rips you off for` and ends with
+`Documentation!`, followed by an unconditional line ending.
+
+**OPEN QUESTION:** Exact whitespace joining those two notice fragments remains
+part of the terminal presentation review. The semantic operation and its absence
+of a purchase or launch effect do not depend on that whitespace.
+
+### HONORROLL
+
+HONORROLL requests the stored mission standings, independently of the current
+galaxy's POINTS report. It is available directly from startup and as a pregame
+command; either caller returns to its own prompt after the report. Trailing
+arguments are not standings selectors. It has no player-turn or resource effect.
+Standings selection, record lifetime, ranking and complete output are specified
+by the forthcoming persistence amendment; this command does not imply that
+Austin keeps the same records.
+
+**OPEN QUESTION:** The complete standings ADT, storage-failure behavior and report
+contract remain incomplete. This entry defines command availability and caller
+continuation, not a complete HONORROLL conformance claim.
+
+**Source basis:** [startup and pregame dispatch](../../legacy/compuserve/fortran%201978/SETUP.FOR#L126),
+[DOCUMENT and HONORROLL actions](../../legacy/compuserve/fortran%201978/SETUP.FOR#L162),
+[pregame name table](../../legacy/compuserve/fortran%201978/SETUP.FOR#L505),
+[standings reader](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L5885).
+
+## Ctrl-G during command input
+
+Amends [line acquisition and editing](lexical.md#lex-2--line-acquisition-and-editing).
+When Ctrl-G is delivered to CompuServe's ordinary command reader, retain the
+current input text, continue acquiring the line and make no echo-mode change.
+Do not redisplay the retained line in response to that character. Ctrl-R retains
+its line-redisplay role. A client-local action or echo is outside this delivered
+character rule and must be distinguished by its transport binding.
+
+**Source basis:** [character classification](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L980),
+[input action](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L1897),
+[echo action](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L1970),
+[echo-on/off behavior](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L1313).
+
+## Romulan speech frequency
+
+Amends the two speech tests in [Romulan activation](autonomous.md#activation-and-appearance)
+and [weapon selection and firing](autonomous.md#weapon-selection-and-phasers).
+After an appearance announcement, use IntegerDraw(10) and invoke speech on 1;
+this replaces Austin's IntegerDraw(5) test. After an attempted weapon path returns,
+use IntegerDraw(50) and invoke speech on 1; this replaces Austin's IntegerDraw(10)
+test. The probabilities are 1/10 and 1/50 at those respective points.
+
+Keep each test at its declared point in the activation, with one draw whenever
+that test is reached. A test that is not reached consumes no replacement draw.
+These are not extra independent speech timers, new appearance odds or player
+weapon changes. The speech event itself can consume its own choices.
+
+**Source basis:** [appearance speech test](../../legacy/compuserve/fortran%201978/ROMDRV.FOR#L64),
+[post-weapon speech test](../../legacy/compuserve/fortran%201978/ROMDRV.FOR#L123).
 
 ## Remaining amendments
 

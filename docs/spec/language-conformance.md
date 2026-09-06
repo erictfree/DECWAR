@@ -585,3 +585,23 @@ world evolution remain part of the unfinished conformance work.
 **Basis:** [abstract model](language-model.md), [commands](commands.md),
 [shared world rules](world-rules.md), [turns](turns.md),
 [lexical rules](lexical.md), [normalization policy](NORMALIZATION.md).
+
+
+## CompuServe amendment examples
+
+These examples apply the CompuServe appendix. They do not amend Austin's
+startup, ordinary command matching or radio controls.
+
+| Scenario | Initial state and input | Required result |
+| --- | --- | --- |
+| EX-COMP-1 | CompuServe experience question; reply EXPERT followed by an unused token | Select SHORT scans, SHORT output, INFORMATIVE prompt and RELATIVE input. Retain BOTH output coordinates and no selected terminal profile. No resource, placement or turn effect. |
+| EX-COMP-2 | CompuServe experience question; reply NOVICE | No choice matches. Keep initial preferences, request TYPE OUTPUT, TYPE OPTION and SUMMARY in order, then proceed to startup without repeating the experience question. |
+| EX-COMP-3 | CompuServe experience question; reply 1.0 under generalized numeric-value semantics | The REAL token's mathematical value equals one. Select BEGINNER preferences; do not add a category guard absent from the value-based selection rule. This illustrates the documented numeric normalization. |
+| EX-COMP-4 | CompuServe startup question; reply H | Request HONORROLL, then repeat startup. Ordered startup recognition tests HONORROLL before HELP. |
+| EX-COMP-5 | CompuServe pregame command prompt; command H | Ambiguous between HELP and HONORROLL. Do not choose the first entry or request either report. |
+| EX-COMP-6 | CompuServe pregame; DOCUMENT followed by unused arguments | Emit the documentation notice and return to pregame. No purchase, external document launch, resource change or turn occurs. Exact continued-literal joining remains open. |
+| EX-COMP-7 | CompuServe ordinary command reader retains SC 10; Ctrl-G is delivered | Retain SC 10, continue input and leave echo mode unchanged. Do not request line redisplay for Ctrl-G. |
+| EX-COMP-8 | CompuServe Romulan reaches the post-appearance speech test; IntegerDraw(10) returns 2 | Do not invoke speech at this test. Continue target selection; do not replace this with Austin's five-way draw. |
+| EX-COMP-9 | CompuServe Romulan reaches the post-weapon speech test; IntegerDraw(50) returns 1 | Invoke speech, then the ordinary Romulan installation-defense phases if execution continues. No separate speech timer is introduced. |
+| EX-COMP-10 | CompuServe ACTIVE play; command DO | Select the core DOCK command under the main-game table. DOCUMENT's pregame availability does not change main-game matching. |
+| EX-COMP-11 | CompuServe USERS with commissioned ships on both factions | Visit Federation ships in roster order, then put the faction separator before Cobra's faction, followed by Empire ships in roster order. |
