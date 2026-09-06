@@ -261,7 +261,8 @@ operation clauses take precedence over any informal expectation about a resource
 
 ### Sector geometry
 
-For positions a and b:
+`distance` is the **Chebyshev distance**, also called the maximum metric or
+L-infinity distance, between two sector positions. For positions a and b:
 
 ```text
 function distance(a: Position, b: Position): nonnegative integer {
@@ -272,7 +273,8 @@ function distance(a: Position, b: Position): nonnegative integer {
 }
 ```
 
-Thus diagonal neighbors have distance one.
+Thus diagonal and orthogonal neighbors both have distance one. The formula,
+rather than any particular library function or name, defines conformance.
 
 A Position names a sector inside the galaxy. A GridPoint is a mathematical
 point whose coordinates may be fractional or outside the galaxy. A SectorVector

@@ -4381,3 +4381,13 @@ order, retained bounds and usage scope. Build passed 100 productions, 671 scenar
 rows, 14 units and 686 links in logs/spec-position-refinement-build.log. Inspected
 PDF pages 11 and 189; no clipping or overfull/undefined warnings. This clarifies
 the existing domains and changes no movement, coordinate input or gameplay rule.
+
+## Specification: name the sector-distance metric
+
+Named the existing `max(abs(dv), abs(dh))` sector-distance definition as
+Chebyshev distance, with maximum-metric and L-infinity terminology. Clarified
+that both diagonal and orthogonal neighbors have distance one and that the
+formula remains normative. Build passed 100 productions, 671 scenario rows,
+14 units and 686 links in logs/spec-distance-name-build.log. Inspected PDF page
+12; no clipping or overfull/undefined warnings. No formula, coordinate domain
+or gameplay changed.
