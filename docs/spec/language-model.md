@@ -7,33 +7,14 @@ how it stores that information.
 
 ## Notation
 
-The notation resembles TypeScript and algebraic data types, but it is
-language-independent specification notation. It does not adopt JavaScript's
-number system, object identity, inheritance or runtime behavior.
+Data declarations are TypeScript. Interfaces define records, unions define
+alternatives, and `kind` distinguishes alternatives. For example,
+`{ kind: "Captured"; planet: PlanetId }` carries a planet identity, while
+`{ kind: "Cancelled" }` does not.
 
-`type Name = { ... }` defines a record with named fields. `property: T` gives a
-field's type. An enum lists mutually exclusive names. A union lists alternatives
-separated by `|`. An alternative may carry named fields in braces. For example,
-`Captured { planet: PlanetId }` carries a planet identity, while `Cancelled`
-carries no value. These names are specification terms, not player input.
-
-
-A result name belongs to the operation or type that introduces it. The same name
-may therefore carry different values in different results. For example,
-PublishMessage returns Published with a MessageId, while PublishNotice returns
-Published with a NoticeId. The operation determines which Published result is
-meant.
-
-An operation may name its result alternatives directly. A bare name such as
-Raised or Cancelled is an alternative with no associated value. Thus
-`Result<Raised, ShieldsTooDamaged>` contains either Raised or
-`Rejected { reason: ShieldsTooDamaged }`. A declared type name continues to mean
-the complete type it declares.
-
-Each opaque identity declaration introduces a distinct type. An `abstract type`
-hides its representation. An `ordered type` also has an ordering defined by its
-own clause. Neither form provides accessible fields unless another declaration
-defines them.
+TypeScript defines the shape of a value. Nearby prose defines opaque identities,
+units, numeric ranges, total mappings and ordering. Behavioral blocks are
+pseudocode and use shorter outcome forms such as `Captured { planet: id }`.
 
 Collections have one notation throughout the model:
 
@@ -45,26 +26,25 @@ Collections have one notation throughout the model:
 | `Optional<T>` | A value of T or none. Absence is not an operation failure. |
 | `Result<T, Error>` | A non-rejected outcome of type T or a rejection carrying an Error. |
 
-```text
-type Result<T, Error> = T | Rejected { reason: Error };
+```typescript
+type List<T> = readonly T[];
+type Optional<T> = T | null;
+type Rejected<Error> = { kind: "Rejected"; reason: Error };
+type Result<T, Error> = T | Rejected<Error>;
 ```
 
-Here T excludes Rejected. A rejection states why the operation stopped; it does
-not imply that earlier effects were undone. Cancellation and lifecycle outcomes
-are named separately where they can occur. Optional expresses absence rather
-than rejection. A value is valid only within its declared domain, and quantities
-such as Energy and Damage keep their units even when both are written as numbers.
+`T` in `Result<T, Error>` excludes `Rejected`. Rejection stops the operation but
+does not undo earlier effects. Cancellation and lifecycle outcomes are named
+separately. `Optional` expresses absence rather than failure.
 
-Square brackets select a map entry, and a dot selects a record field. For
-example, selecting WARP_ENGINES from `devices` gives the warp-engine record;
-that record's `damage` field gives its damage. These expressions do not require
-a JavaScript Map, array or mutable object. In a query or operation signature,
-the type after the parameter list is the result type.
+Square brackets select a map entry, and a dot selects a record field. For a ship
+`s`, `s.devices[WARP_ENGINES]` selects its warp engine; `.damage` selects that
+device's damage. The type after a query or operation's parameter list is its
+result type.
 
-The query `ship(game, actor)` returns the ship identified by actor. A command may
-bind that ship to s and then refer to `s.energy`. A ShipId identifies a ship but
-is not itself a Ship record. An optional value must be present before a rule can
-use its contents.
+The query `ship(game, actor)` returns the Ship identified by actor. A command may
+bind it to `s` and then refer to `s.energy`. An optional value must be present
+before a rule uses its contents.
 
 Pseudocode describes the meaning of an operation:
 
@@ -77,59 +57,35 @@ else {
 }
 ```
 
-`=` assigns a value. Assignment to a local name changes that binding; assignment
-to a game-state property changes the property. A query never changes game state.
+`=` assigns a value, `==` tests equality and `!=` tests inequality. In a type
+declaration, `=` defines the type; in a parameter, it supplies a default.
+`let name: T = value` introduces a local binding. A query never changes game
+state. A Unit result carries no value.
 
-`==` tests equality and `!=` tests inequality. A Unit result carries no value and
-does not by itself assert success. In a type declaration, `=` introduces the
-definition; in a parameter, it supplies a default. Neither use changes game state.
-`let name: T = value` introduces a local binding. A local's type may be omitted
-when its value or the immediately preceding definition determines it. A
-conditional expression `condition ? a : b` selects a when the condition is true
-and b otherwise. Only the selected expression is evaluated.
+`requires` states a precondition, `ensures` states a postcondition, and
+`invariant` states a property of every valid state in its scope. A command's
+rejection clauses define the result of an unmet precondition.
 
-`requires` states a precondition. `ensures` states a condition at completion.
-`invariant` states a property of every valid observable state in its declared
-scope. These are specification requirements, not implicit runtime checks. A
-command's rejection clauses define what happens when a precondition is not met.
+A pseudocode record is written `Name { field: value, ... }`; a bare name denotes
+an alternative with no fields.
 
-A record value is written `Name { field: value, ... }`; a bare name denotes
-a variant with no payload. Declared payload names identify the same fields when
-an outcome is constructed, inspected or described in an example.
+`value with { field: replacement }` returns a copy with the named fields
+replaced. `for (item in values)` visits a list in order. A rule must give an
+order when visiting a set could affect an observation.
 
-`type Refined = Existing where { ... }` defines a subtype of Existing whose
-values also satisfy the listed field constraints. It preserves Existing's
-fields and does not add storage or prescribe a runtime validation mechanism.
-
-`value with { field: replacement }` produces a record value with those fields
-replaced and every other field preserved. It does not update the original.
-`for (item in values)` visits a list in its order; a set requires an explicit
-order whenever order affects observations. Bounded loops state their bounds.
-Short English predicates and effects within pseudocode refer to the rules in
-the surrounding clause; they are not additional fields or callable services.
-
-`emit` produces an observable game event or response. Terminal rendering is
-specified separately.
-`reject` ends the current operation with the named diagnostic. Unless a rule
-states otherwise, rejection does not undo effects that have already occurred.
-An operation's own effects leave unmentioned state unchanged. This is a
-restriction on what that operation changes, not a promise that other permitted
-actions cannot change the same world while it is in progress. Interactive
-input, elapsed time and simultaneous actions have explicit rules; pseudocode
-alone does not make a whole command atomic.
+`emit` produces an observable event or response. `reject` ends the operation
+with the named diagnostic. Unless stated otherwise, rejection preserves earlier
+effects and each operation leaves unmentioned state unchanged. Pseudocode does
+not make an operation atomic; timing and overlap are stated explicitly.
 
 A postcondition applies when its operation or substep completes. A later event
-may change the value. An invariant states its own scope. A relationship required
-after admission, release or construction need not hold during that transition.
-For example, installation counters may temporarily differ from a fresh count
-while an installation change is in progress.
+may change the value. An invariant applies throughout its stated scope.
 
-`+=` and `-=` add to or subtract from a named value. `floor(x)` is the greatest
-integer no greater than x. Lists in pseudocode use positions starting at one;
-this is a notation convention, not a required indexing scheme.
+`+=` and `-=` add to or subtract from a value. `floor(x)` is the greatest integer
+no greater than x. List positions start at one.
 
-A local name bound to a ship or another state record denotes that same game
-entity. Updating a field through that name changes the entity's state.
+A local name bound to a state record denotes that game entity. Updating a field
+through the local name changes the entity.
 
 Identity and value equality are different. Two observations refer to the same
 ship when their ShipId values match, even if the ship's state changed between
@@ -143,53 +99,58 @@ The model uses distinct identities for game entities and named quantity types
 for values with different meanings. It also distinguishes sector positions from
 points and displacement vectors used while calculating movement.
 
-```text
-type ShipId, CaptainId, BaseId, PlanetId, TractorBeamId, MessageId
-type PublicationId
-type ClockOrigin
-type Text = sequence of characters
-type Boolean = true | false
-type Unit = unit
+```typescript
+type ShipId = unknown;
+type CaptainId = unknown;
+type BaseId = unknown;
+type PlanetId = unknown;
+type TractorBeamId = unknown;
+type MessageId = unknown;
+type PublicationId = unknown;
+type ClockOrigin = unknown;
+type Text = string;
+type Boolean = boolean;
+type Unit = undefined;
 
-enum Team       = FEDERATION | EMPIRE
-enum ShieldMode = UP | DOWN
-enum Condition  = GREEN | YELLOW | RED
-enum OutputLength = SHORT | MEDIUM | LONG
-enum PromptStyle = NORMAL | INFORMATIVE
-enum ScanStyle = SHORT | LONG
-enum CoordinateMode = ABSOLUTE | RELATIVE | BOTH
+type Team = "FEDERATION" | "EMPIRE";
+type ShieldMode = "UP" | "DOWN";
+type Condition = "GREEN" | "YELLOW" | "RED";
+type OutputLength = "SHORT" | "MEDIUM" | "LONG";
+type PromptStyle = "NORMAL" | "INFORMATIVE";
+type ScanStyle = "SHORT" | "LONG";
+type CoordinateMode = "ABSOLUTE" | "RELATIVE" | "BOTH";
 type TerminalProfile = "ACT-IV" | "ADM-2" | "ADM-3A" | "DATAPOINT"
-                     | "ACT-V" | "SOROC" | "BEEHIVE" | "CRT"
-enum Device     = SHIELDS | WARP_ENGINES | IMPULSE_ENGINES
-                | LIFE_SUPPORT | TORPEDO_TUBES | PHASERS
-                | COMPUTER | RADIO | TRACTOR_BEAM
-enum PhaserBank = FIRST | SECOND
+                     | "ACT-V" | "SOROC" | "BEEHIVE" | "CRT";
+type Device = "SHIELDS" | "WARP_ENGINES" | "IMPULSE_ENGINES"
+            | "LIFE_SUPPORT" | "TORPEDO_TUBES" | "PHASERS"
+            | "COMPUTER" | "RADIO" | "TRACTOR_BEAM";
+type PhaserBank = "FIRST" | "SECOND";
 
-type Coordinate = integer in 1..75
-type Energy     = quantity in energy units
-type Damage     = quantity in damage units
-type Percentage = quantity in percentage points
-type Duration   = quantity in milliseconds
-type TimePoint  = elapsed-time instant
-type Stardate   = integer count of game turns
-type Points     = quantity in displayed game points
-type UnitDraw   = real number in [0, 1)
-type GridCoordinate = real number
+type Coordinate = number;
+type Energy = number;
+type Damage = number;
+type Percentage = number;
+type Duration = number;
+type TimePoint = number;
+type Stardate = number;
+type Points = number;
+type UnitDraw = number;
+type GridCoordinate = number;
 
-type GridPoint = {
+interface GridPoint {
     vertical: GridCoordinate;
     horizontal: GridCoordinate;
-};
+}
 
-type Position = GridPoint where {
+interface Position extends GridPoint {
     vertical: Coordinate;
     horizontal: Coordinate;
-};
+}
 
-type SectorVector = {
-    vertical: real number of sectors;
-    horizontal: real number of sectors;
-};
+interface SectorVector {
+    vertical: number;
+    horizontal: number;
+}
 ```
 
 `GridPoint` is an absolute point and may have fractional coordinates while a
@@ -197,6 +158,13 @@ path is being traced. `Position` is the subset of GridPoint whose coordinates
 are whole numbers from 1 through 75, so every Position names a sector.
 `SectorVector` is a displacement rather than an absolute point; its components
 may be positive, negative or fractional.
+
+ShipId, CaptainId, BaseId, PlanetId, TractorBeamId, MessageId, PublicationId and
+ClockOrigin are distinct opaque identities despite their `unknown` aliases.
+Coordinate is an integer from 1 through 75. Energy, Damage, Percentage, Duration
+and Points are quantities in their named units. TimePoint is an elapsed-time
+instant, Stardate is an integer turn count, and UnitDraw is a real number in
+[0, 1).
 
 Arithmetic uses mathematical quantities. A rule rounds only when it explicitly
 requires a discrete result or formatted display. PDP-10 word limits, overflow
@@ -238,11 +206,13 @@ operation clauses take precedence over any informal expectation about a resource
 Rectangles define inclusive regions of the galaxy. Each of their four limits is
 a sector coordinate within the 75 by 75 grid.
 
-```text
-type Rectangle = {
-    minVertical, maxVertical: Coordinate
-    minHorizontal, maxHorizontal: Coordinate
-};
+```typescript
+interface Rectangle {
+    minVertical: Coordinate;
+    maxVertical: Coordinate;
+    minHorizontal: Coordinate;
+    maxHorizontal: Coordinate;
+}
 ```
 
 `distance` is the Chebyshev distance between two sector positions:
@@ -268,11 +238,14 @@ The galaxy contains 75 rows and 75 columns of sectors. Increasing the vertical
 coordinate moves upward; increasing the horizontal coordinate moves rightward.
 A sector is empty or has one interaction object of the following kind:
 
-```text
+```typescript
 type SectorObject =
-    | PlayerShip { id: ShipId } | Starbase { id: BaseId }
-    | PlanetObject { id: PlanetId } | RomulanObject
-    | StarObject | BlackHoleObject
+    | { kind: "PlayerShip"; id: ShipId }
+    | { kind: "Starbase"; id: BaseId }
+    | { kind: "PlanetObject"; id: PlanetId }
+    | { kind: "RomulanObject" }
+    | { kind: "StarObject" }
+    | { kind: "BlackHoleObject" };
 ```
 
 The sector query returns one of these values, or none for an empty sector.
@@ -311,19 +284,17 @@ and initialization are defined in [galaxy creation](session-rules.md#galaxy-crea
 A score records points by the event that earned or lost them. This keeps each
 category available for the POINTS report as well as for calculating the total.
 
-```text
-enum ScoreCategory = ENEMY_DAMAGE | ENEMY_KILLS | BASE_DAMAGE
-                  | PLANET_CAPTURE | BASE_CONSTRUCTION
-                  | ROMULAN | STAR_DESTRUCTION | PLANET_DESTRUCTION
+```typescript
+type ScoreCategory = "ENEMY_DAMAGE" | "ENEMY_KILLS" | "BASE_DAMAGE"
+                   | "PLANET_CAPTURE" | "BASE_CONSTRUCTION"
+                   | "ROMULAN" | "STAR_DESTRUCTION" | "PLANET_DESTRUCTION";
 
-type Score = Map<ScoreCategory, Points>
+type Score = Map<ScoreCategory, Points>;
 ```
 
 Category values can be negative, and the total score is their sum. Pending score
 changes remain separate from accumulated score until turn accounting commits
 them. Each action defines its own scoring rate and destruction bonus.
-
-**Source basis:** [score categories and display](../../legacy/utexas/DECWAR.FOR#L2893).
 
 ## Ships
 
@@ -331,17 +302,17 @@ A Ship record contains the persistent state of one named vessel. It combines
 its commission, location, resources, damage, equipment, score and current
 relationships with the rest of the game.
 
-```text
-type Shields = {
+```typescript
+interface Shields {
     mode: ShieldMode;
     strength: Percentage;
-};
+}
 
-type DeviceState = {
+interface DeviceState {
     damage: Damage;
-};
+}
 
-type Ship = {
+interface Ship {
     id: ShipId;
     name: Text;
     team: Team;
@@ -352,15 +323,15 @@ type Ship = {
     hullDamage: Damage;
     shields: Shields;
     devices: Map<Device, DeviceState>;
-    torpedoes: integer;
-    lifeSupportReserve: integer;
+    torpedoes: number;
+    lifeSupportReserve: number;
     condition: Condition;
     docked: Boolean;
     tractorBeam: Optional<TractorBeamId>;
     stardate: Stardate;
     score: Score;
     pendingScore: Score;
-};
+}
 ```
 
 A new commission begins with 5000 energy units, ten torpedoes, no hull or device
@@ -386,9 +357,6 @@ negative value sets hull damage to 2500 damage units. Consequently the field is
 not constrained to nonnegative integers, and its initial value is not a fixed
 five-turn or elapsed-time survival promise. A [successful docking](commands.md#dock)
 restores the reserve to 5. Skipping its decrement does not itself replenish it.
-
-**Source basis:** [initial reserve](../../legacy/utexas/SETUP.FOR#L395),
-[turn check and exhaustion](../../legacy/utexas/DECWAR.FOR#L241).
 
 ### Damage and device state
 
@@ -445,20 +413,20 @@ Bases and planets are installations at fixed sectors. Bases belong to a faction
 and have defensive strength. Planets may be neutral or owned, and their builds
 record progress toward conversion into a base.
 
-```text
-type Base = {
+```typescript
+interface Base {
     id: BaseId;
     team: Team;
     position: Position;
     strength: Percentage;
-};
+}
 
-type Planet = {
+interface Planet {
     id: PlanetId;
     owner: Optional<Team>;
     position: Position;
-    builds: integer;
-};
+    builds: number;
+}
 ```
 
 A base survives while its strength is positive. A planet with no owner is
@@ -480,28 +448,29 @@ Tractor beams relate pairs of player ships. The Romulan types describe the
 autonomous ship currently in the galaxy and the activity that continues between
 its appearances.
 
-```text
-type TractorBeam = {
+```typescript
+interface TractorBeam {
     id: TractorBeamId;
-    endpoints: Set<ShipId> containing exactly two distinct identities;
-};
+    endpoints: Set<ShipId>;
+}
 
-type Romulan = {
+interface Romulan {
     position: Position;
     energy: Energy;
-};
+}
 
-type RomulanActivity = {
-    cadence: integer;
+interface RomulanActivity {
+    cadence: number;
     turns: Stardate;
-    appearances: integer;
+    appearances: number;
     phaserReady: TimePoint;
     torpedoesReady: TimePoint;
     score: Score;
-};
+}
 ```
 
-A tractor beam associates two ships symmetrically. Either endpoint can act on
+A tractor beam's endpoint set contains exactly two distinct ShipId values and
+associates those ships symmetrically. Either endpoint can act on
 that association under the tractor rules; it is not an ownership relationship.
 Each ship can participate in at most one beam. For an established beam b, both
 endpoint ships have `tractorBeam == b.id`; the endpoint set has no towing/towed
@@ -517,26 +486,23 @@ deadlines, and the score accumulates across appearances. Destroying the current
 Romulan removes `World.romulan` without resetting this activity. A new galaxy
 resets the counters and score, and sets both deadlines to its elapsed-time origin.
 
-**Source basis:** [tractor association](../../legacy/utexas/DECWAR.FOR#L4432),
-[score categories and display](../../legacy/utexas/DECWAR.FOR#L2893).
-
 ## Information and communication
 
 These records describe captain preferences, shared faction knowledge, radio
 messages and the delivery state needed for communication between ships.
 
-```text
-type TeamKnowledge = {
+```typescript
+interface TeamKnowledge {
     knownPlanets: Set<PlanetId>;
     knownBases: Set<BaseId>;
-};
+}
 
-type RadioSettings = {
+interface RadioSettings {
     enabled: Boolean;
     gaggedSenders: Set<ShipId>;
-};
+}
 
-type Captain = {
+interface Captain {
     id: CaptainId;
     ship: Optional<ShipId>;
     displayName: Text;
@@ -550,22 +516,22 @@ type Captain = {
     radio: RadioSettings;
     phaserReady: Map<PhaserBank, TimePoint>;
     torpedoesReady: TimePoint;
-};
+}
 
-type MessageSender = ShipId | ROMULAN | SYSTEM
+type MessageSender = ShipId | "ROMULAN" | "SYSTEM";
 
-type Message = {
+interface Message {
     id: MessageId;
     sender: MessageSender;
     recipients: Set<ShipId>;
     remainingRecipients: Set<ShipId>;
     body: Text;
-};
+}
 
-type RadioService = {
+interface RadioService {
     messages: List<Message>;
     publicationsInProgress: Set<PublicationId>;
-};
+}
 ```
 
 `recipients` records a message's original audience; `remainingRecipients`
@@ -578,10 +544,10 @@ Each has a distinct identity and at least one remaining recipient. An operation
 removes a message from this sequence when no recipients remain. The separate
 publicationsInProgress set identifies publication attempts that have obtained
 capacity but have not yet published or abandoned their messages. These
-identities describe overlapping operations, not storage addresses. Together,
-published messages and publications in progress occupy at most 32 places.
+identities distinguish overlapping operations. Together, published messages
+and publications in progress occupy at most 32 places.
 The [communication operations](communication.md) define acquisition, release
-and loss of this capacity. These declarations impose no array or queue layout.
+and loss of this capacity.
 
 Each captain has two independent phaser readiness deadlines. For a captain c:
 
@@ -618,11 +584,6 @@ and increments; POINTS only observes them.
 These declarations introduce the vocabulary for rewritten commands. They are
 not yet a complete world, combat or session model.
 
-**Source basis:** [ship and device meanings](../../legacy/utexas/PARAM.FOR#L44),
-[new ship state](../../legacy/utexas/SETUP.FOR#L367),
-[distance](../../legacy/utexas/WARMAC.MAC#L3720),
-[radio controls](../../legacy/utexas/DECWAR.FOR#L3129).
-
 ## Combat observation and notice values
 
 These values describe reports of combat and related events. They do not apply
@@ -632,44 +593,51 @@ entered a black hole. DestructionCause distinguishes direct damage from a
 black-hole loss. The [combat rules](world-rules.md#weapon-damage-to-ships-and-bases)
 determine when those results occur.
 
-```text
-enum DestructionCause = DIRECT_DAMAGE | BLACK_HOLE
+```typescript
+type DestructionCause = "DIRECT_DAMAGE" | "BLACK_HOLE";
 
-type CriticalHit = DeviceCritical { device: Device, damage: Damage } | BaseCritical
-type DisplacementResult = Stayed | Moved { position: Position }
-                        | Swallowed { position: Position }
-type ShipImpactState = {
+type CriticalHit =
+    | { kind: "DeviceCritical"; device: Device; damage: Damage }
+    | { kind: "BaseCritical" };
+type DisplacementResult =
+    | { kind: "Stayed" }
+    | { kind: "Moved"; position: Position }
+    | { kind: "Swallowed"; position: Position };
+interface ShipImpactState {
     ship: ShipId;
     position: Position;
     shields: Shields;
-};
+}
 
-type BaseImpactState = {
+interface BaseImpactState {
     base: BaseId;
     position: Position;
     strength: Percentage;
-};
+}
 
-type PlanetImpactState = {
+interface PlanetImpactState {
     planet: PlanetId;
     owner: Optional<Team>;
     position: Position;
-    builds: nonnegative integer;
-};
+    builds: number;
+}
 
-type RomulanImpactState = {
+interface RomulanImpactState {
     position: Position;
     energy: Energy;
-};
+}
 
-type ImpactObject = ShipState { value: ShipImpactState }
-                  | BaseState { value: BaseImpactState }
-                  | PlanetState { value: PlanetImpactState }
-                  | RomulanState { value: RomulanImpactState }
-type ImpactOrigin = ObjectOrigin { object: ImpactObject } | StarOrigin { position: Position }
-enum ImpactKind = PHASER | TORPEDO | NOVA
+type ImpactObject =
+    | { kind: "ShipState"; value: ShipImpactState }
+    | { kind: "BaseState"; value: BaseImpactState }
+    | { kind: "PlanetState"; value: PlanetImpactState }
+    | { kind: "RomulanState"; value: RomulanImpactState };
+type ImpactOrigin =
+    | { kind: "ObjectOrigin"; object: ImpactObject }
+    | { kind: "StarOrigin"; position: Position };
+type ImpactKind = "PHASER" | "TORPEDO" | "NOVA";
 
-type ImpactObservation = {
+interface ImpactObservation {
     origin: ImpactOrigin;
     target: ImpactObject;
     kind: ImpactKind;
@@ -678,54 +646,56 @@ type ImpactObservation = {
     deflected: Boolean;
     displacement: DisplacementResult;
     destruction: Optional<DestructionCause>;
-};
+}
 
-enum StarOutcome = EXPLODED | UNAFFECTED
-type StarObservation = {
+type StarOutcome = "EXPLODED" | "UNAFFECTED";
+interface StarObservation {
     position: Position;
     outcome: StarOutcome;
-};
+}
 
-enum TorpedoFlightOutcome = MISSED | ABSORBED | NEUTRALIZED
-type TorpedoObservation = {
-    shot: positive integer;
+type TorpedoFlightOutcome = "MISSED" | "ABSORBED" | "NEUTRALIZED";
+interface TorpedoObservation {
+    shot: number;
     position: Position;
     outcome: TorpedoFlightOutcome;
-};
+}
 
-enum BaseNoticeReason = DISTRESS | DESTROYED
-type BaseObservation = {
+type BaseNoticeReason = "DISTRESS" | "DESTROYED";
+interface BaseObservation {
     base: BaseId;
     position: Position;
     reason: BaseNoticeReason;
-};
+}
 
-type EnergyTransferObservation = {
+interface EnergyTransferObservation {
     sender: ShipId;
     recipient: ShipId;
     received: Energy;
-};
+}
 
-enum TractorObservation = ACTIVATED | BROKEN
+type TractorObservation = "ACTIVATED" | "BROKEN";
 
-type CombatObservation = Impact { value: ImpactObservation }
-    | StarEvent { value: StarObservation } | TorpedoEvent { value: TorpedoObservation }
-    | BaseEvent { value: BaseObservation } | RomulanDetected { position: Position }
-    | EnergyReceived { value: EnergyTransferObservation }
-    | TractorEvent { value: TractorObservation }
+type CombatObservation =
+    | { kind: "Impact"; value: ImpactObservation }
+    | { kind: "StarEvent"; value: StarObservation }
+    | { kind: "TorpedoEvent"; value: TorpedoObservation }
+    | { kind: "BaseEvent"; value: BaseObservation }
+    | { kind: "RomulanDetected"; position: Position }
+    | { kind: "EnergyReceived"; value: EnergyTransferObservation }
+    | { kind: "TractorEvent"; value: TractorObservation };
 
-enum CombatObservationKind = WEAPON_HIT | NOVA_HIT
-    | STAR_EXPLOSION | STAR_UNAFFECTED
-    | TORPEDO_MISS | TORPEDO_ABSORBED | TORPEDO_NEUTRALIZED
-    | BASE_DISTRESS | BASE_DESTROYED | ROMULAN_DETECTED
-    | ENERGY_TRANSFER | TRACTOR_ACTIVATED | TRACTOR_BROKEN
+type CombatObservationKind = "WEAPON_HIT" | "NOVA_HIT"
+    | "STAR_EXPLOSION" | "STAR_UNAFFECTED"
+    | "TORPEDO_MISS" | "TORPEDO_ABSORBED" | "TORPEDO_NEUTRALIZED"
+    | "BASE_DISTRESS" | "BASE_DESTROYED" | "ROMULAN_DETECTED"
+    | "ENERGY_TRANSFER" | "TRACTOR_ACTIVATED" | "TRACTOR_BROKEN";
 
-abstract type NoticeId
-ordered type PublicationOrder
+type NoticeId = unknown;
+type PublicationOrder = number;
+type NoticePriority = number;
 
-type NoticePriority = integer in 1..40
-
-type CombatNotice = {
+interface CombatNotice {
     id: NoticeId;
     publisher: ShipId;
     priority: NoticePriority;
@@ -733,12 +703,17 @@ type CombatNotice = {
     observation: CombatObservation;
     recipients: Set<ShipId>;
     remainingRecipients: Set<ShipId>;
-};
+}
 
-type CombatNoticeService = {
+interface CombatNoticeService {
     notices: Set<CombatNotice>;
-};
+}
 ```
+
+PlanetImpactState.builds is a nonnegative integer. TorpedoObservation.shot is a
+positive integer. NoticeId is an opaque identity. PublicationOrder is ordered
+chronologically without wraparound or a time unit, and NoticePriority is an
+integer from 1 through 40.
 
 Impact observations retain values from the reported event; they do not identify
 additional mutable entities. A combat notice associates one such observation
@@ -749,41 +724,41 @@ publisher's notices. The [notice service](communication.md#combat-notices)
 defines capacity, publication, selection and loss; the [impact rules](communication.md#impact-observation-adts)
 define the values recorded for each kind of hit.
 
-**Source basis:** [notice capacity](../../legacy/utexas/WARMAC.MAC#L183),
-[publication](../../legacy/utexas/WARMAC.MAC#L2771),
-[notice display](../../legacy/utexas/DECWAR.FOR#L2392).
-
 ## World
 
 World collects the shared state of one galaxy: its entities, faction records,
 global counters, autonomous activity and communication services.
 
-```text
-type World = {
+```typescript
+interface World {
     elapsedOrigin: Optional<ClockOrigin>;
     ended: Boolean;
     ships: Set<Ship>;
     bases: Set<Base>;
     baseOrder: Map<Team, List<BaseId>>;
-    baseCounts: Map<Team, nonnegative integer>;
-    capturedPlanetCounts: Map<Team, nonnegative integer>;
+    baseCounts: Map<Team, number>;
+    capturedPlanetCounts: Map<Team, number>;
     planets: List<Planet>;
     knowledge: Map<Team, TeamKnowledge>;
-    playerCount: integer;
-    actionCount: integer;
-    teamTurns: Map<Team, integer>;
-    teamCommissions: Map<Team, nonnegative integer>;
+    playerCount: number;
+    actionCount: number;
+    teamTurns: Map<Team, number>;
+    teamCommissions: Map<Team, number>;
     romulanEnabled: Boolean;
     blackHolesSelected: Boolean;
-    pacingClass: integer in 1..3;
+    pacingClass: number;
     beams: Set<TractorBeam>;
     teamScores: Map<Team, Score>;
     romulan: Optional<Romulan>;
     romulanActivity: RomulanActivity;
     combatNotices: CombatNoticeService;
     radioService: RadioService;
-};
+}
 ```
+
+World.baseCounts, capturedPlanetCounts and teamCommissions contain nonnegative
+integers. playerCount, actionCount and teamTurns contain integers. pacingClass
+is an integer from 1 through 3.
 
 World contains entity records, each identified by its id. Within each of
 ships, bases, planets and beams, no two entities have the same identity.
@@ -814,20 +789,20 @@ points. They need not equal a fresh count of positive-strength bases or current
 planet owners during an unfinished conversion or removal. Admission population,
 cumulative commission counts and installation counts are separate quantities.
 
-**Source basis:** [world limits](../../legacy/utexas/PARAM.FOR#L5),
-[roster](../../legacy/utexas/DECWAR.FOR#L489),
-[world initialization](../../legacy/utexas/SETUP.FOR#L216),
-[planet order on removal](../../legacy/utexas/DECWAR.FOR#L2864).
-
 ## Game state and operations
 
 `GameState` represents a galaxy and its participating sessions. The preceding
 records name properties that the specification can observe. They do not require
 mutable objects, tables or a particular database.
 
-```text
-abstract type GameState
+```typescript
+type GameState = unknown;
+```
 
+GameState is opaque. Its state is observable only through the following
+pseudocode queries:
+
+```text
 query ship(game: GameState, id: ShipId): Ship
 query base(game: GameState, id: BaseId): Base
 query planet(game: GameState, id: PlanetId): Planet
@@ -899,11 +874,10 @@ its command or shared-rule clause must supply the contract.
 
 A command may contain a **coordinated phase**. While that phase is active, no
 other session may enter a coordinated phase in the same domain. This rule
-constrains execution order without requiring a particular threading model,
-lock, database or storage layout. Austin has two coordination domains:
+constrains execution order. Austin has two coordination domains:
 
-```text
-enum CoordinationDomain = WORLD_CHANGE | SHARED_SERVICE
+```typescript
+type CoordinationDomain = "WORLD_CHANGE" | "SHARED_SERVICE";
 ```
 
 WORLD_CHANGE includes the coordinated portions of admission, commission release,
@@ -1005,20 +979,3 @@ coordination binding. The constraints above do not choose a winner for racing
 ship claims, invent a destination recheck or guarantee that a selected radio
 message remains available while a later phase begins. They establish which
 whole-operation atomicity assumptions are unsupported.
-
-**Source basis:** [coordination domains and release scope](../../legacy/utexas/WARMAC.MAC#L3768),
-[admission boundary](../../legacy/utexas/SETUP.FOR#L163),
-[ship-selection boundary](../../legacy/utexas/SETUP.FOR#L353),
-[relocation boundary](../../legacy/utexas/DECWAR.FOR#L2227),
-[BUILD conversion](../../legacy/utexas/DECWAR.FOR#L551),
-[CAPTURE update](../../legacy/utexas/DECWAR.FOR#L618),
-[nova planet update](../../legacy/utexas/DECWAR.FOR#L2375),
-[Romulan planet update](../../legacy/utexas/DECWAR.FOR#L3496),
-[player torpedo planet update](../../legacy/utexas/DECWAR.FOR#L4387),
-[commission release](../../legacy/utexas/DECWAR.FOR#L1082),
-[radio phases](../../legacy/utexas/WARMAC.MAC#L2603),
-[administrative phase](../../legacy/utexas/WARMAC.MAC#L4636),
-[input waiting](../../legacy/utexas/WARMAC.MAC#L1394),
-[elapsed waiting](../../legacy/utexas/WARMAC.MAC#L3372),
-[command acquisition](../../legacy/utexas/DECWAR.FOR#L1214),
-[environment exit](../../legacy/utexas/WARMAC.MAC#L1060).

@@ -1,9 +1,10 @@
 /** Assemble the specification through Pandoc's AST, resolving chapter links. */
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, mkdtempSync, rmSync, existsSync } from 'node:fs';
 import { resolve, dirname, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
+import { tmpdir } from 'node:os';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const source = resolve(root, 'docs/spec');
@@ -16,6 +17,28 @@ const pandoc = process.env.PANDOC || 'pandoc';
 type Node = { t: string; c?: any };
 type Document = { 'pandoc-api-version': number[]; meta: Record<string, unknown>; blocks: Node[] };
 const entries = [...book.chapters, ...book.appendices] as string[];
+
+// Data declarations in the normative book are TypeScript, not illustrative
+// TypeScript-like notation. Compile all such fences together so references
+// across chapters and duplicate declarations are checked as one type model.
+const typeScriptBlocks: string[] = [];
+for (const name of entries) {
+  const text = readFileSync(resolve(source, name), 'utf8');
+  for (const match of text.matchAll(/```typescript\n([\s\S]*?)```/g))
+    typeScriptBlocks.push(`// ${name}\n${match[1]}`);
+}
+const typeCheckDirectory = mkdtempSync(resolve(tmpdir(), 'decwar-spec-types-'));
+try {
+  const typeModel = resolve(typeCheckDirectory, 'model.ts');
+  writeFileSync(typeModel, typeScriptBlocks.join('\n'));
+  execFileSync(resolve(root, 'node_modules/.bin/tsc'), [
+    '--ignoreConfig', '--noEmit', '--target', 'ES2023', '--skipLibCheck',
+    '--moduleResolution', 'NodeNext', '--module', 'NodeNext', typeModel,
+  ], { cwd: root, stdio: 'inherit' });
+} finally {
+  rmSync(typeCheckDirectory, { recursive: true, force: true });
+}
+console.log(`Compiled ${typeScriptBlocks.length} TypeScript data blocks.`);
 execFileSync(process.execPath, [resolve(root, 'tools/spec/messages.ts'), '--check'], { cwd: root, stdio: 'inherit' });
 execFileSync(process.execPath, [resolve(root, 'tools/spec/grammar.ts'), '--check'], { cwd: root, stdio: 'inherit' });
 const coverage = JSON.parse(readFileSync(resolve(source, 'coverage.json'), 'utf8'));
@@ -138,6 +161,28 @@ for (const [name, doc] of documents) {
     }
   });
 }
+
+let companionLinks = 0;
+const sourceIndexName = 'source-index.md';
+const sourceIndexText = readFileSync(resolve(source, sourceIndexName), 'utf8');
+for (const match of sourceIndexText.matchAll(/\]\(([^)]+)\)/g)) {
+  const dest = match[1];
+  if (/^[a-z][a-z0-9+.-]*:/i.test(dest)) continue;
+  const hashAt = dest.indexOf('#');
+  const rawPath = hashAt < 0 ? dest : dest.slice(0, hashAt);
+  const fragment = hashAt < 0 ? '' : decodeURIComponent(dest.slice(hashAt + 1));
+  const target = rawPath
+    ? resolve(source, dirname(sourceIndexName), decodeURIComponent(rawPath))
+    : resolve(source, sourceIndexName);
+  if (!existsSync(target)) throw new Error(`Broken link in ${sourceIndexName}: ${dest}`);
+  if (/^L\d+$/.test(fragment)) {
+    const lines = readFileSync(target, 'utf8').split(/\r?\n/).length;
+    if (Number(fragment.slice(1)) > lines)
+      throw new Error(`Source line out of range in ${sourceIndexName}: ${dest}`);
+  }
+  companionLinks++;
+}
+console.log(`Checked ${companionLinks} source-index links.`);
 const strings = (value: string) => ({ t: 'MetaInlines', c: [{ t: 'Str', c: value }] });
 const combined: Document = {
   'pandoc-api-version': documents.values().next().value!['pandoc-api-version'],

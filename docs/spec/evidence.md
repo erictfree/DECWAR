@@ -14,9 +14,10 @@ CPU/compiler manuals may establish applicable numeric/platform operations, but
 supply no game rules. The CompuServe source supports its appendix, not substitutions
 for missing Austin rules. See [provenance](../../legacy/README.md).
 
-Each normative clause carries physical source links. A source review means its
-cited statements were inspected; it is not a full independent verification or a
-native differential test. No completed conformance suite exists yet.
+The companion [source index](source-index.md) maps normative clause headings to
+physical source links. A source review means the cited statements were inspected;
+it is not a full independent verification or a native differential test. No
+completed conformance suite exists yet.
 
 The tables below track the earlier source-analysis draft. They do not measure
 conversion into the generalized book. Use [language coverage](language-coverage.md)

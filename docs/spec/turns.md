@@ -22,9 +22,6 @@ The admission rules for choosing that effective speed, and the binding for
 nonterminal clients, remain under review. The command formulas below assume
 that the current class is supplied; they do not define a new SET option.
 
-**Source basis:** [commissioning and pacing](../../legacy/utexas/SETUP.FOR#L388),
-[elapsed-time use](../../legacy/utexas/DECWAR.FOR#L899).
-
 ## Completion classes
 
 | Normal successful completion | Commands |
@@ -40,9 +37,15 @@ mean that typing any recognized command necessarily consumes a turn.
 
 ## Automatic repair
 
-```text
-enum AutomaticRepairSelection = STANDARD | ALL_DEVICES
+This operation uses the [RepairDevices contract](commands.md#shared-device-repair-operation).
+It has no separate repair delay and does not recursively complete another turn.
+Docking alone does not increase the STANDARD allowance.
 
+```typescript
+type AutomaticRepairSelection = "STANDARD" | "ALL_DEVICES";
+```
+
+```text
 operation AutomaticRepair(actor: ShipId,
                           selection: AutomaticRepairSelection): DevicesAdjusted {
     let s: Ship = ship(game, actor);
@@ -55,10 +58,6 @@ operation AutomaticRepair(actor: ShipId,
     return DevicesAdjusted;
 }
 ```
-
-This operation uses the [RepairDevices contract](commands.md#shared-device-repair-operation).
-It has no separate repair delay and does not recursively complete another turn.
-Docking alone does not increase the STANDARD allowance.
 
 For a turn that includes automatic repair, select ALL_DEVICES when the second
 token of the most recently acquired command or continuation input matches ALL
@@ -75,22 +74,7 @@ MOVE ABSOLUTE V H selects STANDARD. A newly acquired coordinate reply replaces
 the command input for this test. These are accepted-input effects, not an
 additional player setting or a change to device-repair units.
 
-**Source basis:** [automatic-repair dispatch](../../legacy/utexas/DECWAR.FOR#L223),
-[repair selection](../../legacy/utexas/DECWAR.FOR#L3190),
-[coordinate mode matching](../../legacy/utexas/DECWAR.FOR#L1404).
-
 ## Turn accounting
-
-```text
-type DefenseContext = PlayerDefense { ship: ShipId } | RomulanDefense { captain: CaptainId }
-type TurnOutcome = Completed | SessionEnded
-type TurnObservation = LifeSupportWarning { reserve: integer }
-
-operation CompleteTurn(actor: ShipId, automaticRepair: Boolean,
-                        repairSelection: AutomaticRepairSelection = STANDARD): TurnOutcome
-
-operation CommitPendingScore(actor: ShipId): Committed
-```
 
 CompleteTurn requires an existing ship with a captain association and a positive
 world.playerCount. That association can still be present after fatal damage has
@@ -98,6 +82,23 @@ cleared the ship's commissioned flag; completion does not impose an additional
 survival test. The command decides whether its path reaches this operation.
 repairSelection matters only when automaticRepair is true and is chosen by the
 input rule above.
+
+```typescript
+type DefenseContext =
+    | { kind: "PlayerDefense"; ship: ShipId }
+    | { kind: "RomulanDefense"; captain: CaptainId };
+type TurnOutcome = { kind: "Completed" } | { kind: "SessionEnded" };
+type TurnObservation = { kind: "LifeSupportWarning"; reserve: number };
+```
+
+LifeSupportWarning.reserve is an integer.
+
+```text
+operation CompleteTurn(actor: ShipId, automaticRepair: Boolean,
+                        repairSelection: AutomaticRepairSelection = STANDARD): TurnOutcome
+
+operation CommitPendingScore(actor: ShipId): Committed
+```
 
 Let s be ship(game, actor), c be captain(game, s.captain), and w be world(game).
 The captain association must be present when c is obtained. A normal completion
@@ -186,24 +187,19 @@ its own report does not perform this commitment.
 participant threshold and the complete session-control precedence need the
 multiplayer binding. No whole-turn transaction or automatic rollback is implied.
 
-**Source basis:** [command completion dispatch](../../legacy/utexas/DECWAR.FOR#L63),
-[turn accounting and score commitment](../../legacy/utexas/DECWAR.FOR#L223),
-[repair](../../legacy/utexas/DECWAR.FOR#L3190),
-[Romulan activation](../../legacy/utexas/DECWAR.FOR#L3233).
-
 ## Automatic installation defenses
-
-```text
-operation EnemyBaseDefense(context: DefenseContext): Completed
-operation PlanetDefense(context: DefenseContext): Completed
-operation BaseReplenishment(context: DefenseContext): Completed
-```
 
 These operations run when turn accounting activates world defenses. A player
 context supplies the acting ship's faction. A Romulan context activates both
 factions but retains its triggering captain for notification audiences.
 The Romulan action rules determine when it invokes these operations;
 they do not run on an independent elapsed-time schedule.
+
+```text
+operation EnemyBaseDefense(context: DefenseContext): Completed
+operation PlanetDefense(context: DefenseContext): Completed
+operation BaseReplenishment(context: DefenseContext): Completed
+```
 
 An eligible player target has `commissioned == true`, a recorded position and
 a nonempty sector query at that position. The queried object need not be the
@@ -300,25 +296,22 @@ release tractor beams or use player weapon readiness deadlines.
 ### BaseReplenishment
 
 In a player context, let n be the number of players on the acting faction.
-Replenish each surviving opposing base by `2.5/n` percentage points. In a Romulan
-context, let n be the total player count. Replenish every surviving base by
-`5/(n+1)` percentage points. Cap each resulting strength at 100%.
-Fractions are retained; there is no minimum
-whole-percentage replenishment and destroyed bases do not regenerate.
-Replenishment visits the applicable factions in Federation-then-Empire order
-and their records in base identity order. It has no maintained-base-count guard:
-a positive-strength record remains eligible even if that faction's maintained
-count is temporarily zero. It does not require a sector-presence check.
+Replenish each surviving opposing base by `2.5/n` percentage points. In a
+Romulan context, let n be the total player count. Replenish every surviving base
+by `5/(n+1)` percentage points. Cap each resulting strength at 100%.
+
+Fractions are retained; there is no minimum whole-percentage replenishment and
+destroyed bases do not regenerate. Replenishment visits the applicable factions
+in Federation-then-Empire order and their records in base identity order. It has
+no maintained-base-count guard: a positive-strength record remains eligible even
+if that faction's maintained count is temporarily zero. It does not require a
+sector-presence check.
 
 These formulas use the session's maintained player counts. Their normal player
 context requires a positive count for the acting faction and a positive total
 player count. Races with admission or departure, and a Romulan defense invocation
 when the total player count is zero, remain part of the unfinished lifecycle
 and interleaving rules; this draft does not invent a replacement denominator.
-
-**Source basis:** [BASBLD](../../legacy/utexas/DECWAR.FOR#L317),
-[BASPHA](../../legacy/utexas/DECWAR.FOR#L375),
-[PLNATK](../../legacy/utexas/DECWAR.FOR#L2800).
 
 ## Returning to command input
 
@@ -335,18 +328,16 @@ define the prompt and control boundaries. Complete interleavings during delivery
 and environment interruptions remain unfinished. Nothing in these algorithms makes
 all of a command's steps one indivisible transaction.
 
-**Source basis:** [command acquisition](../../legacy/utexas/DECWAR.FOR#L1184).
-
 ## Elapsed waiting
-
-```text
-operation WaitElapsed(requested: Duration): Unit
-```
 
 WaitElapsed supplies the elapsed-time suspension used by command delays. It does
 not complete a game turn, repair a device, advance a weapon deadline or release
 coordination. A separate command rule can bypass a particular wait, as privilege
 does for the previous-command delay at main-command acquisition.
+
+```text
+operation WaitElapsed(requested: Duration): Unit
+```
 
 For requested at most zero, return immediately without requesting suspension.
 Otherwise let duration be the smaller of requested and 10000 milliseconds. Read
@@ -367,5 +358,3 @@ The rule describes ordinary clock observations without a discontinuity during
 the wait. Clock rollover, discontinuity, failed suspension and interrupted
 continuation remain environment-binding questions. It does not imply a FIFO
 scheduler, a real-time execution guarantee or automatic cancellation by Ctrl-C.
-
-**Source basis:** [PAUSE](../../legacy/utexas/WARMAC.MAC#L3372).

@@ -26,10 +26,6 @@ radio faction groups contain the five ships of their faction. Iteration over
 the roster uses this same order; the USERS faction separator precedes Cobra.
 Autonomous Romulan speech audiences remain part of the communication amendment.
 
-**Source basis:** [population](../../legacy/compuserve/fortran%201978/PARAM.FOR#L25),
-[roster names](../../legacy/compuserve/fortran%201978/BLKDAT.FOR#L84),
-[USERS roster order](../../legacy/compuserve/fortran%201978/USERS.FOR#L42).
-
 ## Direct command responses and movement refusal
 
 The ordinary [terminal response recipes](presentation.md#shield-command-responses)
@@ -45,9 +41,6 @@ also applies: preference assignment is silent, and terminal-type retries retain
 the unknown-versus-ambiguous distinction and supported-name display. CompuServe
 input waiting and world termination still use their variant contracts.
 
-**SET source basis:** [command selection and prompts](../../legacy/compuserve/fortran%201978/SET.FOR#L27),
-[terminal-type retry](../../legacy/compuserve/fortran%201978/SET.FOR#L78).
-
 For player [TELL responses](presentation.md#tell-command-responses), the nine
 recipient fragments and ordinary recipient/body prompts remain the same.
 CompuServe's body refusal emits `"No message sent\r\n"` during body handling. Austin's corresponding text has no appended ending there. Both
@@ -58,21 +51,12 @@ The [direct Romulan reply amendment](#direct-romulan-replies) still controls
 RomulanUnavailable and suppression of NoRecipients after a reply attempt;
 autonomous speech retains its own diagnostic suppression.
 
-**TELL source basis:** [player output](../../legacy/compuserve/fortran%201978/TELL.FOR#L39),
-[body refusal](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L3589),
-[line-ending definition](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L51).
-
-
 CompuServe also appends one CRLF to the [token-overflow diagnostic](lexical.md#lex-7--capacity-and-recovery)
 and to each of [GRIPE's input prompt and line-limit notices](commands.md#input-and-observations).
 Their wording is unchanged: `Too many words -- line ignored`,
 `Enter gripe, end with ^Z`, `[Only 2 more message lines allowed]`, and
 `[Too many lines -- end of gripe]`. Austin appends no ending to those texts.
 This amendment concerns terminal output, not line endings in stored feedback.
-
-**Source basis:** [token overflow](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L1715),
-[feedback prompt and limits](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L4733).
-
 
 For [HELP command lists and topic diagnostics](presentation.md#help-command-lists-and-topic-diagnostics),
 CompuServe emits `"Commands are:\r\n"` before the following conditional
@@ -81,31 +65,19 @@ before the first matching name, placing the names on the next line. Austin
 appends no ending within either string. Matching order and visibility remain
 subject to this variant's command and help-topic declarations.
 
-**Source basis:** [command heading](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L5100),
-[ambiguity list](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L5232).
-
 For [HELP section failures](presentation.md#help-section-failures), CompuServe's
 unavailable-standard-resource warning is `"%Can't read help file\r\n"`.
 The core warning has no appended ending. Privileged-resource fallback and the
 missing-section diagnostic retain the core sequence.
 
-**Source basis:** [section opening](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L5128),
-[warning macro](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L62).
-
 For [NEWS output and failure](presentation.md#news-output-and-failure),
 CompuServe appends CRLF to `"%Can't read DECWAR.NWS"`. Its content, continuation
 prompt and ordinary viewing-exit output follow the core sequence.
-
-**Source basis:** [NEWS](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L4658),
-[warning expansion](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L59).
 
 CompuServe uses the same [GRIPE refusal and storage diagnostic texts](presentation.md#gripe-refusal-and-storage-diagnostics).
 Its storage warnings each append CRLF; the RED-alert refusal already contains
 its own endings and is unchanged. Warning suppression and recovery follow the
 stated command and environment contracts, not a new retry for every failure.
-
-**Source basis:** [GRIPE storage warnings](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L4932),
-[extension warning](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L4992).
 
 Amending [movement relocation](commands.md#traversal-resource-cost-and-relocation),
 CompuServe Move can additionally return RelocationRefused. This is a semantic
@@ -130,11 +102,6 @@ independent per-sector coordination or establish which simultaneous moves confli
 Interrupted requests and state changes by other actors retain the corresponding
 multiplayer limits.
 
-**Source basis:** [CompuServe movement](../../legacy/compuserve/fortran%201978/MOVE.FOR#L120),
-[shared command strings](../../legacy/compuserve/fortran%201978/MSG.MAC#L12),
-[ordinary shield responses](../../legacy/compuserve/fortran%201978/SHIELD.FOR#L21),
-[ordinary phaser responses](../../legacy/compuserve/fortran%201978/PHACON.FOR#L24).
-
 ## Initial preferences
 
 Amends [startup and pregame](session-rules.md#startup-and-pregame) and the
@@ -142,11 +109,15 @@ initial Captain preferences. The initial dialogue offers BEGINNER, INTERMEDIATE
 and EXPERT, also selected by numeric values 1, 2 and 3 respectively. These choices
 are presentation preferences, not difficulty levels that alter combat or resources.
 
-```text
+```ebnf
 CompuServeExperienceReply ::= EmptyInput | TokenInput {TokenInput}
+```
 
-enum ExperienceChoice = BEGINNER | INTERMEDIATE | EXPERT
+```typescript
+type ExperienceChoice = "BEGINNER" | "INTERMEDIATE" | "EXPERT";
+```
 
+```text
 operation SelectCompuServeExperience(viewer: CaptainId,
     candidate: Optional<Token>): Selected { choice: ExperienceChoice } | Unchanged
 ```
@@ -184,10 +155,6 @@ and report fields before a galaxy exists, require the corresponding environment
 and presentation rules. No profile name or invented initial galaxy is supplied
 by this amendment.
 
-**Source basis:** [initial dialogue and main entry](../../legacy/compuserve/fortran%201978/DECWAR.FOR#L30),
-[preference domains](../../legacy/compuserve/fortran%201978/PARAM.FOR#L153),
-[TYPE observations](../../legacy/compuserve/fortran%201978/TYPE.FOR#L34).
-
 ## Additional startup and pregame commands
 
 Amends [command selection](grammar.md#gram-2--command-selection) and the startup
@@ -220,15 +187,15 @@ ambiguous. HO and HELP have their ordinary distinct effects in both contexts.
 
 ### DOCUMENT
 
-```text
-operation ShowCompuServeDocumentNotice(viewer: CaptainId): Completed
-```
-
 Require the viewer's session phase to be PREGAME. Emit the documentation notice
 and return to pregame command acquisition. Ignore trailing arguments. No game
 state changes, resource charge, turn, purchase or external document launch occurs.
 The pregame introduction's wording about purchasing documentation does not add
 such an effect to this operation.
+
+```text
+operation ShowCompuServeDocumentNotice(viewer: CaptainId): Completed
+```
 
 The notice begins with `This is where CompuServe rips you off for` and ends with
 `Documentation!`, followed by an unconditional line ending.
@@ -252,8 +219,8 @@ The environment identifies which service class the session is using. This is
 an existing service distinction, not a fee, purchase or authorization action
 performed by HONORROLL.
 
-```text
-enum CompuServeServiceClass = PAYING | NON_PAYING
+```typescript
+type CompuServeServiceClass = "PAYING" | "NON_PAYING";
 ```
 
 Each class has a distinct standings source. For a PAYING session, attempt only
@@ -286,8 +253,6 @@ update. Other callers that request a standings display, such as feedback
 recording, do not inherit the explicit HONORROLL request's second-source rule.
 Their caller-specific behavior remains part of the corresponding amendment.
 
-**Source basis:** [standings source selection and continuation](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L5885).
-
 The following clauses define standings records, placement, ordinary storage
 attempts and report presentation. Together with this command's source-selection
 rule, they describe the ordinary Honor Roll operation.
@@ -296,34 +261,7 @@ rule, they describe the ordinary Honor Roll operation.
 faction ordering and asynchronous control transfer still limit a complete
 HONORROLL conformance claim.
 
-**Source basis:** [startup and pregame dispatch](../../legacy/compuserve/fortran%201978/SETUP.FOR#L126),
-[DOCUMENT and HONORROLL actions](../../legacy/compuserve/fortran%201978/SETUP.FOR#L162),
-[pregame name table](../../legacy/compuserve/fortran%201978/SETUP.FOR#L505),
-[standings reader](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L5885).
-
-
 ### Standings records and placement
-
-```text
-type RecordedDate
-
-type CompuServeStanding = {
-    account: AccountIdentity;
-    captainName: Text;
-    shipName: Text;
-    recordedDate: RecordedDate;
-    score: Points;
-    elapsed: Duration;
-    missionNumber: nonnegative integer;
-    markedMissing: Boolean;
-};
-
-type StandingsPlacement = BelowCut | EarlierAccountRecord
-    | InsertAt { position: positive integer };
-
-query FindStandingsPlacement(records: List<CompuServeStanding>,
-                            candidate: CompuServeStanding): StandingsPlacement
-```
 
 A standings list contains at most ten records, in displayed rank order. This
 query concerns a valid list without vacant entries between records. Account
@@ -332,6 +270,34 @@ is a date value supplied by the environment; its calendar and conversion binding
 remain to be specified. elapsed is commission elapsed time, not ship turns or
 CPU execution time. The current display names are preserved as record values;
 a later rename does not rewrite an existing record.
+
+```typescript
+type RecordedDate = unknown;
+
+interface CompuServeStanding {
+    account: AccountIdentity;
+    captainName: Text;
+    shipName: Text;
+    recordedDate: RecordedDate;
+    score: Points;
+    elapsed: Duration;
+    missionNumber: number;
+    markedMissing: Boolean;
+}
+
+type StandingsPlacement =
+    | { kind: "BelowCut" }
+    | { kind: "EarlierAccountRecord" }
+    | { kind: "InsertAt"; position: number };
+```
+
+RecordedDate is opaque. Mission numbers are nonnegative integers, and insertion
+positions are positive integers.
+
+```text
+query FindStandingsPlacement(records: List<CompuServeStanding>,
+                            candidate: CompuServeStanding): StandingsPlacement
+```
 
 FindStandingsPlacement scans from position one. Select the first position whose
 existing record has a lower score than candidate.score, or has the same score
@@ -388,49 +354,39 @@ update precedes commission release. Reporting or update failures can therefore
 prevent the caller from reaching release; no rollback or guaranteed cleanup is
 implied by the ordinary successful sequence.
 
-**Source basis:** [fatal acquisition reporting](../../legacy/compuserve/fortran%201978/GETCMD.FOR#L105),
-[world-end record status and ordering](../../legacy/compuserve/fortran%201978/ENDGAM.FOR#L54),
-[QUIT and immediate movement-death departures](../../legacy/compuserve/fortran%201978/DECWAR.FOR#L132),
-[common departure record](../../legacy/compuserve/fortran%201978/DECWAR.FOR#L333),
-[fatal environment event](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L6106).
-
 **OPEN QUESTION:** The calendar binding that supplies date parts, concurrent
 failure behavior and malformed preexisting records still require review.
 Ordinary row values and spacing are defined below. The placement rule does not
 promise a durable write or reclassify a losing commission as a destroyed
 physical ship.
 
-**Source basis:** [record update and ranking](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L5694),
-[record fields](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L5833),
-[ten-entry limit](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L231),
-[elapsed-time caller](../../legacy/compuserve/fortran%201978/GETCMD.FOR#L114).
-
-
 ### Honor Roll group observations
-
-```text
-enum StandingsGroupKind = PRIMARY | MEMORIAL
-
-type CompuServeStandings = {
-    primary: Map<Team, List<CompuServeStanding>>;
-    memorial: Map<Team, List<CompuServeStanding>>;
-};
-
-type StandingsGroup = {
-    team: Team;
-    kind: StandingsGroupKind;
-    records: List<CompuServeStanding>;
-};
-
-query OrderStandingsGroups(value: CompuServeStandings): List<StandingsGroup>
-    requires both primary lists are nonempty
-```
 
 Each of the four lists contains at most ten records. PRIMARY and MEMORIAL name
 report groups, not a test of whether a captain currently has a ship. In
 particular markedMissing records can appear in PRIMARY under the update rule.
 Records in one group retain their source order; display does not sort them
 again or merge records from different groups.
+
+```typescript
+type StandingsGroupKind = "PRIMARY" | "MEMORIAL";
+
+interface CompuServeStandings {
+    primary: Map<Team, List<CompuServeStanding>>;
+    memorial: Map<Team, List<CompuServeStanding>>;
+}
+
+interface StandingsGroup {
+    team: Team;
+    kind: StandingsGroupKind;
+    records: List<CompuServeStanding>;
+}
+```
+
+```text
+query OrderStandingsGroups(value: CompuServeStandings): List<StandingsGroup>
+    requires both primary lists are nonempty
+```
 
 Within the query's domain, compare the first primary record's score for each
 faction. Federation comes first when its score is at least Empire's, including
@@ -459,8 +415,6 @@ substitute. This draft does not invent zero for an absent record or use a
 memorial score instead. Pending-interrupt observation points and heading literals are defined below.
 Asynchronous control transfer, damaged source records and calendar binding
 remain environment review items.
-
-**Source basis:** [faction comparison and group display](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L5922).
 
 ### Honor Roll headings and interruption boundaries
 
@@ -526,45 +480,45 @@ The group row traversal has no additional pending-interrupt check between
 records. An interrupt that becomes pending during the rows does not by itself
 request an immediate stop there. After a PRIMARY group's traversal, check again:
 a pending interrupt omits that faction's MEMORIAL group. This return does not
-skip the other faction's processing. A nonempty group introduction in the other
-faction can consequently be emitted before its pending-interrupt check omits
-the column heading and rows. If that faction's PRIMARY list is empty, its
-MEMORIAL introduction can be reached directly. At the source-completion boundary,
-consume the pending interrupt and return as specified above, without attempting
-a second statistics source.
+skip the other faction's processing.
+
+A nonempty group introduction in the other faction can consequently be emitted
+before its pending-interrupt check omits the column heading and rows. If that
+faction's PRIMARY list is empty, its MEMORIAL introduction can be reached
+directly. At the source-completion boundary, consume the pending interrupt and
+return as specified above, without attempting a second statistics source.
 
 These are report-level observation points, not a guarantee that every output
 request survives a disconnect or an interrupt that transfers control out of
 the report. No per-row cancellation, new prompt, rollback of printed text or
 whole-report atomicity is implied.
 
-**Source basis:** [overall heading](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L5901),
-[group introductions and return checks](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L5944),
-[column heading and row traversal](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L6002),
-[width selection](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L6045),
-[conditional line ending](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L2053).
-
 ### Honor Roll row values and spacing
-
-```text
-type StandingDateParts = {
-    day: integer in 1..31;
-    month: integer in 1..12;
-    year: nonnegative integer;
-};
-
-query standingDateParts(date: RecordedDate): StandingDateParts
-query FormatHonorRollRow(record: CompuServeStanding,
-                        columns: positive integer): Text
-    requires record has a printable captain name of at most twelve characters
-    requires UserAccountLabel(record.account) has one to six digits per component
-```
 
 standingDateParts belongs to the environment's calendar binding. It describes
 the calendar date represented by recordedDate, not the date of the current
 report. The binding must identify its calendar and date acquisition; no time
 zone is inferred from an account identity. The parts query does not turn a date
 into elapsed game time or alter a record's rank.
+
+```typescript
+interface StandingDateParts {
+    day: number;
+    month: number;
+    year: number;
+}
+```
+
+The day is an integer from 1 through 31, the month is an integer from 1 through
+12, and the year is a nonnegative integer.
+
+```text
+query standingDateParts(date: RecordedDate): StandingDateParts
+query FormatHonorRollRow(record: CompuServeStanding,
+                        columns: positive integer): Text
+    requires record has a printable captain name of at most twelve characters
+    requires UserAccountLabel(record.account) has one to six digits per component
+```
 
 FormatHonorRollRow returns the following concatenation. It emits no line ending
 and changes no game state, record or presentation preference. Reuse the
@@ -603,36 +557,10 @@ For example, scores 149 and 150 points display Credits 1 and 2 respectively;
 90 seconds displays Runtm 2. A score of -150 points displays Credits -1 under
 the specified halfway rule. The signed rounding rule uses ordinary arithmetic;
 its normalization is recorded separately from historical numeric behavior.
-The date format likewise denotes calendar components without requiring any
-particular epoch or packed date representation. Its calendar binding remains
-an explicit environment dependency.
-
-**Source basis:** [row fields and width](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L6020),
-[ship prefix and padding](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L2145),
-[fixed captain-name output](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L2213),
-[numeric field formatting](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L2286),
-[date components](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L6077).
+The date format denotes calendar components. The environment defines how a
+RecordedDate supplies those components.
 
 ### Commission numbering
-
-```text
-type CompuServeStatistics = {
-    gameNumber: nonnegative integer;
-    missions: Map<ShipId, nonnegative integer>;
-    reportedLosses: Map<ShipId, nonnegative integer>;
-    standings: CompuServeStandings;
-};
-
-type CommissionNumbers = {
-    gameNumber: nonnegative integer;
-    missionNumber: nonnegative integer;
-};
-
-query compuServeGameNumber(game: GameState): nonnegative integer
-
-operation RecordCommission(ship: ShipId,
-                           service: CompuServeServiceClass): CommissionNumbers
-```
 
 The missions and reportedLosses mappings are restricted to the ten identities
 in the CompuServe roster. A valid CompuServeStatistics value contains one counter
@@ -642,6 +570,30 @@ Empty statistics means zero gameNumber, zero for every counter, and empty
 standings lists; it does not mean absent mapping entries. RecordCommission
 requires a ship identity in this roster. These domain requirements do not define
 recovery from an incomplete or damaged persistent record.
+
+```typescript
+interface CompuServeStatistics {
+    gameNumber: number;
+    missions: Map<ShipId, number>;
+    reportedLosses: Map<ShipId, number>;
+    standings: CompuServeStandings;
+}
+
+interface CommissionNumbers {
+    gameNumber: number;
+    missionNumber: number;
+}
+```
+
+Game numbers, mission numbers, mission counts and reported-loss counts are
+nonnegative integers.
+
+```text
+query compuServeGameNumber(game: GameState): nonnegative integer
+
+operation RecordCommission(ship: ShipId,
+                           service: CompuServeServiceClass): CommissionNumbers
+```
 
 compuServeGameNumber is the current galaxy's shared game number. It is distinct
 from gameNumber in either stored CompuServeStatistics value. RecordCommission
@@ -694,29 +646,27 @@ sources. Only the NON_PAYING mission count is increased. For a PAYING admission,
 only PAYING is selected for the final write. Neither case creates a new Honor
 Roll record merely by incrementing a mission counter.
 
-**Source basis:** [shared game number](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L457),
-[admission ordering](../../legacy/compuserve/fortran%201978/SETUP.FOR#L444),
-[numbering, access and reports](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L5589).
-
 ### Preparing a standings update
 
-```text
-type StandingUpdate = {
+This query describes the value to be submitted for storage; it does not itself
+read, write, display, advance the game, or release a commission. Its result is
+computed as follows:
+
+```typescript
+interface StandingUpdate {
     statistics: CompuServeStatistics;
     placement: StandingsPlacement;
     writeRequired: Boolean;
-};
+}
+```
 
+```text
 query PrepareStandingUpdate(before: CompuServeStatistics,
                            ship: ShipId, team: Team,
                            candidate: CompuServeStanding): StandingUpdate
     requires candidate.elapsed >= 1000 milliseconds
     requires before contains counters for ship and valid lists for team
 ```
-
-This query describes the value to be submitted for storage; it does not itself
-read, write, display, advance the game, or release a commission. Its result is
-computed as follows:
 
 1. Start with the supplied statistics. If candidate.markedMissing == true,
    increase reportedLosses[ship] by one. Otherwise retain that counter.
@@ -754,13 +704,14 @@ normally; interruption and non-returning failures need an environment binding.
 
 Start from empty record lists and zero counters, and attempt to open the PAYING
 statistics source for reading. If this opening fails, proceed with the empty
-statistics; do not attempt a NON_PAYING read on that branch. If opening succeeds,
-read the available contents and close it. For a NON_PAYING session, then replace
-the selected statistics with empty statistics and attempt the NON_PAYING read;
-a failed opening leaves that selection empty. For a PAYING session, retain the
-PAYING selection. A source that opens but supplies no contents leaves the
-initial empty values. Partial or malformed contents are outside this rule's
-valid-statistics domain.
+statistics; do not attempt a NON_PAYING read on that branch. If opening
+succeeds, read the available contents and close it.
+
+For a NON_PAYING session, then replace the selected statistics with empty
+statistics and attempt the NON_PAYING read; a failed opening leaves that
+selection empty. For a PAYING session, retain the PAYING selection. A source
+that opens but supplies no contents leaves the initial empty values. Partial or
+malformed contents are outside this rule's valid-statistics domain.
 
 Apply PrepareStandingUpdate to the selected statistics. When writeRequired is
 false, release statistics access and return without opening a destination.
@@ -778,12 +729,6 @@ destination. Do not silently replace this sequence with “read only the session
 own source,” merge both sources, or interpret an opening failure as proof that
 no prior records exist.
 
-**Source basis:** [statistics counters](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L687),
-[entry and source selection](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L5694),
-[loss count and notification](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L5725),
-[earlier-account outcome](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L5783),
-[record insertion and write paths](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L5833).
-
 ## Ctrl-G during command input
 
 Amends [line acquisition and editing](lexical.md#lex-2--line-acquisition-and-editing).
@@ -792,11 +737,6 @@ current input text, continue acquiring the line and make no echo-mode change.
 Do not redisplay the retained line in response to that character. Ctrl-R retains
 its line-redisplay role. A client-local action or echo is outside this delivered
 character rule and must be distinguished by its transport binding.
-
-**Source basis:** [character classification](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L980),
-[input action](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L1897),
-[echo action](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L1970),
-[echo-on/off behavior](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L1313).
 
 ## Ordinary input echo and output
 
@@ -814,11 +754,6 @@ still bypasses the generated LF. ESC repetition and completion at the input limi
 retain the Austin CRLF rule. The preceding Ctrl-G amendment remains applicable:
 Ctrl-G does not request redisplay.
 
-**Source basis:** [initial echo assumption](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L1165),
-[echo operations](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L1313),
-[ordinary completion and editing](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L1859),
-[character classification and redisplay](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L1927).
-
 ## Romulan speech frequency
 
 Amends the two speech tests in [Romulan activation](autonomous.md#activation-and-appearance)
@@ -833,9 +768,6 @@ that test is reached. A test that is not reached consumes no replacement draw.
 These are not extra independent speech timers, new appearance odds or player
 weapon changes. The speech event itself can consume its own choices.
 
-**Source basis:** [appearance speech test](../../legacy/compuserve/fortran%201978/ROMDRV.FOR#L64),
-[post-weapon speech test](../../legacy/compuserve/fortran%201978/ROMDRV.FOR#L123).
-
 ## Autonomous speech audiences
 
 Amends [autonomous Romulan speech](communication.md#autonomous-romulan-speech).
@@ -843,11 +775,11 @@ The audience choice selects one of the following three values with equal
 probability. The qualifier belongs to the selected value; it is not another
 random choice.
 
-```text
-type SpeechAudience = {
+```typescript
+interface SpeechAudience {
     candidates: Set<ShipId>;
     qualifier: Text;
-};
+}
 ```
 
 | Choice | Candidate ship identities | Qualifier |
@@ -887,23 +819,23 @@ NotPublished result at that point. This does not establish that every busy
 publication eventually returns, or that Ctrl-C cancels it. The rules above specify
 audience selection and body construction without assuming either outcome.
 
-**Source basis:** [audience and body choices](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L6225),
-[autonomous validation and publication](../../legacy/compuserve/fortran%201978/TELL.FOR#L127),
-[roster identities](../../legacy/compuserve/fortran%201978/BLKDAT.FOR#L84),
-[publication admission retry](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L3560).
-
 ## Direct Romulan replies
 
 Amends [TELL recipient selection](commands.md#recipient-selection). ROMULAN
 remains an existing Recipient alternative; this amendment gives it a CompuServe
 effect. It adds no new command or argument form.
 
-```text
-type CompuServeTellObservation = TellObservation | RomulanUnavailable
+```typescript
+type CompuServeTellObservation = TellObservation | { kind: "RomulanUnavailable" };
 
 type CompuServeTellOutcome =
-    Result<Published { id: MessageId } | NotPublished | ReplyAttempted, TellFailure>
-    | Cancelled
+    | Result<
+          | { kind: "Published"; id: MessageId }
+          | { kind: "NotPublished" }
+          | { kind: "ReplyAttempted" },
+          TellFailure
+      >
+    | { kind: "Cancelled" };
 ```
 
 CompuServe's SendTell uses this outcome in place of the core outcome. The
@@ -952,23 +884,19 @@ returns; it supplies no timeout, cancellation or completion guarantee. The
 complete CompuServe waiting contract remains open as described above. TELL
 itself still completes no turn and charges no energy.
 
-**Source basis:** [recipient loop and reply sequence](../../legacy/compuserve/fortran%201978/TELL.FOR#L54),
-[filtering and player-body continuation](../../legacy/compuserve/fortran%201978/TELL.FOR#L132),
-[direct reply sender and audience](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L6242).
-
 ### Reply body
-
-```text
-query CompuServeOriginQualifier(viewer: CaptainId): Optional<Text>
-
-operation ComposeCompuServeRomulanReply(actor: ShipId): Text
-```
 
 Require the actor to have an active commission and a present captain. The
 origin-qualifier query describes wording associated with that captain's
 connection origin. It observes environment metadata; it changes no game state
 and makes no random choice. Its result is absent when the origin has no
 recognized qualifier. It does not infer a player's physical location or faction.
+
+```text
+query CompuServeOriginQualifier(viewer: CaptainId): Optional<Text>
+
+operation ComposeCompuServeRomulanReply(actor: ShipId): Text
+```
 
 The environment binding supplies the session's CompuServe origin code when
 available. This is connection metadata, not a game command, captain-entered
@@ -1060,22 +988,18 @@ make an audience-selection draw. This operation only composes text: it does not
 publish the message, move the Romulan or change radio, energy or score state.
 The reply sequence above supplies those subsequent operations.
 
-**Source basis:** [direct openings and composition](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L6251),
-[qualifier choice and origin lookup](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L6320),
-[origin wording table](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L6349).
-
 ### Relocation after a reply attempt
-
-```text
-operation RelocateRomulanAfterReply(actor: ShipId):
-    Stayed | Relocated { from: Position, to: Position }
-```
 
 Require an active actor and a present Romulan at the point of this operation.
 First draw IntegerDraw(4). Results 2, 3 and 4 return Stayed without changing
 position or making another draw. On 1, first read the actor's current position p,
 then let start = IntegerDraw(10) - 5; thus
 start is an integer from -4 through 5.
+
+```text
+operation RelocateRomulanAfterReply(actor: ShipId):
+    Stayed | Relocated { from: Position, to: Position }
+```
 
 Search horizontal offsets from start through 10 in increasing order. For each
 horizontal offset, search vertical offsets from start through 10 in increasing
@@ -1097,8 +1021,6 @@ exclusive access or a destination recheck against concurrent actions. Such
 interleavings, including disappearance of the actor or Romulan while the reply
 waits to publish, remain part of the concurrency amendment; the precondition
 above is not a new player-visible rejection in those cases.
-
-**Source basis:** [post-reply choice and ordered relocation](../../legacy/compuserve/fortran%201978/TELL.FOR#L93).
 
 ## Coordination amendments
 
@@ -1171,12 +1093,13 @@ Checking input readiness has its own waiting rule. If a remainder of the current
 command line is available, or initialization-file input is active, report input
 ready without releasing a resource. Otherwise, a positive requested wait saves
 and releases the remembered resource, suspends until the input notification or
-requested timeout, and retries reacquisition before checking readiness. A
-nonpositive readiness wait skips suspension and resource release. This readiness
-wait does not use the elapsed-wait cap and deadline-recheck sequence above.
-After the wait, hangup, available terminal input or a pending command interrupt
-reports input ready; otherwise report input not ready. Reporting readiness does
-not itself read or execute a command.
+requested timeout, and retries reacquisition before checking readiness.
+
+A nonpositive readiness wait skips suspension and resource release. This
+readiness wait does not use the elapsed-wait cap and deadline-recheck sequence
+above. After the wait, hangup, available terminal input or a pending command
+interrupt reports input ready; otherwise report input not ready. Reporting
+readiness does not itself read or execute a command.
 
 The requested input or delay can finish while reacquisition still waits. These
 rules impose no finite total wait, fairness or automatic rollback guarantee.
@@ -1188,17 +1111,9 @@ reacquisition still require review. A stopped or interrupted acquisition must
 not be treated as a successful coordinated phase by assumption. Environment binding beyond the resource scopes above remains open. These limits do not
 replace the ordinary sequences above with Austin's release-all behavior.
 
-**Source basis:** [CompuServe waiting](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L4010),
-[fresh input](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L1679),
-[input readiness](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L3871),
-[entry, selection and scope](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L4468),
-[delivery entry](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L3127),
-[standings entry](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L5589),
-[targeted and explicit release-all paths](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L4594).
-
 ## Remaining amendments
 
-The environment origin-code acquisition binding, standings persistence, concurrency and other
-differences still require language-level descriptions. The earlier [CompuServe source
-analysis](compuserve.md) retains the derivations. Packed representations and
-machine side effects in that analysis are not requirements of this appendix.
+The environment origin-code acquisition binding, standings persistence,
+concurrency and other differences still require language-level descriptions.
+The companion [CompuServe source analysis](compuserve.md) retains the
+derivations.

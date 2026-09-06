@@ -17,9 +17,6 @@ unchanged. This includes punctuation: a grave accent becomes `@`, `{` becomes
 `[`, `|` becomes backslash, `}` becomes `]`, and `~` becomes `^`. It is not simply
 alphabetic case folding. Classification for skipping spacing occurs separately.
 
-**Evidence:** [Austin WARMAC NXTT.](../../legacy/utexas/WARMAC.MAC#L1454),
-[character table](../../legacy/utexas/WARMAC.MAC#L838).
-
 ## LEX-2 — Line acquisition and editing
 
 The ordinary command reader MUST ignore carriage return. Line feed, vertical tab,
@@ -52,16 +49,14 @@ retain the line's repeated status.
 An ordinary argument continuation or message-body acquisition replaces the
 remembered line just as command acquisition does. ESC can therefore reuse an
 argument or message body at the next acquisition site; the caller interprets
-that text under its own grammar. No separate command-only history is implied.
-A newly acquired empty line also replaces the preceding line. This rule does
-not extend to the separate startup name reader. Repetition before any prior
-ordinary acquisition has no defined previous line in this draft.
-TELL separately rejects repeated input.
-These editing rules concern characters delivered to the game. Physical echo,
-delivery of keystrokes and output control sequences belong to the terminal binding.
+that text under its own grammar. No separate command-only history is implied. A
+newly acquired empty line also replaces the preceding line.
 
-**Evidence:** [INLI. and NXCH.](../../legacy/utexas/WARMAC.MAC#L1542),
-[CBITS](../../legacy/utexas/WARMAC.MAC#L838).
+This rule does not extend to the separate startup name reader. Repetition before
+any prior ordinary acquisition has no defined previous line in this draft. TELL
+separately rejects repeated input. These editing rules concern characters
+delivered to the game. Physical echo, delivery of keystrokes and output control
+sequences belong to the terminal binding.
 
 ## LEX-3 — Token boundaries and command remainder
 
@@ -80,38 +75,36 @@ Single and double quotes have no general quoting role in command tokenization.
 They are ordinary token characters. There is no universal string-literal syntax
 that permits spaces or separators inside a token.
 
-**Evidence:** [GTKN](../../legacy/utexas/WARMAC.MAC#L1377),
-[NXTT./SKPB.](../../legacy/utexas/WARMAC.MAC#L1454), CBITS above.
-
 ## LEX-4 — Token categories
-
-```text
-enum TokenCategory = NULL | INTEGER | REAL | ALPHANUMERIC
-type InputPosition = character position within an acquired input
-
-type Token = {
-    text: Text;
-    category: TokenCategory;
-    numericValue: real;
-    origin: InputPosition;
-};
-
-type AcquiredLine = {
-    raw: Text;
-    repeated: Boolean;
-};
-
-type CommandInput = {
-    line: AcquiredLine;
-    arguments: List<Token>;
-};
-```
 
 Token is an abstract description of input, not a required lexer object.
 The text property is the retained, transformed spelling; numericValue is the
 quantity determined below. A name-category token means ALPHANUMERIC; it does
 not introduce a fifth category. Operation parameters of type `List<Token>`
 contain arguments only, excluding the command name and end boundary.
+InputPosition identifies a character position within one acquired input line.
+
+```typescript
+type TokenCategory = "NULL" | "INTEGER" | "REAL" | "ALPHANUMERIC";
+type InputPosition = number;
+
+interface Token {
+    text: Text;
+    category: TokenCategory;
+    numericValue: number;
+    origin: InputPosition;
+}
+
+interface AcquiredLine {
+    raw: Text;
+    repeated: Boolean;
+}
+
+interface CommandInput {
+    line: AcquiredLine;
+    arguments: List<Token>;
+}
+```
 
 AcquiredLine.raw is the retained line after editing, without its terminating
 control character and before token case transformation. Its repeated property
@@ -138,10 +131,6 @@ REAL-zero input, whereas `+` and `-` alone have null category. Tokens such as `1
 `1-2` and `1.2.3` become alphanumeric rather than scientific notation or a lexical
 error. The command consuming a token decides whether its category is legal.
 
-**Evidence:** [GTKN category selection](../../legacy/utexas/WARMAC.MAC#L1416),
-[NXTT.](../../legacy/utexas/WARMAC.MAC#L1454),
-[ANUM.](../../legacy/utexas/WARMAC.MAC#L1508).
-
 ## LEX-5 — Numeric interpretation
 
 An integer token denotes the mathematical decimal integer written by its sign
@@ -150,10 +139,8 @@ has only five characters.
 
 A REAL token denotes the mathematical decimal value of its complete spelling.
 Exponent notation is not part of the language. A decimal point without digits
-denotes zero, as specified in LEX-4. Numeric interpretation does not reproduce
-finite-word overflow, compiler arithmetic or per-digit machine rounding.
-
-**Evidence:** [ANUM.](../../legacy/utexas/WARMAC.MAC#L1508).
+denotes zero, as specified in LEX-4. Numeric interpretation uses the ordinary
+arithmetic defined by the abstract game model.
 
 ## LEX-6 — Keyword matching
 
@@ -175,11 +162,6 @@ SHIELDS entry because its first five characters match. `TORPEDO` selects the
 source table's TORPEDOS entry. `SCANXYZ` is not SCAN: its fifth retained character
 differs from SCAN's terminating space.
 
-**Evidence:** [EQUAL](../../legacy/utexas/WARMAC.MAC#L3675),
-[GETCMD matching loop](../../legacy/utexas/DECWAR.FOR#L1243),
-[XGTCMD](../../legacy/utexas/SETUP.FOR#L402),
-[ship selection](../../legacy/utexas/SETUP.FOR#L337).
-
 ## LEX-7 — Capacity and recovery
 
 At most 14 tokens precede end of command; the command name and null tokens
@@ -200,10 +182,6 @@ Overflow emits exactly `Too many words -- line ignored`, with no added line
 ending, discards the entire remaining physical line and returns an empty token
 sequence. None of the line's tokens is accepted as part of that command.
 
-
-**Evidence:** [GTKN capacity/recovery](../../legacy/utexas/WARMAC.MAC#L1407),
-[NXTT delimiter handling](../../legacy/utexas/WARMAC.MAC#L1454),
-[character classes](../../legacy/utexas/WARMAC.MAC#L838).
 
 ## LEX-8 — Independent token values
 

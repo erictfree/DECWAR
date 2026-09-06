@@ -13,23 +13,27 @@ Throughout this chapter, w denotes world(game), a denotes w.romulanActivity,
 and r denotes the present Romulan when required by the operation. These names
 do not freeze a snapshot across interactive or concurrent events.
 
-```text
-enum RomulanWeapon = PHASERS | TORPEDOS
+```typescript
+type RomulanWeapon = "PHASERS" | "TORPEDOS";
 
-type RomulanStepResult = {
+interface RomulanStepResult {
     appeared: Boolean;
     repositioned: Boolean;
     weapon: Optional<RomulanWeapon>;
-};
+}
 
-type RomulanStepOutcome = Completed { result: RomulanStepResult } | GalaxyEnded
+type RomulanStepOutcome =
+    | { kind: "Completed"; result: RomulanStepResult }
+    | { kind: "GalaxyEnded" };
 
-type RomulanTarget = {
-    object: SectorObject restricted to PlayerShip or Starbase;
+interface RomulanTarget {
+    object: Extract<SectorObject, { kind: "PlayerShip" | "Starbase" }>;
     position: Position;
-    range: integer;
-};
+    range: number;
+}
 ```
+
+RomulanTarget.range is a nonnegative integer number of sectors.
 
 A result records whether this activation created a Romulan, changed its position,
 and attempted a weapon. Completed does not imply that an attack occurred or
@@ -39,15 +43,15 @@ the remaining activation and ordinary return to its triggering turn.
 
 ## Activation and appearance
 
-```text
-operation AdvanceRomulan(trigger: CaptainId): RomulanStepOutcome
-```
-
 The turn rules invoke this operation only while Romulan activity is enabled.
 The trigger identifies the captain whose turn caused the activation; it remains
 that captain for reports and radio preferences even when the Romulan attacks
 someone else. Let w be world(game), a be w.romulanActivity and n be w.playerCount.
 This ordinary activation contract requires n to be positive.
+
+```text
+operation AdvanceRomulan(trigger: CaptainId): RomulanStepOutcome
+```
 
 Every invocation increments a.cadence. If twice its new value is less than n,
 return with no further effects. Otherwise increment a.turns, even if the
@@ -81,15 +85,7 @@ activity does not invoke this operation or advance its counters. The concurrent
 loss of all players, exhausted placement domains and interrupted appearance
 remain part of the open lifecycle contract.
 
-**Source basis:** [ROMDRV activation](../../legacy/utexas/DECWAR.FOR#L3233),
-[placement](../../legacy/utexas/DECWAR.FOR#L2765),
-[new-galaxy initialization](../../legacy/utexas/SETUP.FOR#L171).
-
 ## Target selection
-
-```text
-operation SelectRomulanTarget(): RomulanTarget
-```
 
 SelectRomulanTarget requires a present Romulan and at least one eligible
 candidate whose Euclidean distance from it is at most 75 sectors. Eligibility
@@ -97,6 +93,10 @@ is defined below. This is the operation's defined domain, not a restriction on
 where ships may exist or a rule that the Romulan ignores more distant ships.
 The RomulanTarget result is guaranteed only within that domain. No target,
 idle action or failure message is prescribed outside it.
+
+```text
+operation SelectRomulanTarget(): RomulanTarget
+```
 
 Targets are player ships and surviving bases; planets and stars are not direct
 candidates. For positions p and q, define:
@@ -111,13 +111,14 @@ bases, Empire bases. A Federation ship requires an active commission, a recorded
 position and a nonempty sector at that position. An Empire ship requires a
 recorded position and nonempty sector but has no separate commission test here.
 A faction's base group is considered only when its maintained
-world(game).baseCounts[faction] is positive. Within that group, a base requires
-positive strength and a nonempty sector at its position. The maintained-count
-check is separate from counting eligible records; it is not replaced by such a
-count during an unfinished installation transition.
-A nonempty sector need not identify the same entity being considered; temporary
-BlackHoleObject interaction during HELP or GRIPE does not exclude the ship.
-An empty group contributes no candidate to the result.
+world(game).baseCounts[faction] is positive.
+
+Within that group, a base requires positive strength and a nonempty sector at
+its position. The maintained-count check is separate from counting eligible
+records; it is not replaced by such a count during an unfinished installation
+transition. A nonempty sector need not identify the same entity being
+considered; temporary BlackHoleObject interaction during HELP or GRIPE does not
+exclude the ship. An empty group contributes no candidate to the result.
 
 Within each group select the smallest squaredDistance from the Romulan. Equal
 distances retain the first ship in roster order or first base in faction base
@@ -139,17 +140,15 @@ This is a limit of this draft's defined domain, not a newly specified pursuit
 radius or permission to choose an arbitrary target. Concurrent changes during
 selection also remain unresolved.
 
-**Source basis:** [DIST](../../legacy/utexas/DECWAR.FOR#L836).
-
 ## Movement toward a target
-
-```text
-operation PursueRomulanTarget(trigger: CaptainId, target: RomulanTarget): RomulanTarget
-```
 
 Let r be the present Romulan. If target.range is at most one, proceed to weapon
 selection without movement, returning that target. Otherwise define the Position
 shortPoint one sector short of the target along each axis with nonzero displacement:
+
+```text
+operation PursueRomulanTarget(trigger: CaptainId, target: RomulanTarget): RomulanTarget
+```
 
 ```text
 shortPoint.vertical = target.position.vertical
@@ -187,9 +186,6 @@ skips this movement attempt, second selection and privileged movement report.
 
 **OPEN QUESTION:** Concurrent destination changes and temporary interaction states need
 complete resolution rules. No reservation or collision-damage policy is implied.
-
-**Source basis:** [ROMDRV movement](../../legacy/utexas/DECWAR.FOR#L3323),
-[sector paths](world-rules.md#sector-paths).
 
 ## Weapon selection and phasers
 
@@ -235,19 +231,7 @@ extra phases do not recursively advance that player's stardate or invoke another
 Romulan activation. Base-defense announcements retain the triggering captain's
 faction for the ten-sector audience, as defined in the turn rules.
 
-**Source basis:** [weapon selection and follow-up](../../legacy/utexas/DECWAR.FOR#L3261),
-[base defenses](../../legacy/utexas/DECWAR.FOR#L375),
-[planet defenses](../../legacy/utexas/DECWAR.FOR#L2800),
-[replenishment](../../legacy/utexas/DECWAR.FOR#L317).
-
 ## Torpedo aim and burst
-
-```text
-operation RomulanTorpedoes(target: RomulanTarget): RomulanBurstOutcome
-
-type RomulanBurstOutcome = Finished { shots: integer }
-                   | RomulanDestroyed { shots: integer } | GalaxyEnded
-```
 
 Before the first shot, examine the target's clipped three-by-three neighborhood
 in increasing vertical coordinate, then increasing horizontal coordinate. If
@@ -255,6 +239,19 @@ it contains a star, the first star becomes the aim point; otherwise use the
 target's position. Aim substitution does not select a different primary target
 or perform another ten-sector range check. The aim displacement is from the
 Romulan's current position to that point.
+
+```typescript
+type RomulanBurstOutcome =
+    | { kind: "Finished"; shots: number }
+    | { kind: "RomulanDestroyed"; shots: number }
+    | { kind: "GalaxyEnded" };
+```
+
+The shots value is a nonnegative integer. The burst operation uses that result:
+
+```text
+operation RomulanTorpedoes(target: RomulanTarget): RomulanBurstOutcome
+```
 
 A burst launches at most three torpedoes, without an ammunition inventory or
 energy charge. A misfire allows its own shot to travel but prevents subsequent
@@ -318,9 +315,6 @@ has ended.
 **OPEN QUESTION:** Concurrent target or firing-position changes, unavailable target
 selection and interrupted notification sequences need their complete contracts.
 
-**Source basis:** [ROMSTR](../../legacy/utexas/DECWAR.FOR#L3400),
-[ROMTOR](../../legacy/utexas/DECWAR.FOR#L3419).
-
 ## Accidental torpedo hits on planets
 
 A planet impact can be refused without a planet change or hit report; in that
@@ -335,5 +329,3 @@ impact, displaying at least zero builds, then retarget under the burst rule if
 the galaxy continues.
 
 These are accidental hits: primary target selection does not choose planets.
-
-**Source basis:** [ROMTOR planet impact](../../legacy/utexas/DECWAR.FOR#L3492).

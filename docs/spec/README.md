@@ -35,8 +35,8 @@ game mechanics.
 
 The abstract algorithms define required effects. They do not prescribe storage
 layouts, implementation techniques, programming languages or platform services.
-A completed normative clause must state its rule in full; citations record its
-source rather than supplying missing requirements.
+A completed normative clause states its rule in full. The companion
+[source index](source-index.md) records where each rule was derived.
 
 Instruction analysis, storage explanations, build procedures and review records
 belong in the companion [research and coverage record](evidence.md), which is not
@@ -50,8 +50,8 @@ explicitly permits. An implementation-defined choice must be documented by the
 implementation. Unresolved behavior marks a rule that this draft cannot yet
 state; it does not grant an implementation freedom to choose any behavior.
 
-Each clause is normative unless marked **Evidence**, **Explanation**,
-**OPEN QUESTION** or **Example**. A requirement applies only within the clause
+Each clause is normative unless marked **Explanation**, **OPEN QUESTION** or
+**Example**. A requirement applies only within the clause
 and domain that state it. Examples illustrate requirements and do not override
 them or establish complete DECWAR conformance.
 
@@ -107,5 +107,6 @@ CompuServe tape. See [source provenance](../../legacy/README.md),
 
 ## Companion material
 
-The [research and coverage record](evidence.md), [work plan](PLAN.md) and
-[build instructions](BUILD.md) accompany this specification separately.
+The [source index](source-index.md), [research and coverage record](evidence.md),
+[work plan](PLAN.md) and [build instructions](BUILD.md) accompany this
+specification separately.

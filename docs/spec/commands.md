@@ -10,27 +10,27 @@ in the companion coverage record.
 
 ### Syntax
 
-```text
-ShieldsCommand ::= "SHIELDS" [ShieldAction]
-ShieldAction   ::= "UP" | "DOWN" | "TRANSFER" [Integer]
-```
-
 Keywords admit the language's ordinary abbreviations. Missing or unrecognized
 actions prompt for an action; an empty answer cancels. TRANSFER without an
 integer amount prompts for one; a noninteger answer cancels. UP and DOWN ignore
 trailing arguments. The production describes the command form; these continuation
 and trailing-input rules are also part of its acceptance behavior.
 
-### Raising shields
-
 ```text
-operation RaiseShields(actor: ShipId): Result<Raised, ShieldsTooDamaged>
+ShieldsCommand ::= "SHIELDS" [ShieldAction]
+ShieldAction   ::= "UP" | "DOWN" | "TRANSFER" [Integer]
 ```
+
+### Raising shields
 
 Let s be `ship(game, actor)`. The precondition is
 `s.devices[SHIELDS].damage <= 300 damage units`. Failure rejects the operation
 with the damaged-shields diagnostic and changes none of s's state. Exactly
 300 units permits raising shields.
+
+```text
+operation RaiseShields(actor: ShipId): Result<Raised, ShieldsTooDamaged>
+```
 
 On success, the shield-raising event satisfies:
 
@@ -49,15 +49,15 @@ or automatic repair; subsequent command acquisition handles exhausted energy.
 
 ### Lowering shields
 
-```text
-operation LowerShields(actor: ShipId): Lowered
-```
-
 Let s be `ship(game, actor)`. No shield-damage precondition applies.
 The effect is `after(s.shields.mode) == DOWN`; the actor receives the
 shields-lowered report. Energy, shield strength, device damage and an existing
 tractor beam are unchanged. The outcome is Lowered, with no turn completion
 or automatic repair.
+
+```text
+operation LowerShields(actor: ShipId): Lowered
+```
 
 ### Energy transfer
 
@@ -118,17 +118,9 @@ indivisible transaction.
 | Shield-device damage 300.1 units | SHIELDS UP | Rejected; no shield, energy or tractor-beam change. |
 | Shields up | SHIELDS DOWN | Shields down; energy, shield strength and stardate unchanged. |
 
-**Source basis:** [SHIELD](../../legacy/utexas/DECWAR.FOR#L3739).
-
 ## RADIO
 
 ### Syntax
-
-```text
-RadioCommand ::= "RADIO" [RadioAction]
-RadioAction  ::= "ON" | "OFF"
-               | "GAG" ShipName | "UNGAG" ShipName
-```
 
 A missing or unrecognized action prompts for an action; an empty answer cancels.
 GAG and UNGAG can separately prompt for a ship name. Ship names follow the
@@ -136,7 +128,17 @@ ordinary first-match rule. Non-name input repeats that prompt; an empty answer
 cancels. An unknown name rejects with its diagnostic. The selected roster ship
 need not be commissioned. Naming the acting ship causes no change or confirmation.
 
+```text
+RadioCommand ::= "RADIO" [RadioAction]
+RadioAction  ::= "ON" | "OFF"
+               | "GAG" ShipName | "UNGAG" ShipName
+```
+
 ### Operations and state effects
+
+Let c be `captain(game, actor)`. The command acts on the radio preferences
+`c.radio`, not on the ship's radio-device damage. None of these operations has
+a device-damage precondition.
 
 ```text
 operation RadioOn(actor: CaptainId): Enabled
@@ -144,10 +146,6 @@ operation RadioOff(actor: CaptainId): Disabled
 operation Gag(actor: CaptainId, sender: ShipId): Gagged | Unchanged
 operation Ungag(actor: CaptainId, sender: ShipId): Ungagged | Unchanged
 ```
-
-Let c be `captain(game, actor)`. The command acts on the radio preferences
-`c.radio`, not on the ship's radio-device damage. None of these operations has
-a device-damage precondition.
 
 | Operation | State effect |
 | --- | --- |
@@ -166,21 +164,19 @@ alter `c.radio.gaggedSenders`. These operations cost no energy and complete no
 turn or automatic repair. Their effects on outgoing recipient selection and
 incoming delivery are defined in [radio communication](communication.md).
 
-**Source basis:** [RADIO](../../legacy/utexas/DECWAR.FOR#L3129).
-
 ## ENERGY
 
 ### Syntax and validation
-
-```text
-EnergyCommand ::= "ENERGY" [ShipName Integer]
-```
 
 The integer is the requested amount in energy units. If a name token followed
 by an integer is missing, prompt for both together. An empty continuation cancels;
 other responses that lack those two categories prompt again. Resolve the ship
 name using roster order. An unknown name rejects the command. Unused trailing
 arguments are ignored.
+
+```text
+EnergyCommand ::= "ENERGY" [ShipName Integer]
+```
 
 ### Operation and preconditions
 
@@ -189,14 +185,20 @@ one sector. Ten percent of the transmitted energy is lost. The recipient's
 5000-unit capacity limits how much is actually sent; the sender is charged only
 for that transfer and its loss.
 
+```typescript
+type EnergyRejection =
+    | "CannotTransferToSelf"
+    | "ShipNotInGame"
+    | "CannotTransferToEnemy"
+    | "RecipientNotAdjacent"
+    | "InsufficientEnergy"
+    | "AmountMustBePositive";
+```
+
 ```text
 operation TransferEnergy(actor: ShipId, target: ShipId,
                          requested: Energy):
     Result<Transferred { received: Energy, charged: Energy }, EnergyRejection>
-
-type EnergyRejection = CannotTransferToSelf | ShipNotInGame
-                | CannotTransferToEnemy | RecipientNotAdjacent
-                | InsufficientEnergy | AmountMustBePositive
 ```
 
 Let s be `ship(game, actor)` and r be `ship(game, target)`. Check, in order:
@@ -243,15 +245,9 @@ with no energy deducted.
 There is no stardate advance, automatic repair or direct condition change.
 Subsequent command acquisition may update condition from the new energy level.
 
-**Source basis:** [ENERGY](../../legacy/utexas/DECWAR.FOR#L1009).
-
 ## DOCK
 
 ### Syntax
-
-```text
-DockCommand ::= "DOCK" ["STATUS" {StatusItem} | "ALL"]
-```
 
 STATUS is recognized only as the first argument. Its remaining arguments use
 the STATUS report rules. Other arguments do not prevent docking and do not
@@ -260,13 +256,11 @@ ALL as the first argument selects full automatic device repair on successful
 completion. Its usual abbreviations also match. Other trailing tokens do not
 prevent docking; ALL after STATUS does not select full repair.
 
-### Operation and preconditions
-
 ```text
-operation ReplenishAtDock(actor: ShipId):
-    Result<Docked, NoAdjacentFriendlyInstallation>
-    | CommissionEnded
+DockCommand ::= "DOCK" ["STATUS" {StatusItem} | "ALL"]
 ```
+
+### Operation and preconditions
 
 Each surviving friendly base within one sector contributes two supply shares.
 Friendly planets are considered only when the faction's maintained captured-planet
@@ -275,6 +269,12 @@ With no shares the
 command fails without replenishment or a turn. If the commission ends before
 replenishment, the outcome is CommissionEnded without these changes.
 Let s be `ship(game, actor)` and w be `world(game)`:
+
+```text
+operation ReplenishAtDock(actor: ShipId):
+    Result<Docked, NoAdjacentFriendlyInstallation>
+    | CommissionEnded
+```
 
 ```text
 bases = {b in w.bases where b.team == s.team
@@ -326,23 +326,19 @@ in [turn completion](turns.md), using ALL_DEVICES when its first argument
 matches ALL and STANDARD otherwise. That completion still occurs when reporting has
 already used up the delay. Failure before replenishment does not complete a turn.
 
-**Source basis:** [DOCK](../../legacy/utexas/DECWAR.FOR#L893),
-[completion](../../legacy/utexas/DECWAR.FOR#L80),
-[automatic repair selection](../../legacy/utexas/DECWAR.FOR#L3209).
-
 ## REPAIR
 
 ### Syntax and selected amount
-
-```text
-RepairCommand ::= "REPAIR" [Integer | "ALL"]
-                  ["DAMAGE" {DeviceSelector}]
-```
 
 An integer requests that many damage units of repair to each device. ALL requests
 the greatest current device damage. Without either, the request is 50 damage
 units while undocked or 100 while docked. The amount never exceeds the greatest
 current device damage. This command repairs devices, not hull damage.
+
+```text
+RepairCommand ::= "REPAIR" [Integer | "ALL"]
+                  ["DAMAGE" {DeviceSelector}]
+```
 
 DAMAGE requests a report and is sought immediately after a recognized amount
 or ALL, otherwise as the first argument, subject to the all-undamaged ALL
@@ -352,12 +348,12 @@ DAMAGES rules.
 
 ### Shared device-repair operation
 
+Let s be `ship(game, actor)`. For every device d in Device, the repair event
+satisfies:
+
 ```text
 operation RepairDevices(actor: ShipId, amount: Damage): DevicesAdjusted
 ```
-
-Let s be `ship(game, actor)`. For every device d in Device, the repair event
-satisfies:
 
 ```text
 ensures after(s.devices[d].damage) == max(0 damage units,
@@ -371,15 +367,20 @@ It produces no report, delay or turn by itself. Both explicit REPAIR and
 
 ### Explicit repair and completion
 
-```text
-type RepairRequest = Default | All | Amount { value: Damage }
-
-operation ExplicitRepair(actor: ShipId, request: RepairRequest): Repaired { amount: Damage } | NothingToRepair
-```
-
 The command's Integer denotes the value for Amount. ALL denotes All; absence
 of either denotes Default. Let s be the acting ship and let
 `maximum = max(s.devices[d].damage for d in Device)`.
+
+```typescript
+type RepairRequest =
+    | { kind: "Default" }
+    | { kind: "All" }
+    | { kind: "Amount"; value: Damage };
+```
+
+```text
+operation ExplicitRepair(actor: ShipId, request: RepairRequest): Repaired { amount: Damage } | NothingToRepair
+```
 
 If maximum is zero, the outcome is NothingToRepair, with no device adjustment,
 repair deadline or turn. Otherwise select the amount:
@@ -413,13 +414,14 @@ and does not complete a turn. With all devices undamaged, no changes occur even
 for a negative request. These acceptance and state-change rules are retained;
 removing numerical artifacts does not add a new positivity requirement.
 
-**Source basis:** [REPAIR](../../legacy/utexas/DECWAR.FOR#L3190),
-[explicit invocation](../../legacy/utexas/DECWAR.FOR#L148),
-[automatic repair](../../legacy/utexas/DECWAR.FOR#L237).
-
 ## SCAN and SRSCAN
 
 ### Syntax and bounds
+
+WARNING is recognized only in the final argument position. Direction, when
+present, is the first argument. CORNER requires two integers. Other forms accept
+zero, one or two integers. Invalid categories, missing CORNER coordinates or
+extra arguments produce a syntax diagnostic; there is no continuation prompt.
 
 ```text
 ScanCommand ::= ("SCAN" | "SRSCAN") [Direction]
@@ -427,43 +429,7 @@ ScanCommand ::= ("SCAN" | "SRSCAN") [Direction]
 Direction   ::= "UP" | "DOWN" | "RIGHT" | "LEFT" | "CORNER"
 ```
 
-WARNING is recognized only in the final argument position. Direction, when
-present, is the first argument. CORNER requires two integers. Other forms accept
-zero, one or two integers. Invalid categories, missing CORNER coordinates or
-extra arguments produce a syntax diagnostic; there is no continuation prompt.
-
 ### Operation and observation types
-
-```text
-enum ScanVerb = SCAN | SRSCAN
-enum ScanDirection = UP | DOWN | RIGHT | LEFT | CORNER
-
-type ScanRequest = {
-    verb: ScanVerb;
-    direction: Optional<ScanDirection>;
-    extents: List<integer> containing zero to two values;
-    warning: Boolean;
-};
-
-type ScanMark = EmptySpace | BlankSpace | ShipMark { ship: ShipId }
-         | BaseMark { team: Team } | RomulanMark
-         | PlanetMark { owner: Optional<Team> } | StarMark | WarningMark
-
-type ScanRow = {
-    vertical: Coordinate;
-    cells: List<ScanMark>;
-};
-
-type ScanReport = {
-    bounds: Rectangle;
-    rows: List<ScanRow>;
-};
-
-operation Scan(actor: ShipId, request: ScanRequest): ScanOutcome
-
-type ScanOutcome = Reported { report: ScanReport }
-            | Interrupted { partial: ScanReport } | RejectedSyntax
-```
 
 Let s be `ship(game, actor)` and w be `world(game)`. The actor must have a
 position. Save that position as origin when computing the bounds; both bounds
@@ -471,6 +437,49 @@ and discovery range use that same origin. The terminal binding supplies
 terminalWidth, a positive integer count of character columns. A request with CORNER and fewer than two extent values
 is rejected; malformed input has the same RejectedSyntax outcome. Rejection
 produces a syntax diagnostic, performs no discovery and completes no turn.
+
+```typescript
+type ScanVerb = "SCAN" | "SRSCAN";
+type ScanDirection = "UP" | "DOWN" | "RIGHT" | "LEFT" | "CORNER";
+
+interface ScanRequest {
+    verb: ScanVerb;
+    direction: Optional<ScanDirection>;
+    extents: List<number>;
+    warning: Boolean;
+}
+
+type ScanMark =
+    | { kind: "EmptySpace" }
+    | { kind: "BlankSpace" }
+    | { kind: "ShipMark"; ship: ShipId }
+    | { kind: "BaseMark"; team: Team }
+    | { kind: "RomulanMark" }
+    | { kind: "PlanetMark"; owner: Optional<Team> }
+    | { kind: "StarMark" }
+    | { kind: "WarningMark" };
+
+interface ScanRow {
+    vertical: Coordinate;
+    cells: List<ScanMark>;
+}
+
+interface ScanReport {
+    bounds: Rectangle;
+    rows: List<ScanRow>;
+}
+
+type ScanOutcome =
+    | { kind: "Reported"; report: ScanReport }
+    | { kind: "Interrupted"; partial: ScanReport }
+    | { kind: "RejectedSyntax" };
+```
+
+ScanRequest.extents contains zero, one or two integers.
+
+```text
+operation Scan(actor: ShipId, request: ScanRequest): ScanOutcome
+```
 
 The report contains observations, not copies of the objects at those sectors.
 Its rows are in decreasing vertical order. A row's cells are in increasing
@@ -541,12 +550,13 @@ With WARNING, enemy planets considered by that discovery step mark a square
 danger area of radius 2; enemy bases mark radius 4. Clip each area to the scan
 rectangle. For each considered enemy installation, observe sectors in that
 clipped area again. An empty sector gives WarningMark; an occupied sector keeps
-the mark for its currently observed object. In particular a black hole remains
-BlankSpace, not WarningMark. Neutral and friendly planets do not create warning
-areas. Ordinary scans do not mark these areas.
-Planet discovery precedes base discovery; enemy bases are considered in their
-faction's baseOrder. Each warning area is processed with its installation's
-discovery, before continuing to the next installation.
+the mark for its currently observed object.
+
+In particular a black hole remains BlankSpace, not WarningMark. Neutral and
+friendly planets do not create warning areas. Ordinary scans do not mark these
+areas. Planet discovery precedes base discovery; enemy bases are considered in
+their faction's baseOrder. Each warning area is processed with its
+installation's discovery, before continuing to the next installation.
 
 The discovery and warning steps finish before rows are emitted. Therefore a
 scan interrupted during row output retains all the discovery already performed.
@@ -582,34 +592,25 @@ their own presentation binding:
 | WarningMark | space then `!` | `!` |
 
 Scan style is the captain's scanStyle preference; it is independent of the
-SCAN/SRSCAN verb and outputLength. Each row has its two-column vertical label
-on both sides, with one separating space on each side of the cells. Horizontal
+SCAN/SRSCAN verb and outputLength. Each row has its two-column vertical label on
+both sides, with one separating space on each side of the cells. Horizontal
 labels occur above and below the grid: LONG starts at the minimum horizontal
 coordinate and labels every second column; SHORT starts one column after that
-minimum and labels every third. The initial horizontal label is always emitted,
-even when a one-column SHORT scan puts that label beyond the last displayed
-column. The label does not add a sector to the result. Labels omit leading
-zeroes. [Scan-grid presentation](presentation.md#scan-grids) defines their complete
-line composition; delivery of interruption controls remains part of the binding work.
+minimum and labels every third.
+
+The initial horizontal label is always emitted, even when a one-column SHORT
+scan puts that label beyond the last displayed column. The label does not add a
+sector to the result. Labels omit leading zeroes. [Scan-grid
+presentation](presentation.md#scan-grids) defines their complete line
+composition; delivery of interruption controls remains part of the binding work.
 
 The core does not define a player-controlled cloaking operation. Observations
 of sector states outside the declared SectorObject model remain outside this
 normal-state contract; they do not introduce a new ship ability.
 
-**Source basis:** [SCAN/SRSCAN](../../legacy/utexas/DECWAR.FOR#L3527),
-[sector observations and symbols](../../legacy/utexas/WARMAC.MAC#L2350),
-[warning marks](../../legacy/utexas/WARMAC.MAC#L2412),
-[row output and axes](../../legacy/utexas/WARMAC.MAC#L2482).
-
 ## STATUS
 
 ### Syntax and item selection
-
-```text
-StatusCommand ::= "STATUS" {StatusItem}
-StatusItem    ::= "SHIELDS" | "LOCATION" | "CONDITION"
-                | "TORPEDO" | "ENERGY" | "DAMAGE" | "RADIO"
-```
 
 Without arguments, report stardate followed by condition, location, torpedoes,
 engine energy, hull damage, shields and radio, in that order. Otherwise process
@@ -618,21 +619,13 @@ An unrecognized item emits a syntax diagnostic and does not prevent later items
 from being processed. Matching uses the order in the production; it does not
 apply command-name ambiguity detection to the items.
 
-### Meaning of report items
-
 ```text
-enum RadioState = DAMAGED | ON | OFF
-
-type StatusObservation = StardateValue { value: Stardate }
-    | ShieldValue { mode: ShieldMode, strength: Percentage, equivalentEnergy: Optional<Energy> }
-    | LocationValue { position: Position }
-    | ConditionValue { condition: Condition, docked: Boolean }
-    | TorpedoValue { count: integer } | EnergyValue { value: Energy }
-    | HullDamageValue { value: Damage } | RadioValue { state: RadioState }
-    | InvalidStatusItem
-
-operation ReportStatus(actor: ShipId, arguments: List<Token>): List<StatusObservation>
+StatusCommand ::= "STATUS" {StatusItem}
+StatusItem    ::= "SHIELDS" | "LOCATION" | "CONDITION"
+                | "TORPEDO" | "ENERGY" | "DAMAGE" | "RADIO"
 ```
+
+### Meaning of report items
 
 Token and its categories are defined in the [lexical rules](lexical.md).
 Let s be `ship(game, actor)` and c its captain. The actor must have a position.
@@ -640,6 +633,25 @@ The result is the ordered sequence of observations emitted, including any
 InvalidStatusItem diagnostics among successful items. It is not an all-or-nothing
 success or rejection. Empty arguments select the full report; a first token of
 another category instead stops without selecting that default.
+
+```typescript
+type RadioState = "DAMAGED" | "ON" | "OFF";
+
+type StatusObservation =
+    | { kind: "StardateValue"; value: Stardate }
+    | { kind: "ShieldValue"; mode: ShieldMode; strength: Percentage; equivalentEnergy: Optional<Energy> }
+    | { kind: "LocationValue"; position: Position }
+    | { kind: "ConditionValue"; condition: Condition; docked: Boolean }
+    | { kind: "TorpedoValue"; count: number }
+    | { kind: "EnergyValue"; value: Energy }
+    | { kind: "HullDamageValue"; value: Damage }
+    | { kind: "RadioValue"; state: RadioState }
+    | { kind: "InvalidStatusItem" };
+```
+
+```text
+operation ReportStatus(actor: ShipId, arguments: List<Token>): List<StatusObservation>
+```
 
 | Item | Information reported |
 | --- | --- |
@@ -661,17 +673,9 @@ The report need not be a simultaneous snapshot of all fields; concurrent changes
 between observations belong to the multiplayer rules. Output labels, numeric
 formatting and line assembly follow the [status presentation](presentation.md#status-reports).
 
-**Source basis:** [STATUS](../../legacy/utexas/DECWAR.FOR#L3860).
-
 ## DAMAGES
 
 ### Syntax
-
-```text
-DamagesCommand ::= "DAMAGES" {DeviceSelector}
-DeviceSelector ::= "SH" | "WA" | "IM" | "LS" | "TO"
-                 | "PH" | "CO" | "RA" | "TR"
-```
 
 These selectors denote shields, warp engines, impulse engines, life support,
 torpedo tubes, phasers, computer, radio and tractor beam, respectively. They
@@ -679,24 +683,33 @@ use the ordinary keyword-prefix comparison against the displayed two-character
 identifiers. Full device names are not additional selector spellings. A prefix
 can match several identifiers: T matches both TO and TR.
 
-### Selection and result
-
 ```text
-type DeviceDamageRow = {
-    device: Device;
-    damage: Damage;
-};
-
-enum DamageReportStyle = SELECTED | GENERAL
-
-type DamageReport = AllDevicesFunctional
-    | Rows { style: DamageReportStyle, titleObject: Optional<SectorObject>, values: List<DeviceDamageRow> }
-
-operation ReportDamage(actor: ShipId, arguments: List<Token>): DamageReport
+DamagesCommand ::= "DAMAGES" {DeviceSelector}
+DeviceSelector ::= "SH" | "WA" | "IM" | "LS" | "TO"
+                 | "PH" | "CO" | "RA" | "TR"
 ```
+
+### Selection and result
 
 Let s be `ship(game, actor)`. The actor must have a captain and position.
 The report uses this device order:
+
+```typescript
+interface DeviceDamageRow {
+    device: Device;
+    damage: Damage;
+}
+
+type DamageReportStyle = "SELECTED" | "GENERAL";
+
+type DamageReport =
+    | { kind: "AllDevicesFunctional" }
+    | { kind: "Rows"; style: DamageReportStyle; titleObject: Optional<SectorObject>; values: List<DeviceDamageRow> };
+```
+
+```text
+operation ReportDamage(actor: ShipId, arguments: List<Token>): DamageReport
+```
 
 ```text
 deviceOrder = [SHIELDS, WARP_ENGINES, IMPULSE_ENGINES, LIFE_SUPPORT,
@@ -747,39 +760,43 @@ test, title and rows need not form one simultaneous snapshot.
 DAMAGES changes no state, consumes no energy and completes no turn. Labels,
 headings and field widths follow the [device-damage presentation](presentation.md#device-damage-reports).
 
-**Source basis:** [DAMAGE](../../legacy/utexas/DECWAR.FOR#L783),
-[device identifiers](../../legacy/utexas/DECWAR.FOR#L435).
-
 ## TRACTOR
 
 ### Syntax and continuations
-
-```text
-TractorCommand ::= "TRACTOR" ["OFF" | ShipName]
-```
 
 With no arguments and an active beam, release that beam. Otherwise a missing
 name-category argument prompts for OFF or a ship name; an empty continuation
 cancels. OFF takes precedence over ship-name matching. OFF without an active
 beam reports that no beam is in use. Unused trailing arguments are ignored.
 
-### Engagement operation and preconditions
-
 ```text
-operation EngageTractor(actor: ShipId, target: ShipId):
-    Result<Engaged { beam: TractorBeamId }, TractorRejection>
-
-type TractorRejection = BeamAlreadyActive | CannotTractorSelf
-                 | CannotTractorEnemy | ShipNotInGame
-                 | TargetNotAdjacent | TargetAlreadyInBeam
-                 | LowerOwnShields | TargetShieldsRaised
+TractorCommand ::= "TRACTOR" ["OFF" | ShipName]
 ```
+
+### Engagement operation and preconditions
 
 Let s be `ship(game, actor)` and r be `ship(game, target)`. For a name argument,
 the command first checks `s.tractorBeam == none`; failure reports BeamAlreadyActive
 before attempting name resolution. Otherwise it resolves the first matching
 roster name. An unknown name rejects with its diagnostic. For a resolved name,
 the remaining conditions are checked in order:
+
+```typescript
+type TractorRejection =
+    | "BeamAlreadyActive"
+    | "CannotTractorSelf"
+    | "CannotTractorEnemy"
+    | "ShipNotInGame"
+    | "TargetNotAdjacent"
+    | "TargetAlreadyInBeam"
+    | "LowerOwnShields"
+    | "TargetShieldsRaised";
+```
+
+```text
+operation EngageTractor(actor: ShipId, target: ShipId):
+    Result<Engaged { beam: TractorBeamId }, TractorRejection>
+```
 
 1. `r.id != s.id`; otherwise CannotTractorSelf.
 2. `r.team == s.team`; otherwise CannotTractorEnemy.
@@ -831,16 +848,9 @@ energy or completes a turn or automatic repair.
 complete resolution rule. The successful relationship above does not establish
 that the input and validation sequence is indivisible.
 
-**Source basis:** [TRACTR and TRCOFF](../../legacy/utexas/DECWAR.FOR#L4432).
-
 ## MOVE and IMPULSE
 
 ### Syntax
-
-```text
-MoveCommand    ::= "MOVE" [Location]
-ImpulseCommand ::= "IMPULSE" [Location]
-```
 
 Location uses the absolute, relative or computed forms in the coordinate grammar,
 with exactly two resulting coordinate items. The propulsion check below precedes
@@ -849,6 +859,11 @@ An Empty result enters coordinate prompting: call ReadLocations with that same
 limit until it returns a resolved position, a rejection or Cancelled. In this
 initial acquisition, a mode-only reply such as ABSOLUTE gives Empty and repeats
 the coordinates prompt; a genuinely zero-token reply gives Cancelled.
+
+```text
+MoveCommand    ::= "MOVE" [Location]
+ImpulseCommand ::= "IMPULSE" [Location]
+```
 
 A resolved location equal to the current sector emits fragment(error2) for SHORT
 or MEDIUM output, or fragment(error1) for LONG output, then requests coordinates
@@ -871,24 +886,34 @@ ordinary rejection or another prompt. A zero-token reply at either site cancels.
 
 ### Operation and initial precondition
 
-```text
-enum Propulsion = WARP | IMPULSE
-
-operation Move(actor: ShipId, destination: Position, mode: Propulsion): MovementOutcome
-
-type MovementOutcome =
-    Result<Moved { position: Position } | Obstructed { position: Position, at: Position }, MovementRejection>
-    |  Cancelled
-    | CommissionEnded
-
-type MovementRejection = WarpUnavailable | ImpulseUnavailable
-                  | WarpRangeExceeded | DamagedWarpRangeExceeded
-                  | ImpulseRangeExceeded | InvalidLocation
-```
-
 MOVE selects WARP and IMPULSE selects IMPULSE. The signature identifies the
 semantic inputs; the command acquires destination only after its initial check.
 Let s be `ship(game, actor)` and w be `world(game)`:
+
+```typescript
+type Propulsion = "WARP" | "IMPULSE";
+
+type MovementOutcome =
+    | Result<
+          | { kind: "Moved"; position: Position }
+          | { kind: "Obstructed"; position: Position; at: Position },
+          MovementRejection
+      >
+    | { kind: "Cancelled" }
+    | { kind: "CommissionEnded" };
+
+type MovementRejection =
+    | "WarpUnavailable"
+    | "ImpulseUnavailable"
+    | "WarpRangeExceeded"
+    | "DamagedWarpRangeExceeded"
+    | "ImpulseRangeExceeded"
+    | "InvalidLocation";
+```
+
+```text
+operation Move(actor: ShipId, destination: Position, mode: Propulsion): MovementOutcome
+```
 
 ```text
 WARP:    s.devices[WARP_ENGINES].damage < 300 damage units
@@ -1005,17 +1030,9 @@ kinds and crowded or out-of-bounds tractor following still need complete rules.
 The ordinary relocation contract applies to the clear destination established
 by the trace; it does not grant the actor a reservation while other actions occur.
 
-**Source basis:** [MOVE/IMPULS](../../legacy/utexas/DECWAR.FOR#L2141),
-[path](../../legacy/utexas/DECWAR.FOR#L699),
-[completion selection](../../legacy/utexas/DECWAR.FOR#L99).
-
 ## BUILD
 
 ### Syntax
-
-```text
-BuildCommand ::= "BUILD" [Location]
-```
 
 Location supplies exactly two coordinate items. Missing input prompts for
 coordinates; empty continuation cancels and invalid coordinates reject.
@@ -1023,23 +1040,39 @@ At command entry, establish the deadline
 `now + world(game).pacingClass*1000 milliseconds + 4000 milliseconds`.
 Time spent acquiring the location counts toward that deadline.
 
-### Operation and preconditions
-
 ```text
-operation Build(actor: ShipId, target: Position): BuildOutcome
-
-type BuildOutcome =
-    Result<StageCompleted { planet: PlanetId, builds: integer } | BaseConstructed { base: BaseId }, BuildRejection>
-    |  Cancelled
-    | GalaxyEnded
-
-type BuildRejection = NotAdjacent | NotAPlanet | NotOwned
-               | BaseLimitReached | ConstructionCrewBusy
-               | InvalidLocation
+BuildCommand ::= "BUILD" [Location]
 ```
+
+### Operation and preconditions
 
 Let s be `ship(game, actor)` and w be `world(game)`. After resolving a valid
 location, check the following in order:
+
+```typescript
+type BuildOutcome =
+    | Result<
+          | { kind: "StageCompleted"; planet: PlanetId; builds: number }
+          | { kind: "BaseConstructed"; base: BaseId },
+          BuildRejection
+      >
+    | { kind: "Cancelled" }
+    | { kind: "GalaxyEnded" };
+
+type BuildRejection =
+    | "NotAdjacent"
+    | "NotAPlanet"
+    | "NotOwned"
+    | "BaseLimitReached"
+    | "ConstructionCrewBusy"
+    | "InvalidLocation";
+```
+
+BuildOutcome.builds is a nonnegative integer.
+
+```text
+operation Build(actor: ShipId, target: Position): BuildOutcome
+```
 
 1. `distance(s.position, target) <= 1`; otherwise NotAdjacent.
 2. `sector(game, target)` is PlanetObject { id: id }; otherwise NotAPlanet.
@@ -1146,11 +1179,13 @@ At the world-end check inside planet removal, the fifth stage has contributed
 500 pending construction points in total, the acting faction's maintained base
 count has increased by one, and the base identity has received the planet's
 discovery. The planet has been removed from the planet sequence and the owned
-planet count has decreased. The base identity still has its previous position
-and nonpositive strength: installation of the new position, 100% strength and
-sector presence has not yet occurred. If the check ends the galaxy, BUILD does
-not subsequently install that base or emit the construction report. These prior
-effects are not rolled back by treating construction as one transaction.
+planet count has decreased.
+
+The base identity still has its previous position and nonpositive strength:
+installation of the new position, 100% strength and sector presence has not yet
+occurred. If the check ends the galaxy, BUILD does not subsequently install that
+base or emit the construction report. These prior effects are not rolled back by
+treating construction as one transaction.
 
 **OPEN QUESTION:** Exact sector observations during removal and concurrent changes
 to the selected identities remain unresolved. The completed-conversion equations
@@ -1164,36 +1199,34 @@ complete one turn with automatic device repair, using the time remaining to
 the command-entry deadline. Rejected, Cancelled and GalaxyEnded do not complete
 that normal turn. Shared world or lifecycle events can have their own effects.
 
-**Source basis:** [BUILD](../../legacy/utexas/DECWAR.FOR#L523),
-[planet removal](../../legacy/utexas/DECWAR.FOR#L2864),
-[world-end exit](../../legacy/utexas/DECWAR.FOR#L961),
-[normal build completion](../../legacy/utexas/DECWAR.FOR#L64).
-
 ## CAPTURE
 
 ### Syntax
-
-```text
-CaptureCommand ::= "CAPTURE" [Location]
-```
 
 Location supplies exactly two coordinate items. Missing input prompts for
 coordinates; an empty continuation cancels. Coordinate interpretation follows
 the ordinary location rules.
 
-### Operation and preconditions
-
 ```text
-type CaptureRejection = NotAdjacent | NotAPlanet
-                 | AlreadyOwned | SurrenderRefused
-
-type CaptureOutcome = Result<Captured { planet: PlanetId }, CaptureRejection> | Cancelled
-
-operation Capture(actor: ShipId, target: Position): CaptureOutcome
+CaptureCommand ::= "CAPTURE" [Location]
 ```
+
+### Operation and preconditions
 
 These outcome names describe semantics; they are not literal terminal messages.
 For a resolved target, check the following conditions in order:
+
+```typescript
+type CaptureRejection = "NotAdjacent" | "NotAPlanet" | "AlreadyOwned" | "SurrenderRefused";
+
+type CaptureOutcome =
+    | Result<{ kind: "Captured"; planet: PlanetId }, CaptureRejection>
+    | { kind: "Cancelled" };
+```
+
+```text
+operation Capture(actor: ShipId, target: Position): CaptureOutcome
+```
 
 1. Its distance from the acting ship is at most one sector.
 2. It contains a planet.
@@ -1289,13 +1322,16 @@ an exemption from other events in turn completion.
 **OPEN QUESTION:** Concurrent audience changes and complete notification rendering still
 need their final shared-rule contracts.
 
-**Source basis:** [CAPTUR](../../legacy/utexas/DECWAR.FOR#L600),
-[phaser damage](../../legacy/utexas/DECWAR.FOR#L4166),
-[turn completion](../../legacy/utexas/DECWAR.FOR#L73).
-
 ## PHASERS
 
 ### Syntax
+
+The final pair denotes a location; the optional preceding integer is strength.
+A computed target supplies the pair from its current position. Coordinate
+interpretation and keyword matching follow the ordinary location rules. Default
+strength is 200. A lone strength without a target is invalid. Missing arguments
+prompt for a target; an empty continuation cancels. These productions describe
+resolved forms; the location reader supplies diagnostics for malformed input.
 
 ```text
 PhasersCommand ::= "PHASERS" [PhaserTarget]
@@ -1305,27 +1341,30 @@ NumericPhaserTarget ::= ["ABSOLUTE" | "RELATIVE"]
 ComputedPhaserTarget ::= "COMPUTED" [Integer] TargetName
 ```
 
-The final pair denotes a location; the optional preceding integer is strength.
-A computed target supplies the pair from its current position. Coordinate
-interpretation and keyword matching follow the ordinary location rules. Default
-strength is 200. A lone strength without a target is invalid. Missing arguments
-prompt for a target; an empty continuation cancels. These productions describe
-resolved forms; the location reader supplies diagnostics for malformed input.
-
 ### Operation and ordered validation
-
-```text
-operation FirePhasers(actor: ShipId, aim: Position, strength: integer = 200): PhaserOutcome
-
-type PhaserOutcome = Result<Fired { bank: PhaserBank }, PhaserRejection> | Cancelled
-type PhaserRejection = PhasersUnavailable | InvalidTarget | OwnSector
-                | FriendlyTarget | OutOfRange | InvalidStrength
-```
 
 Let s be `ship(game, actor)`, c its captain, and w be `world(game)`.
 The signature names the resolved arguments; the command acquires them at the
 point specified below. Input failure and cancellation have no firing effects
 and complete no turn. Ordered validation is part of the operation's meaning:
+
+```typescript
+type PhaserOutcome =
+    | Result<{ kind: "Fired"; bank: PhaserBank }, PhaserRejection>
+    | { kind: "Cancelled" };
+
+type PhaserRejection =
+    | "PhasersUnavailable"
+    | "InvalidTarget"
+    | "OwnSector"
+    | "FriendlyTarget"
+    | "OutOfRange"
+    | "InvalidStrength";
+```
+
+```text
+operation FirePhasers(actor: ShipId, aim: Position, strength: integer = 200): PhaserOutcome
+```
 
 1. Before reading coordinates, require
    `s.devices[PHASERS].damage < 300 damage units`; otherwise PhasersUnavailable.
@@ -1407,15 +1446,6 @@ rules remain separate.
 
 ### Completion
 
-```text
-s.energy -= strength energy units
-s.condition = RED
-c.phaserReady[bank] = now
-    + (w.pacingClass + 1) * 1500 milliseconds
-    + s.devices[PHASERS].damage * 10 milliseconds per damage unit
-CompleteTurn(s.id, automaticRepair = false)
-```
-
 The readiness delay starts after the hit and its notice publications, rather than
 at command entry or after their eventual display. Direct responses follow the
 [phaser presentation rules](presentation.md#phaser-command-responses). The other bank's deadline is unchanged. The result is
@@ -1425,9 +1455,14 @@ does not change c.torpedoesReady. Energy exhaustion after firing is handled by
 the subsequent lifecycle rules, without undoing the shot. World termination
 or an interruption takes precedence under the session rules.
 
-**Source basis:** [PHACON](../../legacy/utexas/DECWAR.FOR#L2647),
-[damage](../../legacy/utexas/DECWAR.FOR#L4089),
-[Romulan hit](../../legacy/utexas/DECWAR.FOR#L3382).
+```text
+s.energy -= strength energy units
+s.condition = RED
+c.phaserReady[bank] = now
+    + (w.pacingClass + 1) * 1500 milliseconds
+    + s.devices[PHASERS].damage * 10 milliseconds per damage unit
+CompleteTurn(s.id, automaticRepair = false)
+```
 
 ## TORPEDOS
 
@@ -1445,13 +1480,15 @@ Pair ::= Integer Integer
 ```
 
 The count is a scalar; it is not offset in relative mode. A burst requests one
-to three torpedoes. Supply at least one target pair, either with the count or
-in a following coordinates continuation. If fewer pairs than torpedoes are
-supplied, reuse the last pair for the remaining shots. Targets denote directions;
-they need not contain an enemy, and a torpedo may travel beyond a target.
-If more target pairs than the requested count are supplied, use only the first
-count pairs for the burst. The location reader still validates every supplied
-pair as a location before this selection, including its galaxy bounds.
+to three torpedoes. Supply at least one target pair, either with the count or in
+a following coordinates continuation. If fewer pairs than torpedoes are
+supplied, reuse the last pair for the remaining shots.
+
+Targets denote directions; they need not contain an enemy, and a torpedo may
+travel beyond a target. If more target pairs than the requested count are
+supplied, use only the first count pairs for the burst. The location reader
+still validates every supplied pair as a location before this selection,
+including its galaxy bounds.
 
 Input acquisition distinguishes three sites. Each use of ReadLocations emits
 fragment(coord1), the coordinates prompt. At the burst prompt, first emit
@@ -1515,33 +1552,14 @@ is selected. A blanket odd-item requirement would change both source behaviors.
 valid burst count, four items with count 2 or 3, or six items with count 3, the
 source does not supply all components needed by its selected aims. A mode-only
 reply at the target prompt can likewise return Empty without a target value.
-These paths remain outside the completed acceptance contract; they do not
-permit manufacturing a missing coordinate, repeating a previous complete pair,
-or silently substituting a new rejection rule. A zero-token continuation still
+
+These paths remain outside the completed acceptance contract; they do not permit
+manufacturing a missing coordinate, repeating a previous complete pair, or
+silently substituting a new rejection rule. A zero-token continuation still
 cancels as specified above. Ordinary location errors and count rejection take
 precedence before this unresolved target selection is reached.
 
-**Source basis:** [location resolution](../../legacy/utexas/DECWAR.FOR#L1410),
-[original-line count and aim selection](../../legacy/utexas/DECWAR.FOR#L4247).
-
 ### Operation and result types
-
-```text
-type TorpedoRequest = {
-    count: integer;
-    targets: List<Position> containing one to three positions;
-};
-
-operation FireTorpedoes(actor: ShipId, request: TorpedoRequest): TorpedoOutcome
-
-type TorpedoOutcome =
-    Result<Finished { shots: integer, reason: BurstEnd } | PlanetUpdateRefused { shots: integer }, TorpedoRejection>
-    |  Cancelled
-    | GalaxyEnded
-enum BurstEnd = REQUEST_FULFILLED | MISFIRE | OWN_SECTOR
-type TorpedoRejection = TubesUnavailable | NoAmmunition
-                 | InvalidBurstCount | TargetOutOfRange
-```
 
 Let s be `ship(game, actor)`, c its captain, and w be `world(game)`. The request
 contains the targets supplied by a successfully resolved command or continuation.
@@ -1549,6 +1567,36 @@ Its signature does not change the order of input and validation below. A result'
 shots is the number actually launched, not the requested count or ammunition
 consumed: a misfired shot counts, and a docked ship launches without consuming
 ammunition. These names are semantic outcomes, not new commands or message text.
+
+```typescript
+interface TorpedoRequest {
+    count: number;
+    targets: List<Position>;
+}
+
+type TorpedoOutcome =
+    | Result<
+          | { kind: "Finished"; shots: number; reason: BurstEnd }
+          | { kind: "PlanetUpdateRefused"; shots: number },
+          TorpedoRejection
+      >
+    | { kind: "Cancelled" }
+    | { kind: "GalaxyEnded" };
+
+type BurstEnd = "REQUEST_FULFILLED" | "MISFIRE" | "OWN_SECTOR";
+type TorpedoRejection =
+    | "TubesUnavailable"
+    | "NoAmmunition"
+    | "InvalidBurstCount"
+    | "TargetOutOfRange";
+```
+
+TorpedoRequest.count and TorpedoOutcome.shots are nonnegative integers.
+TorpedoRequest.targets contains one to three positions.
+
+```text
+operation FireTorpedoes(actor: ShipId, request: TorpedoRequest): TorpedoOutcome
+```
 
 ### Entry checks and target validation
 
@@ -1670,26 +1718,28 @@ changes remain in effect. This diagnostic does not mean the inventory was
 actually reduced to zero.
 
 For an accepted hit let p be the impacted planet. `IntegerDraw(4) == 4` sets
-`p.builds = p.builds - 1`; other results leave p.builds unchanged.
-A negative build count destroys the planet and invokes
-planet removal and world-end rules. Subtract 100 points from the pending
-PLANET_DESTRUCTION score. Exactly zero builds survives. Notify captains within
-ten sectors of the impact if the galaxy continues. GalaxyEnded exits immediately
-when planet removal terminates the galaxy; it does not continue the burst or
-perform the ordinary completion below. Each impact has its own destruction
-result; an earlier destroyed object does not make a later surviving planet die.
+`p.builds = p.builds - 1`; other results leave p.builds unchanged. A negative
+build count destroys the planet and invokes planet removal and world-end rules.
+Subtract 100 points from the pending PLANET_DESTRUCTION score. Exactly zero
+builds survives.
+
+Notify captains within ten sectors of the impact if the galaxy continues.
+GalaxyEnded exits immediately when planet removal terminates the galaxy; it does
+not continue the burst or perform the ordinary completion below. Each impact has
+its own destruction result; an earlier destroyed object does not make a later
+surviving planet die.
 
 ### Completion
-
-```text
-c.torpedoesReady = now + accumulatedReloadDelay
-CompleteTurn(s.id, automaticRepair = false)
-```
 
 This happens once for a normally completed burst, including a burst cut short
 by a misfire. It does not happen after the explicitly identified early returns.
 The reload deadline starts at burst completion; it gates the next burst rather
 than adding a wait between this burst's shots.
+
+```text
+c.torpedoesReady = now + accumulatedReloadDelay
+CompleteTurn(s.id, automaticRepair = false)
+```
 
 Give Finished { shots: shots, reason: reason }, with REQUEST_FULFILLED after all requested shots,
 MISFIRE when a misfire prevents a remaining shot, or OWN_SECTOR for the described
@@ -1704,10 +1754,6 @@ commission during a burst belong to the multiplayer/lifecycle contract. They
 do not imply a new random miss probability, automatic cancellation on tube
 damage, or rollback of earlier shots.
 
-**Source basis:** [TORP](../../legacy/utexas/DECWAR.FOR#L4228),
-[TORDAM](../../legacy/utexas/DECWAR.FOR#L4089),
-[location input](../../legacy/utexas/DECWAR.FOR#L1404).
-
 ## LIST, SUMMARY, BASES, PLANETS and TARGETS
 
 These commands query the galaxy. A detail row identifies an object and reports
@@ -1715,6 +1761,13 @@ the information the captain is allowed to see; a summary counts selected objects
 The commands share ordered selection groups, but have different defaults.
 
 ### Syntax and defaults
+
+The complete selector inventory, recognition order and conflicts are specified
+in [LIST-family grouping](grammar.md#gram-11--list-family-grouping). Selectors
+are processed in their written order. In particular, two consecutive integers
+are an absolute sector coordinate, while a lone integer is a maximum distance.
+These commands do not use the general ABSOLUTE/RELATIVE/COMPUTED location syntax.
+A token matching AND ends the group before other keywords are considered.
 
 ```text
 ReportCommand ::= ReportVerb [Group] {GroupEnd Group}
@@ -1728,13 +1781,6 @@ ReportSelector ::= Integer Integer | Integer | ShipName | "ROMULAN"
                  | "NEUTRAL" | "CAPTURED" | "ALL" | "CLOSEST"
                  | "LIST" | "SUMMARY"
 ```
-
-The complete selector inventory, recognition order and conflicts are specified
-in [LIST-family grouping](grammar.md#gram-11--list-family-grouping). Selectors
-are processed in their written order. In particular, two consecutive integers
-are an absolute sector coordinate, while a lone integer is a maximum distance.
-These commands do not use the general ABSOLUTE/RELATIVE/COMPUTED location syntax.
-A token matching AND ends the group before other keywords are considered.
 
 | Command | Default query and report |
 | --- | --- |
@@ -1753,15 +1799,23 @@ error; rows already produced by earlier direct queries remain visible.
 
 ### Types and operation
 
-```text
-enum ReportVerb = LIST | SUMMARY | BASES | PLANETS | TARGETS
-enum ReportKind = SHIP | BASE | PLANET
-enum ReportMode = DETAIL | COUNT
-type ReportAffiliation = Team | NEUTRAL | ROMULAN
-type ReportRange = SensorRange | SpecifiedRange { distance: positive integer }
-                 | WholeGalaxy
+ReportGroup describes the meaning of one legally parsed group. It is not an
+alternative input syntax: the ordered grammar determines which combinations
+of its properties can be obtained. Initialize each group from the defaults
+above, with no named ships, namedRomulan false, exactPosition none and closest
+false. Apply the selector effects in input order.
 
-type ReportGroup = {
+```typescript
+type ReportVerb = "LIST" | "SUMMARY" | "BASES" | "PLANETS" | "TARGETS";
+type ReportKind = "SHIP" | "BASE" | "PLANET";
+type ReportMode = "DETAIL" | "COUNT";
+type ReportAffiliation = Team | "NEUTRAL" | "ROMULAN";
+type ReportRange =
+    | { kind: "SensorRange" }
+    | { kind: "SpecifiedRange"; distance: number }
+    | { kind: "WholeGalaxy" };
+
+interface ReportGroup {
     kinds: Set<ReportKind>;
     affiliations: Set<ReportAffiliation>;
     modes: Set<ReportMode>;
@@ -1770,30 +1824,35 @@ type ReportGroup = {
     namedRomulan: Boolean;
     exactPosition: Optional<Position>;
     closest: Boolean;
-};
+}
 
-type ReportContext = {
+interface ReportContext {
     viewer: CaptainId;
     verb: ReportVerb;
     origin: Optional<Position>;
     team: Optional<Team>;
-};
+}
 
-type ReportEntity = ShipEntity { ship: ShipId } | BaseEntity { base: BaseId }
-                  | PlanetEntity { planet: PlanetId } | RomulanEntity
+type ReportEntity =
+    | { kind: "ShipEntity"; ship: ShipId }
+    | { kind: "BaseEntity"; base: BaseId }
+    | { kind: "PlanetEntity"; planet: PlanetId }
+    | { kind: "RomulanEntity" };
 
-type ReportError = IllegalSelector { token: Token } | SelectorConflict { token: Token }
-                 | IllegalPosition { vertical: integer, horizontal: integer } | EmptyGroup
+type ReportError =
+    | { kind: "IllegalSelector"; token: Token }
+    | { kind: "SelectorConflict"; token: Token }
+    | { kind: "IllegalPosition"; vertical: number; horizontal: number }
+    | { kind: "EmptyGroup" };
+```
 
+Specified report distances are positive integers. IllegalPosition coordinates
+are integers.
+
+```text
 operation ReportGalaxy(viewer: CaptainId, verb: ReportVerb,
                        arguments: List<Token>): Result<Reported, ReportError>
 ```
-
-ReportGroup describes the meaning of one legally parsed group. It is not an
-alternative input syntax: the ordered grammar determines which combinations
-of its properties can be obtained. Initialize each group from the defaults
-above, with no named ships, namedRomulan false, exactPosition none and closest
-false. Apply the selector effects in input order.
 
 Let c be captain(game, viewer) and w be world(game). With an acting ship s,
 the context records s.position as origin and s.team as team when ReportGalaxy
@@ -1813,40 +1872,50 @@ object. Output does not by itself complete a game turn.
 The following observation types separate game information from its textual
 format. A detail's telemetry must correspond to its entity kind.
 
-```text
-type ReportTelemetry = ShipTelemetry { position: Position, mode: ShieldMode, strength: Percentage }
-                     | RomulanTelemetry { position: Position, strength: Percentage }
-                     | BaseTelemetry { position: Position, strength: Optional<Percentage> }
-                     | PlanetTelemetry { position: Position, builds: integer }
-                     | OutOfRange
+```typescript
+type ReportTelemetry =
+    | { kind: "ShipTelemetry"; position: Position; mode: ShieldMode; strength: Percentage }
+    | { kind: "RomulanTelemetry"; position: Position; strength: Percentage }
+    | { kind: "BaseTelemetry"; position: Position; strength: Optional<Percentage> }
+    | { kind: "PlanetTelemetry"; position: Position; builds: number }
+    | { kind: "OutOfRange" };
 
-type ReportDetail = {
+interface ReportDetail {
     entity: ReportEntity;
     affiliation: ReportAffiliation;
     opposingMarker: Boolean;
     telemetry: ReportTelemetry;
-};
+}
 
-enum TerrainKind = EMPTY | STAR | BLACK_HOLE
-enum ReportScopeLabel = SENSOR_RANGE | SPECIFIED_RANGE | WHOLE_GALAXY
-type SummaryClass = RomulanSummary | ShipSummary { team: Team }
-                  | BaseSummary { team: Team } | PlanetSummary { owner: Optional<Team> }
-                  | TargetSummary
+type TerrainKind = "EMPTY" | "STAR" | "BLACK_HOLE";
+type ReportScopeLabel = "SENSOR_RANGE" | "SPECIFIED_RANGE" | "WHOLE_GALAXY";
+type SummaryClass =
+    | { kind: "RomulanSummary" }
+    | { kind: "ShipSummary"; team: Team }
+    | { kind: "BaseSummary"; team: Team }
+    | { kind: "PlanetSummary"; owner: Optional<Team> }
+    | { kind: "TargetSummary" };
 
-type ReportSummary = {
+interface ReportSummary {
     category: SummaryClass;
-    count: positive integer;
+    count: number;
     scope: ReportScopeLabel;
     knownQualifier: Boolean;
-};
+}
 
-type GalaxyReportObservation = Detail { value: ReportDetail }
-    | Terrain { kind: TerrainKind, position: Position } | Summary { value: ReportSummary }
-    | ShipAbsent { ship: ShipId } | RomulanDisabled | RomulanAbsent
-    | SensorRangeExceeded { position: Position } | NoObjectAt { verb: ReportVerb, position: Position }
-    | NoMatches { group: ReportGroup, scope: ReportScopeLabel,
-                  knownQualifier: Boolean }
+type GalaxyReportObservation =
+    | { kind: "Detail"; value: ReportDetail }
+    | { kind: "Terrain"; terrain: TerrainKind; position: Position }
+    | { kind: "Summary"; value: ReportSummary }
+    | { kind: "ShipAbsent"; ship: ShipId }
+    | { kind: "RomulanDisabled" }
+    | { kind: "RomulanAbsent" }
+    | { kind: "SensorRangeExceeded"; position: Position }
+    | { kind: "NoObjectAt"; verb: ReportVerb; position: Position }
+    | { kind: "NoMatches"; group: ReportGroup; scope: ReportScopeLabel; knownQualifier: Boolean };
 ```
+
+Planet build counts are nonnegative integers. Summary counts are positive integers.
 
 OutOfRange replaces both position and strength for a ship or Romulan.
 A base always discloses position when its detail is admitted, but its optional
@@ -1927,28 +1996,31 @@ imposes n, and WholeGalaxy imposes no distance limit. The distinction between
 these range values remains observable through disclosure and summary labels.
 The following operation expresses ordinary filtered admission:
 
-```text
-type ReportAdmission = {
+```typescript
+interface ReportAdmission {
     modes: Set<ReportMode>;
     outOfRange: Boolean;
     privilegedDisclosure: Boolean;
-};
+}
+```
 
+```text
 operation AdmitReportEntity(context: ReportContext, group: ReportGroup,
                             entity: ReportEntity): ReportAdmission
 ```
 
-The candidate has already passed kind, affiliation and presence selection.
-The pregame whole-galaxy COUNT-only case admits COUNT directly, with both
-Boolean admission properties false; no absent origin or team is read.
-For the remaining path, context.origin and context.team must be present.
-Use their contained Position and Team values for distance and knowledge queries.
+The candidate has already passed kind, affiliation and presence selection. The
+pregame whole-galaxy COUNT-only case admits COUNT directly, with both Boolean
+admission properties false; no absent origin or team is read. For the remaining
+path, context.origin and context.team must be present. Use their contained
+Position and Team values for distance and knowledge queries.
+
 This requirement does not select a fictitious pregame position or faction.
-Within this operation let c be captain(game, context.viewer) and w be world(game).
-Use its Ship.position/team, Base.position/team, Planet.position/owner, or
-the current Romulan.position and ROMULAN affiliation. A neutral planet has
-NEUTRAL affiliation. Let requested be group.modes and start with both Boolean
-admission properties false.
+Within this operation let c be captain(game, context.viewer) and w be
+world(game). Use its Ship.position/team, Base.position/team,
+Planet.position/owner, or the current Romulan.position and ROMULAN affiliation.
+A neutral planet has NEUTRAL affiliation. Let requested be group.modes and start
+with both Boolean admission properties false.
 
 Within ten sectors, or when the candidate belongs to context.team, admit
 requested modes if the group distance limit permits. Otherwise, if c.privileged,
@@ -1974,16 +2046,18 @@ its identity appears in a whole-game LIST.
 ### Named objects and exact positions
 
 LIST and TARGETS can name ships or ROMULAN. Report requested ships in roster
-order, after the Romulan if requested, independently of their order in the input.
-Repeated ship-name occurrences select that identity once. Repeating ROMULAN
-is a selector conflict. Named groups ignore affiliation filters when reporting
-the named identities. Named ship availability uses the same commission,
-position and nonempty-sector requirements as ordinary ship selection.
+order, after the Romulan if requested, independently of their order in the
+input. Repeated ship-name occurrences select that identity once. Repeating
+ROMULAN is a selector conflict. Named groups ignore affiliation filters when
+reporting the named identities. Named ship availability uses the same
+commission, position and nonempty-sector requirements as ordinary ship
+selection.
+
 An absent ship is reported as not in the game. Naming ROMULAN distinguishes
-Romulan activity being disabled from the Romulan being temporarily absent.
-A present remote enemy ship or Romulan can be identified, but its coordinates
-and strength are replaced by `out of range` unless privilege permits them.
-Naming a friendly ship permits its ordinary detail at any distance.
+Romulan activity being disabled from the Romulan being temporarily absent. A
+present remote enemy ship or Romulan can be identified, but its coordinates and
+strength are replaced by `out of range` unless privilege permits them. Naming a
+friendly ship permits its ordinary detail at any distance.
 
 An exact-position query uses absolute coordinates in the galaxy. All four
 commands accepting a coordinate can report a ship or the Romulan there.
@@ -2002,14 +2076,16 @@ immediately, before later groups and any deferred report. They do not themselves
 add an installation to faction knowledge. CLOSEST uses this same immediate path.
 
 The exact-position path still applies the group's distance limit. In particular,
-TARGETS and PLANETS default to ten even for a privileged coordinate query.
-An exact-position query succeeds when at least one of its result modes is
-admitted, including COUNT. BASES retains its default whole-galaxy range and
-both result modes on this path. It can therefore identify an undiscovered
-remote base, ship or Romulan through COUNT admission. The resulting base detail
-contains its position but no strength; ship and Romulan details use OutOfRange
-telemetry. This still does not update discovery knowledge. The rule does not
-extend BASES to planets or permit remote terrain observations.
+TARGETS and PLANETS default to ten even for a privileged coordinate query. An
+exact-position query succeeds when at least one of its result modes is admitted,
+including COUNT. BASES retains its default whole-galaxy range and both result
+modes on this path.
+
+It can therefore identify an undiscovered remote base, ship or Romulan through
+COUNT admission. The resulting base detail contains its position but no
+strength; ship and Romulan details use OutOfRange telemetry. This still does not
+update discovery knowledge. The rule does not extend BASES to planets or permit
+remote terrain observations.
 
 Named-object reporting identifies the selected name even when a supplied
 distance would exclude it from ordinary selection. Its telemetry is concealed
@@ -2140,25 +2216,20 @@ These commands do not spend energy, complete a turn, repair devices or change
 physical objects. Their persistent game effect is the knowledge update described
 above, when detailed installation output reaches that step.
 
-**Source basis:** [LIST and related entries](../../legacy/utexas/DECWAR.FOR#L1359),
-[group parsing](../../legacy/utexas/DECWAR.FOR#L1519),
-[selection and visibility](../../legacy/utexas/DECWAR.FOR#L1750),
-[detail and summary output](../../legacy/utexas/DECWAR.FOR#L1959).
-
 ## POINTS
 
 ### Syntax and selection
+
+With no selectors during a commission, report the acting ship's score. Before
+joining a ship, default to both factions and, when enabled, the Romulan. ALL
+selects those columns plus the acting ship when one is commissioned. Repeated
+selectors do not duplicate columns. ME and I require an acting ship.
 
 ```text
 PointsCommand ::= "POINTS" {ScoreSelector}
 ScoreSelector ::= "ME" | "I" | "FEDERATION" | "HUMANS"
                 | "EMPIRE" | "KLINGONS" | "ROMULANS" | "ALL"
 ```
-
-With no selectors during a commission, report the acting ship's score. Before
-joining a ship, default to both factions and, when enabled, the Romulan. ALL
-selects those columns plus the acting ship when one is commissioned. Repeated
-selectors do not duplicate columns. ME and I require an acting ship.
 
 Read selectors in order, applying ordinary abbreviations and the production's
 matching order. A nonalphanumeric token stops selector processing; selectors
@@ -2168,29 +2239,6 @@ activity is disabled. If no column remains selected, report invalid input.
 
 ### Operation and observations
 
-```text
-type ScoreColumn = ShipScore { ship: ShipId } | TeamScore { team: Team } | RomulanScore
-
-type ScoreRatio = {
-    numerator: Points;
-    denominator: nonnegative integer;
-};
-
-type ScoreReportRow = CategoryRow { category: ScoreCategory, values: List<Points> }
-                   | TotalRow { values: List<Points> }
-                   | CommissionRow { values: List<Optional<integer>> }
-                   | PerCommissionRow { values: List<Optional<ScoreRatio>> }
-                   | PerTurnRow { values: List<ScoreRatio> }
-
-type ScoreReport = {
-    columns: List<ScoreColumn>;
-    rows: List<ScoreReportRow>;
-};
-
-operation ReportPoints(viewer: CaptainId, arguments: List<Token>):
-    Result<Reported { report: ScoreReport }, InvalidScoreSelector>
-```
-
 Each row's sequence has one value for each report column, in the same order.
 An absent commission or per-commission cell means that row does not apply to
 the ship column; it does not mean a zero count or zero score. ScoreRatio records
@@ -2198,6 +2246,37 @@ the two quantities whose quotient is requested. For a positive denominator,
 its value is numerator divided by denominator. A zero denominator has no
 defined quotient in this draft; its terminal treatment remains open. This
 record does not introduce a new textual ratio notation into POINTS output.
+
+```typescript
+type ScoreColumn =
+    | { kind: "ShipScore"; ship: ShipId }
+    | { kind: "TeamScore"; team: Team }
+    | { kind: "RomulanScore" };
+
+interface ScoreRatio {
+    numerator: Points;
+    denominator: number;
+}
+
+type ScoreReportRow =
+    | { kind: "CategoryRow"; category: ScoreCategory; values: List<Points> }
+    | { kind: "TotalRow"; values: List<Points> }
+    | { kind: "CommissionRow"; values: List<Optional<number>> }
+    | { kind: "PerCommissionRow"; values: List<Optional<ScoreRatio>> }
+    | { kind: "PerTurnRow"; values: List<ScoreRatio> };
+
+interface ScoreReport {
+    columns: List<ScoreColumn>;
+    rows: List<ScoreReportRow>;
+}
+```
+
+ScoreRatio.denominator and values in CommissionRow are nonnegative integers.
+
+```text
+operation ReportPoints(viewer: CaptainId, arguments: List<Token>):
+    Result<Reported { report: ScoreReport }, InvalidScoreSelector>
+```
 
 Let c be captain(game, viewer) and w be world(game). Resolve arguments using
 the syntax and selection rules above. Select ShipScore { ship: c.ship } only when
@@ -2252,13 +2331,14 @@ When faction or Romulan columns are selected, also report their cumulative
 number of commissions and total score per commission. These are historical
 commission counts for this galaxy, not the current simultaneous player count.
 Faction acceptance during admission increments its count even if ship selection
-is subsequently cancelled; see the admission contract.
-Emit CommissionRow followed by PerCommissionRow when any selected column is
-a team or the Romulan. For these columns, the count is commissionsFor(column)
-and the ratio has that column's total as numerator and the count as denominator.
-Both rows have an absent cell in the ship column. Finally emit PerTurnRow for
-all selected columns, with the total as numerator and turnsFor(column) as
-denominator. When only the ship is selected, omit both commission rows entirely.
+is subsequently cancelled; see the admission contract. Emit CommissionRow
+followed by PerCommissionRow when any selected column is a team or the Romulan.
+
+For these columns, the count is commissionsFor(column) and the ratio has that
+column's total as numerator and the count as denominator. Both rows have an
+absent cell in the ship column. Finally emit PerTurnRow for all selected
+columns, with the total as numerator and turnsFor(column) as denominator. When
+only the ship is selected, omit both commission rows entirely.
 
 The Romulan column reads world(game).romulanActivity: score for its category
 values, appearances for commissions, and turns for its turn count. These values
@@ -2278,17 +2358,9 @@ These equations describe observations while the relevant state is stable.
 They do not require an atomic snapshot of the entire report. Interleavings
 with score or count changes during output remain to be specified.
 
-**Source basis:** [POINTS](../../legacy/utexas/DECWAR.FOR#L2893),
-[commission counts](../../legacy/utexas/SETUP.FOR#L296),
-[Romulan commissions and turns](../../legacy/utexas/DECWAR.FOR#L3244).
-
 ## TYPE
 
 ### Syntax
-
-```text
-TypeCommand ::= "TYPE" ["OUTPUT" | "OPTION"]
-```
 
 An absent or invalid switch prompts for one. An empty continuation cancels.
 The one-character switch O is explicitly ambiguous and produces the ambiguity
@@ -2296,25 +2368,34 @@ diagnostic before prompting again. Other abbreviations use ordinary matching:
 OU selects OUTPUT; OP selects OPTION. Ignore further arguments after selecting
 one of these switches.
 
-### Operation and observations
-
 ```text
-enum TypeSelection = OUTPUT | OPTION
-
-type TypeObservation = OutputLengthValue { value: OutputLength }
-    | PromptStyleValue { value: PromptStyle } | ScanStyleValue { value: ScanStyle }
-    | InputCoordinatesValue { value: CoordinateMode }
-    | OutputCoordinatesValue { value: CoordinateMode }
-    | TerminalProfileValue { name: TerminalProfile } | VersionValue { text: Text }
-    | RomulanOptionValue { enabled: Boolean }
-    | BlackHoleOptionValue { selected: Boolean }
-
-operation ReportType(viewer: CaptainId, selection: TypeSelection): Reported { values: List<TypeObservation> } | Cancelled
+TypeCommand ::= "TYPE" ["OUTPUT" | "OPTION"]
 ```
+
+### Operation and observations
 
 Let c be `captain(game, viewer)` and w be `world(game)`. Selection follows the
 syntax and continuation rules above; cancellation produces no report and changes
 no preference. The signature names the eventual resolved selection.
+
+```typescript
+type TypeSelection = "OUTPUT" | "OPTION";
+
+type TypeObservation =
+    | { kind: "OutputLengthValue"; value: OutputLength }
+    | { kind: "PromptStyleValue"; value: PromptStyle }
+    | { kind: "ScanStyleValue"; value: ScanStyle }
+    | { kind: "InputCoordinatesValue"; value: CoordinateMode }
+    | { kind: "OutputCoordinatesValue"; value: CoordinateMode }
+    | { kind: "TerminalProfileValue"; name: TerminalProfile }
+    | { kind: "VersionValue"; text: Text }
+    | { kind: "RomulanOptionValue"; enabled: Boolean }
+    | { kind: "BlackHoleOptionValue"; selected: Boolean };
+```
+
+```text
+operation ReportType(viewer: CaptainId, selection: TypeSelection): Reported { values: List<TypeObservation> } | Cancelled
+```
 
 For OUTPUT, observe c's properties in this order:
 
@@ -2349,21 +2430,26 @@ remain unspecified. TYPE does not select CRT or invent a profile name on that
 account. A complete report returns Reported { values: values }; concurrent preference
 changes and interrupted output remain subject to the observation/control rules.
 
-**Source basis:** [TYPE](../../legacy/utexas/DECWAR.FOR#L4540),
-[version text](../../legacy/utexas/MSG.MAC#L44),
-[black-hole removal](../../legacy/utexas/DECWAR.FOR#L3727).
-
 ## TIME
+
+TIME reports elapsed, execution and clock time for the current session. A
+commissioned captain also receives the elapsed and execution time of the current
+commission.
 
 ```text
 TimeCommand ::= "TIME"
 ```
 
-```text
-type TimeObservation = GameElapsed { value: Duration }
-    | CommissionElapsed { value: Duration } | CommissionExecution { value: Duration }
-    | SessionExecution { value: Duration } | TimeOfDayValue { value: TimeOfDay }
+```typescript
+type TimeObservation =
+    | { kind: "GameElapsed"; value: Duration }
+    | { kind: "CommissionElapsed"; value: Duration }
+    | { kind: "CommissionExecution"; value: Duration }
+    | { kind: "SessionExecution"; value: Duration }
+    | { kind: "TimeOfDayValue"; value: TimeOfDay };
+```
 
+```text
 operation ReportTime(viewer: CaptainId): List<TimeObservation>
 ```
 
@@ -2408,32 +2494,41 @@ first galaxy origin exists, the first elapsed observation has no defined origin
 in the abstract model; that startup case remains open rather than assigning it
 zero or the current time of day.
 
-**Source basis:** [TIME](../../legacy/utexas/DECWAR.FOR#L4066).
-
 ## USERS
+
+USERS reports the currently commissioned captains in roster order and separates
+the two factions. Each row combines ship, captain, connection and optional
+position information.
 
 ```text
 UsersCommand ::= "USERS"
 ```
 
-```text
-type ReportedPosition = {
+```typescript
+interface ReportedPosition {
     absolute: Optional<Position>;
     relative: Optional<SectorVector>;
-};
+}
 
-type UserRow = {
+interface UserRow {
     ship: ShipId;
     captainName: Text;
-    advertisedSpeed: nonnegative integer;
+    advertisedSpeed: number;
     account: AccountIdentity;
     connectionLabel: Text;
-    sessionNumber: integer;
+    sessionNumber: number;
     position: Optional<ReportedPosition>;
-};
+}
 
-type UserReportEntry = CaptainRow { value: UserRow } | FactionSeparator
+type UserReportEntry =
+    | { kind: "CaptainRow"; value: UserRow }
+    | { kind: "FactionSeparator" };
+```
 
+UserRow.advertisedSpeed is a nonnegative integer, and UserRow.sessionNumber is
+an integer.
+
+```text
 operation ReportUsers(viewer: CaptainId): List<UserReportEntry>
 ```
 
@@ -2455,11 +2550,9 @@ fields, in order:
 5. Terminal or connection label.
 6. Session number.
 
-The latter four fields are supplied session metadata. They do not expose a
-new targeting syntax, add a game entity, or affect commission ownership. Their
-historical terminal presentation is specified separately from the abstract
-identities; an implementation need not obtain them from a particular operating
-system or memory layout.
+The latter four fields are session metadata. They do not add targeting syntax,
+game entities or commission ownership. The terminal presentation chapter defines
+how they are displayed.
 
 When the viewing session has privilege, append the ship's current position in
 the viewer's chosen coordinate-output mode. Without privilege, omit this field.
@@ -2499,14 +2592,14 @@ state. Privileged ABSOLUTE output does not require such a reference. Loss of a
 target's commission during row output and complete metadata formatting remain
 part of the session/presentation contract.
 
-**Source basis:** [USERS](../../legacy/utexas/DECWAR.FOR#L4600),
-[user-information fields](../../legacy/utexas/WARMAC.MAC#L2187),
-[position reporting](../../legacy/utexas/DECWAR.FOR#L3078),
-[faction separator](../../legacy/utexas/MSG.MAC#L380).
-
 ## SET
 
 ### Syntax
+
+Resolve setting names in the order shown. The last three settings are recognized
+only with privilege. An absent or unrecognized setting prompts for one; an empty
+continuation cancels. SET changes one setting per invocation. It has no ordinary
+energy charge or turn completion.
 
 ```text
 SetCommand ::= "SET" [Setting]
@@ -2520,17 +2613,22 @@ Setting ::= "NAME" [NameText]
           | "ROMOPT" | "ENDFLG" | "BHREMV"
 ```
 
-Resolve setting names in the order shown. The last three settings are recognized
-only with privilege. An absent or unrecognized setting prompts for one; an empty
-continuation cancels. SET changes one setting per invocation. It has no ordinary
-energy charge or turn completion.
-
 ### Operations and dispatch
 
-```text
-enum PreferenceSetting = OUTPUT | PROMPT | SCANS | ICDEF | OCDEF
-enum PrivilegedSetting = ROMOPT | ENDFLG | BHREMV
+Let c be captain(game, viewer) and w be world(game). ConfigureCaptain resolves
+one setting, acquiring a continuation as required by the syntax rules, and
+invokes the corresponding operation below. Setting selection requires a token
+of category ALPHANUMERIC. An unprivileged candidate for ROMOPT, ENDFLG or
+BHREMV follows the unrecognized-setting prompt path; it does not invoke a
+privileged operation. A continuation supplies the current line and arguments
+used by the selected setting, just as for other CommandInput consumers.
 
+```typescript
+type PreferenceSetting = "OUTPUT" | "PROMPT" | "SCANS" | "ICDEF" | "OCDEF";
+type PrivilegedSetting = "ROMOPT" | "ENDFLG" | "BHREMV";
+```
+
+```text
 operation ConfigureCaptain(viewer: CaptainId, input: CommandInput): Finished | Cancelled | SessionEnded
 
 operation SetPreference(viewer: CaptainId, setting: PreferenceSetting,
@@ -2543,14 +2641,6 @@ operation SetCaptainName(viewer: CaptainId, text: Text): Named | Unchanged
 operation ApplyPrivilegedSetting(viewer: CaptainId,
                                  setting: PrivilegedSetting): Applied | SessionEnded
 ```
-
-Let c be captain(game, viewer) and w be world(game). ConfigureCaptain resolves
-one setting, acquiring a continuation as required by the syntax rules, and
-invokes the corresponding operation below. Setting selection requires a token
-of category ALPHANUMERIC. An unprivileged candidate for ROMOPT, ENDFLG or
-BHREMV follows the unrecognized-setting prompt path; it does not invoke a
-privileged operation. A continuation supplies the current line and arguments
-used by the selected setting, just as for other CommandInput consumers.
 
 Ordinary completion of the selected operation returns Finished, including an
 Unchanged result. Empty replies that cancel setting or value selection return
@@ -2677,40 +2767,42 @@ or provide an OFF form. BHREMV removes existing black holes without changing the
 option reported by TYPE OPTION. ENDFLG uses the shared termination and final
 scoring rules; it is not an ordinary turn. No value after these settings is needed.
 
-**Source basis:** [SET](../../legacy/utexas/DECWAR.FOR#L3624),
-[terminal names](../../legacy/utexas/DECWAR.FOR#L480),
-[USRNAM](../../legacy/utexas/WARMAC.MAC#L3415).
-
 ## TELL
 
 ### Syntax and recipient names
+
+The body after the first semicolon belongs to message text, not command tokens.
+It retains its original case, spaces and punctuation. Without an inline body,
+TELL prompts `Msg: ` after recipient selection succeeds.
 
 ```text
 TellCommand ::= "TELL" [Recipient {Recipient}] [";" MessageText]
 Recipient ::= ShipName | GroupName | "ROMULAN"
 ```
 
-The body after the first semicolon belongs to message text, not command tokens.
-It retains its original case, spaces and punctuation. Without an inline body,
-TELL prompts `Msg: ` after recipient selection succeeds.
-
 ### Operation and input
 
+Let s be ship(game, actor), and let c be the captain identified by s.captain.
+Require an active commission and a present captain. The device precondition is:
+
+```typescript
+type TellFailure = "RadioUnavailable" | "RepeatedTell" | "NoRecipients";
+
+type TellObservation =
+    | { kind: "UnknownRecipient"; text: Text }
+    | { kind: "AmbiguousGroup"; text: Text }
+    | { kind: "SelfRecipient" }
+    | { kind: "RecipientUnavailable"; ship: ShipId }
+    | { kind: "RecipientRadioUnavailable"; ship: ShipId }
+    | { kind: "NoRecipients" }
+    | { kind: "NoMessageSent" };
+```
+
 ```text
-type TellFailure = RadioUnavailable | RepeatedTell | NoRecipients
-
-type TellObservation = UnknownRecipient { text: Text } | AmbiguousGroup { text: Text }
-                     | SelfRecipient | RecipientUnavailable { ship: ShipId }
-                     | RecipientRadioUnavailable { ship: ShipId }
-                     | NoRecipients | NoMessageSent
-
 operation SendTell(actor: ShipId, input: CommandInput):
     Result<Published { id: MessageId } | NotPublished, TellFailure>
     | Cancelled
 ```
-
-Let s be ship(game, actor), and let c be the captain identified by s.captain.
-Require an active commission and a present captain. The device precondition is:
 
 ```text
 s.devices[RADIO].damage < 300 damage units
@@ -2809,23 +2901,19 @@ recipient diagnostics from message-body refusal. TELL completes no turn and char
 from a recipient displaying the message: it can later be gagged, discarded on
 release or lost under the bounded pending-message policy.
 
-**Source basis:** [TELL](../../legacy/utexas/DECWAR.FOR#L3977),
-[default groups](../../legacy/utexas/SETUP.FOR#L358),
-[message acquisition](../../legacy/utexas/WARMAC.MAC#L2963).
-
 ## *PASSWORD
-
-```text
-PasswordCommand ::= "*PASSWORD" [PasswordToken]
-
-operation SetPrivilege(viewer: CaptainId, candidate: Optional<Token>): PrivilegeSet { enabled: Boolean }
-```
 
 The Austin password is `*MINK`. Compare the retained token exactly, using the
 language's case transformation; a prefix is insufficient. An exact match enables
 session privilege. Any other value, including an omitted password, clears it.
 There is no password prompt or success/failure text in this command. Ignore
 further arguments. It changes no resources and completes no turn.
+
+```text
+PasswordCommand ::= "*PASSWORD" [PasswordToken]
+
+operation SetPrivilege(viewer: CaptainId, candidate: Optional<Token>): PrivilegeSet { enabled: Boolean }
+```
 
 Let c be captain(game, viewer). Set c.privileged to true exactly when candidate
 is present and candidate.text is an exact keyword match for *MINK under LEX-6;
@@ -2842,27 +2930,27 @@ Privilege affects the commands and observations that explicitly test it. It
 does not rename a ship, change factions or make every game rule optional. The
 password's representation is not a new authentication protocol.
 
-**Source basis:** [PASWRD](../../legacy/utexas/DECWAR.FOR#L2626),
-[password constant](../../legacy/utexas/PARAM.FOR#L15).
-
 ## *DEBUG
+
+Let c be captain(game, viewer). If c.privileged is false, report an unknown
+command and the help hint, then return Rejected { reason: UnknownCommand }. Do
+not query or disclose timing observations on that path. Otherwise call the
+environment's observeOperationTimings(viewer) query defined in the session
+chapter.
+
+Emit its observations in the returned order under the headings Name, Calls,
+Total and High: the measured operation's name, completed call count, total
+execution time and largest measured call time. These are diagnostic
+observations, not ship scores or game turns. Include a registered observation
+even when its completed call count is zero. With no registered observations,
+emit the header and no rows. Return Reported. Do not reset collected counts or
+durations.
 
 ```text
 DebugCommand ::= "*DEBUG"
 
 operation ReportDiagnostics(viewer: CaptainId): Result<Reported, UnknownCommand>
 ```
-
-Let c be captain(game, viewer). If c.privileged is false, report an unknown
-command and the help hint, then return Rejected { reason: UnknownCommand }. Do not query
-or disclose timing observations on that path. Otherwise call the environment's
-observeOperationTimings(viewer) query defined in the session chapter.
-Emit its observations in the returned order under the headings Name, Calls,
-Total and High: the measured operation's name, completed call count, total
-execution time and largest measured call time. These are diagnostic observations,
-not ship scores or game turns. Include a registered observation even when its
-completed call count is zero. With no registered observations, emit the header
-and no rows. Return Reported. Do not reset collected counts or durations.
 
 The ordinary registration order is the report order. The set of instrumented
 operations, exhausted instrumentation capacity, unavailable clock readings and
@@ -2871,11 +2959,14 @@ the displayed time-unit binding remain environment-dependent research items.
 The command ignores trailing arguments and changes no game resources, scores or
 turn counts. Its availability before commissioning does not create a ship.
 
-**Source basis:** [DEBUG and timing observations](../../legacy/utexas/WARMAC.MAC#L3600).
-
 ## HELP
 
 ### Syntax and operation
+
+HELP is available before commissioning and during play. If the captain has an
+acting ship under RED alert, reject before displaying help or changing its
+activity. Otherwise begin the temporary information activity defined in
+[session rules](session-rules.md#temporary-information-activities).
 
 ```text
 HelpCommand ::= "HELP" {HelpTopic | "*"}
@@ -2885,11 +2976,6 @@ ExtraTopic  ::= "CTL-C" | "INTRO" | "HINTS" | "INPUT"
 
 operation ReadHelp(captain: CaptainId, topics: List<Text>): Result<Finished, RedAlert>
 ```
-
-HELP is available before commissioning and during play. If the captain has an
-acting ship under RED alert, reject before displaying help or changing its
-activity. Otherwise begin the temporary information activity defined in
-[session rules](session-rules.md#temporary-information-activities).
 
 ### Topic selection and observations
 
@@ -2911,17 +2997,19 @@ extra topic produces `I don't know the term ` followed by the topic; ambiguity
 produces the corresponding ambiguity report. A failed topic does not discard
 reports from preceding topics or prevent processing later topics.
 
-A requested section uses the help-content binding defined in
-[information resources](information.md#help-content). Privilege tries privileged
-help content first, falling back to standard content only if the former cannot
-be opened. A missing section in an opened privileged resource does not trigger
-that fallback. Failure to open standard content reports `%Can't read help file`;
-a missing section reports `%Can't find help on ` followed by the resolved topic.
+A requested section uses the help-content binding defined in [information
+resources](information.md#help-content). Privilege tries privileged help content
+first, falling back to standard content only if the former cannot be opened. A
+missing section in an opened privileged resource does not trigger that fallback.
+Failure to open standard content reports `%Can't read help file`; a missing
+section reports `%Can't find help on ` followed by the resolved topic.
+
 Both paths finish that topic request and permit later topics to be processed.
-Before returning from section handling, clear the section's interrupt/output-stop
-conditions. An opened resource is closed and input is restored; open failure
-has not entered resource input. On the ordinary HELP return, restore the
-captain's temporary information activity as specified by the session rules.
+Before returning from section handling, clear the section's
+interrupt/output-stop conditions. An opened resource is closed and input is
+restored; open failure has not entered resource input. On the ordinary HELP
+return, restore the captain's temporary information activity as specified by the
+session rules.
 
 ### State effects and completion
 
@@ -2936,25 +3024,20 @@ in the same HELP command can still be processed. A control detected between
 topics ends topic processing. This distinction does not imply a new command
 or a universal whole-command cancellation rule.
 
-**Source basis:** [HELP and topic matching](../../legacy/utexas/WARMAC.MAC#L4134),
-[section output](../../legacy/utexas/WARMAC.MAC#L4222),
-[extra topics](../../legacy/utexas/DECWAR.FOR#L471),
-[startup HELP](../../legacy/utexas/SETUP.FOR#L76).
-
 ## NEWS
 
 ### Syntax and operation
+
+NEWS is available before commissioning and during play, including under RED
+alert. Trailing command arguments do not select a section or answer a later
+continuation prompt. Failure to open the news content yields `Unavailable`
+and the diagnostic `%Can't read DECWAR.NWS`.
 
 ```text
 NewsCommand ::= "NEWS"
 
 operation ReadNews(captain: CaptainId): Finished | Stopped | Unavailable
 ```
-
-NEWS is available before commissioning and during play, including under RED
-alert. Trailing command arguments do not select a section or answer a later
-continuation prompt. Failure to open the news content yields `Unavailable`
-and the diagnostic `%Can't read DECWAR.NWS`.
 
 ### Observations and state effects
 
@@ -2981,12 +3064,14 @@ The [NEWS presentation](presentation.md#news-output-and-failure) defines prompt
 and failure-text endings. NEWS changes no resources or scores and completes no turn. Elapsed time spent
 reading does not stop other captains or make the reader immune to attacks.
 
-**Source basis:** [NEWS](../../legacy/utexas/WARMAC.MAC#L3811),
-[supplied news](../../legacy/utexas/HLP/DECWAR.NWS).
-
 ## GRIPE
 
 ### Syntax and operation
+
+GRIPE is available before commissioning and during play. If the acting ship is
+under RED alert, reject without beginning feedback input or changing its activity.
+Otherwise begin the temporary information activity defined in the session rules.
+Trailing command tokens do not supply the feedback body.
 
 ```text
 GripeCommand ::= "GRIPE"
@@ -2995,11 +3080,6 @@ operation SubmitFeedback(captain: CaptainId):
     Result<Recorded | StorageFailure, RedAlert>
     | Cancelled
 ```
-
-GRIPE is available before commissioning and during play. If the acting ship is
-under RED alert, reject without beginning feedback input or changing its activity.
-Otherwise begin the temporary information activity defined in the session rules.
-Trailing command tokens do not supply the feedback body.
 
 ### Input and observations
 
@@ -3050,23 +3130,18 @@ information activity and clear the input-cancellation condition. Return to
 command acquisition in the same session phase. Cancellation before recording
 adds no feedback record.
 
-**Source basis:** [GRIPE input](../../legacy/utexas/WARMAC.MAC#L3858),
-[recording and cleanup](../../legacy/utexas/WARMAC.MAC#L4050),
-[line limit and retry interval](../../legacy/utexas/WARMAC.MAC#L470),
-[record header](../../legacy/utexas/WARMAC.MAC#L2116).
-
 ## QUIT
 
 ### Syntax and operation
+
+Before commissioning, QUIT ends the session without confirmation or a ship-score
+report. It does not obtain or release an active commission on that path.
 
 ```text
 QuitCommand ::= "QUIT"
 
 operation Quit(captain: CaptainId): SessionEnded | Continued
 ```
-
-Before commissioning, QUIT ends the session without confirmation or a ship-score
-report. It does not obtain or release an active commission on that path.
 
 During play, discard pending command input and request confirmation with the
 ordinary `Do you really want to quit? ` prompt. Read a new reply; YES under the ordinary
@@ -3088,8 +3163,3 @@ last commission, the shared world-retention rule applies.
 
 A declined confirmation has no release, score, energy-charge or turn consequence. Discarded command input is not restored. Final ratios with zero denominators and the complete behavior of a
 reporting failure remain unresolved with the score/environment binding.
-
-**Source basis:** [confirmation](../../legacy/utexas/DECWAR.FOR#L134),
-[final score and exit](../../legacy/utexas/DECWAR.FOR#L290),
-[release](../../legacy/utexas/DECWAR.FOR#L1082),
-[pregame exit](../../legacy/utexas/SETUP.FOR#L112).

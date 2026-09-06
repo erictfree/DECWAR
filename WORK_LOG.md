@@ -4450,3 +4450,30 @@ declarations as a pre-publication task. No normative game rule changed.
 
 `npm run audit:check` passed; output is retained in
 logs/documentation-notation-policy-audit.log.
+
+## Specification: whole-book editorial and notation pass
+
+Applied the documentation standard to all 14 assembled chapters. Every section
+and subsection now introduces its subject before a declaration or algorithm.
+Converted the remaining hybrid record, enum and tagged-alternative declarations
+to valid TypeScript while retaining behavioral contracts as pseudocode and
+command productions as EBNF. The specification build now compiles all 65
+TypeScript blocks together as one abstract data model.
+
+Moved 157 inline evidence paragraphs, plus two labeled CompuServe source notes,
+to `docs/spec/source-index.md`. The companion index preserves 515 checked source
+links keyed by chapter and clause while keeping derivation and implementation
+detail out of the normative book. Simplified the notation chapter, removed
+unneeded representation asides and split dense prose at rule boundaries. No
+command syntax, game rule, output text or conformance result was changed.
+
+`npm run spec:check`, `npm run audit:check` and `npm run typecheck` pass. The
+complete publication build passes 324 message-fragment checks, 100 EBNF
+productions, 671 scenario rows, 515 source-index links, 14 chapters and 171
+book-local links. Logs are retained in
+`logs/spec-total-editorial-validation.log`,
+`logs/spec-total-editorial-audit.log`,
+`logs/spec-total-editorial-typecheck.log` and
+`logs/spec-total-editorial-build.log`. Rendered and inspected all 258 PDF pages;
+the final LaTeX pass reports no overfull boxes, missing characters or undefined
+references.

@@ -5,6 +5,22 @@ matrix](coverage.json) measures source analysis, not completion of this rewrite.
 The distinction matters: retaining a researched rule in a companion file does
 not make it a complete language-level definition in the assembled book.
 
+## Whole-book editorial pass — September 6, 2026
+
+All 14 assembled chapters now follow the same notation and section structure.
+Data declarations are valid TypeScript, behavioral contracts are pseudocode,
+and command syntax is EBNF. The build compiles the 65 TypeScript blocks together,
+so cross-chapter references, duplicate declarations and syntax are checked as
+one abstract model. Every section and subsection introduces its subject in prose
+before a declaration or algorithm.
+
+Source citations were moved from the normative chapters to the companion
+[source index](source-index.md), keyed by chapter and clause heading. This keeps
+the book focused on accepted input, state, transitions and observations while
+preserving traceability. Dense prose paragraphs were split at rule boundaries,
+and implementation-oriented asides were removed where they added no semantic
+constraint. These editorial changes do not resolve the semantic gaps listed
+below.
 
 ## Requirement-level review — September 6, 2026
 
@@ -18,7 +34,7 @@ correct or complete semantic contract.
 | --- | --- | --- |
 | Concrete plan and scope | PLAN; README scope clauses; book manifest | Present. The scope remains all command families and cross-cutting semantics, not only the latest checkpoints. |
 | Austin authority and separate CompuServe amendments | README pins Austin revision; variants is the sole appendix; NORMALIZATION is outside the manifest | Structure established. Review every amendment against its affected core clause; standings types, ranking, numbering, ordinary writes and report formatting are drafted. Remaining variant obligations include environment origin-code acquisition, damaged records, persistence failures and coordination. |
-| Modern ADTs and ordinary arithmetic | language-model types/notation; operation signatures throughout commands and shared chapters | Drafted. Whole-book property/type references and invariants still need review. No checker currently proves type consistency. |
+| Modern ADTs and ordinary arithmetic | language-model types/notation; operation signatures throughout commands and shared chapters | All data blocks compile together as TypeScript. Whole-book property references and invariant completeness still need semantic review. |
 | Lexical syntax and interactive grammar | lexical; grammar; grammar checker verifies 100 productions and 12 terminal categories | Reference integrity checked. Complete even-item torpedo forms and count rejection are specified. All original-line torpedo length/count shapes within the input limit have been reviewed. Missing components and special Empty continuations have explicit undefined-value boundaries; this is not full parser or concurrent-input verification. |
 | Every command and pregame entry | commands has all 33 main commands; builder compares main and pregame tables to source coverage | Inventory and drafted contracts established. Source-table agreement alone does not prove each argument, failure and lifecycle path has a complete contract. |
 | Game transitions and scoring | commands, world-rules, turns and autonomous | Substantial source-derived contracts. Terrain report fallthrough has an explicit unresolved suffix boundary. Romulan no-target/all-distant outcomes are explicitly outside the defined selection domain. Fatal-target reports and intermediate concurrent effects still need review. |
@@ -28,7 +44,7 @@ correct or complete semantic contract.
 | Observable output | presentation; information; 324 named fragments verified against Austin | Ordinary resource, weapon, movement, SET and player TELL responses, HELP/NEWS/GRIPE diagnostics, repetition scope and ordinary line-editor output are reviewed, with specific CompuServe amendments including echo behavior. Terrain suffixes, full transport/control delivery, interrupted output and resource cleanup failures still prevent a complete terminal claim. |
 | Conformance examples and claims | language-conformance has 671 scenario rows at this checkpoint; README limits claims | Examples present. Builder checks table structure and duplicate IDs, not their expected results. Claim domains and evidence requirements are defined; final scenario coverage and complete domain review are still needed. |
 | Single assembled publication and attribution | manifest metadata; builder; output PDF/Markdown/LaTeX | Build mechanism and credited draft exist; recent changed pages were visually checked. Final whole-document editorial/layout review remains required after substantive edits finish. |
-| Evidence, normalization and runtime preservation | source links; NORMALIZATION; WORK_LOG; source audit | Current generated-data audit passes; the complete Austin archive separately matches all 39 manifest entries, lengths and hashes. Recent changes are documentation only. These preservation checks are not semantic proof; verify the final publication diff and remaining review gates. |
+| Evidence, normalization and runtime preservation | companion source index; NORMALIZATION; WORK_LOG; source audit | Source links remain outside the normative book and are checked by the specification build. The complete Austin archive separately matches all 39 manifest entries, lengths and hashes. These preservation checks are not semantic proof. |
 
 The recent source checks closed specific gaps: command acquisition, elapsed
 waiting, inactive prompt availability scanning, saved condition values, POINTS

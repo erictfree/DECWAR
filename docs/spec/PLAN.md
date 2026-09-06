@@ -109,9 +109,10 @@ semantics.
 
 Files under this directory will use stable clause and example identifiers.
 Normative statements will be separated from evidence and explanatory notes.
-The assembled specification contains syntax, semantic rules, examples, source
-citations and explicit limits. Detailed implementation analysis and publication
-procedures remain companion material outside the book manifest. Derive rules
+The assembled specification contains syntax, semantic rules, examples and
+explicit limits. A companion source index preserves clause-level citations.
+Detailed implementation analysis and publication procedures remain outside the
+book manifest. Derive rules
 from the legacy implementations as thoroughly as needed; express their observable
 consequences without prescribing how a new implementation realizes them.
 
@@ -130,6 +131,7 @@ consequences without prescribing how a new implementation realizes them.
 | information.md | Help/news bindings and feedback-record semantics. |
 | language-conformance.md | Initial conditions, inputs and expected abstract state changes. |
 | variants.md | CompuServe amendments expressed in the same abstract vocabulary. |
+| source-index.md | Clause-level Austin and CompuServe source citations, outside the book. |
 | language-coverage.md | Conversion progress and remaining dependencies, outside the book. |
 | NORMALIZATION.md | Numerical/representation decisions and source derivations, outside the book. |
 

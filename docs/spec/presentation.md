@@ -20,30 +20,36 @@ distinguish characters emitted by the game from characters echoed by the client.
 
 ## Presentation context
 
-```text
-type PresentationContext = {
-    outputLength: OutputLength;
-    coordinates: CoordinateMode;
-    origin: Optional<Position>;
-};
-
-type FieldWidth = Free | Exactly { count: positive integer }
-                | AtLeast { count: positive integer }
-enum NumberSign = NEGATIVE_ONLY | NONZERO | ALWAYS_ZERO_NEGATIVE
-
-query FormatNumber(value: real, fractionalDigits: 0 | 1,
-                   sign: NumberSign, width: FieldWidth): Text
-
-query FormatLocation(position: Position, context: PresentationContext,
-                     field: Free | Exactly { count: 2 }): Text
-```
-
 PresentationContext is selected for a particular report. Usually it uses the
 viewer's current output length, output-coordinate preference and ship position.
 A command can explicitly select another coordinate mode or output length for
 one field. Such a local choice changes no captain preference. A queued notice's
 position comes from its immutable observation; context.origin comes from its
 receiver at presentation time.
+
+```typescript
+interface PresentationContext {
+    outputLength: OutputLength;
+    coordinates: CoordinateMode;
+    origin: Optional<Position>;
+}
+
+type FieldWidth =
+    | { kind: "Free" }
+    | { kind: "Exactly"; count: number }
+    | { kind: "AtLeast"; count: number };
+type NumberSign = "NEGATIVE_ONLY" | "NONZERO" | "ALWAYS_ZERO_NEGATIVE";
+```
+
+Field widths are positive integers.
+
+```text
+query FormatNumber(value: real, fractionalDigits: 0 | 1,
+                   sign: NumberSign, width: FieldWidth): Text
+
+query FormatLocation(position: Position, context: PresentationContext,
+                     field: Free | Exactly { count: 2 }): Text
+```
 
 The number and location queries return text without emitting it, changing game
 state, requesting randomness or appending a line ending. A relative field
@@ -95,10 +101,6 @@ energy divided by ten, also with this sign policy and the same `%` suffix.
 That terminal notation does not give the Romulan a Shields object or change
 its energy-based damage semantics.
 
-**Source basis:** [decimal field presentation](../../legacy/utexas/WARMAC.MAC#L1880),
-[precision and signs](../../legacy/utexas/WARMAC.MAC#L1932),
-[combat strength readings](../../legacy/utexas/DECWAR.FOR#L2427).
-
 ## Coordinates
 
 FormatLocation uses vertical then horizontal order. In ABSOLUTE or BOTH, begin
@@ -126,9 +128,6 @@ BOTH, MEDIUM:     "@21-18 +1,-2"
 
 An impact target uses SHORT coordinate formatting in every output length.
 Its separate displacement marker or `@` belongs to the surrounding report.
-
-**Source basis:** [coordinate rendering](../../legacy/utexas/DECWAR.FOR#L3078),
-[impact target coordinates](../../legacy/utexas/DECWAR.FOR#L2492).
 
 ## Names and condition text
 
@@ -174,10 +173,6 @@ otherwise. When the reported ship is docked, prefix `D+` in SHORT or `Docked+`
 otherwise. Add no separator or trailing space implicitly. Thus a docked green
 ship has condition text `D+G` or `Docked+Green`.
 
-**Source basis:** [object labels](../../legacy/utexas/WARMAC.MAC#L1970),
-[device labels](../../legacy/utexas/WARMAC.MAC#L2054),
-[condition labels](../../legacy/utexas/WARMAC.MAC#L2087).
-
 ## Main and pregame prompts
 
 The NORMAL main prompt is exactly `"Command: "`. The INFORMATIVE prompt is
@@ -210,10 +205,6 @@ a line ending. The command-acquisition clause determines preceding output and
 line breaks; a terminal binding must not append colors or a welcome prefix to
 these strings as part of the baseline presentation.
 
-**Source basis:** [main prompts](../../legacy/utexas/DECWAR.FOR#L3107),
-[normal literal](../../legacy/utexas/MSG.MAC#L38),
-[pregame prompt](../../legacy/utexas/SETUP.FOR#L426).
-
 ## Lines and composition
 
 An unconditional line ending emits `"\r\n"`; requesting n line endings emits
@@ -239,11 +230,6 @@ disconnect, transport echo, terminal-profile editing sequences and all report
 recipes remains under review. The ordinary layout clause above does not
 silently define those controls or impose conventional tab stops. These gaps
 prevent a claim of complete terminal conformance to this draft.
-
-**Source basis:** [literal and line output](../../legacy/utexas/WARMAC.MAC#L1650),
-[column padding](../../legacy/utexas/WARMAC.MAC#L1670),
-[conditional blank line](../../legacy/utexas/WARMAC.MAC#L1696),
-[character output](../../legacy/utexas/WARMAC.MAC#L1309).
 
 ## Ordinary line-editor output
 
@@ -276,19 +262,16 @@ Backspace and DEL remove the last retained character but add no game-generated
 erase sequence of their own; any terminal echo of those keys is separate.
 
 When ordinary acquisition completes, emit CR. Append LF for interactive input
-unless echo was enabled and the delivered terminator is LF, vertical tab,
-form feed, Ctrl-Z or Ctrl-C, whose classification accounts for an already echoed
-line advance. For initialization-resource input, do not append LF through this
-completion step. Enable echo if disabled. A terminating ESC and a line completed
-by reaching the eighty-character limit therefore produce CRLF in interactive
-input. First-character ESC reuse passes through this same completion path.
-These completion characters are output requests subject to the binding's output
-and disconnect behavior, not a guarantee of receipt after connection loss.
+unless echo was enabled and the delivered terminator is LF, vertical tab, form
+feed, Ctrl-Z or Ctrl-C, whose classification accounts for an already echoed line
+advance. For initialization-resource input, do not append LF through this
+completion step. Enable echo if disabled.
 
-**Source basis:** [ordinary acquisition and completion](../../legacy/utexas/WARMAC.MAC#L1551),
-[echo-sensitive classification and redisplay](../../legacy/utexas/WARMAC.MAC#L1608),
-[echo enablement](../../legacy/utexas/WARMAC.MAC#L1145),
-[character classes](../../legacy/utexas/WARMAC.MAC#L838).
+A terminating ESC and a line completed by reaching the eighty-character limit
+therefore produce CRLF in interactive input. First-character ESC reuse passes
+through this same completion path. These completion characters are output
+requests subject to the binding's output and disconnect behavior, not a
+guarantee of receipt after connection loss.
 
 ## HELP command lists and topic diagnostics
 
@@ -329,11 +312,6 @@ the acquired input text. These recipes concern name selection and command-list
 output. The requested help section's text and unavailable-resource diagnostics
 remain governed by the help-content and environment contracts.
 
-**Source basis:** [HELP dispatch](../../legacy/utexas/WARMAC.MAC#L4134),
-[command heading](../../legacy/utexas/WARMAC.MAC#L4209),
-[ambiguity and list formatting](../../legacy/utexas/WARMAC.MAC#L4318),
-[display labels](../../legacy/utexas/DECWAR.FOR#L437).
-
 ## HELP section failures
 
 Each help-section request begins with a conditional blank-line request.
@@ -356,10 +334,6 @@ turn, score change or fallback topic. Transport delivery after a detected
 connection loss and failures of resource cleanup itself are not supplied by
 these response rules.
 
-**Source basis:** [section entry and opening](../../legacy/utexas/WARMAC.MAC#L4222),
-[end-of-resource and cleanup](../../legacy/utexas/WARMAC.MAC#L4273),
-[warning output](../../legacy/utexas/WARMAC.MAC#L28).
-
 ## NEWS output and failure
 
 NEWS adds no initial blank-line request. It emits the content selected by the
@@ -379,9 +353,6 @@ is separate from a successfully opened empty resource, which simply finishes.
 The [NEWS contract](commands.md#news) distinguishes viewing cleanup from open
 failure; these presentation rules do not promise successful cleanup after an
 environment failure.
-
-**Source basis:** [NEWS output and exits](../../legacy/utexas/WARMAC.MAC#L3811),
-[warning expansion](../../legacy/utexas/WARMAC.MAC#L28).
 
 ## GRIPE refusal and storage diagnostics
 
@@ -415,11 +386,6 @@ No storage warning promises that an old record was preserved atomically or
 that the new record was saved. Ordinary cleanup adds no success confirmation
 or final line ending of its own. Endings inside stored feedback remain separate
 from terminal output.
-
-**Source basis:** [RED refusal](../../legacy/utexas/WARMAC.MAC#L3858),
-[recording failures and cleanup](../../legacy/utexas/WARMAC.MAC#L4057),
-[record-extension failure](../../legacy/utexas/WARMAC.MAC#L4114),
-[warning output](../../legacy/utexas/WARMAC.MAC#L28).
 
 ## TELL command responses
 
@@ -464,10 +430,6 @@ notices remain separate output.
 | TELL08 | `"\r\nNo message sent."` |
 | TELL09 | `"\r\nWake up, Captain, I just sent that message!"` |
 
-**Source basis:** [TELL](../../legacy/utexas/DECWAR.FOR#L3977),
-[recipient fragments](../../legacy/utexas/MSG.MAC#L312),
-[body acquisition and publication](../../legacy/utexas/WARMAC.MAC#L2963).
-
 ## Configuration command responses
 
 SET has no initial conditional blank-line request. When setting selection
@@ -511,10 +473,6 @@ termination, whose reports belong to the lifecycle contract; it does not add
 a SET confirmation. Input echo, incoming notices and subsequent command prompts
 are separate from these direct responses.
 
-**Source basis:** [SET](../../legacy/utexas/DECWAR.FOR#L3624),
-[prompt fragments](../../legacy/utexas/MSG.MAC#L259),
-[terminal names](../../legacy/utexas/MSG.MAC#L358).
-
 ## Shield command responses
 
 SHIELDS begins with one conditional blank-line request. Its action and amount
@@ -547,10 +505,6 @@ does not force immediate delivery of the notice. The zero-energy response, when
 applicable, follows the release operation. These command responses add no
 STATUS report, resource adjustment or turn beyond the command's stated effects.
 
-**Source basis:** [SHIELDS response paths](../../legacy/utexas/DECWAR.FOR#L3739),
-[response strings](../../legacy/utexas/MSG.MAC#L280),
-[literal and line output](../../legacy/utexas/WARMAC.MAC#L1653).
-
 ## Energy-transfer responses
 
 ENERGY begins with one conditional blank-line request. Missing or mistyped
@@ -580,12 +534,6 @@ observation rules and does include the received amount. A zero actual transfer
 to a recipient already at capacity has the same sender success text. These
 responses do not add a status report or a turn.
 
-**Source basis:** [ENERGY output paths](../../legacy/utexas/DECWAR.FOR#L1009),
-[energy strings](../../legacy/utexas/MSG.MAC#L67),
-[LONG self-transfer prefix](../../legacy/utexas/MSG.MAC#L10),
-[absent recipient](../../legacy/utexas/MSG.MAC#L152),
-[unknown name](../../legacy/utexas/MSG.MAC#L373).
-
 ## Docking and repair responses
 
 For NoAdjacentFriendlyInstallation, DOCK requests a conditional blank line,
@@ -606,10 +554,6 @@ composition. The [REPAIR contract](commands.md#repair) determines suffix accepta
 including the no-damage ALL exception, and subsequent turn behavior. Automatic
 repair itself adds no repair response. Later turn events or reports retain
 their own output rules.
-
-**Source basis:** [DOCK](../../legacy/utexas/DECWAR.FOR#L893),
-[docking strings](../../legacy/utexas/MSG.MAC#L47),
-[REPAIR](../../legacy/utexas/DECWAR.FOR#L3190).
 
 ## Radio preference responses
 
@@ -632,9 +576,6 @@ make a conditional blank-line request. The prefix is independent of output
 length; the object label follows the ordinary SHORT/MEDIUM/LONG rule. These
 are direct confirmations of the [radio preference changes](commands.md#radio),
 not radio messages delivered to the selected ship.
-
-**Source basis:** [RADIO](../../legacy/utexas/DECWAR.FOR#L3129),
-[radio strings](../../legacy/utexas/MSG.MAC#L248).
 
 ## Tractor command responses
 
@@ -662,10 +603,6 @@ use the target's ordinary object label. Empty target input cancels without a
 new response. Successful engagement and release have no direct success string:
 they publish TractorEvent observations, whose delivery and rendering follow
 the combat-notice rules. The direct-response table does not bypass those rules.
-
-**Source basis:** [TRACTR and release](../../legacy/utexas/DECWAR.FOR#L4432),
-[tractor strings](../../legacy/utexas/MSG.MAC#L349),
-[shared adjacency response](../../legacy/utexas/MSG.MAC#L70).
 
 ## Construction responses
 
@@ -697,9 +634,6 @@ coordinate/output preferences, `" into a "`, and the new base's object label
 without an added trailing space. Finish with a conditional blank-line request.
 If world termination prevents conversion from reaching this report, no conversion
 confirmation is implied by the earlier construction points or base-count change.
-
-**Source basis:** [BUILD](../../legacy/utexas/DECWAR.FOR#L522),
-[construction strings](../../legacy/utexas/MSG.MAC#L12).
 
 ## Capture responses
 
@@ -748,11 +682,6 @@ Append one unconditional line ending, then the actor's ship label, one space,
 This additional report does not undo ownership or pending capture points.
 Subsequent turn and lifecycle output follows the [CAPTURE contract](commands.md#capture).
 
-**Source basis:** [CAPTUR](../../legacy/utexas/DECWAR.FOR#L600),
-[capture strings](../../legacy/utexas/MSG.MAC#L20),
-[target-kind diagnostics](../../legacy/utexas/MSG.MAC#L148),
-[location completion](../../legacy/utexas/DECWAR.FOR#L3078).
-
 ## Phaser command responses
 
 PHASERS makes no initial blank-line request of its own. The shared location
@@ -791,11 +720,6 @@ firing confirmation. PHASERS does not print a special shield-energy-exhaustion
 line when its charge exhausts the engines. Subsequent command acquisition and
 lifecycle output retain their own rules; omitting such a line adds no survival
 guarantee or energy precondition.
-
-**Source basis:** [PHACON](../../legacy/utexas/DECWAR.FOR#L2647),
-[phaser response strings](../../legacy/utexas/MSG.MAC#L196),
-[own-sector diagnostics](../../legacy/utexas/MSG.MAC#L85),
-[coordinate count diagnostic](../../legacy/utexas/MSG.MAC#L78).
 
 ## Torpedo command responses
 
@@ -840,11 +764,6 @@ inventory or change the shot count supplied by that outcome. Ordinary misses,
 black-hole absorption, friendly-target neutralization and impacts use published
 combat notices. Finishing a burst adds no direct success confirmation or
 automatic inventory report.
-
-**Source basis:** [TORP acquisition](../../legacy/utexas/DECWAR.FOR#L4228),
-[burst completion and direct responses](../../legacy/utexas/DECWAR.FOR#L4401),
-[torpedo strings](../../legacy/utexas/MSG.MAC#L341),
-[coordinate prompt](../../legacy/utexas/MSG.MAC#L38).
 
 ## Movement command responses
 
@@ -896,10 +815,6 @@ If traversal reports an obstruction, emit the complete string
 unconditional line ending. This response prints neither the obstruction kind
 nor its position. Unobstructed movement has no direct success or destination
 report. Later turn, combat and lifecycle output remains separate.
-
-**Source basis:** [MOVE and IMPULSE](../../legacy/utexas/DECWAR.FOR#L2141),
-[movement strings](../../legacy/utexas/MSG.MAC#L131),
-[numeric report fields](../../legacy/utexas/WARMAC.MAC#L1940).
 
 ## Combat observation bodies
 
@@ -1059,13 +974,6 @@ blank-line request, including a surviving impact with no emergency paragraph.
 These strings report the recorded result. Neither the wording about emergency
 power nor a destruction suffix invokes a second repair, random draw or kill.
 
-**Source basis:** [prefix and damage phrases](../../legacy/utexas/DECWAR.FOR#L2417),
-[target and critical details](../../legacy/utexas/DECWAR.FOR#L2478),
-[emergency and destruction](../../legacy/utexas/DECWAR.FOR#L2518),
-[other combat bodies](../../legacy/utexas/DECWAR.FOR#L2544),
-[literal text](../../legacy/utexas/MSG.MAC#L161),
-[Romulan torpedo form](../../legacy/utexas/DECWAR.FOR#L3461).
-
 ## Radio message bodies and headings
 
 Present a MessageObservation only when ReceiveMessage returns Displayed. A
@@ -1095,11 +1003,6 @@ and Wolf with body `"Hello"` therefore has this presentation:
 The space ending `"to "` and the first recipient's leading space both remain.
 A system message with the same body has no heading and displays exactly
 `"Hello\r\n\r\n"`.
-
-**Source basis:** [radio heading and body](../../legacy/utexas/DECWAR.FOR#L2599),
-[heading strings](../../legacy/utexas/MSG.MAC#L128),
-[body ending](../../legacy/utexas/WARMAC.MAC#L2994),
-[recipient initials](../../legacy/utexas/DECWAR.FOR#L489).
 
 ## Status reports
 
@@ -1167,11 +1070,6 @@ The space before the final CR/LF is significant. A SHORT request containing
 only ENERGY with value 125.9 displays `"E125 \r\n"`; it does not change the
 125.9 energy units available to subsequent operations.
 
-**Source basis:** [STATUS](../../legacy/utexas/DECWAR.FOR#L3860),
-[status labels](../../legacy/utexas/MSG.MAC#L292),
-[radio labels](../../legacy/utexas/MSG.MAC#L249),
-[DOCK STATUS](../../legacy/utexas/DECWAR.FOR#L935).
-
 ## Device-damage reports
 
 Present the [DamageReport](commands.md#selection-and-result) with one initial
@@ -1214,17 +1112,7 @@ selectors produce no row and no syntax diagnostic. A general report can have
 a heading but no rows if concurrent repairs remove the damage before the row
 observations. The report itself does not repair anything.
 
-**Source basis:** [DAMAGE](../../legacy/utexas/DECWAR.FOR#L783),
-[damage-report strings](../../legacy/utexas/MSG.MAC#L41),
-[all-functional response](../../legacy/utexas/MSG.MAC#L6),
-[device labels](../../legacy/utexas/WARMAC.MAC#L2054).
-
 ## Time reports
-
-```text
-query FormatDuration(value: Duration): Text
-    requires value >= 0 milliseconds;
-```
 
 Let totalSeconds be floor(value / 1000 milliseconds), hours be
 floor(totalSeconds / 3600), minutes be floor(totalSeconds / 60) modulo 60,
@@ -1233,6 +1121,11 @@ ordinary decimal numbers separated by colons. Each component has at least
 two digits, padding on the left with zero when needed. Hours expand beyond
 two digits; they do not wrap after 24 or 99. Fractions of a second are discarded
 for display, not rounded or deducted from any clock value.
+
+```text
+query FormatDuration(value: Duration): Text
+    requires value >= 0 milliseconds;
+```
 
 For example, 3,661,999 milliseconds displays `"01:01:01"`, and 360,000,000
 milliseconds displays `"100:00:00"`. TimeOfDay uses its duration since local
@@ -1259,10 +1152,6 @@ are separate observations; rendering does not substitute one for the other.
 **OPEN QUESTION:** Invalid or negative environment clock readings have no presentation
 rule here. This domain restriction does not introduce a TIME command rejection
 or silently turn an unavailable clock origin into zero.
-
-**Source basis:** [TIME](../../legacy/utexas/DECWAR.FOR#L4066),
-[time labels](../../legacy/utexas/MSG.MAC#L330),
-[duration decomposition](../../legacy/utexas/WARMAC.MAC#L1746).
 
 ## Preference and option reports
 
@@ -1308,12 +1197,6 @@ These are the selected game options. In particular, the black-hole line is not
 computed by counting black holes remaining in the galaxy. A report observes
 preferences and options without changing them or selecting a terminal profile.
 
-**Source basis:** [TYPE](../../legacy/utexas/DECWAR.FOR#L4540),
-[profile spellings](../../legacy/utexas/DECWAR.FOR#L480),
-[profile padding](../../legacy/utexas/WARMAC.MAC#L1734),
-[report strings](../../legacy/utexas/MSG.MAC#L360),
-[option strings](../../legacy/utexas/MSG.MAC#L274).
-
 ## Scan grids
 
 Present ScanReport using the captain's ScanStyle. The scan's symbol table is
@@ -1325,14 +1208,16 @@ The report bounds and marks are already determined by Scan; presentation does
 not discover installations or read the sectors again.
 
 Make one conditional blank-line request before the top axis. Every horizontal
-axis line begins with three spaces. Its first label is bounds.minHorizontal
-in LONG and bounds.minHorizontal + 1 in SHORT. Always emit that initial label,
-even when it lies beyond bounds.maxHorizontal. Successive labels increase by
-two in LONG or three in SHORT and are emitted only while they are at most
-bounds.maxHorizontal. Separate successive labels with two spaces in LONG or
-one space in SHORT. Each label is its decimal number in a two-character field,
-with a leading space for values below ten, and no sign, @ or relative offset.
-Finish the axis line with a conditional blank-line request.
+axis line begins with three spaces. Its first label is bounds.minHorizontal in
+LONG and bounds.minHorizontal + 1 in SHORT. Always emit that initial label, even
+when it lies beyond bounds.maxHorizontal. Successive labels increase by two in
+LONG or three in SHORT and are emitted only while they are at most
+bounds.maxHorizontal.
+
+Separate successive labels with two spaces in LONG or one space in SHORT. Each
+label is its decimal number in a two-character field, with a leading space for
+values below ten, and no sign, @ or relative offset. Finish the axis line with a
+conditional blank-line request.
 
 For each ScanRow in decreasing vertical order, emit its vertical label using
 the same two-character numeric form, one space, its cell marks in increasing
@@ -1373,11 +1258,6 @@ presentation does not undo discovery already performed. A RejectedSyntax
 instead emits `"%Syntax error"` and one unconditional line ending, with no grid
 or scan-entry separator. Complete delivery of interruption controls remains a
 separate binding requirement.
-
-**Source basis:** [scan display and axes](../../legacy/utexas/WARMAC.MAC#L2482),
-[two-character labels](../../legacy/utexas/WARMAC.MAC#L1814),
-[scan command and rejection](../../legacy/utexas/DECWAR.FOR#L3527).
-
 
 ## Galaxy-report lines
 
@@ -1425,10 +1305,6 @@ empty lines between all observations. There is no additional final separator
 beyond those already prescribed. A later syntax rejection retains earlier
 immediate output but does not flush deferred selections; selection and rejection
 ordering remain governed by ReportGalaxy.
-
-**Source basis:** [entry and group processing](../../legacy/utexas/DECWAR.FOR#L1378),
-[named-group boundary](../../legacy/utexas/DECWAR.FOR#L1806),
-[deferred section boundaries](../../legacy/utexas/DECWAR.FOR#L1959).
 
 ### Detail lines
 
@@ -1502,11 +1378,6 @@ galaxy displays `"  2 known Empire bases in game\r\n"`. One SHORT Federation
 ship displays `"  1 Federation ship\r\n"`. A RomulanSummary count greater than
 one remains plural according to its count, as required by the existing group
 selection semantics; formatting does not replace that count with one.
-
-**Source basis:** [detail lines](../../legacy/utexas/DECWAR.FOR#L2084),
-[summary lines](../../legacy/utexas/DECWAR.FOR#L2060),
-[grouped observations](../../legacy/utexas/DECWAR.FOR#L1959),
-[range and category strings](../../legacy/utexas/MSG.MAC#L89).
 
 ### Absence observations
 
@@ -1589,11 +1460,6 @@ Interrupted output and unavailable relative origins remain separate environment
 questions. This terrain limitation does not change the ordinary detail and
 absence recipes above.
 
-**Source basis:** [coordinate and named observations](../../legacy/utexas/DECWAR.FOR#L1765),
-[no-match composition](../../legacy/utexas/DECWAR.FOR#L1891),
-[absence fragments](../../legacy/utexas/MSG.MAC#L109),
-[position formatting](../../legacy/utexas/DECWAR.FOR#L3078).
-
 ## USERS reports
 
 This presentation consumes [UserReportEntry](commands.md#users). Request a
@@ -1612,12 +1478,14 @@ one unconditional line ending. It is present at the faction boundary even when
 there are no captain rows on one or both sides. Each CaptainRow uses the
 formatter below, followed by a conditional blank-line request.
 
-```text
-type AccountLabel = {
+```typescript
+interface AccountLabel {
     project: Text;
     member: Text;
-};
+}
+```
 
+```text
 query UserAccountLabel(account: AccountIdentity): AccountLabel
 query FormatUserRow(row: UserRow): Text
 ```
@@ -1634,7 +1502,6 @@ characters in the binding's terminal-label repertoire. The binding supplies
 the label's case and characters; the formatter does not infer a network address
 or change the session identity. Captain names use the printable-name conversion
 already defined by their acquisition rules and have at most twelve characters.
-No packed character or account representation is required.
 
 FormatUserRow concatenates these fields, in order, without other separators:
 
@@ -1665,11 +1532,6 @@ observation. It changes no game state and inserts no line ending of its own.
 The surrounding report supplies line composition as stated above. Metadata
 outside the terminal binding's defined label domain, and unavailable pregame
 relative origins, remain binding gaps rather than invented labels or positions.
-
-**Source basis:** [USERS headings and row order](../../legacy/utexas/DECWAR.FOR#L4600),
-[identity fields](../../legacy/utexas/WARMAC.MAC#L2187),
-[account field digits and width](../../legacy/utexas/WARMAC.MAC#L1856),
-[position fields](../../legacy/utexas/DECWAR.FOR#L3078).
 
 ## POINTS reports
 
@@ -1755,9 +1617,3 @@ makes no additional line-ending request. PerTurnRow formats every quotient and
 then requests a conditional blank line. Rows absent from ScoreReport emit
 nothing; in particular a ship-only report has no commission rows or their
 leading line endings.
-
-**Source basis:** [heading and category output](../../legacy/utexas/DECWAR.FOR#L2935),
-[totals and accounting output](../../legacy/utexas/DECWAR.FOR#L3002),
-[score labels](../../legacy/utexas/MSG.MAC#L209),
-[fixed-point display](../../legacy/utexas/WARMAC.MAC#L1942),
-[roster names](../../legacy/utexas/DECWAR.FOR#L489).

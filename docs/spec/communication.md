@@ -7,16 +7,16 @@ delivery removes only the receiving ship from remaining recipients.
 
 ## Publishing a message
 
-```text
-operation PublishMessage(sender: MessageSender, recipients: Set<ShipId>,
-                         body: Text): Published { id: MessageId } | NotPublished
-```
-
 TELL defines recipient selection and body acquisition. `PublishMessage` receives
 that selected audience and acquired body; it does not repeat recipient-readiness
 checks. An empty recipient set returns NotPublished without obtaining capacity.
 Let service be world(game).radioService. Successful publication creates one
 message with a new identity:
+
+```text
+operation PublishMessage(sender: MessageSender, recipients: Set<ShipId>,
+                         body: Text): Published { id: MessageId } | NotPublished
+```
 
 ```text
 message.sender              == sender
@@ -68,26 +68,7 @@ failure conditions remain to be specified, including the case where all capacity
 belongs to publications in progress. These gaps do not establish a random
 message-loss rate, fairness guarantee or automatic timeout.
 
-**Source basis:** [publication and capacity](../../legacy/utexas/WARMAC.MAC#L2589),
-[MAKMSG](../../legacy/utexas/WARMAC.MAC#L2963),
-[capacity limit](../../legacy/utexas/PARAM.FOR#L16).
-
 ## Receiving a message
-
-```text
-type RadioHeading = {
-    sender: ShipId | ROMULAN;
-    recipients: List<ShipId>;
-};
-
-type MessageObservation = {
-    heading: Optional<RadioHeading>;
-    body: Text;
-};
-
-operation ReceiveMessage(receiver: ShipId): Displayed { id: MessageId }
-                 | Suppressed { id: MessageId } | NoMessage
-```
 
 Let r be ship(game, receiver), and let c be the captain identified by r.captain.
 This reception contract requires an active commission with a present captain;
@@ -95,6 +76,25 @@ commission release uses the discard operation below. Let service be
 world(game).radioService. The selected message m is the first entry in
 service.messages whose remainingRecipients contains receiver. If one is
 received, its state effect is:
+
+```typescript
+interface RadioHeading {
+    sender: ShipId | "ROMULAN";
+    recipients: List<ShipId>;
+}
+
+interface MessageObservation {
+    heading: Optional<RadioHeading>;
+    body: Text;
+}
+```
+
+The reception operation produces one of these observations:
+
+```text
+operation ReceiveMessage(receiver: ShipId): Displayed { id: MessageId }
+                 | Suppressed { id: MessageId } | NoMessage
+```
 
 ```text
 ensures after(m.remainingRecipients)
@@ -132,17 +132,13 @@ message produces no MessageObservation.
 **OPEN QUESTION:** The complete scheduling and shared-state availability rules for message
 reception remain part of the multiplayer contract.
 
-**Source basis:** [GETMSG](../../legacy/utexas/WARMAC.MAC#L3036),
-[OUTMSG](../../legacy/utexas/DECWAR.FOR#L2599),
-[release](../../legacy/utexas/DECWAR.FOR#L1082).
-
 ## Discarding an unread audience
+
+Let service be world(game).radioService. For each m in service.messages:
 
 ```text
 operation DiscardUnread(receiver: ShipId): Discarded
 ```
-
-Let service be world(game).radioService. For each m in service.messages:
 
 ```text
 m.remainingRecipients -= {receiver}
@@ -158,10 +154,6 @@ The capacity-loss policy and commission release use this effect. It does not
 unsubscribe the ship from future messages or remove it from a publication that
 is still in progress. The ordering of release against such an overlapping
 publication remains part of the unfinished lifecycle contract.
-
-**Source basis:** [capacity-loss removal](../../legacy/utexas/WARMAC.MAC#L2624),
-[message recipient removal](../../legacy/utexas/WARMAC.MAC#L2710),
-[release consumption](../../legacy/utexas/DECWAR.FOR#L1125).
 
 ## Autonomous Romulan speech
 
@@ -198,10 +190,6 @@ are unchanged. The triggering ship is not excluded from a Romulan audience.
 Recipient-validation diagnostics, including an empty-audience report, are
 available to the triggering captain; they are not new radio publications.
 
-**Source basis:** [ROMSPK](../../legacy/utexas/WARMAC.MAC#L4672),
-[TELL's autonomous path](../../legacy/utexas/DECWAR.FOR#L3977).
-
-
 ## Combat notices
 
 Combat notices convey game observations produced by weapon impacts, novas,
@@ -230,17 +218,10 @@ operation ReceiveNotice(receiver: ShipId): Displayed { id: NoticeId } | Suppress
 operation DiscardNotices(receiver: ShipId): Discarded
 ```
 
-CombatObservation is an immutable value supplied by the producing clause.
-ImpactObservation composes weapon and nova results with their origin and target
-snapshots. The alternatives and their information content are defined below. The delivery service treats
-each value as a whole: it neither applies damage nor constructs missing weapon
-fields. It cannot substitute an arbitrary TELL body for the observation. Detailed
-text presentation belongs to the terminal binding; this ADT defines preservation,
-selection and loss independently
-of a rendering or network format.
-observationKind distinguishes the listed game events; a deflected torpedo hit
-is WEAPON_HIT, with its deflected property in the hit result. A producing clause
-determines the kind; it is not a recipient-selected filtering option.
+CombatObservation is an immutable snapshot produced by a game effect. Delivery
+does not apply damage or add missing fields. The terminal binding renders the
+snapshot as text. observationKind identifies the event that produced it. A
+deflected torpedo hit is WEAPON_HIT and records deflection in the hit result.
 
 Let service be world(game).combatNotices. Each present notice has a nonempty
 remainingRecipients set, contained in its original recipients. Distinct notices
@@ -248,8 +229,8 @@ have distinct identities and publication orders. For a given publisher,
 priorities are unique among its present notices. PublicationOrder is chronological
 order of completed publication events; it has no wraparound or time unit.
 
-A publisher has capacity for forty notices. Its priorities determine delivery
-preference and reuse, not addresses or a required array. There are eighteen
+A publisher has capacity for forty notices. Priorities determine delivery order
+and which place is reused. There are eighteen
 possible publisher ships, so the service holds at most 720 notices. Capacity
 belongs to the publisher, not to an individual recipient or the faction of the
 attacker named in the observation. A nested Romulan or installation action uses
@@ -265,22 +246,26 @@ additional ships or installations in World. Their records are defined in
 
 Shields, Percentage, Energy and the identity types are defined in the abstract
 model. CriticalHit and DisplacementResult are the shared combat result types.
-The origin must be StarOrigin exactly when kind is NOVA; PHASER and TORPEDO
-use ObjectOrigin. A planet target has absent damage, and the other target kinds
-have the damage supplied by their effect rule. Every embedded state, including
-Shields, is a value snapshot. The origin is the object that made this hit: a firing ship, installation or
-Romulan, or the exploding star. It is not the publisher used for delivery
-priority, nor necessarily the captain credited with the damage. A nova reports
-the star as origin even when a player started the chain.
+The origin must be StarOrigin exactly when kind is NOVA; PHASER and TORPEDO use
+ObjectOrigin. A planet target has absent damage, and the other target kinds have
+the damage supplied by their effect rule.
+
+Every embedded state, including Shields, is a value snapshot. The origin is the
+object that made this hit: a firing ship, installation or Romulan, or the
+exploding star. It is not the publisher used for delivery priority, nor
+necessarily the captain credited with the damage. A nova reports the star as
+origin even when a player started the chain.
 
 For a ship or base hit by a weapon, set kind from WeaponHit.weapon and copy
-damage, critical, deflected, displacement and destruction from that result. Construct its ShipImpactState or
-BaseImpactState using the target identity and the defense recorded in that
-result. The position is the target's resulting position for Moved, the
-black-hole destination for Swallowed, or its recorded impact position for Stayed.
-A fatal direct hit retains that impact position. Preserve the recorded base
-strength even when destruction cleanup has set the base's stored strength to
-zero. The TargetAlreadyFatal outcome does not supply a WeaponHit; its incomplete
+damage, critical, deflected, displacement and destruction from that result.
+Construct its ShipImpactState or BaseImpactState using the target identity and
+the defense recorded in that result.
+
+The position is the target's resulting position for Moved, the black-hole
+destination for Swallowed, or its recorded impact position for Stayed. A fatal
+direct hit retains that impact position. Preserve the recorded base strength
+even when destruction cleanup has set the base's stored strength to zero. The
+TargetAlreadyFatal outcome does not supply a WeaponHit; its incomplete
 caller-report contract remains open.
 
 For a weapon hit on the Romulan, set kind from RomulanHit.weapon, copy its
@@ -316,11 +301,12 @@ The origin carries the position and resource reading selected by the firing
 clause. Player phasers report the shooter's shield mode and strength for the
 resolved shot before its final firing-energy charge. Player torpedoes record
 those values at the start of the shot; a preceding base distress publication
-must not erase them. Base defense reports the firing base's strength. Planet
-defense reports its owner and builds used for the defensive shot. In CAPTURE,
-these are the former owner and former build count, although the planet now
-belongs to the actor and its builds have been consumed. Romulan attacks report
-its firing position and energy. None of these origins includes the firing
+must not erase them. Base defense reports the firing base's strength.
+
+Planet defense reports its owner and builds used for the defensive shot. In
+CAPTURE, these are the former owner and former build count, although the planet
+now belongs to the actor and its builds have been consumed. Romulan attacks
+report its firing position and energy. None of these origins includes the firing
 ship's hull damage, engine energy, device damage or pending score.
 
 A surviving ship target reports its shield mode and strength; a surviving base
@@ -347,17 +333,6 @@ impact's recipients: the firing, installation or nova clause still determines
 its audience. The [combat presentation](presentation.md#combat-observation-bodies) supplies
 body composition. Complete control-character behavior and concurrent snapshot
 boundaries remain part of the terminal and multiplayer work.
-
-**Source basis:** [base defense](../../legacy/utexas/DECWAR.FOR#L375),
-[capture snapshot](../../legacy/utexas/DECWAR.FOR#L629),
-[nova observations](../../legacy/utexas/DECWAR.FOR#L2259),
-[hit display](../../legacy/utexas/DECWAR.FOR#L2417),
-[player phasers](../../legacy/utexas/DECWAR.FOR#L2694),
-[planet defense](../../legacy/utexas/DECWAR.FOR#L2800),
-[Romulan phasers](../../legacy/utexas/DECWAR.FOR#L3289),
-[Romulan torpedoes](../../legacy/utexas/DECWAR.FOR#L3461),
-[player torpedoes](../../legacy/utexas/DECWAR.FOR#L4286),
-[Romulan target position](../../legacy/utexas/DECWAR.FOR#L4375).
 
 ### Observation values
 
@@ -430,14 +405,6 @@ All positions and amounts above belong to the observed event. They are not
 requests for a new sensor query at reception. Object names follow the identities
 and the receiver's current output preference; relative positions use the
 receiver's current position under ReceiveNotice.
-
-**Source basis:** [energy transfer](../../legacy/utexas/DECWAR.FOR#L1062),
-[phaser/base announcements](../../legacy/utexas/DECWAR.FOR#L2720),
-[Romulan appearance](../../legacy/utexas/DECWAR.FOR#L3253),
-[nova-chain announcements](../../legacy/utexas/DECWAR.FOR#L3845),
-[torpedo outcomes](../../legacy/utexas/DECWAR.FOR#L4304),
-[tractor notifications](../../legacy/utexas/DECWAR.FOR#L4497),
-[observation presentation](../../legacy/utexas/DECWAR.FOR#L2392).
 
 ### Publication and capacity loss
 
@@ -530,10 +497,3 @@ publication/reception interleavings and the release-versus-new-publication windo
 remain to be closed. This contract preserves complete observations; it does not
 make the entire firing command, drain loop or commission release indivisible.
 No extra battle is inferred from a failed attempt to obtain a next notice.
-
-**Source basis:** [notice capacity](../../legacy/utexas/WARMAC.MAC#L183),
-[publication](../../legacy/utexas/WARMAC.MAC#L2771),
-[reception](../../legacy/utexas/WARMAC.MAC#L2880),
-[command acquisition](../../legacy/utexas/DECWAR.FOR#L1184),
-[notice display](../../legacy/utexas/DECWAR.FOR#L2392),
-[release](../../legacy/utexas/DECWAR.FOR#L1120).

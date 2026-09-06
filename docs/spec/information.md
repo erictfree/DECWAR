@@ -33,11 +33,6 @@ line. The extra-topic list retains its blank second field between CTL-C and INTR
 the blank is not a matchable topic. Other presentations can represent topics as
 items while preserving their order and availability under their conformance profile.
 
-**Source basis:** [topic selection and output](../../legacy/utexas/WARMAC.MAC#L4134),
-[section binding](../../legacy/utexas/WARMAC.MAC#L4222),
-[list rendering](../../legacy/utexas/WARMAC.MAC#L4359),
-[topic catalogue](../../legacy/utexas/DECWAR.FOR#L471).
-
 ## News content
 
 A news resource is ordered text with continuation boundaries. The supplied
@@ -52,38 +47,43 @@ the character after the dot. A leading dot without a preceding recognized
 boundary is ordinary content. Text and boundaries otherwise retain resource
 order; the resource is not replaced by a summary of its prose.
 
-**Source basis:** [NEWS](../../legacy/utexas/WARMAC.MAC#L3811),
-[news binding](../../legacy/utexas/WARMAC.MAC#L699).
-
 ## Feedback records
-
-```text
-type FeedbackRecord = {
-    context: FeedbackContext;
-    lines: List<Text>;
-};
-
-type FeedbackContext = {
-    version: Text;
-    dateAndTime: environment date and time;
-    ship: Optional<ShipId>;
-    captainName: Text;
-    terminalSpeed: environment speed value;
-    account: AccountIdentity;
-    terminal: TerminalIdentity;
-    execution: ExecutionIdentity;
-    gameNumber: integer;
-    blackHolesSelected: Boolean;
-    romulanEnabled: Boolean;
-};
-
-query feedbackRecords(game: GameState): List<FeedbackRecord>
-```
 
 Records are ordered newest submission first. Their context describes the
 submitting session when feedback begins. In pregame, the ship field is absent
 and the terminal header identifies the session as `Pre-game`. The remaining
 identity fields are the session metadata used by USERS, not galaxy targets.
+
+```typescript
+type EnvironmentDateTime = unknown;
+type EnvironmentSpeed = unknown;
+
+interface FeedbackRecord {
+    context: FeedbackContext;
+    lines: List<Text>;
+}
+
+interface FeedbackContext {
+    version: Text;
+    dateAndTime: EnvironmentDateTime;
+    ship: Optional<ShipId>;
+    captainName: Text;
+    terminalSpeed: EnvironmentSpeed;
+    account: AccountIdentity;
+    terminal: TerminalIdentity;
+    execution: ExecutionIdentity;
+    gameNumber: number;
+    blackHolesSelected: Boolean;
+    romulanEnabled: Boolean;
+}
+```
+
+EnvironmentDateTime and EnvironmentSpeed are opaque values supplied by the
+host environment. FeedbackContext.gameNumber is an integer.
+
+```text
+query feedbackRecords(game: GameState): List<FeedbackRecord>
+```
 
 The historical text binding renders a context header, body lines and the closing
 separator `----------`, followed by CR/LF. Complete body lines end in CR/LF;
@@ -102,7 +102,3 @@ invoking the interactive GRIPE grammar. Pregame
 [*ZAP](session-rules.md#administrative-statistics) records the current context
 with no body lines and the normal closing separator. It does not solicit text
 or include a standings dump. Other diagnostic bodies remain to be specified.
-
-**Source basis:** [context header](../../legacy/utexas/WARMAC.MAC#L2116),
-[session metadata](../../legacy/utexas/WARMAC.MAC#L2187),
-[GRIPE recording](../../legacy/utexas/WARMAC.MAC#L4050).

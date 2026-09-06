@@ -11,32 +11,39 @@ and environment continuation remain incomplete.
 
 ## Session properties
 
-```text
-enum SessionPhase = STARTUP | PREGAME | ADMISSION | ACTIVE | ENDED
-enum InformationActivity = NONE | HELP | FEEDBACK
+Account, execution and terminal identities are supplied by the environment;
+a captain's display name does not define any of them. The environment binding
+must document their equivalence rules. In particular, returning-player matching
+uses account and execution identity together, not display name or terminal alone.
 
-type AccountIdentity, ExecutionIdentity, TerminalIdentity
-type TimeOfDay = duration since local midnight
+```typescript
+type SessionPhase = "STARTUP" | "PREGAME" | "ADMISSION" | "ACTIVE" | "ENDED";
+type InformationActivity = "NONE" | "HELP" | "FEEDBACK";
 
-type SessionReporting = {
-    advertisedSpeed: nonnegative integer;
+type AccountIdentity = unknown;
+type ExecutionIdentity = unknown;
+type TerminalIdentity = unknown;
+type TimeOfDay = Duration;
+
+interface SessionReporting {
+    advertisedSpeed: number;
     connectionLabel: Text;
-    sessionNumber: integer;
-};
+    sessionNumber: number;
+}
 
-type CommissionTiming = {
+interface CommissionTiming {
     elapsedOrigin: ClockOrigin;
     executionAtStart: Duration;
-};
+}
 
-type OperationTiming = {
+interface OperationTiming {
     name: Text;
-    completedCalls: nonnegative integer;
+    completedCalls: number;
     totalExecution: Duration;
     maximumExecution: Duration;
-};
+}
 
-type Session = {
+interface Session {
     captain: CaptainId;
     phase: SessionPhase;
     entryName: Optional<Text>;
@@ -46,16 +53,18 @@ type Session = {
     reporting: SessionReporting;
     commissionTiming: Optional<CommissionTiming>;
     informationActivity: InformationActivity;
-};
+}
+```
 
+AccountIdentity, ExecutionIdentity and TerminalIdentity are distinct opaque
+identities. TimeOfDay is a duration since local midnight. advertisedSpeed and
+completedCalls are nonnegative integers, and sessionNumber is an integer. The
+session is observed through these pseudocode queries:
+
+```text
 query session(game: GameState, captain: CaptainId): Session
 query observeOperationTimings(captain: CaptainId): List<OperationTiming>
 ```
-
-Account, execution and terminal identities are supplied by the environment;
-a captain's display name does not define any of them. The environment binding
-must document their equivalence rules. In particular, returning-player matching
-uses account and execution identity together, not display name or terminal alone.
 
 OperationTiming describes one registered diagnostic measurement in the viewer's
 execution environment. completedCalls counts completed measured calls;
@@ -66,8 +75,6 @@ the defined instrumentation domain. Querying does not clear the measurements.
 These durations are separate from ship turns and game scores. Instrumentation
 selection, clock failures, capacity exhaustion and rendering of time units
 belong to the environment binding.
-
-**Source basis:** [timing registration and reporting](../../legacy/utexas/WARMAC.MAC#L3606).
 
 SessionReporting contains the values advertised by the environment for reports.
 For an active commission these values are recorded during admission; USERS does
@@ -102,17 +109,19 @@ replaces those baselines. Release removes commissionTiming along with the
 captain's active ship association; it does not reset total session execution
 accounting. The complete restart/resume clock binding remains under review.
 
-**Source basis:** [galaxy clock origin](../../legacy/utexas/SETUP.FOR#L173),
-[commission metadata and clocks](../../legacy/utexas/SETUP.FOR#L365),
-[elapsed and execution observations](../../legacy/utexas/WARMAC.MAC#L3329),
-[report metadata](../../legacy/utexas/WARMAC.MAC#L2187).
-
 A roster ship without an active position has `position == none`. This is a
 semantic absence, not a sector outside the galaxy. Command contracts requiring
 an acting ship use its active position. A pregame information command does not
 create a ship position merely to satisfy such a contract.
 
 ## Startup and pregame
+
+A new session acquires its environment identity and captain name, then enters
+the startup dialogue. Empty startup input begins admission. HELP displays the
+general-help instructions and main command list, then repeats the startup
+prompt. PREGAME enters pregame command acquisition. Other replies repeat startup;
+keywords use ordinary abbreviation rules and only the first reply token selects
+this branch. Interruption or disconnect exits at this stage.
 
 ```text
 StartupReply ::= EmptyInput | "HELP" | "PREGAME"
@@ -122,13 +131,6 @@ operation StartSession(captain: CaptainId): Pregame | AdmissionStarted | Session
 
 operation Activate(captain: CaptainId): AdmissionStarted
 ```
-
-A new session acquires its environment identity and captain name, then enters
-the startup dialogue. Empty startup input begins admission. HELP displays the
-general-help instructions and main command list, then repeats the startup
-prompt. PREGAME enters pregame command acquisition. Other replies repeat startup;
-keywords use ordinary abbreviation rules and only the first reply token selects
-this branch. Interruption or disconnect exits at this stage.
 
 Pregame offers ACTIVATE, GRIPE, HELP, NEWS, POINTS, QUIT, SET, SUMMARY, TIME, TYPE,
 USERS, *DEBUG, *PASSWORD and *ZAP under the pregame grammar. Empty input repeats
@@ -154,13 +156,6 @@ placement; it is separate from these initial preferences.
 
 The initial name dialogue is defined below. Environment continuation, control
 delivery and some admission edge cases still need their complete contracts.
-
-**Source basis:** [main initialization](../../legacy/utexas/DECWAR.FOR#L1),
-[startup and pregame dispatch](../../legacy/utexas/SETUP.FOR#L76),
-[pregame matching](../../legacy/utexas/SETUP.FOR#L402),
-[initial name reader](../../legacy/utexas/WARMAC.MAC#L3213),
-[coordinate interpretation](../../legacy/utexas/DECWAR.FOR#L1403),
-[preference reports](../../legacy/utexas/DECWAR.FOR#L4560).
 
 ### Entry name
 
@@ -222,29 +217,28 @@ therefore begins with entryName again. Pregame SET NAME is recognized and
 consumes its name input, but its effect without a commissioned ship is
 unspecified; it does not supply an alternative entry-name mechanism.
 
-**Source basis:** [entry-name acquisition and conversion](../../legacy/utexas/WARMAC.MAC#L3208),
-[admission identity acquisition](../../legacy/utexas/SETUP.FOR#L156),
-[commission identity recording](../../legacy/utexas/SETUP.FOR#L365),
-[SET NAME](../../legacy/utexas/WARMAC.MAC#L3423).
-
 ### Administrative statistics
 
 *ZAP is a pregame administrative operation. It has no arguments; trailing tokens
 do not select a statistics category. It is not a main-game command.
 
-```text
-enum StatisticsArchiveKind = REGULAR | FREE_ACCOUNT
-type StatisticId
+```typescript
+type StatisticsArchiveKind = "REGULAR" | "FREE_ACCOUNT";
+type StatisticId = unknown;
 
-type HistoricalStatistics = {
-    serial: integer;
-    values: Map<StatisticId, real>;
-};
+interface HistoricalStatistics {
+    serial: number;
+    values: Map<StatisticId, number>;
+}
 
-type AdministrativeState = {
+interface AdministrativeState {
     statistics: HistoricalStatistics;
-};
+}
+```
 
+StatisticId is opaque, and HistoricalStatistics.serial is an integer.
+
+```text
 query administration(viewer: CaptainId): AdministrativeState
 
 operation ZapStatistics(viewer: CaptainId): Ignored | Finished { archive: Optional<StatisticsArchiveKind> }
@@ -299,19 +293,7 @@ administrative access, the full persisted-statistic schema and interactions
 with other administrative writers still require environment-binding rules.
 No atomic two-archive transaction or rollback is implied.
 
-**Source basis:** [pregame privilege check](../../legacy/utexas/SETUP.FOR#L134),
-[statistics values](../../legacy/utexas/WARMAC.MAC#L575),
-[archive resources](../../legacy/utexas/WARMAC.MAC#L748),
-[administrative feedback path](../../legacy/utexas/WARMAC.MAC#L3878),
-[empty administrative body](../../legacy/utexas/WARMAC.MAC#L4049),
-[statistics clearing](../../legacy/utexas/WARMAC.MAC#L4636).
-
 ## Admission and faction selection
-
-```text
-operation AdmitCaptain(captain: CaptainId): Commissioned { ship: ShipId } | Cancelled
-                 | DifferentGalaxyRequired | GalaxyEnded
-```
 
 Admission uses a participant place before a ship is fully commissioned. These
 places count toward the galaxy's eighteen-participant capacity and include
@@ -320,6 +302,11 @@ ships are in use and attempt entry through a different galaxy. Existing captains
 remain in the full galaxy; the arriving captain does not evict one of them.
 The full galaxy ceases to be the destination offered to new arrivals through
 that entry route.
+
+```text
+operation AdmitCaptain(captain: CaptainId): Commissioned { ship: ShipId } | Cancelled
+                 | DifferentGalaxyRequired | GalaxyEnded
+```
 
 Otherwise reserve a participant place. Reuse an initialized, unterminated galaxy
 unless this is its only participant and its empty-world retention has expired.
@@ -389,20 +376,7 @@ transition to a placed commission, and stale metadata in pacing selection need
 full contracts. The preceding reservation stages specify effects but do not
 require a particular lock or whole-dialogue transaction.
 
-**Source basis:** [participant reservation and reuse](../../legacy/utexas/SETUP.FOR#L145),
-[faction and ship selection](../../legacy/utexas/SETUP.FOR#L264),
-[commission initialization](../../legacy/utexas/SETUP.FOR#L353),
-[early cancellation](../../legacy/utexas/SETUP.FOR#L1),
-[placement and command initialization](../../legacy/utexas/DECWAR.FOR#L44).
-
 ## Galaxy creation and placement
-
-```text
-GameKindReply ::= EmptyInput | "REGULAR" | "TOURNAMENT" [TournamentKey]
-OptionReply   ::= EmptyInput | "YES" | "NO"
-
-operation CreateGalaxy(): Unit
-```
 
 The first admission creating a galaxy chooses REGULAR or TOURNAMENT; empty
 selects REGULAR and an unrecognized reply repeats the choice. TOURNAMENT uses
@@ -410,6 +384,13 @@ the next token as its key, or prompts for one if absent. The key is its retained
 case-transformed token text; an empty reply to the separate key prompt is not
 rejected. Its reproducibility binding is part of the random
 choice contract; it is not a new numeric command argument.
+
+```text
+GameKindReply ::= EmptyInput | "REGULAR" | "TOURNAMENT" [TournamentKey]
+OptionReply   ::= EmptyInput | "YES" | "NO"
+
+operation CreateGalaxy(): Unit
+```
 
 Next ask whether Romulan activity is enabled. Empty input or YES enables it;
 NO disables it; another reply repeats the question. No Romulan is initially
@@ -425,17 +406,16 @@ holeCount = 10 + floor(41 * holeDraw)
 ```
 
 Thus star count ranges from 100 to 350 in steps of five; hole count ranges from
-10 to 50. The potential hole count is chosen even if black holes are later declined.
-Initial faction scores, discoveries and cumulative faction commission counts
-are zero; there are no published messages or tractor associations.
-In particular, world.teamCommissions maps each Team to zero.
-world.baseCounts maps each Team to ten, and world.capturedPlanetCounts maps
-each Team to zero.
+10 to 50. The potential hole count is chosen even if black holes are later
+declined. Initial faction scores, discoveries and cumulative faction commission
+counts are zero; there are no published messages or tractor associations.
+
+In particular, world.teamCommissions maps each Team to zero. world.baseCounts
+maps each Team to ten, and world.capturedPlanetCounts maps each Team to zero.
 World.radioService starts with an empty messages sequence and an empty
-publicationsInProgress set.
-World.combatNotices starts with an empty notices set.
-World.ended starts false.
-Set world.elapsedOrigin to the new galaxy's clock origin.
+publicationsInProgress set. World.combatNotices starts with an empty notices
+set. World.ended starts false. Set world.elapsedOrigin to the new galaxy's clock
+origin.
 
 Place bases in alternating faction order by base identity: Federation first,
 then Empire for each of the ten identities. Place the twenty planets next,
@@ -451,13 +431,15 @@ For each object placement, choose a vertical coordinate and then a horizontal
 coordinate from 1 through 75. If that sector is occupied, choose another pair.
 For a placed player ship, if the opposing faction's maintained base count is
 positive, reject a candidate within distance four of any recorded opposing base
-position. Check every base identity in that faction's fixed roster, including
-inactive bases; current strength and sector presence do not filter this test.
-If the opposing maintained base count is zero, skip the base-position exclusion.
-A rejected candidate causes both coordinates to be drawn again. No corresponding
+position.
+
+Check every base identity in that faction's fixed roster, including inactive
+bases; current strength and sector presence do not filter this test. If the
+opposing maintained base count is zero, skip the base-position exclusion. A
+rejected candidate causes both coordinates to be drawn again. No corresponding
 planet exclusion is established by this reconstruction's placement behavior.
-These player-ship exclusions do not apply to placing installations, stars,
-black holes or the Romulan.
+These player-ship exclusions do not apply to placing installations, stars, black
+holes or the Romulan.
 
 An inactive base can therefore exclude nearby initial ship positions while its
 faction still has a positive maintained base count. Reusing that base identity
@@ -470,9 +452,6 @@ requires normalization review. Exact admission interruption during creation and 
 domains remain to be specified. Random distributions and tournament-key
 reproducibility follow the [random-choice contract](world-rules.md#random-choices-in-semantic-rules).
 No arbitrary retry limit or extra safe-spawn radius is introduced.
-
-**Source basis:** [new-galaxy dialogue and population](../../legacy/utexas/SETUP.FOR#L173),
-[placement](../../legacy/utexas/DECWAR.FOR#L2765).
 
 ## Initialization commands
 
@@ -497,10 +476,11 @@ binding. If the resource is unavailable, report that fact and continue with
 existing state; the missing-resource report does not itself assign new defaults.
 Other configured command resources must be identified in a conformance scenario.
 
-**Source basis:** [initialization reader](../../legacy/utexas/WARMAC.MAC#L1096),
-[preserved commands](../../legacy/utexas-reference/f78f2ec/DECWAR.INI).
-
 ## Temporary information activities
+
+These are shared effects of accepted HELP and GRIPE commands, not player commands.
+Their callers reject RED alert before entering. A captain without an acting
+ship can enter either activity without changing the galaxy.
 
 ```text
 operation BeginInformationActivity(captain: CaptainId,
@@ -508,10 +488,6 @@ operation BeginInformationActivity(captain: CaptainId,
 
 operation EndInformationActivity(captain: CaptainId): Unit
 ```
-
-These are shared effects of accepted HELP and GRIPE commands, not player commands.
-Their callers reject RED alert before entering. A captain without an acting
-ship can enter either activity without changing the galaxy.
 
 For an acting ship, beginning the activity gives its sector the temporary
 interaction kind BLACK_HOLE. Sector observations and actions that determine
@@ -534,24 +510,24 @@ original sector and the completion position. Complete interleaving rules for
 those cases remain to be derived; the contract above does not authorize moving
 all concurrent sector effects to the final position or restoring a lost commission.
 
-**Source basis:** [HELP entry and return](../../legacy/utexas/WARMAC.MAC#L4134),
-[GRIPE entry and return](../../legacy/utexas/WARMAC.MAC#L3858),
-[temporary sector state](../../legacy/utexas/WARMAC.MAC#L4379).
-
 ## Main-command acquisition and control
 
 This operation applies to an ACTIVE session with an associated ship. It is
 separate from command-argument prompts, the entry-name reader and message-body
 input; those readers retain their own cancellation rules.
 
-```text
-type MainCommandName = a name in the main-game command table
+```typescript
+type MainCommandName = string;
 
-type MainCommandSelection = {
+interface MainCommandSelection {
     command: MainCommandName;
     input: CommandInput;
-};
+}
+```
 
+MainCommandName is restricted to a name in the main-game command table.
+
+```text
 operation AcquireMainCommand(actor: ShipId, previousDelay: Duration):
     Selected { value: MainCommandSelection } | QuitRequested
     | CommissionReleased | GalaxyEnded
@@ -648,24 +624,16 @@ acquisition, failures during final reporting and the continuation after an
 environment interruption remain binding questions. This chapter does not
 replace the already-pending path with an invented automatic quit or timeout.
 
-**Source basis:** [entry, prompting and wait boundaries](../../legacy/utexas/DECWAR.FOR#L1184),
-[ready-input and interrupt paths](../../legacy/utexas/DECWAR.FOR#L1230),
-[final score/release](../../legacy/utexas/DECWAR.FOR#L1258),
-[inactive availability check](../../legacy/utexas/WARMAC.MAC#L3078),
-[QUIT operation](../../legacy/utexas/DECWAR.FOR#L134),
-[readiness interval](../../legacy/utexas/PARAM.FOR#L31),
-[token acquisition](../../legacy/utexas/WARMAC.MAC#L1385).
-
 ## Releasing a commission
-
-```text
-operation ReleaseCommission(actor: ShipId): Released | AlreadyAvailable
-```
 
 If the ship is already available after completed release, the operation has no
 release effects. A just-destroyed ship with a captain association is not already
 available merely because commissioned is false. Otherwise, release ends its
 current commission. At completion:
+
+```text
+operation ReleaseCommission(actor: ShipId): Released | AlreadyAvailable
+```
 
 ```text
 ship.commissioned == false
@@ -709,27 +677,7 @@ reentry in Austin.
 ordering contract. Resume availability, final-report failures and the environment's
 clock discontinuities also remain under review.
 
-**Source basis:** [FREE and RSTART](../../legacy/utexas/DECWAR.FOR#L1082),
-[history matching](../../legacy/utexas/DECWAR.FOR#L1335),
-[history capacity and admission delay](../../legacy/utexas/PARAM.FOR#L30),
-[empty-galaxy reuse](../../legacy/utexas/SETUP.FOR#L168).
-
-
 ## Saved condition and environment continuation
-
-```text
-type SavedShipCondition = {
-    position: Optional<Position>;
-    stardate: Stardate;
-    condition: Condition;
-    torpedoes: integer;
-    shields: Shields;
-    lifeSupportReserve: integer;
-    energy: Energy;
-    hullDamage: Damage;
-    devices: Map<Device, DeviceState>;
-};
-```
 
 SavedShipCondition is a value, not an identity or a reference to a live Ship.
 Its fields have the same meanings and units as the corresponding Ship fields.
@@ -739,6 +687,22 @@ ship's position and energy. Preserve the device damage as well. A later change
 to the roster ship does not change these saved values. This preservation occurs
 after participant-count changes, beam release and recent-commission recording;
 it does not make the entire release an atomic snapshot.
+
+```typescript
+interface SavedShipCondition {
+    position: Optional<Position>;
+    stardate: Stardate;
+    condition: Condition;
+    torpedoes: number;
+    shields: Shields;
+    lifeSupportReserve: number;
+    energy: Energy;
+    hullDamage: Damage;
+    devices: Map<Device, DeviceState>;
+}
+```
+
+Saved torpedo and life-support counts are integers.
 
 The saved condition contains neither score nor pending score, a tractor beam,
 docking state, radio messages, nor weapon-readiness deadlines. In particular,
@@ -779,19 +743,7 @@ associations, concurrent claims, ended galaxies and failed environment queries
 still require resolution. A repaired continuation policy must be identified
 separately.
 
-**Source basis:** [saved values during release](../../legacy/utexas/DECWAR.FOR#L1113),
-[conditional restoration](../../legacy/utexas/DECWAR.FOR#L1141),
-[interruption caller](../../legacy/utexas/DECWAR.FOR#L4516),
-[condition fields](../../legacy/utexas/PARAM.FOR#L43).
-
 ## World termination
-
-```text
-operation CheckWorldEnd(viewer: CaptainId): Continues | Ended
-
-endCondition = no planets remain
-    and (w.baseCounts[FEDERATION] == 0 or w.baseCounts[EMPIRE] == 0)
-```
 
 Let w be world(game). If w.ended is false and the end condition is false,
 return Continues. Otherwise set w.ended to true and retire the galaxy from
@@ -800,6 +752,13 @@ viewer. SET ENDFLG can set w.ended before invoking this operation, without
 waiting for the ordinary end condition.
 Base-count tests in this operation use w.baseCounts, including updates already
 made by a construction or removal that has not finished all its other effects.
+
+```text
+operation CheckWorldEnd(viewer: CaptainId): Continues | Ended
+
+endCondition = no planets remain
+    and (w.baseCounts[FEDERATION] == 0 or w.baseCounts[EMPIRE] == 0)
+```
 
 Announce the end. If no planets and no bases of either faction remain, announce
 total destruction. Then test each faction's base count and give the corresponding
@@ -840,9 +799,3 @@ has its own reentry behavior.
 and the exact timing of other sessions' end observations remain to be closed
 with the multiplayer and control contracts. The site inventory does not define
 new checks inside interrupted operations or an environment's exit behavior.
-
-**Source basis:** [ENDGAM](../../legacy/utexas/DECWAR.FOR#L961),
-[active command acquisition](../../legacy/utexas/DECWAR.FOR#L1184),
-[SET ENDFLG](../../legacy/utexas/DECWAR.FOR#L3719),
-[planet-removal check](../../legacy/utexas/DECWAR.FOR#L2889),
-[restart countdown](../../legacy/utexas/SETUP.FOR#L59).

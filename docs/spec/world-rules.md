@@ -61,17 +61,23 @@ where a generator is stored or how concurrent execution is scheduled.
 
 A reproducibility record can describe random input with the following values:
 
-```text
-type RandomRequest = UnitRequest | IntegerRequest { count: positive integer }
-              | ChoiceRequest { count: positive integer }
-type RandomValue = UnitValue { value: UnitDraw } | IndexValue { value: positive integer }
+```typescript
+type RandomRequest =
+    | { kind: "UnitRequest" }
+    | { kind: "IntegerRequest"; count: number }
+    | { kind: "ChoiceRequest"; count: number };
+type RandomValue =
+    | { kind: "UnitValue"; value: UnitDraw }
+    | { kind: "IndexValue"; value: number };
 
-type RandomEvent = {
+interface RandomEvent {
     captain: CaptainId;
     request: RandomRequest;
     value: RandomValue;
-};
+}
 ```
+
+Random request counts and random indices are positive integers.
 
 UnitRequest requires UnitValue. An IntegerRequest { count: n } or ChoiceRequest { count: n } requires
 an IndexValue in 1..n; the latter chooses that position in the stated ordered
@@ -90,22 +96,27 @@ advertised deterministic replay contract.
 
 ### Replay matching
 
-```text
-enum RandomReplayError = EVENTS_EXHAUSTED | CAPTAIN_MISMATCH
-                      | REQUEST_MISMATCH | VALUE_MISMATCH
-
-type RandomReplayStep = {
-    value: RandomValue;
-    remaining: List<RandomEvent>;
-};
-
-query TakeRandomEvent(events: List<RandomEvent>, captain: CaptainId,
-                      request: RandomRequest): Result<RandomReplayStep, RandomReplayError>
-```
-
 This query checks a recorded random input against the next request reached by
 a semantic operation. It describes replay validation, not another game command
 or an error that a captain encounters while playing. Check in this order:
+
+```typescript
+type RandomReplayError =
+    | "EVENTS_EXHAUSTED"
+    | "CAPTAIN_MISMATCH"
+    | "REQUEST_MISMATCH"
+    | "VALUE_MISMATCH";
+
+interface RandomReplayStep {
+    value: RandomValue;
+    remaining: List<RandomEvent>;
+}
+```
+
+```text
+query TakeRandomEvent(events: List<RandomEvent>, captain: CaptainId,
+                      request: RandomRequest): Result<RandomReplayStep, RandomReplayError>
+```
 
 1. If events is empty, reject EVENTS_EXHAUSTED.
 2. Compare the first event's captain with the performing captain. If they
@@ -245,56 +256,53 @@ within the completed contract.
 for finite-precision random-source bindings, remain part of the conformance and
 environment work. These gaps do not permit changing the stated game odds.
 
-**Source basis:** [random interfaces](../../legacy/utexas/WARMAC.MAC#L2285),
-[initialization and populations](../../legacy/utexas/SETUP.FOR#L169),
-[placement](../../legacy/utexas/DECWAR.FOR#L2765),
-[weapon branches](../../legacy/utexas/DECWAR.FOR#L4089),
-[Romulan targeting](../../legacy/utexas/DECWAR.FOR#L836),
-[nova effects](../../legacy/utexas/DECWAR.FOR#L2259).
-
 ## Sector paths
 
 ### Operation and result types
 
-```text
-type PathObstruction = {
+The displacement must be nonzero, its components must be whole numbers of
+sectors, and steps must be nonnegative. This operation observes sector contents
+and uses the random inputs stated below; it does not move objects, charge energy
+or complete a turn. The result's lastClear is the last fully traversable sector.
+Its step supplies the direction used by towing or blast displacement.
+
+An obstruction identifies both the encountered object and its position; none
+means no object collision was found. The intended endpoint determines direction;
+a torpedo can continue beyond that endpoint when its allowed step count is
+greater. The starting sector is not probed. lastClear initially equals start,
+even when the first step is blocked or steps is zero.
+
+```typescript
+interface PathObstruction {
     position: Position;
     object: SectorObject;
-};
+}
 
-type PathResult = {
+interface PathResult {
     lastClear: Position;
     step: SectorVector;
     obstruction: Optional<PathObstruction>;
-};
+}
+```
 
+```text
 operation TracePath(start: Position, displacement: SectorVector,
                     steps: integer, deflection: real): PathResult
 ```
-
-The displacement must be nonzero, its components must be whole numbers of
-sectors, and steps must be nonnegative. This operation
-observes sector contents and uses the random inputs stated below; it does not
-move objects, charge energy or complete a turn. The result's lastClear is the
-last fully traversable sector. Its step supplies the direction used by towing
-or blast displacement. An obstruction identifies both the encountered object
-and its position; none means no object collision was found. The intended endpoint
-determines direction; a torpedo can continue beyond that endpoint when its
-allowed step count is greater. The starting sector is not probed. lastClear
-initially equals start, even when the first step is blocked or steps is zero.
 
 ### Geometric meaning
 
 Choose the axis of greatest absolute displacement as the dominant axis. A tie
 chooses vertical. The dominant step is +1 or -1. The other step is its intended
-displacement divided by the absolute dominant displacement, plus deflection.
-The running position begins at the start; its nondominant coordinate can be
-fractional.
-In the algorithm, running is a GridPoint. The words dominant and nondominant
-select its vertical or horizontal component according to the axis choice above;
-they are not additional record fields. In a copy-with expression, nondominant
-therefore replaces that selected coordinate. A candidate whose two coordinates are
-whole and inside the galaxy is used as a Position in a sector query.
+displacement divided by the absolute dominant displacement, plus deflection. The
+running position begins at the start; its nondominant coordinate can be
+fractional. In the algorithm, running is a GridPoint.
+
+The words dominant and nondominant select its vertical or horizontal component
+according to the axis choice above; they are not additional record fields. In a
+copy-with expression, nondominant therefore replaces that selected coordinate. A
+candidate whose two coordinates are whole and inside the galaxy is used as a
+Position in a sector query.
 
 For a running nondominant coordinate c, define candidate sectors as follows:
 
@@ -377,18 +385,16 @@ permission to choose any straight-line grid traversal.
 movement or impact is still being specified. A result does not reserve its
 clear sectors or guarantee that the encountered object remains present.
 
-**Source basis:** [CHECK and CHKPNT](../../legacy/utexas/DECWAR.FOR#L699).
-
 ## Tractor associations
 
 ### Release
 
+The beam must identify an established association. Let b be
+`tractorBeam(game, beam)` and w be `world(game)`. The release event satisfies:
+
 ```text
 operation ReleaseTractorBeam(beam: TractorBeamId): Released
 ```
-
-The beam must identify an established association. Let b be
-`tractorBeam(game, beam)` and w be `world(game)`. The release event satisfies:
 
 ```text
 ensures after(w.beams) == before(w.beams) minus {b};
@@ -407,10 +413,6 @@ is handled by the command and does not invoke this operation.
 
 ### Following a moving endpoint
 
-```text
-operation FollowTractorBeam(moving: ShipId, step: SectorVector): Followed { partner: ShipId, position: Position }
-```
-
 After a ship actually changes sector while associated with a beam, the other
 endpoint follows. The moving ship must still have an established beam. Let s be
 `ship(game, moving)`. Its optional tractorBeam value is present; let beamId be
@@ -419,6 +421,10 @@ that contained TractorBeamId and let b be `tractorBeam(game, beamId)`. Let r be
 position values used below must be present. The step is the PathResult.step of
 that movement.
 Define the trailing sector:
+
+```text
+operation FollowTractorBeam(moving: ShipId, step: SectorVector): Followed { partner: ShipId, position: Position }
+```
 
 ```text
 trailing.vertical   = floor(s.position.vertical - step.vertical)
@@ -443,9 +449,6 @@ relocation and the interaction with temporary information activities also need
 their full contracts. No collision damage or alternative safe placement is
 introduced by this draft.
 
-**Source basis:** [TRCOFF](../../legacy/utexas/DECWAR.FOR#L4504),
-[following movement](../../legacy/utexas/DECWAR.FOR#L2227).
-
 ## Weapon damage to ships and bases
 
 ### Operation and value types
@@ -453,18 +456,24 @@ introduced by this draft.
 CriticalHit, DisplacementResult and DestructionCause are defined with the
 [combat observation values](language-model.md#combat-observation-and-notice-values).
 
-```text
-type DamageTarget = ShipBody { ship: ShipId } | BaseBody { base: BaseId }
-type InstallationOrigin = BaseOrigin { base: BaseId }
-                        | PlanetOrigin { planet: PlanetId, owner: Optional<Team> }
-type AttackSource = PlayerAttack { ship: ShipId } | RomulanAttack
-                  | InstallationAttack { origin: InstallationOrigin }
+```typescript
+type DamageTarget =
+    | { kind: "ShipBody"; ship: ShipId }
+    | { kind: "BaseBody"; base: BaseId };
+type InstallationOrigin =
+    | { kind: "BaseOrigin"; base: BaseId }
+    | { kind: "PlanetOrigin"; planet: PlanetId; owner: Optional<Team> };
+type AttackSource =
+    | { kind: "PlayerAttack"; ship: ShipId }
+    | { kind: "RomulanAttack" }
+    | { kind: "InstallationAttack"; origin: InstallationOrigin };
 
-enum ImpactWeapon = PHASER | TORPEDO
-type TargetDefense = ShipDefense { mode: ShieldMode, strength: Percentage }
-                   | BaseDefense { strength: Percentage }
+type ImpactWeapon = "PHASER" | "TORPEDO";
+type TargetDefense =
+    | { kind: "ShipDefense"; mode: ShieldMode; strength: Percentage }
+    | { kind: "BaseDefense"; strength: Percentage };
 
-type WeaponHit = {
+interface WeaponHit {
     target: DamageTarget;
     weapon: ImpactWeapon;
     damage: Damage;
@@ -473,10 +482,14 @@ type WeaponHit = {
     defense: TargetDefense;
     displacement: DisplacementResult;
     destruction: Optional<DestructionCause>;
-};
+}
 
-type TorpedoHitOutcome = Applied { hit: WeaponHit } | TargetAlreadyFatal
+type TorpedoHitOutcome =
+    | { kind: "Applied"; hit: WeaponHit }
+    | { kind: "TargetAlreadyFatal" };
+```
 
+```text
 operation PhaserHit(source: AttackSource, target: DamageTarget,
                     strength: real, distance: nonnegative integer): WeaponHit
 
@@ -628,15 +641,17 @@ operation ApplyShipHit(source: AttackSource, targetId: ShipId, H: Damage): Survi
 ```
 
 ApplyShipHit changes hull damage and energy by equal numerical amounts in their
-respective units. It does not change the position record, device damage, docking,
-tractor association or session phase. Its ordinary score effect uses
+respective units. It does not change the position record, device damage,
+docking, tractor association or session phase. Its ordinary score effect uses
 AddAttackCredit and the faction rules below, before setting condition and
-testing destruction. Removing presence means the former
-sector becomes empty; it is not a commission-release operation. The enclosing
-impact records DIRECT_DAMAGE destruction on Destroyed and supplies its score
-and notification effects. A torpedo with Survived next invokes Displace using
-its supplied step; a Swallowed result records BLACK_HOLE destruction. A deflected
-torpedo uses H zero for these ship effects and can still be displaced.
+testing destruction. Removing presence means the former sector becomes empty; it
+is not a commission-release operation.
+
+The enclosing impact records DIRECT_DAMAGE destruction on Destroyed and supplies
+its score and notification effects. A torpedo with Survived next invokes
+Displace using its supplied step; a Swallowed result records BLACK_HOLE
+destruction. A deflected torpedo uses H zero for these ship effects and can
+still be displaced.
 
 Set result.defense to ShipDefense { mode: target.shields.mode, strength: target.shields.strength }
 after applying the damage. Displacement does not change either defense property.
@@ -646,23 +661,25 @@ strength rules above determine whether these hits lower shields.
 
 ### Base damage
 
-```text
-type BaseHitResolution = {
+These operations follow the weapon's initial strength reduction. In the following
+rules, base means base(game, targetId). ResolveBaseHit starts with creditedDamage
+zero, critical false and destroyed false.
+
+```typescript
+interface BaseHitResolution {
     creditedDamage: Damage;
     critical: Boolean;
     reportedStrength: Percentage;
     destroyed: Boolean;
-};
+}
+```
 
+```text
 operation ResolveBaseHit(source: AttackSource, targetId: BaseId,
                          H: Damage, b: UnitDraw): BaseHitResolution
 
 operation RemoveWeaponDestroyedBase(source: AttackSource, targetId: BaseId): Destroyed
 ```
-
-These operations follow the weapon's initial strength reduction. In the following
-rules, base means base(game, targetId). ResolveBaseHit starts with creditedDamage
-zero, critical false and destroyed false.
 
 When `H*(b+0.1) >= 170`, draw `IntegerDraw(5)`. A result of 5 takes the critical
 base path immediately; otherwise apply ordinary base damage. Below the threshold,
@@ -699,20 +716,25 @@ BaseDefense { strength: reportedStrength }, not a post-removal strength query.
 
 The early critical path skips ordinary base damage and ordinary damage-score
 credit. Its hit report still carries the originally calculated H. A destroyed
-base has zero strength and no presence in its sector. On this weapon-damage path,
-docking re-evaluation occurs before removing the base or setting its strength to
-zero. RemoveWeaponDestroyedBase performs that docking re-evaluation for the
-base's faction, subtracts one from world.baseCounts[base.team], removes the base's
-sector presence and sets its strength to zero. Between the count change and
-sector removal, it applies the 1000-point destruction credit through
-AddAttackCredit. Its identity and position are
+base has zero strength and no presence in its sector. On this weapon-damage
+path, docking re-evaluation occurs before removing the base or setting its
+strength to zero. RemoveWeaponDestroyedBase performs that docking re-evaluation
+for the base's faction, subtracts one from world.baseCounts[base.team], removes
+the base's sector presence and sets its strength to zero.
+
+Between the count change and sector removal, it applies the 1000-point
+destruction credit through AddAttackCredit. Its identity and position are
 retained for reports and possible later reuse; it does not remove the base
 identity from the fixed roster of installations or perform a world-end check.
-Consequently, a base destroyed by the random critical outcome while still
-at positive strength can itself preserve a nearby ship's docking at that step.
-The firing command supplies the subsequent destruction notification.
+Consequently, a base destroyed by the random critical outcome while still at
+positive strength can itself preserve a nearby ship's docking at that step. The
+firing command supplies the subsequent destruction notification.
 
 ### Score and result
+
+Attack credit is assigned according to the source of the attack. Player and
+Romulan attacks update their own score records; installation attacks leave any
+faction credit to the rule that invoked them.
 
 ```text
 operation AddAttackCredit(source: AttackSource, category: ScoreCategory,
@@ -771,29 +793,28 @@ target removal or replacement, interruptions between these effects and complete
 hit-delivery ordering still require the multiplayer and terminal bindings.
 TargetAlreadyFatal does not manufacture a new zero-damage hit notification.
 
-**Source basis:** [PHADAM and shared damage](../../legacy/utexas/DECWAR.FOR#L4089),
-[displayed score units](../../legacy/utexas/DECWAR.FOR#L2994).
-
 ## Damage to the Romulan
-
-```text
-type RomulanHit = {
-    weapon: ImpactWeapon;
-    damage: Damage;
-    remainingEnergy: Energy;
-    destroyed: Boolean;
-};
-
-operation RomulanPhaserHit(strength: real, distance: positive integer): RomulanHit
-
-operation RomulanTorpedoHit(): RomulanHit
-```
 
 These operations require a present Romulan. Phaser strength is nonnegative;
 distance must be positive because it is the divisor in this damage rule.
 The source, recipients, score policy and any subsequent torpedo displacement
 are supplied by the caller. Neither operation changes player resources,
 weapon deadlines, stardates or score by itself.
+
+```typescript
+interface RomulanHit {
+    weapon: ImpactWeapon;
+    damage: Damage;
+    remainingEnergy: Energy;
+    destroyed: Boolean;
+}
+```
+
+```text
+operation RomulanPhaserHit(strength: real, distance: positive integer): RomulanHit
+
+operation RomulanTorpedoHit(): RomulanHit
+```
 
 The Romulan has its own energy-based damage rule. A phaser attack of strength p
 at distance d reports damage
@@ -822,28 +843,29 @@ to decide that single bonus. It does not call Displace on an already destroyed
 Romulan. Installation-owned damage and kill credit likewise use result.damage
 and result.destroyed once, according to the owning-faction rule.
 
-**Source basis:** [PHAROM, TOROM and DEADRO](../../legacy/utexas/DECWAR.FOR#L3382),
-[player phaser credit](../../legacy/utexas/DECWAR.FOR#L2711).
-
 ## Blast displacement
-
-```text
-type DisplacementTarget = DamageTarget | RomulanBody
-
-operation Displace(target: DisplacementTarget, step: SectorVector): DisplacementResult
-```
 
 The target has a recorded position; for RomulanBody the Romulan must exist.
 `Displace(target, step)` uses a direction step from a torpedo path or from an
 exploding star to the affected sector. Compute the candidate by rounding each
 coordinate of `target.position + step` down to a whole sector. If the candidate
-is outside the galaxy, is not exactly one sector away in Chebyshev distance,
-or contains an object other than a black hole, return Stayed without changing
-the target or any sector. Here an empty sector is admissible: the occupied-sector
-rejection applies to ships, bases, planets, stars and other non-black-hole objects.
-Displace makes no random choice. It tests this one candidate only; it does not
-search for an alternative empty sector, wrap at the galaxy boundary, or retry.
-A blocked displacement leaves docking and condition unchanged.
+is outside the galaxy, is not exactly one sector away in Chebyshev distance, or
+contains an object other than a black hole, return Stayed without changing the
+target or any sector.
+
+Here an empty sector is admissible: the occupied-sector rejection applies to
+ships, bases, planets, stars and other non-black-hole objects. Displace makes no
+random choice. It tests this one candidate only; it does not search for an
+alternative empty sector, wrap at the galaxy boundary, or retry. A blocked
+displacement leaves docking and condition unchanged.
+
+```typescript
+type DisplacementTarget = DamageTarget | { kind: "RomulanBody" };
+```
+
+```text
+operation Displace(target: DisplacementTarget, step: SectorVector): DisplacementResult
+```
 
 For an empty candidate, move the target there and update its galaxy presence.
 A displaced player ship becomes undocked and red. Displacement itself does not
@@ -852,16 +874,15 @@ Return Moved { position: candidate }. A base or Romulan changes its position and
 presence without gaining a ship's docking or condition fields.
 
 For a black hole, remove the target from its old sector without replacing the
-black hole. A ship receives 2500 hull-damage units and ceases to be commissioned;
-a base receives zero strength; the Romulan ceases to exist. Keep the target's
-last occupied position distinct from that
-reported destination. The caller performs its destruction scoring and notices.
-Return Swallowed { position: candidate }. This result does not advance a turn or end a
-captain's session. A ship swallowed by a black hole retains its other resource,
-device, docking and condition values; in particular this branch does not apply
-the undocking effect of displacement into an empty sector.
+black hole. A ship receives 2500 hull-damage units and ceases to be
+commissioned; a base receives zero strength; the Romulan ceases to exist. Keep
+the target's last occupied position distinct from that reported destination.
 
-**Source basis:** [JUMP](../../legacy/utexas/DECWAR.FOR#L1283).
+The caller performs its destruction scoring and notices. Return Swallowed {
+position: candidate }. This result does not advance a turn or end a captain's
+session. A ship swallowed by a black hole retains its other resource, device,
+docking and condition values; in particular this branch does not apply the
+undocking effect of displacement into an empty sector.
 
 ## Stellar explosions
 
@@ -872,21 +893,27 @@ sector and its eight adjacent sectors, clipped to the galaxy. Friendly objects
 receive nova damage too. Each chain retains its initiating attacker for scoring,
 even if that attacker is destroyed during the chain.
 
-```text
-type NovaSource = PlayerNova { ship: ShipId } | RomulanNova
-type NovaTarget = DamageTarget | RomulanBody | PlanetBody { planet: PlanetId }
+```typescript
+type NovaSource =
+    | { kind: "PlayerNova"; ship: ShipId }
+    | { kind: "RomulanNova" };
+type NovaTarget =
+    | DamageTarget
+    | { kind: "RomulanBody" }
+    | { kind: "PlanetBody"; planet: PlanetId };
 
-type NovaContext = {
+interface NovaContext {
     source: NovaSource;
     viewer: CaptainId;
-};
+}
 
-type NovaDefense = ShipAfterNova { mode: ShieldMode, strength: Percentage }
-            | BaseAfterNova { strength: Percentage }
-            | RomulanAfterNova { energy: Energy }
-            | PlanetAfterNova { builds: nonnegative integer }
+type NovaDefense =
+    | { kind: "ShipAfterNova"; mode: ShieldMode; strength: Percentage }
+    | { kind: "BaseAfterNova"; strength: Percentage }
+    | { kind: "RomulanAfterNova"; energy: Energy }
+    | { kind: "PlanetAfterNova"; builds: number };
 
-type NovaHit = {
+interface NovaHit {
     origin: Position;
     target: NovaTarget;
     position: Position;
@@ -894,12 +921,18 @@ type NovaHit = {
     defense: NovaDefense;
     displacement: DisplacementResult;
     destruction: Optional<DestructionCause>;
-};
+}
 
-type NovaImpactOutcome = Completed { hit: NovaHit }
-                  | PlanetUpdateRefused | GalaxyEnded
-type NovaChainOutcome = Completed | GalaxyEnded
+type NovaImpactOutcome =
+    | { kind: "Completed"; hit: NovaHit }
+    | { kind: "PlanetUpdateRefused" }
+    | { kind: "GalaxyEnded" };
+type NovaChainOutcome = { kind: "Completed" } | { kind: "GalaxyEnded" };
+```
 
+PlanetAfterNova.builds is a nonnegative integer.
+
+```text
 operation NovaImpact(context: NovaContext, origin: Position,
                      target: NovaTarget, step: SectorVector): NovaImpactOutcome
 
@@ -934,12 +967,14 @@ An impact publishes its hit to captains whose ships retain a recorded position
 and captain association within distance ten of NovaHit.position. A ship just
 destroyed by the impact remains eligible until commission release. No radio-on,
 radio-damage or sender-gag test filters this nearby audience. Faction-wide base
-notices additionally require the recipient radio to be on. Publication and
-eventual terminal display are distinct. The report identifies the exploding star at
-origin and the target at position. It indicates displacement for Moved or
-Swallowed. Ship and Romulan destruction by a black hole identifies that cause;
-a destroyed base is reported destroyed without a separate black-hole cause.
-These presentation choices do not change the displacement outcome.
+notices additionally require the recipient radio to be on.
+
+Publication and eventual terminal display are distinct. The report identifies
+the exploding star at origin and the target at position. It indicates
+displacement for Moved or Swallowed. Ship and Romulan destruction by a black
+hole identifies that cause; a destroyed base is reported destroyed without a
+separate black-hole cause. These presentation choices do not change the
+displacement outcome.
 
 Neither operation acquires a player command, charges torpedo resources,
 sets a weapon deadline or completes a turn. Those effects belong to its
@@ -1116,26 +1151,27 @@ return GalaxyEnded. Otherwise release the update and return Completed { hit: hit
 planet-update acquisition remain to be specified. These ordered effects do not
 make the chain one indivisible action or introduce a random update-failure rate.
 
-**Source basis:** [NOVA](../../legacy/utexas/DECWAR.FOR#L2259),
-[SNOVA](../../legacy/utexas/DECWAR.FOR#L3807),
-[combat report presentation](../../legacy/utexas/DECWAR.FOR#L2392).
-
 ## Installation changes and world termination
 
 ### Planet removal
-
-```text
-type PlanetRemovalOutcome = Removed | NoPlanet | GalaxyEnded
-
-operation RemovePlanet(viewer: CaptainId, target: PlanetId,
-                       formerOwner: Optional<Team>): PlanetRemovalOutcome
-```
 
 The caller supplies the ownership being removed; none means a neutral planet.
 If target is absent from the planet collection, return NoPlanet without count,
 docking or world-end effects. Otherwise, for a faction-owned planet, subtract
 one from that faction's captured-planet count and invoke
 ReevaluateDocking(formerOwner). The planet record still exists during this check.
+
+```typescript
+type PlanetRemovalOutcome =
+    | { kind: "Removed" }
+    | { kind: "NoPlanet" }
+    | { kind: "GalaxyEnded" };
+```
+
+```text
+operation RemovePlanet(viewer: CaptainId, target: PlanetId,
+                       formerOwner: Optional<Team>): PlanetRemovalOutcome
+```
 
 Then remove the planet's identity from the collection and both factions'
 knownPlanets sets. Preserve the identities, positions, builds, ownership,
@@ -1166,14 +1202,15 @@ Its operation is:
 operation ReevaluateDocking(team: Team): Completed
 ```
 
-It visits that faction's docked ships in roster order. A nearby surviving friendly
-base preserves docking when world.baseCounts[team] is positive. Otherwise, when
-world.capturedPlanetCounts[team] is positive, a nearby friendly planet preserves
-docking; if that search fails, set the
-ship undocked and red. With a nonpositive captured-planet count, this operation
-leaves docking unchanged. The command describes when this check occurs relative
-to ownership and removal; the departing installation can still participate in
-a check made before its removal.
+It visits that faction's docked ships in roster order. A nearby surviving
+friendly base preserves docking when world.baseCounts[team] is positive.
+Otherwise, when world.capturedPlanetCounts[team] is positive, a nearby friendly
+planet preserves docking; if that search fails, set the ship undocked and red.
+With a nonpositive captured-planet count, this operation leaves docking
+unchanged. The command describes when this check occurs relative to ownership
+and removal; the departing installation can still participate in a check made
+before its removal.
+
 The nearby test is distance at most one. Base candidates must have positive
 strength; planet candidates use current ownership. The ship need not have its
 commissioned flag set, but a docked ship must have a recorded position for these
@@ -1184,7 +1221,3 @@ remains docked in that branch.
 **OPEN QUESTION:** Full interleavings of base conversion, world termination and concurrent
 installation changes remain under review. This chapter does not make the entire
 sequence one indivisible action.
-
-**Source basis:** [planet removal](../../legacy/utexas/DECWAR.FOR#L2864),
-[docking re-evaluation](../../legacy/utexas/DECWAR.FOR#L339),
-[world end](../../legacy/utexas/DECWAR.FOR#L961).
