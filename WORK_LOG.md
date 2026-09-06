@@ -3218,3 +3218,18 @@ WARMAC.MAC numeric/string output.
 physical PDF pages 160–162, including both formatting tables. Runtime/archive
 files unchanged. Other terminal recipes and the full lifecycle/concurrency review
 remain on the active specification goal.
+
+### Specification checkpoint: galaxy-report absence messages
+
+Added presentation for named-ship/Romulan absence, sensor-range failures,
+missing-object coordinate reports and NoMatches affiliation/kind/scope wording.
+Coordinate messages retain their forced formatting modes and conditional ending;
+named absence reports retain unconditional endings. Identified terrain formatter
+fallthrough as a remaining gap rather than inventing a label-only terrain row.
+
+`logs/spec-report-absence-source-review.log` records static source checks.
+`logs/spec-report-absence-build-reviewed.log` is the final successful book build;
+physical PDF pages 159–160 were visually inspected. The earlier build predates
+the corrected coordinate-ending wording and is retained in
+`logs/spec-report-absence-build.log`. No runtime/archive changes. Full grouped
+separators, terrain semantics and concurrent reporting remain under review.

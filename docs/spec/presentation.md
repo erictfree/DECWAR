@@ -808,6 +808,74 @@ selection semantics; formatting does not replace that count with one.
 [summary lines](../../legacy/utexas/DECWAR.FOR#L2060),
 [grouped observations](../../legacy/utexas/DECWAR.FOR#L1959),
 [range and category strings](../../legacy/utexas/MSG.MAC#L89).
+
+### Absence observations
+
+These recipes consume the corresponding GalaxyReportObservation. They add no
+selection, discovery or game-state effects. Emit observations in the order
+specified by ReportGalaxy; an absence does not itself suppress later groups.
+
+ShipAbsent emits the ship's ordinary object label (full name in LONG, initial
+otherwise), followed by `" is not in the game"` and one unconditional line
+ending. RomulanDisabled emits fragment(type06) and one unconditional line
+ending. RomulanAbsent emits `"The Romulan is dead"` and one unconditional line
+ending. These messages do not infer that a missing ship was destroyed rather
+than released.
+
+SensorRangeExceeded emits `"Captain, our sensors can't scan as far as "`, then
+the observed position in ABSOLUTE coordinates, SHORT presentation and Free
+field width, followed by a conditional blank-line request. It uses absolute
+coordinates regardless of the viewer's output-coordinate preference.
+
+NoObjectAt emits `"No base "`, `"No planet "` or `"No target "` for BASES,
+PLANETS or TARGETS respectively. Then emit the observed position using the
+viewer's output-coordinate preference, LONG coordinate presentation and Free
+field width, followed by a conditional blank-line request. A required relative
+origin is the report context's origin, not a fabricated zero or later position.
+The source supplies no LIST or SUMMARY noun at this branch; a path reaching it
+for those verbs remains unresolved and this recipe does not invent one.
+
+For NoMatches, begin with `"Captain, there are no"` in LONG or `"No"` otherwise.
+Append `" known"` exactly when knownQualifier is true. Determine the affiliation
+suffix from group.affiliations:
+
+| Affiliations | Suffix |
+| --- | --- |
+| Exactly {NEUTRAL} | `" neutral"` |
+| Exactly {FEDERATION} | `" Federation"` |
+| Exactly {EMPIRE} | `" Empire"` |
+| Exactly {FEDERATION, EMPIRE}, with kinds exactly {PLANET} | `" captured"` |
+| Contains ROMULAN and does not contain NEUTRAL | `" enemy"` |
+| Otherwise | Empty text. |
+
+These are tests on the selected affiliations, not a fresh test of ownership or
+hostility. Append the object noun determined by group.kinds:
+
+| Kinds | Noun |
+| --- | --- |
+| Exactly {SHIP} | `" ships"` |
+| Exactly {BASE} | `" bases"` |
+| Exactly {PLANET} | `" planets"` |
+| Exactly {BASE, PLANET} | `" ports"` |
+| Exactly {SHIP, BASE, PLANET} | `" forces"` |
+
+The command grammar determines which groups are legal; this table does not
+make arbitrary sets of kinds valid. In MEDIUM and LONG append `" in range"`,
+`" in specified range"` or `" in game"` for SENSOR_RANGE, SPECIFIED_RANGE or
+WHOLE_GALAXY. SHORT omits the scope suffix. Finish with a conditional blank-line
+request. For example, SHORT with knownQualifier true, affiliations {EMPIRE}
+and kinds {BASE} emits `"No known Empire bases"` before that request.
+
+**OPEN QUESTION:** Complete terrain-line and grouped-separator presentation,
+interrupted output, and relative-origin availability remain unfinished. These
+absence recipes do not define a label-only terrain row or replace a source
+fallthrough with newly designed telemetry.
+
+**Source basis:** [coordinate and named observations](../../legacy/utexas/DECWAR.FOR#L1765),
+[no-match composition](../../legacy/utexas/DECWAR.FOR#L1891),
+[absence fragments](../../legacy/utexas/MSG.MAC#L109),
+[position formatting](../../legacy/utexas/DECWAR.FOR#L3078).
+
 ## USERS reports
 
 This presentation consumes [UserReportEntry](commands.md#users). Request a

@@ -1509,3 +1509,14 @@ values and ratios from ScoreReport; it does not restore scaled-integer division
 or arithmetic exceptions. Division by zero remains explicitly unresolved, with
 no invented display text or zero substitute. Fixed LONG annotations are label
 text rather than a new scoring rule.
+
+### Galaxy-report absence presentation and terrain boundary
+
+Absence recipes preserve source-selected words, output-length distinctions and
+forced coordinate modes. NoMatches tests abstract affiliation/kind sets instead
+of masks. NoObjectAt has named prefixes only for BASES, PLANETS and TARGETS;
+no LIST/SUMMARY prefix is invented. The terrain line is not assumed to be only
+an object label: LSTOBJ's computed branch falls through to its Romulan case for
+terrain object codes. The current Terrain observation lacks the full values
+needed to express that path. Its generalized treatment remains an explicit
+review item; no new terrain telemetry is introduced here.
