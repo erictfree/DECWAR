@@ -488,6 +488,27 @@ defense phases. Other ships and installations do not alter the stated result.
 | EX-MODEL-475 | Same base destruction notice, radio on but radio-device damage 300.1 | Consume and suppress its body. Other recipients' memberships remain unaffected. |
 | EX-MODEL-476 | Base distress receiver's radio is on, damage below 300, and the attacking player is gagged | Display the base report; combat notices do not apply sender gagging. |
 | EX-MODEL-477 | LONG output requests its leading conditional blank line for a base report, then finds the receiver's radio off | The body is suppressed and consumed, but the leading blank-line request has already occurred. Suppressed does not imply zero characters from the surrounding presentation sequence. |
+| EX-MODEL-478 | A valid shot's deflected path reaches the galaxy boundary without obstruction and stops at (75,40) | MISSED records the burst's shot ordinal and (75,40), not an outside coordinate; only the shooter is addressed. |
+| EX-MODEL-479 | The second shot encounters a black hole at (12,13) before its aim | ABSORBED records shot 2 and (12,13); it carries no damage to the black hole. |
+| EX-MODEL-480 | A shot encounters a friendly planet | NEUTRALIZED identifies the shot and obstruction position, with no hit damage; it is not WeaponHit.deflected. |
+| EX-MODEL-481 | A misfired first shot subsequently encounters a black hole | Preserve the separate misfire diagnostic and shot-1 ABSORBED observation. Misfire does not imply that the shot disappeared. |
+| EX-MODEL-482 | A nova chain selects a second star at (20,21), after an initial explosion at (19,20) | The second EXPLODED observation identifies (20,21); reception does not invoke ExplodeStar again. |
+| EX-MODEL-483 | A torpedo leaves a star unaffected | UNAFFECTED identifies the star and position, without a firing-ship identity, damage amount or shields. |
+| EX-MODEL-484 | A base is destroyed; a base with the same BaseId is later created elsewhere before notice delivery | The old DESTROYED observation retains its recorded location; do not substitute the new base's position or destroy the new base. |
+| EX-MODEL-485 | The Romulan appears at (30,31), then moves before its appearance notice is read | RomulanDetected retains (30,31) and discloses no energy reading. |
+| EX-MODEL-486 | Valid TransferEnergy requests 100 units; recipient has capacity for all of it | The recipient's observation records 90 units; the sender is charged 100. Neither remaining energy is disclosed. |
+| EX-MODEL-487 | Valid TransferEnergy requests 100 units; recipient already has 5000 | A successful zero-amount EnergyReceived observation still addresses the recipient. |
+| EX-MODEL-488 | A tractor association is created and released before one endpoint drains its notices | The activation value remains ACTIVATED and release remains BROKEN; reception applies neither state transition again and invents no endpoint names or release cause in the body. |
+| EX-MODEL-489 | CAPTURE takes a three-build Empire planet for Federation | The defensive origin records Empire ownership and three builds, even though the planet now belongs to Federation with zero builds. |
+| EX-MODEL-490 | WeaponHit records a base's pre-cleanup strength as -4; cleanup leaves stored strength zero | Impact BaseImpactState retains -4; destruction suppresses its displayed strength suffix. Do not re-query zero. |
+| EX-MODEL-491 | A player torpedo swallows a ship formerly at (20,20) into a black hole at (21,20) | The weapon impact reports position (21,20), displacement Swallowed(21,20), and BLACK_HOLE destruction. |
+| EX-MODEL-492 | A player torpedo swallows the Romulan from (20,20) into (21,20) | The impact's Romulan position remains (20,20), with Swallowed(21,20) and BLACK_HOLE; preserve the caller's distinct position rule. |
+| EX-MODEL-493 | A nova swallows a ship from (20,20) into (21,20) | Nova-derived ImpactObject position is (20,20), following NovaHit.position; do not replace it with the destination used in `EX-MODEL-491`. |
+| EX-MODEL-494 | An enemy planet takes a phaser hit and its remaining builds reach zero | PlanetImpactState has zero builds, absent damage, absent destruction, and kind PHASER. Zero builds is not a destruction event on this path. |
+| EX-MODEL-495 | A surviving ship takes DeviceCritical(WARP_ENGINES, 90); its captain and a nearby observer receive the hit | Only the target captain's presentation includes that device and 90 added device damage; neither receives another damage application. |
+| EX-MODEL-496 | The same critical hit also destroys the target | The destruction presentation omits the shield/strength and device-detail suffixes, while the immutable result retains those values. |
+| EX-MODEL-497 | A Romulan torpedo and a player torpedo each produce a deflected zero-damage WeaponHit; output LONG | The player report uses deflection wording. The Romulan report uses ordinary zero-damage torpedo wording; both retain the same deflection effect. |
+| EX-MODEL-498 | Player-started nova produces a hit near a different captain | The observation origin is the exploding star; the initiating player remains relevant to scoring and the publisher remains relevant to delivery order. These are distinct roles. |
 
 EX-MODEL-06 deliberately uses fractional shield strength. Historical loss of
 that fraction is excluded by the numerical normalization policy. The grammar,

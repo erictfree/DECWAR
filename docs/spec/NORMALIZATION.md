@@ -1084,8 +1084,8 @@ OUTHIT fetches. A received observation is one immutable value, without partial
 cross-observation mixtures during replacement. Full operation interleavings
 remain open; this does not make a whole weapon command atomic. Source snapshot
 values remain fixed while current recipient preferences determine formatting.
-The body remains an abstract game observation with its detailed catalogue still
-required by the terminal work; no packet layout is being specified as game state.
+The body is a typed game observation, with its detailed character rendering
+still required by the terminal work; no packet layout is specified as game state.
 
 FREE clears the receiver's audience memberships, not every observation that
 receiver previously published. GETCMD drains combat hits before radio text and
@@ -1106,3 +1106,50 @@ CombatObservationKind values express that distinction without numeric IWHAT
 codes or overloaded payload fields. Evidence: DECWAR.FOR OUTHIT 2402–2408,
 2559–2580. EX-MODEL-463 is narrowed to a nova hit; EX-MODEL-473–477 cover the
 base exception and threshold. This corrects documentation, not game behavior.
+
+
+## Non-impact observation values
+
+StarObservation, TorpedoObservation, BaseObservation, RomulanDetected,
+EnergyTransferObservation and TractorObservation describe the named event
+contents consumed by OUTHIT, without its numeric IWHAT codes or reused payload
+fields. A torpedo's launch ordinal is not a critical-device identity. Energy
+transfer carries the received amount; tractor bodies contain only activation or
+release, not endpoint names or an invented cause. Recipient selection stays in
+the producing operation and notice envelope. Source: DECWAR.FOR 1062–1070,
+2392–2597, 2720–2748, 3253–3259, 3845–3849, 4304–4372, 4497–4509.
+
+This value model retains the source's disclosed information and event positions.
+It does not query a replacement base or moved Romulan when an old notice is
+received. It adds no game command, damage event, sensor reading or balance rule.
+ImpactObservation further composes the existing weapon/nova effect results with
+named ship/base/planet/Romulan report snapshots. Complete terminal rendering and
+concurrent observation boundaries remain unfinished; this checkpoint does not
+claim full terminal conformance or change the executable.
+
+
+Impact composition preserves CAPTURE's former owner and build-count snapshot,
+Romulan energy as an Energy quantity, base strength before final cleanup, and
+the caller-dependent distinction between a black-hole destination and a last
+occupied position. Ship/base weapon displacement reports the destination;
+Romulan and nova callers overwrite that location with the resulting or last
+occupied entity position. This distinction is observable, not numeric packing.
+Evidence: DECWAR.FOR 629–640, 1283–1331, 2299–2380, 2714–2736, 3289–3297,
+3461–3470, 4375–4383.
+
+Complete observation values remove incidental scratch erasure by a preceding
+base announcement. They do not alter meaningful output distinctions: Romulan
+ROMTOR explicitly restores ordinary torpedo type after TORDAM, so a deflected
+Romulan torpedo still has ordinary zero-damage wording, while a player deflection
+has its special MEDIUM/LONG text. Destruction omits the target strength suffix;
+device-critical detail is only shown to the surviving target's own captain.
+These choices follow DECWAR.FOR 2462–2540 and 3461–3468. No new combat or sensor
+information is introduced by the typed value composition.
+
+
+The abstract model's commissioned flag is clarified as the active-participation
+predicate used by the translated eligibility checks. Combat can clear it before
+FREE clears captain association and active position. A just-destroyed ship still
+needs release; commissioned false alone is not availability for admission. This
+resolves inconsistent prose, not a new death or reentry mechanic. Source:
+DECWAR.FOR 1082–1137, 2310–2321, 4153–4163.

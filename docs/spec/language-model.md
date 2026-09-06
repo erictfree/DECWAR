@@ -296,9 +296,14 @@ record Ship:
 
 A new commission begins with 5000 energy units, ten torpedoes, no hull or device
 damage, five life-support turns, shields up at 100%, and green condition.
-`commissioned` means a captain holds an active commission aboard the ship.
-It can remain true at zero energy or fatal damage until the separate
-commission-release event defined by the session rules.
+`commissioned` is the ship's active-participation flag used by the stated
+presence and targeting checks. A recognized combat destruction sets it false,
+but leaves the captain association until ReleaseCommission. That association
+identifies the captain who can still receive the final hit and exit reports.
+Other resource changes can leave commissioned true at zero energy or fatal
+hull damage until a rule explicitly deactivates or releases the ship. Neither
+a fatal numerical threshold alone nor commissioned false means release has
+already completed or that another captain may take the ship.
 
 ### Damage and device state
 

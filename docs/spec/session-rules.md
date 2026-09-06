@@ -531,8 +531,10 @@ operation ReleaseCommission(actor: ShipId)
     on GameState -> Released | AlreadyAvailable
 ```
 
-If the ship is already available, the operation has no release effects. Otherwise,
-release ends its current commission. At completion:
+If the ship is already available after completed release, the operation has no
+release effects. A just-destroyed ship with a captain association is not already
+available merely because commissioned is false. Otherwise, release ends its
+current commission. At completion:
 
 ```text
 ship.commissioned == false

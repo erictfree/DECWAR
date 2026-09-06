@@ -98,8 +98,11 @@ coverage does not establish lifecycle, concurrency or terminal conformance.
 - Communication: CombatNoticeService defines immutable observations, forty-notice
   capacity per publisher, delivery priority, oldest-publication eviction,
   reception/discard, delivery-time base-radio suppression and hit-before-radio
-  drain order. Full observation/terminal
-  catalogue and concurrency remain. Radio message identities, recipient filtering, publication order,
+  drain order. Star, torpedo-outcome, base, Romulan-appearance, energy-transfer
+  and tractor observation values are explicit. ImpactObservation composes typed
+  ship/base/planet/Romulan snapshots with the weapon/nova results, including
+  ownership-at-impact, displacement positions and recipient-specific critical
+  details. Complete terminal catalogue and concurrency remain. Radio message identities, recipient filtering, publication order,
   capacity loss, consumption and gagging drafted. Autonomous speech's ungag effect
   on the triggering captain is specified; complete interleavings remain.
 - Sessions: startup, pregame ACTIVATE and *ZAP, entry-name acquisition and reuse,

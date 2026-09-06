@@ -231,7 +231,8 @@ after(r.energy) == before(r.energy) + received
 ```
 
 The outcome is Transferred(received, charged). The actor receives the transfer
-report and the recipient is notified of the received amount and sender.
+report; publish EnergyReceived with the actor, target and received amount to
+the recipient, as defined in [combat observations](communication.md#observation-values).
 A recipient already at capacity produces a successful zero-amount transfer,
 with no energy deducted.
 
