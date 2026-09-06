@@ -3288,3 +3288,16 @@ remain separate work.
 the initial extraction failed on whitespace after the label and was corrected.
 `logs/spec-comp-standings-records-build.log` passes. Physical PDF pages 215–216
 were visually reviewed. No gameplay or immutable archive changes.
+
+### Specification checkpoint: standings callers and examples
+
+Connected missing-status records to fatal command acquisition and world-end
+callers, preserving elapsed-before-POINTS and update-before-release ordering.
+Added EX-COMP-25–31 for ranking ties, duplicate accounts, elapsed threshold,
+empty/unavailable sources and total-destruction record status. These are
+specification examples, not claims of executing the original program.
+
+`logs/spec-comp-standings-callers-source-review.log` verifies caller ordering
+and marker choice. `logs/spec-comp-standings-callers-build.log` passes; physical
+PDF pages 212 and 217 were visually inspected. Other exit status, counters,
+persistence and report formatting remain unfinished. Runtime/archive unchanged.

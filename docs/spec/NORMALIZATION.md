@@ -1552,3 +1552,12 @@ records above the proposed insertion are excluded; lower duplicates are not
 removed. The commented memorial-list offset does not define a live routing rule.
 The generalized query specifies placement over valid contiguous lists; durable
 updates and malformed persisted records remain outside this completed subrule.
+
+### Standings marker at fatal acquisition and world end
+
+The fatal acquisition caller submits the missing marker; ENDGAM derives it from
+base-count comparison, with Federation on ties and a total-destruction override.
+This record attribute does not stand for a universal physical-destruction event.
+The marker is described independently of packed status flags. These callers read
+elapsed time before final POINTS, then update standings before FREE; failure
+continuations and the separate ordinary/fatal-exit caller remain unfinished.

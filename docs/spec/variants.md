@@ -250,8 +250,27 @@ caller. A qualifying update chooses its faction's primary list even when
 markedMissing is true; the supplied update path does not route that entry into
 the memorial list. Memorial records can still be read and displayed.
 
-**OPEN QUESTION:** The full update operation still needs caller-specific missing
-status, mission/destruction counters, source initialization, date binding,
+
+The fatal-hull and out-of-energy paths at main-command acquisition submit
+markedMissing = true. At world termination with an acting ship, compare the two
+base counts: Federation is the standings winner when its count is at least
+Empire's; otherwise Empire is the standings winner. Submit markedMissing = true
+for the other faction. If no planets and no bases of either faction remain,
+submit true for both factions instead. This chooses a standings marker; it does
+not add a new victory announcement, destroy the ship, or award score. A viewer
+without an acting ship submits no standings record on this world-end path.
+
+These callers observe elapsed time before the final POINTS report, then use
+that report's committed ship total for the submitted score. The standings
+update precedes commission release. Reporting or update failures can therefore
+prevent the caller from reaching release; no rollback or guaranteed cleanup is
+implied by the ordinary successful sequence.
+
+**Source basis:** [fatal acquisition reporting](../../legacy/compuserve/fortran%201978/GETCMD.FOR#L105),
+[world-end record status and ordering](../../legacy/compuserve/fortran%201978/ENDGAM.FOR#L54).
+
+**OPEN QUESTION:** The full update operation still needs the remaining exit-path
+missing status, mission/destruction counters, source initialization, date binding,
 write failures and concurrent access. The placement rule does not promise a
 durable write or define the treatment of malformed preexisting records. It does
 not reclassify a losing commission as a destroyed physical ship.
