@@ -476,3 +476,16 @@ silent repair and self-gag, BUILD's missing suffix ending, post-wait phaser
 strength rejection, output-length-dependent empty torpedo inventory, and fixed
 movement obstruction text. These are source-derived expected examples, not
 native transcripts or an executable implementation test suite.
+
+
+### Special-input domain review
+
+The original-line TORPEDOS item-length/count combinations have now been
+exhaustively checked within the seven-item limit. The six missing-component
+cases are exactly those already excluded in the command clause; no additional
+shape was found. Positive even target continuations supply complete reusable
+pairs, while Empty does not. MOVE's initial and own-sector retry distinctions
+were rechecked against their actual branches. Evidence records the bounded
+index audit in logs/spec-special-input-domain-review.log. Missing-value cases
+remain explicitly unspecified; this finding supplies no new rejection rule,
+stale-parser-state semantics or concurrent-input guarantee.

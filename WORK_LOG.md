@@ -4054,3 +4054,19 @@ logs/spec-comp-set-build.log records successful publication build: 100 grammar
 productions, 671 scenarios, 617 links, 324 source fragments. PDF page 237 was
 visually checked: no clipping or overlap. git diff --check passed. This is a
 bounded response comparison, not complete variant or whole-spec conformance.
+
+
+## Special coordinate-input domain audit — 2026-09-06
+
+Exhaustively enumerated original TORPEDOS lengths 2–7 with valid burst counts
+1–3 using the source's aim-selection recurrence. Exactly six combinations read
+beyond returned components, matching the current explicit command boundary.
+Rechecked length-zero/one dispatch, target-continuation parity and MOVE's
+own-sector retry against Austin LOCATE/RELOC, TORP and MOVE. Recorded analysis
+in evidence and coverage companions; no normative rule, runtime or archive edit.
+
+logs/spec-special-input-domain-review.log preserves all eighteen enumerated
+cases and scope limits. git diff --check passed. No PDF rebuild was needed:
+only companion evidence/coverage and this log changed. This closes the bounded
+shape enumeration, not the intentionally unspecified missing-value behavior
+or concurrent acquisition semantics. The full specification goal remains active.

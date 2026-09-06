@@ -737,3 +737,32 @@ fragments match byte-for-byte, including CRLF, case and spacing. The appendix
 therefore inherits the direct SET response recipe without claiming that input
 waiting, name-helper edge domains or world termination are identical.
 logs/spec-comp-set-review.log preserves the comparison and exact-text checks.
+
+### Exhaustive special-input value-domain audit
+
+Reviewed Austin LOCATE/RELOC 1404–1520, MOVE 2141–2175 and TORP
+4228–4284. At TORP label 600, original arguments start at the second
+returned item. Each aim reads two consecutive items, advancing by two for
+the next aim exactly when the returned length reaches the current index plus
+two. Enumerating lengths 2–7 and valid counts 1–3 gives precisely these
+incomplete cases: length 2 with any count, length 4 with count 2 or 3, and
+length 6 with count 3. All odd lengths in this range supply complete pairs,
+including last-pair reuse. Length 1 instead enters separate target acquisition.
+Length 0 enters burst acquisition. Negative acquisition results and invalid
+counts stop earlier. No additional original-line missing-component shape is
+hidden by the ordinary seven-item limit.
+
+At the target continuation, selection starts at the first returned item. Every
+positive even length allowed by the requested burst supplies complete pairs
+with reuse; zero supplies neither component, while odd results retry. A truly
+blank reply returns negative and aborts before this branch. MOVE's own-sector
+retry similarly tests only the negative result before reading two components;
+its initial-acquisition loop separately retries zero. LOCATE's zero return
+constructs no coordinate values. These facts justify the existing explicit
+undefined-value boundaries; they do not justify a new diagnostic or selection
+from earlier input. The historical contents of parser storage are outside the
+generalized model.
+
+logs/spec-special-input-domain-review.log records every length/count case and
+the exact source-index recurrence. This is a bounded source audit; it does not
+execute the original program or prove concurrent input behavior.
