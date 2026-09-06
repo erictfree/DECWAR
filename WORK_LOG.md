@@ -2686,3 +2686,36 @@ WORK_LOG.md, docs/status.md and experiments/ is preserved and excluded.
 The goal remains active: nova/removal operation closure, grammar boundary cases,
 multiplayer/control/lifecycle and terminal bindings, probability/reproducibility,
 CompuServe amendments and a full cross-chapter conformance audit remain.
+
+
+## 2026-09-05 — Nova and planet-removal specification contracts
+
+Continued the active specification goal with explicit NovaSource/NovaContext,
+NovaTarget/NovaHit, NovaImpact/ExplodeStar and RemovePlanet contracts. Preserved
+chain scan/reverse-resolution order, the 29-pending-star limit, current occupant
+checks, repeated impacts, critical shield timing, distinct friendly/enemy score
+policies, publication order, black-hole versus recorded positions and immediate
+world-end propagation. Connected player/Romulan star hits and BUILD removal to
+the named operations. Added EX-MODEL-373–402 (30 scenarios).
+
+Source review: Austin DECWAR.FOR NOVA 2259–2390, SNOVA 3807–3860,
+OUTHIT 2392–2541, PRIDIS 3055–3070, JUMP 1283–1331, PLNRMV 2864–2892,
+BUILD 558–575, TORP 4300–4325 and Romulan torpedoes 3430–3450;
+WARMAC.MAC MAKHIT 2771–2872. NORMALIZATION records removal of report scratch
+coupling (full-base distress clearing the later hit's H) and the fixed victim
+buffer overflow, without changing nova strength/scoring or the explicit pending
+star cap. Running code, servers and legacy bytes were not changed.
+
+Validation: logs/spec-nova-adt-build.log passes: 13 chapters, 311 local links,
+402 scenario rows, 324 source message fragments; assembled PDF is 152 pages.
+logs/spec-nova-adt-audit.log passes 135 archived hashes and both variant
+catalogues. logs/spec-nova-adt-arithmetic-review.log checks representative exact
+fractional calculations; it is not an executable or differential conformance
+suite. Visually reviewed rendered PDF pages 87–91,147,150 under
+tmp/pdfs/spec-nova-adt/: readable types/pseudocode, tables and page transitions,
+without detected overflow. No game tests warranted for these documentation edits.
+
+Remaining work: full lexical/grammar edge forms, lifecycle and control contracts,
+multiplayer interleavings, terminal binding, random distributions and CompuServe
+amendments. The book remains a working draft, not complete conformance. Preserve
+concurrent experiments/, docs/status.md and unrelated WORK_LOG.md changes.

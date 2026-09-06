@@ -937,3 +937,54 @@ Evidence: SETUP.FOR 173–231; DECWAR.FOR BUILD 523–580, CAPTUR 625–643,
 BASKIL 339–369, PLNRMV 2864–2892, ENDGAM 961–1007, nova 2332–2352 and
 weapon cleanup 4216–4224. Interrupted conversion geometry and concurrent writes
 remain open; this change does not invent a safe alternate end-state.
+
+
+## Nova operations and independent observations
+
+NovaContext/NovaSource/NovaTarget and NovaHit replace NOVA/SNOVA's shared calling
+state with explicit game identities, explosion positions, damage and defense
+observations. No extra player command or random mechanic is introduced. The
+29-pending-star limit, scan order, reverse victim order, immediate selected-star
+removal, current occupant recheck and repeated damage across explosions remain.
+The fixed eight-entry object buffer is not a victim cap: SNOVA tests no such cap.
+A previously removed star's center can become occupied before its explosion,
+allowing nine damageable sectors. The generalized sequence covers the complete
+neighborhood without the adjacent-memory overwrite implied by that historical
+buffer size. The actual pending-star limit remains 29, despite its larger
+allocated buffer. Evidence: DECWAR.FOR 3807–3860.
+
+NOVA computes IHITA and credits damage before its initially-full-base distress
+call (2283–2295,2322–2331). MAKHIT clears IHITA even with no recipients
+(WARMAC.MAC 2771–2772,2855–2872). The subsequent base hit therefore inherits zero
+instead of the already credited H when that distress call occurred. The book's
+independent NovaHit.damage retains H; publication of a different observation
+cannot clear it. This is an intentional report normalization under the existing
+independent-values policy, not an arithmetic derivation or a port correction.
+It changes that reported amount without changing base strength or any score.
+NOVA's Romulan branch assigns no additive IHITA; normal fresh-report state is
+zero and the book reports zero while identifying the separate remaining energy.
+Planet nova reports omit the numerical hit amount (OUTHIT 2456–2467). No invented
+three-build-to-energy conversion is introduced. Prior unrelated report data never
+becomes a new impact's damage, critical device or destruction flag.
+
+The nova result keeps physical displacement separate from reported location and
+destruction presentation. NOVA overwrites JUMP's Vto/Hto with the last recorded
+position even after a black-hole encounter; the book preserves that reporting
+position while DisplacementResult retains the destination. Base death reports
+use the generic destruction flag even for black-hole displacement; ship and
+Romulan reports retain the black-hole indication. Shield device criticality can
+lower shields before the strength-reduction branch, without recalculating initial
+severity. Ship kills credit the initiator's team directly; base kills use signed
+pending credit; the Romulan destruction bonus follows hit publication. These
+are retained game/report rules, not flattened into ordinary WeaponHit behavior.
+Evidence: DECWAR.FOR NOVA 2259–2390, JUMP 1283–1331, OUTHIT 2392–2541.
+
+RemovePlanet names the ownership snapshot supplied by the caller, decrements its
+maintained count before docking re-evaluation, removes identity and then checks
+world end. Stable planet IDs eliminate array renumbering while preserving the
+remaining report order and discovery. Caller-owned sector removal/conversion
+is left separate: NOVA and TORP clear before PLNRMV, BUILD replaces after it.
+An absent planet is the abstract invalid-target no-op, not a fabricated removal.
+Concurrent ownership disagreement and terminated-conversion observations remain
+open. Evidence: PLNRMV 2864–2892, BUILD 558–575, NOVA 2380–2389.
+No running game, server or archived source was changed.

@@ -278,7 +278,7 @@ the encountered object's rule:
 
 | Object | Effect |
 | --- | --- |
-| Star | At q at most 80, announce the star's destruction within ten sectors, subtract 50 STAR_DESTRUCTION points from a.score and invoke the nova rules. Otherwise the star survives. |
+| Star | At q at most 80, announce the star's destruction within ten sectors, subtract 50 STAR_DESTRUCTION points from a.score and invoke ExplodeStar with RomulanNova and the triggering captain as viewer. Otherwise the star survives. |
 | Black hole | Absorb the shot without an additional hit report. |
 | Player ship | Apply shared torpedo damage and direct Romulan score credit. Notify within ten sectors of the impact, then release any remaining tractor association. |
 | Base | A base at 100% strength first sends its radio-filtered faction distress notification. Apply torpedo damage and Romulan score credit, report the hit within ten sectors, and send its radio-filtered faction destruction notification if destroyed. |

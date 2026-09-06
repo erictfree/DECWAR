@@ -79,8 +79,9 @@ coverage does not establish lifecycle, concurrency or terminal conformance.
   randomness and detailed interleavings remain.
 - Shared world rules: typed path, beam, PhaserHit/TorpedoHit, ship/base damage,
   score-credit, Romulan-hit and Displace contracts now connect to their callers.
-  Novas and installation transitions are drafted; full operation contracts for
-  nova/removal sequences, fatal-target caller reports and world-end ordering remain.
+  NovaContext/NovaHit, NovaImpact/ExplodeStar and RemovePlanet now define
+  chain ordering, distinct score/report effects and world-end propagation.
+  Fatal-target weapon caller reports and complete concurrent world-end ordering remain.
   Maintained base/owned-planet counts and ReevaluateDocking are explicit;
   construction reuses a fixed base identity and updates counts before activation.
 - Autonomous Romulan: persistent activity state, cadence, appearance, target

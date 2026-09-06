@@ -1026,7 +1026,8 @@ resource.
 
 With an available identity, conversion contributes a further 250 pending
 BASE_CONSTRUCTION points and increments w.baseCounts[s.team]. It then removes
-p as a planet, decrementing w.capturedPlanetCounts[s.team] before docking
+p through RemovePlanet with the acting captain as viewer and s.team as
+formerOwner, decrementing w.capturedPlanetCounts[s.team] before docking
 re-evaluation and the world-end check. After that removal returns, it introduces a base n at
 that location belonging to s.team. On normal completion:
 
@@ -1485,7 +1486,7 @@ target that later moves.
 | No obstruction | Report a miss at the final traced position to the shooter. |
 | Black hole | Absorb the shot and notify the shooter. |
 | Friendly ship, base or planet | Neutralize the shot without damage; notify the shooter. |
-| Star | If `IntegerDraw(100) <= 80`, announce a nova within ten sectors, subtract 50 pending STAR_DESTRUCTION points and resolve the stellar explosion. Otherwise report the unaffected star to the shooter. |
+| Star | If `IntegerDraw(100) <= 80`, announce a nova within ten sectors, subtract 50 pending STAR_DESTRUCTION points and invoke ExplodeStar with PlayerNova of the actor and the acting captain as viewer. Otherwise report the unaffected star to the shooter. |
 | Enemy ship or base | Apply the shared torpedo-damage rule. Notify captains within ten sectors of the impact; then release a ship victim's tractor beam. |
 | Romulan | Apply its torpedo-damage, possible displacement and score rule. Notify captains within ten sectors of the original impact. |
 | Neutral or enemy planet | Apply the planet rule below. |

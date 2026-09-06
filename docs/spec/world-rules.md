@@ -592,32 +592,120 @@ the undocking effect of displacement into an empty sector.
 
 ## Stellar explosions
 
+### Operations and observations
+
 A nova affects ships, bases, planets and the Romulan in the exploding star's
 sector and its eight adjacent sectors, clipped to the galaxy. Friendly objects
-receive nova damage too. A chain retains the original initiating attacker for
-scoring throughout.
+receive nova damage too. Each chain retains its initiating attacker for scoring,
+even if that attacker is destroyed during the chain.
+
+```text
+NovaSource = PlayerNova(ShipId) | RomulanNova
+NovaTarget = DamageTarget | RomulanBody | PlanetBody(PlanetId)
+
+record NovaContext:
+    source: NovaSource
+    viewer: CaptainId
+
+NovaDefense = ShipAfterNova(ShieldMode, Percentage)
+            | BaseAfterNova(Percentage)
+            | RomulanAfterNova(Energy)
+            | PlanetAfterNova(nonnegative integer)
+
+record NovaHit:
+    origin: Position
+    target: NovaTarget
+    position: Position
+    damage: Optional<Damage>
+    defense: NovaDefense
+    displacement: DisplacementResult
+    destruction: Optional<DestructionCause>
+
+NovaImpactOutcome = Completed(NovaHit)
+                  | PlanetUpdateRefused | GalaxyEnded
+NovaChainOutcome = Completed | GalaxyEnded
+
+operation NovaImpact(context: NovaContext, origin: Position,
+                     target: NovaTarget, step: SectorVector)
+    on GameState -> NovaImpactOutcome
+
+operation ExplodeStar(context: NovaContext, origin: Position)
+    on GameState -> NovaChainOutcome
+```
+
+DamageTarget, DisplacementResult and DestructionCause are the shared combat
+types defined above. NovaDefense describes the target after the nova effect:
+ship shield mode and strength, base strength, Romulan energy, or the nonnegative
+planet build count shown in the report. It does not add new target properties.
+NovaHit.position is the target's resulting or last occupied position. It is
+separate from the black-hole destination carried by Swallowed.
+
+NovaImpact requires the target currently present in its sector. The chain
+supplies step as that sector's displacement from origin; each component is
+-1, 0 or 1. Both can be zero for an object occupying an explosion's center.
+A PlayerNova identifies the initiating ship, its faction and its pending score;
+RomulanNova uses the persistent RomulanActivity score, even after the Romulan
+has ceased to exist. The viewer identifies the session that observes any
+world termination. It need not own the target or be the initiating attacker.
+
+Each impact begins with displacement Stayed and no destruction. Its effects
+and observations follow the target-specific clauses below. A NovaHit is an
+observation of that impact, not a request to apply its damage or score again.
+For ships and bases its damage is H as defined below. For the Romulan it is
+zero: the energy change is described by RomulanAfterNova. For planets damage
+is absent; the report identifies the remaining builds instead of a numerical
+hit amount. Nova hits have no single critical-device observation; the ship
+rule can damage all nine devices.
+
+An impact publishes its hit to captains whose ships retain a recorded position
+and captain association within distance ten of NovaHit.position. A ship just
+destroyed by the impact remains eligible until commission release. No radio-on,
+radio-damage or sender-gag test filters this nearby audience. Faction-wide base
+notices additionally require the recipient radio to be on. Publication and
+eventual terminal display are distinct. The report identifies the exploding star at
+origin and the target at position. It indicates displacement for Moved or
+Swallowed. Ship and Romulan destruction by a black hole identifies that cause;
+a destroyed base is reported destroyed without a separate black-hole cause.
+These presentation choices do not change the displacement outcome.
+
+Neither operation acquires a player command, charges torpedo resources,
+sets a weapon deadline or completes a turn. Those effects belong to its
+invoking weapon operation. GalaxyEnded propagates immediately after its
+world-termination effects, without executing the rest of the impact or chain.
+Previously applied effects are not rolled back.
 
 ### Chain order
 
-Remove the initial star. For each explosion, inspect nearby sectors in increasing
-vertical coordinate, then increasing horizontal coordinate. Record the positions
-of damageable objects and their displacement vectors from this explosion.
-For each neighboring star, `IntegerDraw(5) != 5` selects it to explode, provided
-fewer than 29 other stars are awaiting explosion. Remove a selected star at once
-and place its position last in the pending explosion sequence.
+ExplodeStar requires a star at origin. Its caller has already announced and
+charged for that initial star; the operation does not repeat those effects.
+Remove the initial star and begin with no pending explosions.
 
-Resolve affected positions in reverse discovery order. At each position, use the
-object currently there; an earlier hit may have moved or destroyed the object
-originally observed. Apply the appropriate nova effect below if the current
-object is damageable. Then take the last pending explosion, announce it to
-captains within ten sectors, charge 50 STAR_DESTRUCTION points to the initiator,
-and repeat. The charge is a subtraction from a player's pending score or the
-Romulan's own score. Stop when no explosion remains pending. The triggering
-weapon supplies the initial star's announcement and score effect.
+For each explosion, inspect nearby sectors in increasing vertical coordinate,
+then increasing horizontal coordinate. Record the positions of damageable
+objects and their displacement vectors from this explosion. For each neighboring
+star, IntegerDraw(5) other than five selects it to explode, provided fewer than
+29 stars are already awaiting explosion. Remove a selected star at once and
+append its position to the pending sequence. Black holes and empty sectors are
+not damageable objects.
 
-The limit is on pending explosions, not the total number of stars in a chain.
-Selection and removal precede nearby damage; a sector vacated by a scheduled
-star can therefore receive a displaced object before that explosion occurs.
+Resolve affected positions in reverse discovery order. At each position, query
+the object currently there; an earlier hit may have moved or destroyed the
+object originally observed. If it is damageable, invoke NovaImpact with its
+current identity and the recorded displacement. Skip positions that are now
+empty or contain a star or black hole. PlanetUpdateRefused leaves that planet
+unaffected and continues with the next position. GalaxyEnded ends the chain.
+
+When those positions are exhausted, take the last pending explosion, announce
+it to the same nearby audience within ten sectors of that star, subtract 50
+STAR_DESTRUCTION points from the player's pending score or the Romulan's own
+score, and repeat. Return Completed when none remains pending.
+
+The limit is on pending explosions, not the total number in a chain. Selection
+and removal precede nearby damage; a sector vacated by a selected star can
+therefore receive a displaced object before that explosion occurs. The center
+participates in its own neighborhood, and an object there can be damaged again.
+No chain-wide once-per-target exemption applies. Being killed does not itself
+stop an initiator's chain; world termination does.
 
 ### Ship and base severity
 
@@ -627,89 +715,173 @@ replace it with 25; exactly 20 stays 20. Call the resulting number d.
 
 For a ship, add `4*d*UnitDraw()` damage units to each of the nine devices in
 device order. If shield-device damage then reaches 300 units, lower shields.
-For either a ship or a base, the reported hit damage is
-`H = 8*d + IntegerDraw(1000)/10` damage units.
+This lowering does not recompute d. For either a ship or a base, define:
 
-A player initiator receives H pending damage points for an enemy and loses H
-for a teammate: ENEMY_DAMAGE for ships, BASE_DAMAGE for bases. A Romulan initiator
-receives H points directly in the corresponding category.
+```text
+H := 8*d + IntegerDraw(1000)/10       // damage units
+```
+
+Before the remaining effects, credit H pending points to a player initiator
+for an opposing target, or subtract H for a friendly target. The category is
+ENEMY_DAMAGE for ships and BASE_DAMAGE for bases. A Romulan initiator receives
+H directly in the corresponding category of its activity score. This credit
+is independent of the subsequent ship-energy loss or base-strength change.
 
 ### Ship effect
 
-```text
-target.hullDamage += H damage units
-target.energy -= H * UnitDraw() energy units
-if target.shields.mode == UP:
-    target.shields.strength := max(0,
-        target.shields.strength - 30% + (IntegerDraw(100)/10)*1%)
-if target.shields.strength <= 0%:
-    target.shields.mode := DOWN
+Let s be the target ship. After severity, device damage and ordinary score:
 
-if target.hullDamage >= 2500 damage units or target.energy <= 0:
-    remove target's galaxy presence
-    target.commissioned := false
+```text
+s.hullDamage += H damage units
+s.energy -= H * UnitDraw() energy units
+if s.shields.mode == UP:
+    s.shields.strength := max(0,
+        s.shields.strength - 30% + (IntegerDraw(100)/10)*1%)
+if s.shields.strength <= 0%:
+    s.shields.mode := DOWN
+
+if s.hullDamage >= 2500 damage units or s.energy <= 0:
+    remove s from its sector
+    s.commissioned := false
+    destruction := DIRECT_DAMAGE
 else:
-    Displace(target, displacementFromStar)
+    displacement := Displace(ShipBody(s.id), step)
+    if displacement is Swallowed:
+        destruction := BLACK_HOLE
 ```
 
-A nova kill adds 500 ENEMY_KILLS points directly to the player initiator's team
-for an enemy, or subtracts 500 for a teammate. This kill adjustment is to the
-team total, not the captain's pending score. A Romulan initiator receives 500
-direct points. Announce the hit within ten sectors of the target's resulting
-or last occupied position, then release its tractor beam. A surviving ship that
-cannot be displaced does not become red or undocked merely from this nova rule.
+A shield device made critical by this impact suppresses the later shield-strength
+reduction and its draw, because shield mode is already DOWN. The device damage
+and hull damage do not otherwise repair, undock or set the ship's condition.
+Displace supplies the effects of successful movement or a black-hole encounter.
+A survivor that cannot move therefore retains its prior docking and condition.
+
+For either destruction cause, a player initiator's faction receives 500
+ENEMY_KILLS points for an opposing ship, or loses 500 for a friendly ship.
+This adjustment goes directly to that faction's committed total, without
+changing the initiating ship's pending or committed kill score. A Romulan
+initiator receives 500 directly in its own activity score.
+
+Construct the NovaHit from s's current shield state and recorded position,
+including damage H and the displacement/destruction results. Publish that hit,
+then release the target's tractor beam if one remains attached. Return
+Completed(hit). Destruction does not itself release the captain's session or
+end the chain. The shared ApplyShipHit operation is not used here: the nova's
+energy, condition and scoring effects are the ones in this clause.
 
 ### Base effect
 
-A base at 100% strength first announces distress to its faction's captains whose
-radios are on. Set strength to `max(0, strength - 30% + (IntegerDraw(100)/10)*1%)`.
-If positive, attempt displacement away from the star. If the base is destroyed,
-a player initiator receives 1000 pending BASE_DAMAGE points for an enemy base
-or loses 1000 for a friendly base; a Romulan initiator receives 1000 directly.
-Update the faction's surviving-base count and re-evaluate docking.
-The count update subtracts one from world.baseCounts[base.team] before that
-re-evaluation.
+Let b be the target base. After computing H and its ordinary damage credit,
+a base whose strength is exactly 100% announces distress to its faction's
+captains whose radios are on. Then:
 
-Announce the hit within ten sectors of the resulting or last occupied position.
-For a destroyed base, remove its remaining presence and announce destruction to
-its faction's captains whose radios are on. The H damage credit above applies
-independently of this strength reduction and any destruction bonus.
+```text
+b.strength := max(0,
+    b.strength - 30% + (IntegerDraw(100)/10)*1%)
+if b.strength > 0%:
+    displacement := Displace(BaseBody(b.id), step)
+```
 
-### Romulan and planet effects
+If strength is now zero, mark destruction BLACK_HOLE when displacement is
+Swallowed, otherwise DIRECT_DAMAGE. A player initiator receives 1000 pending
+BASE_DAMAGE points for an opposing base or loses 1000 for a friendly base;
+a Romulan initiator receives 1000 directly. Subtract one from the faction's
+base count, then invoke ReevaluateDocking(b.team). This order is part of the
+nova effect; it differs from ordinary weapon base destruction.
 
-Displace a surviving Romulan first. If it survives displacement, halve its energy.
-The player initiator receives one tenth of that remaining energy in pending
-ROMULAN points. If displacement destroyed it, use its energy immediately before
-displacement instead. A Romulan initiator loses the corresponding points from
-its own score. Announce the hit within ten sectors of its resulting or last
-occupied position. Destruction adds 500 points for a player initiator, or
-subtracts 500 from a Romulan initiator's score.
+Construct the NovaHit with damage H, the base's strength and its recorded
+position. Publish it before the final removal notice. For a destroyed base,
+clear its remaining sector presence and announce destruction to its faction's
+captains whose radios are on. Retain its base identity and recorded position,
+and return Completed(hit). Destruction alone does not invoke CheckWorldEnd
+here. The ordinary H credit applies whether or not distress was announced,
+and independently of strength reduction and any destruction bonus.
 
-For a planet, first obtain permission for a shared planet update. If unavailable,
-leave it unaffected. Otherwise subtract three builds and announce the hit within
-ten sectors, displaying at least zero builds. A negative result destroys the
-planet and subtracts 100 PLANET_DESTRUCTION points from the player's pending
-score or the Romulan's score. Remove the planet and apply installation-loss and
-world-termination rules. Release the shared update. Exactly zero builds survives.
+### Romulan effect
+
+The target Romulan must be present. Save its energy and position, then invoke
+Displace(RomulanBody, step). If it survives, halve its energy and use the new
+energy and position. If it is swallowed, retain the saved energy and last
+occupied position for this impact's score and report.
+
+A player initiator receives one tenth of this energy as pending ROMULAN points.
+A Romulan initiator loses the same number from its activity score. Construct
+and publish the NovaHit with zero damage, RomulanAfterNova of that energy,
+and the displacement result. Destruction is BLACK_HOLE for Swallowed and
+absent otherwise. A surviving Romulan at zero energy is not removed by an
+additional nova-energy test.
+
+After publishing a destruction hit, add a further 500 pending ROMULAN points
+for a player initiator, or subtract 500 from a Romulan initiator's score.
+Return Completed(hit). This order places the destruction bonus after the
+hit publication, unlike the ship and base bonuses.
+
+### Planet effect
+
+Let p be the target planet. First obtain access for a shared planet update.
+Failure returns PlanetUpdateRefused without damage, score, displacement or a
+hit observation; it does not abort the remaining chain. The complete access
+and interruption rules belong to the multiplayer contract.
+
+Subtract three from p.builds. Construct a NovaHit with damage absent,
+displacement Stayed, the planet's position, and PlanetAfterNova(max(p.builds,0)).
+Destruction is DIRECT_DAMAGE if the new count is negative and absent otherwise.
+Publish the hit before any destruction penalty or identity removal. A count
+of exactly zero survives.
+
+For a survivor, release the update and return Completed(hit). For destruction,
+subtract 100 PLANET_DESTRUCTION points from the player's pending score or the
+Romulan's score. Save the current ownership, clear the planet's sector, and
+invoke RemovePlanet(context.viewer, p.id, savedOwner). If it ends the galaxy,
+return GalaxyEnded. Otherwise release the update and return Completed(hit).
+
+**Open:** Full concurrent changes during neighborhood discovery, impact and
+planet-update acquisition remain to be specified. These ordered effects do not
+make the chain one indivisible action or introduce a random update-failure rate.
 
 **Source basis:** [NOVA](../../legacy/utexas/DECWAR.FOR#L2259),
-[SNOVA](../../legacy/utexas/DECWAR.FOR#L3807).
+[SNOVA](../../legacy/utexas/DECWAR.FOR#L3807),
+[combat report presentation](../../legacy/utexas/DECWAR.FOR#L2392).
 
 ## Installation changes and world termination
 
-Removing a planet removes its identity from the planet collection and preserves
-the relative order of the remaining planets. A surviving planet does not change
-identity because another planet was removed. A conversion to a base transfers
-each team's knowledge of the planet to knowledge of the new base.
-For a faction-owned planet, subtract one from world.capturedPlanetCounts[owner]
-before docking re-evaluation and before removing its identity. Neutral-planet
-removal changes neither faction's captured-planet count.
+### Planet removal
 
-The game ends when there are no planets and at least one faction has no surviving
-bases. If there are no bases on either side, the result is total destruction;
-otherwise the faction with surviving bases wins. A privileged world-termination
-request can also end the world independently of that condition. Final score
-reports and session release are specified by the lifecycle rules still in progress.
+```text
+PlanetRemovalOutcome = Removed | NoPlanet | GalaxyEnded
+
+operation RemovePlanet(viewer: CaptainId, target: PlanetId,
+                       formerOwner: Optional<Team>)
+    on GameState -> PlanetRemovalOutcome
+```
+
+The caller supplies the ownership being removed; none means a neutral planet.
+If target is absent from the planet collection, return NoPlanet without count,
+docking or world-end effects. Otherwise, for a faction-owned planet, subtract
+one from that faction's captured-planet count and invoke
+ReevaluateDocking(formerOwner). The planet record still exists during this check.
+
+Then remove the planet's identity from the collection and both factions'
+knownPlanets sets. Preserve the identities, positions, builds, ownership,
+discovery and relative report order of every surviving planet. Neutral-planet
+removal changes neither faction's captured-planet count and performs no docking
+re-evaluation. Invoke CheckWorldEnd(viewer) after identity removal. Its Ended
+outcome gives GalaxyEnded; otherwise return Removed.
+
+RemovePlanet does not itself change the removed planet's sector. A destroying
+caller clears that sector first; BUILD replaces it with the new base only after
+removal returns. The caller also owns planet-update access, destruction or
+construction points, any discovery transfer to a new base, and command
+completion. The removal operation adds no second report, score adjustment or
+turn. These boundaries preserve the order in which an installation change can
+be observed; they do not promise an indivisible conversion.
+
+The world-end condition requires no remaining planets and at least one faction
+with a zero maintained base count. Explicitly requesting world termination can
+also end the world. CheckWorldEnd supplies the final outcome messages and
+session effects in the [lifecycle chapter](session-rules.md#world-termination).
+
+### Docking re-evaluation
 
 Docking re-evaluation is invoked during installation loss or ownership changes.
 Its operation is:
