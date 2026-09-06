@@ -3649,3 +3649,16 @@ evidence; logs/spec-completion-matrix-build.log passed 659 scenarios,
 100 productions, 324 fragments, 14 chapters and 546 links. Inspected PDF physical
 pages 227–229; readable updated limitations and context. Full source/type/domain
 review remains required. Goal stays active.
+
+### Specification: DOCUMENT separator evidence boundary
+
+Checked exact CompuServe SETUP literal bytes, OUT/OSTR forwarding and SKIP's
+CR/LF. Consulted existing local FORTRAN V5 text sections 2.2.3/2.3.1. Narrowed
+U-C-DOCUMENT to compiler short-line padding; the output routine inserts no
+separator and the continuation supplies one explicit space. No compiler-version
+or original-output claim is inferred. Recorded the evidence needed to close it.
+
+Validation: logs/spec-document-literal-review.log passed source-byte and output
+routine assertions. Evidence-only edit outside book.json; no PDF rebuild needed.
+No gameplay/archive changes. Other specification work remains available and
+the full goal stays active.

@@ -346,3 +346,29 @@ repeated body and no recipient removal. The earlier follow-up had incorrectly
 left that abstract outcome unresolved; NORMALIZATION.md already selects it.
 Failure timing and interruption conditions remain open. This follow-up does not
 claim a complete radio failure contract or atomic selection-and-removal operation.
+
+
+## CompuServe DOCUMENT literal boundary review
+
+The active SETUP.FOR 166–167 call contains one continued literal, not two OUT
+calls. Its first physical line ends immediately after `for` (56 stored bytes,
+including the label-field tab), with no trailing space. The continuation has
+five leading spaces, `+` in column six, and one explicit space before
+`Documentation!`. These byte facts do not by themselves determine implicit
+padding of a short statement line inside a quoted literal.
+
+WARMAC.MAC OUT 1986–1993 calls OSTR. and then SKIP.1. OSTR. 2135–2139 forwards
+characters until the terminating zero; it does not insert a word separator.
+SKIP.1 2000–2004 emits one CR/LF for the call's second argument of one. Thus the
+open joining-whitespace question belongs to compilation of this literal, not
+OUT's spacing or line-ending behavior.
+
+The locally preserved FORTRAN-10 V5 manual, printed sections 2.2.3 and 2.3.1
+(pp. 2-3–2-4), establishes significant literal blanks and continuation fields.
+The reviewed passages do not establish short-line padding for this archived
+compiler invocation. As recorded in docs/platform-manuals.md, the CompuServe map
+does not identify the compiler version. A different compiler's reconstruction
+would establish a candidate binding, not the archived output. Resolving
+U-C-DOCUMENT requires the original compiled literal or applicable compiler
+behavior plus its source-input conventions. The normative notice remains
+explicitly incomplete at this separator; no game behavior is blocked by it.
