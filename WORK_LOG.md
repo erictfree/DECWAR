@@ -3581,3 +3581,16 @@ logs/spec-shared-impact-build.log passed: 656 scenarios, 100 productions,
 324 fragments, 14 chapters and 546 links. Inspected PDF physical pages 99, 102,
 and 219; readable rules, pseudocode and final example. Nested displacement,
 caller continuation and multiplayer review remain; full goal stays active.
+
+### Specification: displacement boundary audit
+
+Reviewed JUMP candidate range, distance and occupancy gates and empty/black-hole
+branches. Clarified single-candidate, no-random-choice behavior and unchanged
+docking/condition on rejection. Added EX-MODEL-609–610, evidence and scoped
+coverage. Existing fractional-coordinate normalization remains unchanged.
+
+Validation: logs/spec-displacement-boundary-review.log passed source-order and
+branch checks; logs/spec-displacement-boundary-build.log passed with 658 scenarios,
+100 productions, 324 fragments, 14 chapters and 546 links. Inspected PDF physical
+pages 105 and 219 for readable changed prose and examples. No gameplay/archive
+changes. Concurrent sector query/update ordering remains open; goal stays active.

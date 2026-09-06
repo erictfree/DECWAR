@@ -280,3 +280,21 @@ choice remains excluded by the existing normalization; it is not an extra
 ship-damage mechanic or an abstract RandomEvent. Consequently this audit does
 not establish native seeded parity. The inspection tool verifies the archived
 executable hash before decoding; it does not execute an impact.
+
+
+## Austin displacement boundary audit
+
+[JUMP](../../legacy/utexas/DECWAR.FOR#L1283) computes a single candidate from
+the recorded position and supplied direction. INGAL precedes the distance-one
+test; DISPC then admits a black hole or an empty sector. All other candidates
+return without moving. There are no RAN/IRAN calls, alternative-sector searches
+or boundary wrapping in JUMP. Empty-sector movement clears the old presence,
+sets the new presence, updates the appropriate target position, and only then
+sets player-ship RED/undocked. The black-hole branch clears the old sector and
+sets fatal state without changing the recorded position or applying that
+undocking/condition step. Existing Displace result and caller-score contracts
+agree with these branches. Fractional coordinate selection follows the existing
+normalization, not a new rounding rule. EX-MODEL-609–610 cover occupied and
+out-of-galaxy rejection. This review does not establish atomicity against a
+concurrent sector change between the query and update; multiplayer ordering
+remains a separate obligation.

@@ -836,7 +836,11 @@ exploding star to the affected sector. Compute the candidate by rounding each
 coordinate of `target.position + step` down to a whole sector. If the candidate
 is outside the galaxy, is not exactly one sector away in Chebyshev distance,
 or contains an object other than a black hole, return Stayed without changing
-the target or any sector.
+the target or any sector. Here an empty sector is admissible: the occupied-sector
+rejection applies to ships, bases, planets, stars and other non-black-hole objects.
+Displace makes no random choice. It tests this one candidate only; it does not
+search for an alternative empty sector, wrap at the galaxy boundary, or retry.
+A blocked displacement leaves docking and condition unchanged.
 
 For an empty candidate, move the target there and update its galaxy presence.
 A displaced player ship becomes undocked and red. Displacement itself does not

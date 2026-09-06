@@ -341,3 +341,10 @@ reported-versus-stored base strength. Compiled inspection supports base choice
 ordering; the unused critical-ship compound choice remains normalized away.
 Nested displacement, caller continuation and concurrent target access still
 require their own review; this is not full seeded interaction verification.
+
+
+Displace boundary review confirms the one-candidate, no-random-choice contract,
+occupied/boundary rejection and the distinct empty-sector and black-hole state
+effects against JUMP. Existing examples cover swallowed ship/base/Romulan
+results; EX-MODEL-609–610 add blocked and boundary outcomes. This closes the
+local displacement choice-order check, not concurrent query/update ordering.
