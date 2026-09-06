@@ -965,24 +965,60 @@ above is not a new player-visible rejection in those cases.
 
 **Source basis:** [post-reply choice and ordered relocation](../../legacy/compuserve/fortran%201978/TELL.FOR#L93).
 
-## Coordination amendment status
+## Coordination amendments
 
-The Austin [coordination domains and nested-phase rule](language-model.md#coordination-and-overlapping-operations)
-are not a completed CompuServe contract. CompuServe distinguishes more protected
-resources and its ordinary phase completion does not have Austin's release-all
-scope. Its waiting and interruption rules need a separate amendment. Do not
-infer the Austin two-domain relation or nested release behavior merely because
-both variants use the same game operations.
+Amends the Austin [coordination domains and nested-phase rule](language-model.md#coordination-and-overlapping-operations).
+CompuServe distinguishes individually coordinated resources. Its ordinary release
+ends the session's claim on the specified resource, not every resource held by
+that session. An explicit release-all operation is separate. Uncoordinated
+observations are not excluded merely because a resource is held.
 
-Positive elapsed waits and fresh input acquisition in CompuServe also release
-and subsequently reacquire a remembered coordinated resource when one is present.
-They do not inherit Austin's rule that waiting alone retains coordination. The
-complete resource-selection, failed-wait and reacquisition contract remains part
-of this amendment; no claim that all resources are released together follows.
+For a resource already successfully held by the same session, repeated entry
+returns without a second acquisition or another outstanding release obligation.
+One ordinary release ends that resource's held state. This rule does not establish
+successful reentrant acquisition of a request that is still pending, nor does
+it make a whole command atomic.
+
+### Waiting and fresh input
+
+An operation can designate one coordinated resource to remember across waits.
+This remembered choice is distinct from the set of all resources held by the
+session. For an uninterrupted positive elapsed wait:
+
+1. Save the remembered resource, if any, and release that resource.
+2. Wait using the requested delay capped at 10000 milliseconds. Compare against
+   the elapsed-time deadline after suspension; if it has not been reached,
+   request another 1000 milliseconds and repeat the check.
+3. If a resource was saved, attempt to enter it again. Retry after each failed
+   entry. Return from the wait only after successful reacquisition.
+
+A requested delay of zero or less returns before this release/reacquisition
+sequence. The temporary release does not release every held resource and does
+not by itself change resources, scores or game turns. Other sessions may act
+while the resource is released, subject to their own coordination requirements.
+Reacquisition does not restore game-state values observed before waiting.
+
+Fresh input acquisition similarly saves and releases the remembered resource,
+reads the input line, and retries reacquisition before processing that newly
+acquired line. Continuing to parse input already acquired does not perform this
+fresh-input release. The presence of typed input alone therefore does not prove
+that the waiting operation has returned or reacquired its resource.
+
+The requested input or delay can finish while reacquisition still waits. These
+rules impose no finite total wait, fairness or automatic rollback guarantee.
+They amend Austin's rule that waiting alone retains coordination.
+
+**OPEN QUESTION:** The complete resource-to-operation mapping, remembered-resource
+selection, pending/reentrant requests, environment failures and interrupted
+reacquisition still require review. A stopped or interrupted acquisition must
+not be treated as a successful coordinated phase by assumption. Cross-galaxy
+resource scope also remains part of the full binding. These limits do not
+replace the ordinary sequences above with Austin's release-all behavior.
 
 **Source basis:** [CompuServe waiting](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L4010),
 [fresh input](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L1679),
-[CompuServe coordination and release](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L4462).
+[entry and repeated entry](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L4468),
+[targeted and explicit release-all paths](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L4594).
 
 ## Remaining amendments
 

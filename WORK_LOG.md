@@ -3788,3 +3788,17 @@ PDF physical pages 241–242; readable complete table. Archive audit passed in
 logs/spec-source-baseline-audit.log: 135 hashes, 83 declarations, 33 game and
 16 pregame commands, 324 strings. Recent committed diff is documentation only;
 unrelated worktree changes remain untouched. Full goal stays active.
+
+### Specification: CompuServe ordinary coordination amendment
+
+Replaced broad coordination-status prose with source-derived targeted release,
+repeated entry for successfully held resources, positive-wait release/reacquire
+and fresh-input behavior. Nonpositive waits return before release. Distinguished
+remembered resource from all holdings and delayed reacquisition from completed
+input/time. Full mapping, pending/interrupted entry and environment limits remain.
+
+Validation: logs/spec-comp-coordination-review.log checks branch ordering and
+release paths. logs/spec-comp-coordination-build.log passed 662 scenarios,
+100 productions, 324 fragments, 14 chapters and 547 links. Inspected PDF physical
+pages 243–244; readable ordinary amendment and open scope. No gameplay/archive
+changes. Full goal stays active.

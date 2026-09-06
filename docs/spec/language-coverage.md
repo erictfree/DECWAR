@@ -428,3 +428,10 @@ origin codes and absence/unlisted-code fallback. Source masked comparisons do
 not establish the commented prefix matches. Origin-code acquisition remains
 an environment binding, not a game syntax or geolocation feature. This closes
 the wording-table gap without supplying a modern network lookup.
+
+
+CompuServe ordinary coordination now specifies targeted release, repeated entry
+for successfully held resources, positive-wait release/reacquisition and the
+fresh-versus-existing-input distinction. Complete resource mapping, remembered
+selection, pending/interrupted acquisition and environment failures remain open.
+The amendment no longer leaves the entire ordinary wait sequence undescribed.

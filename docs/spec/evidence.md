@@ -488,3 +488,21 @@ about CLx/CSx/Qxx do not establish prefix matching. Unlisted codes reach the
 existing random qualifier fallback. No corrected mask or new origin is added.
 Acquiring the original connection metadata remains environment-specific; this
 review establishes the table and fallback, not a modern network service.
+
+
+## CompuServe ordinary coordination and wait amendment
+
+LOCK. scans LOKTAB before enqueuing; an already recorded key returns at LOCK.3.
+The book states this for successfully held resources, without treating a pending
+record as proof of ownership. UNLOCK clears LOCKED and invokes UNLO. for its
+specified key; UNLO. removes that key, while KILALL/ZAPLOK iterate all recorded
+keys. This differs from Austin's unconditional release-all implementation.
+
+PAUSE's nonpositive argument returns before reading LOCKED. Positive PAUSE saves
+LOCKED in SVLOCK, releases that key, performs capped elapsed waiting, then retries
+LOCK. on LKFAIL before returning. GTKN.1 does the corresponding save/release,
+INLI., retry sequence for fresh input; GTKN.2 parsing existing input bypasses it.
+The appendix now states these ordinary sequences in resource terms. Shared
+scratch overwrite during interruption, pending request entries and the full
+remembered-resource caller mapping remain outside that completed scope.
+Sources: CompuServe WARMAC.MAC 1679–1692, 4010–4046, 4468–4501, 4594–4640.
