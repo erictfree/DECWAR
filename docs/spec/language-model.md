@@ -748,6 +748,11 @@ following outcomes apply before any effects inside the requested phase:
 | MOVE or IMPULSE relocation | Retry entry with the selected destination and movement cost already paid. The retry does not repeat path selection or charge that cost again. |
 | Fifth BUILD conversion | Report that the construction crew is busy and reject the conversion attempt. Retain the fifth build and its ordinary pending build credit; no base is installed. |
 | CAPTURE update | Report surrender refusal and reject capture without its ownership, resource or score changes. |
+| Commission release | After the already-available guard, retry entry before clearing presence, changing participant counts or preserving the departing condition. |
+| Conditional environment continuation | After ship and saved-sector availability checks, retry entry before reactivation. These retries do not repeat those availability checks. |
+| Radio capacity admission | Return NotPublished before reserving a place, applying capacity loss or copying the body. |
+| Radio publication | Retry entry; the accepted body and reserved place remain pending until publication can proceed. |
+| Radio recipient removal | Retry entry before removing the selected recipient. |
 | Player torpedo planet update | End the burst with PlanetUpdateRefused and the prescribed tube-empty report. Retain shots already consumed, including this shot. No planet damage choice, readiness-deadline update or turn completion follows this refusal. |
 | Romulan torpedo planet update | Skip this planet's damage and hit report, then continue the burst without retargeting. |
 | Nova planet update | Return PlanetUpdateRefused for this impact without changing the planet or publishing its hit. The enclosing explosion continues its remaining impacts. |

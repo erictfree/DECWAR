@@ -356,3 +356,10 @@ Romulan torpedo planet hits, and nova planet hits. The table was checked against
 active source branches, including player TORP's misleading tube-empty report.
 This resolves no environment failure causes or reentrancy semantics; those and
 the remaining shared-service/resume paths still need complete review.
+
+
+Session/radio follow-up adds five checked retry/refusal continuations to the
+central table. It also identifies the unresolved GETMSG search-failure path:
+notification indicators are cleared without removing message recipients or
+initializing the returned body. No ordinary delivered message is inferred.
+This is a specific remaining reception contract gap, not a completed radio audit.

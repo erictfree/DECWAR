@@ -3608,3 +3608,16 @@ checks; logs/spec-coordination-failures-build.log passed 658 scenarios,
 100 productions, 324 fragments, 14 chapters and 546 links. Inspected PDF pages
 20 and 21: readable table and phase context. No gameplay or archive changes.
 Full goal remains active.
+
+### Specification: session and radio entry follow-up
+
+Added five checked entry-failure continuations: commission release, conditional
+resume, radio capacity admission, publication and recipient removal. Recorded
+GETMSG's search-failure indicator clearing separately as an unresolved abstract
+reception outcome; did not infer deletion or delivery from stale body storage.
+
+Validation: logs/spec-session-radio-entry-review.log checks source branches;
+logs/spec-session-radio-entry-build.log passed 658 scenarios, 100 productions,
+324 fragments, 14 chapters and 546 links. Inspected PDF physical pages 21–22;
+table and continuation text readable. No gameplay/archive changes. Full goal
+remains active, including reception-failure and concurrency semantics.

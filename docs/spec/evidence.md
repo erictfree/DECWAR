@@ -318,3 +318,29 @@ caller: commission release, resume and shared-service operations retain their
 separate clauses. Reentrant entry, interruption while entering and environment
 failure causes remain unresolved. No universal timeout or new failure
 probability was added.
+
+
+## Session and radio entry-failure follow-up
+
+FREE (DECWAR.FOR 1089–1092) checks availability once, then retries WORLD_CHANGE
+entry before the first sector/count update. RSTART (1142–1147) checks roster
+position and saved-sector occupancy before its retry label; the retry does not
+repeat either query. This establishes local branch order, not an atomic claim
+on the previously observed ship or sector. The unresolved environment binding
+of RSTART remains unchanged.
+
+WARMAC.MAC RSRV. (2603–2607) returns immediately on entry failure; MAKMSG
+(2985–2987) propagates that failure before body copying. UPDT. (2651–2655) and
+REMV. (2715–2719) retry before publication and recipient removal respectively.
+These paths agree with the existing publication contract and now appear in the
+central continuation table.
+
+SRCH. (2683–2692) is different: entry failure returns through the same no-result
+continuation used for a search with no match. GETMSG (3037–3048) then clears the
+receiver's message-count indicator and sender/recipient output indicators;
+REMV. is never reached. The message body storage is not initialized on this
+path. This is not evidence that all unread messages were deleted, nor enough
+to invent a normal delivered-message result from stale body contents. The
+abstract reception failure outcome and the notification-indicator normalization
+remain unresolved. This follow-up therefore does not claim a complete radio
+failure contract or atomic selection-and-removal operation.
