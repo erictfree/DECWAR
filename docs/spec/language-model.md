@@ -14,6 +14,7 @@ observe; they do not require mutable objects, tables or a particular database.
 abstract type GameState
 
 query ship(game: GameState, id: ShipId) -> Ship
+query base(game: GameState, id: BaseId) -> Base
 query planet(game: GameState, id: PlanetId) -> Planet
 query captain(game: GameState, id: CaptainId) -> Captain
 query world(game: GameState) -> World

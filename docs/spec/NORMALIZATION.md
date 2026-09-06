@@ -123,9 +123,9 @@ different discovery effects. The spec retains this difference.
 Repeated Romulan groups retain their observable summary multiplicity, expressed
 as a count of qualifying selections. This requires neither a shared accumulator
 nor a reference argument modified by the output formatter. It does not imply
-more than one Romulan in the galaxy. Invalid name-duplicate checks and mixed
-selector paths remain review items; arbitrary reads of unrelated state are not
-made into a generalized rejection rule.
+more than one Romulan in the galaxy. The later galaxy-report ADT review below resolves named-group precedence and
+normalizes the invalid name-duplicate check; arbitrary reads of unrelated state
+are not made into a generalized rejection rule.
 
 POINTS ratios use ordinary division in displayed score units. Internal integer
 division is excluded. Zero denominators are explicitly unresolved instead of
@@ -695,3 +695,99 @@ through an independently maintained black-hole inventory.
 Sources: Austin DECWAR.FOR SET 3624–3737, profile table 480–488, ENDGAM 961–992;
 WARMAC.MAC USRNAM 3415–3458. This is a specification-only conversion; no game
 code, terminal server or preserved source bytes changed.
+
+
+## Galaxy-report ADTs, selection precedence and labels
+
+ReportGalaxy now takes ReportVerb and Token arguments and emits typed detail,
+terrain, summary and diagnostic observations. ReportGroup names selected kinds,
+affiliations, modes, range, named identities, exact position and closest choice.
+This is a semantic interpretation of the ordered grammar, not a replacement
+unordered query syntax. ReportContext captures the acting position and team.
+Pregame SUMMARY's whole-galaxy count-only path requires neither an invented
+position nor an adjacent field read: every matching entity is countable under
+either near/friendly admission or whole-game summary disclosure. Actor-dependent
+selectors remain rejected there.
+
+AdmitReportEntity and ReportAdmission distinguish admitted modes, out-of-range
+telemetry and privileged disclosure. Source presence tests for ships require a
+commission and a nonempty sector at the ship's position, not agreement with a
+ship marker; HELP/GRIPE's temporary black hole therefore passes. Report telemetry
+names current Ship, Base, Planet or Romulan properties. Base strength is optional
+for concealed detail; ship/Romulan concealment replaces both position and strength.
+Planet builds remain current even for remote known planets. Coordinate formatting
+uses the current actor position, whereas eligibility uses the saved origin.
+
+Exact-position output precedes named output when both selectors are present;
+named output precedes filtering/CLOSEST. ROMULAN has only its duplicate check,
+so it may follow otherwise restrictive selectors. Exact positions still undergo
+the group distance limit; named output does not suppress its identity/detail
+call when that limit fails. Named telemetry concealment still follows the
+remote/nonfriendly/privilege test. Direct output does not discover installations.
+
+LSTSCN's duplicate-name test reads singular SHIP, which is not the SHIPS set
+being accumulated and is not initialized by this routine. Reproducing rejection
+from that unrelated value would contradict the user's exclusion of accidental
+state dependencies. The generalized namedShips set therefore retains the
+source's successful union effect: repeated occurrences select the identity
+once. This does not replace the test with an invented duplicate-name error.
+Named ROMULAN repetition has its own initialized selector flag and remains an
+error. A leading empty group invokes defaults; later empty/trailing groups reject.
+
+Deferred modes are unioned per identity. Out-of-range and privileged-disclosure
+properties are retained from contributing admissions, preserving their effect
+on telemetry and post-detail knowledge updates. Ordinary ship/base/planet
+counts deduplicate identities. Romulan multiplicity counts every admitted
+ordinary group, including detail-only groups, when any merged group asks for a
+summary; direct queries do not contribute.
+
+Class summary labels collect scope evidence from attempted ordinary candidates,
+including rejected ones. The known qualifier can survive merging with broader
+whole-game counts; it is not a claim that all counted installations are known.
+Target labels collect only remote nonfriendly unprivileged evaluations, including
+direct paths. With no target label evidence the label defaults to sensor range.
+No-match labels instead default to whole galaxy if there were no candidates;
+its initial/observed known qualifier follows LSTFLG/LSTUPD. These preserve
+observable labels without retaining packed flags or count-by-reference storage.
+Terminal formatting and concurrent removal/replacement remain incomplete.
+
+Sources: Austin DECWAR.FOR LIST 1359–1388, LSTSCN 1519–1744, LSTFLG/LSTUPD
+1750–1956, LSTOUT/LSTSUM/LSTOBJ 1959–2141, PRLOC 3078–3099;
+PARAM.FOR selector definitions 95–124 and LSTVAR.FOR local declarations.
+No gameplay, server, archive or generated source-data changes.
+
+
+## Privilege and diagnostic observations
+
+SetPrivilege names Captain.privileged and accepts an optional Token. Its exact
+match uses the existing five-character lexical representation, so a retained
+*MINK also matches when the original token had an additional suffix. There is
+no new full-raw-token authentication check, category guard or prompt. Omitted
+or nonexact values clear privilege; account restrictions in commented source
+statements do not become active rules.
+
+ReportDiagnostics checks that same property before querying OperationTiming
+observations. The environment query supplies name, completed count, total
+execution duration and maximum duration in first-registration order. Registered
+zero-call measurements and the empty header-only report remain visible. Reports
+do not reset collected values. Timer storage addressing, packed conversion and
+unbounded reads after instrument-table exhaustion are not ADT semantics; the
+instrumentation and clock/capacity binding remains open. The KILCHK privilege
+assignment is not an unconditional startup reset: its call path must be established
+before adding any broader lifecycle rule from that isolated statement.
+
+Sources: Austin PASWRD (DECWAR.FOR 2626–2644), password PARAM.FOR 15,
+EQUAL (WARMAC.MAC 3675–3715), TIMIN/TIMOUT/TIMSRC/DEBUG (3606–3673).
+No game code or source archive changes.
+
+
+The exact-position review also resolves a BASES disclosure exception. LSTFLG
+accepts a coordinate when LSTUPD admits any mode, rather than requiring detail.
+BASES starts with both detail and summary over the whole galaxy, so an unknown
+remote base/ship/Romulan can pass through summary-only admission and then receive
+an immediate detail call. Base position remains visible with strength withheld;
+ship/Romulan telemetry is out of range. Discovery is unchanged. LIST's default
+detail-only path cannot use this exception, and remote terrain fails before
+object admission. The earlier broad remote-coordinate restriction was narrowed
+accordingly; no source predicate was replaced with an invented detail-only test.
+Evidence: Austin DECWAR.FOR LSTFLG 1750–1800 and LSTUPD 1925–1945.

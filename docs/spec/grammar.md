@@ -291,14 +291,15 @@ parse an argument list; do not invent an extra-token syntax error for them.
 
 ```
 list-family = (kw(LIST) | kw(SUMMARY) | kw(BASES) | kw(PLANETS) | kw(TARGETS))
-              [group {group-end group}]
+              [group] {group-end group}
 group-end = kw(AND) | kw(&)
 ```
 
 Each group is an ordered series of selectors. AND and `&` terminate a group
 before other keyword matching; thus a token such as A that matches AND is not
-a generic abbreviation for ALL in this context. A lone command uses defaults.
-An empty later group is an error. Groups accumulate selections for final output;
+a generic abbreviation for ALL in this context. A lone command or an empty
+first group uses defaults. An empty later group, including after a trailing
+separator, is an error. Groups accumulate selections for final output;
 a coordinate or explicitly named object may be reported immediately.
 
 | Command | Initial object set | Initial side set | Initial output | Initial range |
@@ -334,6 +335,7 @@ range and output selectors have conflict rules rather than free commutativity:
   ship and cannot accompany a coordinate.
 - A side selector cannot follow another side selector or a coordinate. FRIENDLY
   and ENEMY require an acting ship. FRIENDLY excludes Romulan; ENEMY includes it.
+  A prior named ROMULAN also conflicts with a later side selector.
 - SHIPS/BASES reject a previous object selector or NEUTRAL/CAPTURED selection.
   PLANETS rejects a previous object selector. NEUTRAL/CAPTURED constrain the
   object set to planets and reject another side or a nonplanet object selector.
@@ -348,8 +350,12 @@ range and output selectors have conflict rules rather than free commutativity:
 - Explicit LIST/SUMMARY output selectors reject prior output, coordinate,
   CLOSEST or named-object selectors. Their interaction with the command's
   default output is retained, including LIST SUMMARY selecting both modes.
-- Ship names reject prior selectors other than named objects/Romulan; repeated
-  ship-name selection remains under review. ROMULAN cannot repeat.
+- Ship names reject prior selectors other than named objects/Romulan. Repeated
+  ship names select the same identity once. ROMULAN cannot repeat, but may follow
+  other selectors without their reciprocal restrictions. In particular,
+  PLANETS ROMULAN can select the named Romulan, whereas ROMULAN PLANETS conflicts.
+  A coordinate path takes precedence over named ROMULAN when both occur;
+  otherwise named selection takes precedence over ordinary filters or CLOSEST.
 
 Illegal keywords and selector conflicts diagnose and abort further processing.
 Their exact diagnostic text will be specified with the report responses.

@@ -2537,3 +2537,56 @@ remaining command conversions are the five galaxy-report commands, *PASSWORD
 and *DEBUG. Lifecycle/concurrency, terminal bindings, CompuServe amendments and
 whole-book consistency/conformance remain. No gameplay or preserved source
 changed; unrelated experiments, status edits and log entries remain unstaged.
+
+
+## 2026-09-05 — Main-command ADT pass completed; report semantics refined
+
+Converted LIST, SUMMARY, BASES, PLANETS and TARGETS through ReportGalaxy,
+ReportGroup/Context/Entity, typed telemetry and summary observations,
+ReportAdmission and ObserveReportDetail. Added the base identity query. Defined
+saved distance origins, the pregame whole-galaxy count-only domain, immediate
+versus deferred observations, discovery updates, accumulated disclosure, output
+ordering and range-label evidence. Retained current ship/base/planet properties
+without prescribing masks, arrays or storage layout.
+
+Source review resolved leading/trailing empty groups, named/coordinate/filter
+precedence and the asymmetry of ROMULAN selector order. Named ship repetition
+now has the source union effect; the unrelated uninitialized SHIP duplicate guard
+is excluded under the documented normalization policy, not replaced with a new
+duplicate-name error. A named query can report despite an explicit range failure;
+exact-position queries still check their group range. Late review caught BASES'
+default count-mode exception: a remote unknown base/ship/Romulan at an exact
+coordinate can be identified with concealed telemetry, without discovery. LIST's
+detail-only default cannot use that path; remote terrain remains excluded.
+
+Converted *PASSWORD to SetPrivilege, preserving exact retained-token matching,
+suffix truncation, privilege clearing and silent completion. Converted *DEBUG
+to ReportDiagnostics and added OperationTiming plus its environment observation
+query. Preserved registration order, zero-call rows, header-only output and
+non-resetting reports. Instrumentation/time-unit/failure binding remains open.
+All 33 main-game commands now have draft grammar and ADT operation contracts;
+that is not a complete grammar, lifecycle or conformance claim.
+
+Evidence: Austin DECWAR.FOR LIST 1359–1388; LSTSCN 1519–1744;
+LSTFLG/LSTUPD 1750–1956; LSTOUT/LSTSUM/LSTOBJ 1959–2141; PRLOC 3078–3099;
+PASWRD 2626–2644; PARAM.FOR selector constants 95–124 and password 15;
+LSTVAR.FOR declarations; WARMAC.MAC timing/DEBUG 3606–3673 and EQUAL 3675–3715.
+Added EX-MODEL-288 through EX-MODEL-313 covering these distinctions.
+
+Validation: source audit passed (135 hashes, 83 declarations, 33 main and
+16 pregame commands, 324 strings). All three book builds passed. The final
+132-page book checked 13 chapters, 290 links, 313 scenario rows and 324 source
+message fragments. Reviewed rendered report types/admission pages 54–55 and 57,
+then final pages 58, 60, 71–72, 99, 129 and 131 for disclosure, privilege,
+diagnostic types and examples; fresh 120-dpi renders verified final pages 58/131.
+Logs: logs/spec-galaxy-reports-adt-audit.log,
+logs/spec-galaxy-reports-adt-build.log, logs/spec-main-command-adts-build.log,
+logs/spec-main-command-adts-build-2.log. Renders:
+tmp/pdfs/spec-main-command-adts/. Construction checks are not executable tests
+or original-runtime differential verification.
+
+No gameplay/server/archive/generated-source changes. Unrelated experiments,
+status edits and concurrent work-log additions remain outside this checkpoint.
+Next: initial name acquisition and remaining pregame behavior, followed by shared
+lifecycle/operation contracts, concurrency, terminal/environment bindings,
+CompuServe amendments and whole-document consistency/conformance review.

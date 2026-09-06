@@ -1531,7 +1531,7 @@ The commands share ordered selection groups, but have different defaults.
 ### Syntax and defaults
 
 ```text
-ReportCommand ::= ReportVerb [Group {GroupEnd Group}]
+ReportCommand ::= ReportVerb [Group] {GroupEnd Group}
 ReportVerb ::= "LIST" | "SUMMARY" | "BASES" | "PLANETS" | "TARGETS"
 GroupEnd ::= "AND" | "&"
 Group ::= one or more selectors accepted for the chosen ReportVerb
@@ -1553,14 +1553,109 @@ A token matching AND ends the group before other keywords are considered.
 | TARGETS | Detail for opposing ships, bases and planets, plus the Romulan, within ten sectors. |
 
 These defaults start afresh for each group. A bare command uses one default
-group. Later empty groups are errors. An illegal keyword or selector conflict
+group. An empty first group before AND or & also uses those defaults. Later
+empty groups, including an empty group after a trailing separator, are errors.
+An illegal keyword or selector conflict
 stops further processing. No partial deferred report is printed after a parsing
 error; rows already produced by earlier direct queries remain visible.
 
-An abstract group describes object kinds, affiliations, requested detail/count
-results, range, and any named-object, exact-position or closest selection. It
-does not change the world's objects. The command records the acting ship's
-position when it begins and uses that position for its distance calculations.
+### Types and operation
+
+```text
+enum ReportVerb = LIST | SUMMARY | BASES | PLANETS | TARGETS
+enum ReportKind = SHIP | BASE | PLANET
+enum ReportMode = DETAIL | COUNT
+type ReportAffiliation = Team | NEUTRAL | ROMULAN
+type ReportRange = SensorRange | SpecifiedRange(positive integer)
+                 | WholeGalaxy
+
+record ReportGroup:
+    kinds: Set<ReportKind>
+    affiliations: Set<ReportAffiliation>
+    modes: Set<ReportMode>
+    range: ReportRange
+    namedShips: Set<ShipId>
+    namedRomulan: Boolean
+    exactPosition: Optional<Position>
+    closest: Boolean
+
+record ReportContext:
+    viewer: CaptainId
+    verb: ReportVerb
+    origin: Optional<Position>
+    team: Optional<Team>
+
+type ReportEntity = ShipEntity(ShipId) | BaseEntity(BaseId)
+                  | PlanetEntity(PlanetId) | RomulanEntity
+
+type ReportError = IllegalSelector(Token) | SelectorConflict(Token)
+                 | IllegalPosition(integer, integer) | EmptyGroup
+
+operation ReportGalaxy(viewer: CaptainId, verb: ReportVerb,
+                       arguments: Sequence<Token>)
+    on GameState -> Reported | Rejected(ReportError)
+```
+
+ReportGroup describes the meaning of one legally parsed group. It is not an
+alternative input syntax: the ordered grammar determines which combinations
+of its properties can be obtained. Initialize each group from the defaults
+above, with no named ships, namedRomulan false, exactPosition none and closest
+false. Apply the selector effects in input order.
+
+Let c be captain(game, viewer) and w be world(game). With an acting ship s,
+the context records s.position as origin and s.team as team when ReportGalaxy
+begins. Later changes to the acting ship's position do not replace that origin
+for distance tests. In pregame, only SUMMARY is available from this family;
+origin and team are absent. A pregame whole-galaxy summary counts the selected
+objects without requiring a sensor origin. Selectors requiring an acting ship
+remain unavailable there.
+
+ReportGalaxy parses and evaluates one group at a time. Immediate observations
+are emitted during evaluation. Ordinary selections accumulate for deferred
+reporting after all groups have been processed. A selector error returns
+Rejected and abandons deferred output; earlier immediate observations remain.
+Successful completion returns Reported, even if a group found no matching
+object. Output does not by itself complete a game turn.
+
+The following observation types separate game information from its textual
+format. A detail's telemetry must correspond to its entity kind.
+
+```text
+type ReportTelemetry = ShipTelemetry(Position, ShieldMode, Percentage)
+                     | RomulanTelemetry(Position, Percentage)
+                     | BaseTelemetry(Position, Optional<Percentage>)
+                     | PlanetTelemetry(Position, integer)
+                     | OutOfRange
+
+record ReportDetail:
+    entity: ReportEntity
+    opposingMarker: Boolean
+    telemetry: ReportTelemetry
+
+enum TerrainKind = EMPTY | STAR | BLACK_HOLE
+enum ReportScopeLabel = SENSOR_RANGE | SPECIFIED_RANGE | WHOLE_GALAXY
+type SummaryClass = RomulanSummary | ShipSummary(Team)
+                  | BaseSummary(Team) | PlanetSummary(Optional<Team>)
+                  | TargetSummary
+
+record ReportSummary:
+    category: SummaryClass
+    count: positive integer
+    scope: ReportScopeLabel
+    knownQualifier: Boolean
+
+type GalaxyReportObservation = Detail(ReportDetail)
+    | Terrain(TerrainKind) | Summary(ReportSummary)
+    | ShipAbsent(ShipId) | RomulanDisabled | RomulanAbsent
+    | SensorRangeExceeded(Position) | NoObjectAt(ReportVerb, Position)
+    | NoMatches(ReportGroup, ReportScopeLabel, knownQualifier: Boolean)
+```
+
+OutOfRange replaces both position and strength for a ship or Romulan.
+A base always discloses position when its detail is admitted, but its optional
+strength can be absent. A planet detail contains its current builds value;
+zero is omitted by the display convention. Terrain observations belong only
+to LIST's exact-position path. Summary counts do not disclose positions.
 
 ### Selector effects
 
@@ -1592,8 +1687,10 @@ Only one explicit output selector is accepted in a group.
 
 Process ordinary candidate objects in this order: the Romulan if present, ships
 in roster order, Federation bases then Empire bases in base-identity order,
-then planets in their current order. Skip uncommissioned ships and ships with
-no galaxy presence; skip bases with nonpositive strength. Apply the group's
+then planets in their current order. For a ship r, require r.commissioned,
+a present r.position, and a nonempty sector at that position. The sector need
+not contain that ship's own marker; a HELP/GRIPE temporary black-hole sector
+passes this presence test. Skip bases with nonpositive strength. Apply the group's
 object-kind and affiliation selection before visibility checks.
 
 For each candidate let d be its distance from the saved acting position. Normal
@@ -1625,6 +1722,45 @@ whole-game disclosure rule: it remains a specified-range query. In particular,
 SUMMARY can count unknown remote bases or planets, but a specified-range summary
 requires their prior discovery when they are beyond normal sensor range.
 
+For a group g, SensorRange imposes a distance limit of ten, SpecifiedRange(n)
+imposes n, and WholeGalaxy imposes no distance limit. The distinction between
+these range values remains observable through disclosure and summary labels.
+The following operation expresses ordinary filtered admission:
+
+```text
+record ReportAdmission:
+    modes: Set<ReportMode>
+    outOfRange: Boolean
+    privilegedDisclosure: Boolean
+
+operation AdmitReportEntity(context: ReportContext, group: ReportGroup,
+                            entity: ReportEntity)
+    on GameState -> ReportAdmission
+```
+
+The candidate has already passed kind, affiliation and presence selection.
+Within this operation let c be captain(game, context.viewer) and w be world(game).
+Use its Ship.position/team, Base.position/team, Planet.position/owner, or
+the current Romulan.position and ROMULAN affiliation. A neutral planet has
+NEUTRAL affiliation. Let requested be group.modes and start with both Boolean
+admission properties false.
+
+Within ten sectors, or when the candidate belongs to context.team, admit
+requested modes if the group distance limit permits. Otherwise, if c.privileged,
+set privilegedDisclosure true and apply the same distance limit. Without that
+privilege set outOfRange true and apply the remote-discovery rules above.
+An omitted candidate has an empty modes set. For remote installations, the
+knowledge tests are membership in the appropriate sets:
+
+```text
+BaseEntity(id):   id in w.knowledge[context.team].knownBases
+PlanetEntity(id): id in w.knowledge[context.team].knownPlanets
+```
+
+The pregame whole-galaxy COUNT-only case admits
+COUNT directly; no absent origin or team is read. Admission changes no game
+state. A CLOSEST search uses this eligibility, then applies its tie rule.
+
 For CLOSEST, an eligible candidate at a distance equal to the current nearest
 distance replaces it. Thus ties choose the last eligible object in the candidate
 order above. The chosen sector is reported through the exact-position path
@@ -1635,6 +1771,10 @@ its identity appears in a whole-game LIST.
 
 LIST and TARGETS can name ships or ROMULAN. Report requested ships in roster
 order, after the Romulan if requested, independently of their order in the input.
+Repeated ship-name occurrences select that identity once. Repeating ROMULAN
+is a selector conflict. Named groups ignore affiliation filters when reporting
+the named identities. Named ship availability uses the same commission,
+position and nonempty-sector requirements as ordinary ship selection.
 An absent ship is reported as not in the game. Naming ROMULAN distinguishes
 Romulan activity being disabled from the Romulan being temporarily absent.
 A present remote enemy ship or Romulan can be identified, but its coordinates
@@ -1650,11 +1790,34 @@ describe a star, black hole or empty sector. The other commands diagnose the
 absence of their requested kind. A remote empty sector, star or black hole
 exceeds sensor range even with privilege.
 
-For remote nonfriendly installations, an exact-position query requires prior
-discovery or privilege. A remote enemy ship or Romulan selected by position
-requires privilege. Successful exact-position and named-object queries print
+For remote nonfriendly installations, LIST's exact-position query requires prior
+discovery or privilege. Identifying a remote enemy ship or Romulan by position
+also requires privilege, except through the BASES rule below.
+Successful exact-position and named-object queries print
 immediately, before later groups and any deferred report. They do not themselves
 add an installation to faction knowledge. CLOSEST uses this same immediate path.
+
+The exact-position path still applies the group's distance limit. In particular,
+TARGETS and PLANETS default to ten even for a privileged coordinate query.
+An exact-position query succeeds when at least one of its result modes is
+admitted, including COUNT. BASES retains its default whole-galaxy range and
+both result modes on this path. It can therefore identify an undiscovered
+remote base, ship or Romulan through COUNT admission. The resulting base detail
+contains its position but no strength; ship and Romulan details use OutOfRange
+telemetry. This still does not update discovery knowledge. The rule does not
+extend BASES to planets or permit remote terrain observations.
+
+Named-object reporting identifies the selected name even when a supplied
+distance would exclude it from ordinary selection. Its telemetry is concealed
+only for a remote nonfriendly object without privilege; this named path does
+not use distance-limit failure to suppress the row.
+
+When a legal group contains both an exactPosition and namedRomulan, the exact
+position takes precedence. Otherwise any named ship or namedRomulan selects
+the named path; closest and other filter properties do not replace that path.
+For example, ROMULAN may follow a kind selector and redirect the group to its
+named Romulan query. The grammar still rejects the reversed order when the
+kind selector conflicts with the already named object.
 
 ### Detail, summaries and knowledge
 
@@ -1663,6 +1826,36 @@ once per selected object, in the candidate order above. A direct row produced
 earlier does not suppress that object's later deferred row. Use the currently
 available object data at the time of reporting; the command is not an indivisible
 world snapshot.
+
+For each ordinarily admitted entity, accumulate the union of admitted modes.
+Retain outOfRange if any admission contributing to that entity had it set,
+and likewise retain privilegedDisclosure. An immediate observation does not
+contribute to this accumulation. After all groups are processed, emit deferred
+details and counts in this order: Romulan detail then summary; ship details
+then faction ship summaries; base details then faction base summaries; planet
+details then planet summaries. TARGETS instead emits its combined target
+summary after these details, while retaining a requested Romulan summary.
+
+```text
+operation ObserveReportDetail(context: ReportContext,
+                              entity: ReportEntity, outOfRange: Boolean)
+    on GameState -> ReportDetail
+```
+
+ObserveReportDetail reads the entity's current properties. For a player ship s,
+visible telemetry is ShipTelemetry(s.position, s.shields.mode, s.shields.strength).
+For a base b it is BaseTelemetry(b.position, b.strength), replacing strength
+with none when outOfRange. For a planet p it is PlanetTelemetry(p.position,
+p.builds). A visible Romulan has its current position and one percentage point
+of displayed strength per ten energy units. For a ship or Romulan, outOfRange
+instead produces OutOfRange telemetry.
+
+The returned entity is unchanged. opposingMarker is true for a Romulan or an
+object owned by the opposing faction, except that TARGETS sets it false for
+every detail. ObserveReportDetail changes no state; emitting the resulting
+Detail observation is followed by discovery only on the deferred path below.
+Position telemetry denotes the absolute position. Relative terminal coordinates
+use the viewer's position when formatted, not the saved distance-test origin.
 
 | Object | Detail information |
 | --- | --- |
@@ -1678,7 +1871,14 @@ followed by a percent sign outside SHORT output. This is its established report
 scale; it does not change the energy used by combat rules.
 
 After a deferred base or planet detail row, add that identity to the acting
-faction's knowledge, unless it was admitted only through privilege. Summary-only
+faction's knowledge, unless accumulated privilegedDisclosure is true:
+
+```text
+BaseEntity(id):   w.knowledge[context.team].knownBases += {id}
+PlanetEntity(id): w.knowledge[context.team].knownPlanets += {id}
+```
+
+These updates require a present context.team. Summary-only
 selection does not reveal a location and does not update knowledge.
 
 Ordinary summaries follow their object class: Romulan; Federation and Empire
@@ -1693,17 +1893,40 @@ summary counts the qualifying group selections of the Romulan; repeated groups
 can therefore produce a count greater than one even though only one Romulan
 exists. This report multiplicity does not create extra Romulans or alter the
 TARGETS total's one-Romulan contribution.
+An ordinary group admitted for DETAIL alone contributes to that Romulan count
+too, if another ordinary group subsequently requests COUNT. Immediate named or
+coordinate observations do not contribute to it.
 
-Summary labels distinguish ordinary sensor range, explicitly specified range,
-and the whole game. Whole-game wording takes precedence when results from several
-scopes are combined; specified-range wording takes precedence over ordinary
-range. A known-object qualification accompanies restricted remote discovery.
-Complete label aggregation and exact terminal formatting remain under review.
+Summary scope labels distinguish sensor range, specified range and the whole
+galaxy. Each attempted ordinary candidate contributes its group's scope to
+the labels of its object class and affiliation, even when it is not admitted.
+Across groups, WHOLE_GALAXY takes precedence over SPECIFIED_RANGE, which takes
+precedence over SENSOR_RANGE. The knownQualifier becomes true when any such
+candidate lies beyond ten sectors, is nonfriendly, is not disclosed through
+privilege, and is examined with a specified distance greater than ten.
+The qualifier remains true when other groups contribute broader counts; it
+does not retrospectively filter those counts to known installations.
+
+TargetSummary uses label evidence only from candidate evaluations that are
+beyond ten sectors, nonfriendly and not privileged. This includes immediate
+queries and candidates that fail admission. Combine that evidence with the
+same scope precedence and known-qualification rule; with no evidence the
+target scope is SENSOR_RANGE. Thus a whole-galaxy target query whose candidates
+are all nearby can still label its target total as in sensor range.
 
 If a group selects no eligible object, report that absence and continue with
 later groups. Distinguish unknown remote objects from an empty matching set in
-the established report wording. Exact formatting of these diagnostics, mixed
-named/filtered selector edge cases and concurrent changes remain open.
+the established report wording. Emit NoMatches with a knownQualifier initially
+true for a specified distance greater than ten when the affiliations are not
+exactly the acting faction alone. Also set it true upon examining any remote,
+nonfriendly, unprivileged candidate with a distance limit greater than ten or
+WholeGalaxy. Its scope label combines the attempted candidates' group scopes;
+when there were no attempted candidates, use WHOLE_GALAXY. A failed CLOSEST
+search uses this same absence observation.
+
+**Open:** Exact terminal rendering, interrupted output and concurrent changes
+that remove or replace an entity between selection and its detail remain part
+of the report and multiplayer work. No whole-command snapshot is implied.
 
 These commands do not spend energy, complete a turn, repair devices or change
 physical objects. Their persistent game effect is the knowledge update described
@@ -2377,6 +2600,9 @@ release or lost under the bounded pending-message policy.
 
 ```text
 PasswordCommand ::= "*PASSWORD" [PasswordToken]
+
+operation SetPrivilege(viewer: CaptainId, candidate: Optional<Token>)
+    on GameState -> PrivilegeSet(Boolean)
 ```
 
 The Austin password is `*MINK`. Compare the retained token exactly, using the
@@ -2384,6 +2610,17 @@ language's case transformation; a prefix is insufficient. An exact match enables
 session privilege. Any other value, including an omitted password, clears it.
 There is no password prompt or success/failure text in this command. Ignore
 further arguments. It changes no resources and completes no turn.
+
+Let c be captain(game, viewer). Set c.privileged to true exactly when candidate
+is present and candidate.text is an exact keyword match for *MINK under LEX-6;
+otherwise set it to false. Return PrivilegeSet(c.privileged). The operation
+does not require prior privilege or an acting ship, and changes no other
+Captain, Ship or World property. The command passes its first argument, or
+none when absent. There is no separate token-category requirement.
+
+The lexical five-character retention still applies: a longer token whose first
+five transformed characters are *MINK matches exactly under this rule. This
+does not introduce a second comparison against the unretained input suffix.
 
 Privilege affects the commands and observations that explicitly test it. It
 does not rename a ship, change factions or make every game rule optional. The
@@ -2396,14 +2633,25 @@ password's representation is not a new authentication protocol.
 
 ```text
 DebugCommand ::= "*DEBUG"
+
+operation ReportDiagnostics(viewer: CaptainId)
+    on GameState -> Reported | Rejected(UnknownCommand)
 ```
 
-Without privilege, report an unknown command and the help hint. With privilege,
-report collected execution-timing observations under the headings Name, Calls,
+Let c be captain(game, viewer). If c.privileged is false, report an unknown
+command and the help hint, then return Rejected(UnknownCommand). Do not query
+or disclose timing observations on that path. Otherwise call the environment's
+observeOperationTimings(viewer) query defined in the session chapter.
+Emit its observations in the returned order under the headings Name, Calls,
 Total and High: the measured operation's name, completed call count, total
 execution time and largest measured call time. These are diagnostic observations,
-not ship scores or game turns. Which operations are instrumented, their reporting
-order and the time-unit binding remain environment-dependent research items.
+not ship scores or game turns. Include a registered observation even when its
+completed call count is zero. With no registered observations, emit the header
+and no rows. Return Reported. Do not reset collected counts or durations.
+
+The ordinary registration order is the report order. The set of instrumented
+operations, exhausted instrumentation capacity, unavailable clock readings and
+the displayed time-unit binding remain environment-dependent research items.
 
 The command ignores trailing arguments and changes no game resources, scores or
 turn counts. Its availability before commissioning does not create a ship.

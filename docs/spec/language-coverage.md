@@ -7,7 +7,7 @@ not make it a complete language-level definition in the assembled book.
 
 ## Converted command clauses
 
-All 33 main-game commands now have drafted grammar and semantic clauses. The
+All 33 main-game commands now have drafted grammar and ADT operation contracts. The
 remaining dependencies below still limit end-to-end conformance claims.
 
 | Command | Grammar and semantic clause | Remaining dependencies |
@@ -26,15 +26,15 @@ remaining dependencies below still limit end-to-end conformance claims.
 | CAPTURE | [CAPTURE](commands.md#capture): explicit ADT operation contract. | Surrender-refusal conditions, final lifecycle and responses; former-faction docking ordering is specified. |
 | PHASERS | [PHASERS](commands.md#phasers): ADT operation contract. | Concurrent target changes, random distributions and complete delivery/presentation. |
 | TORPEDOS | [TORPEDOS](commands.md#torpedos): ADT operation contract. | Malformed continuations, concurrent target changes and complete delivery/presentation. |
-| LIST, SUMMARY, BASES, PLANETS, TARGETS | [Galaxy reports](commands.md#list-summary-bases-planets-and-targets) | Mixed selector edge cases, label aggregation, concurrent reporting and terminal presentation. |
+| LIST, SUMMARY, BASES, PLANETS, TARGETS | [Galaxy reports](commands.md#list-summary-bases-planets-and-targets): ADT operation contract. | Exhaustive selector-order coverage, concurrent reporting, interrupted output and terminal presentation. |
 | POINTS | [POINTS](commands.md#points): ADT operation contract. | Zero-denominator presentation, concurrent counts and terminal formatting. |
 | TYPE | [TYPE](commands.md#type): ADT operation contract. | Unselected terminal profile, concurrent observations and terminal formatting. |
 | TIME | [TIME](commands.md#time): ADT operation contract. | Environment clock/accounting binding and duration formatting. |
 | USERS | [USERS](commands.md#users): ADT operation contract. | Session metadata binding, admission interleavings and terminal formatting. |
 | SET | [SET](commands.md#set): ADT operation contract. | Unselected terminal profile, nonprinting name characters, world termination and responses. |
 | TELL | [TELL](commands.md#tell): ADT operation contract. | Full multiplayer publication/receipt conditions and terminal presentation. |
-| *PASSWORD | [*PASSWORD](commands.md#password) | Complete session privilege lifecycle. |
-| *DEBUG | [*DEBUG](commands.md#debug) | Instrumentation selection and environment timing binding. |
+| *PASSWORD | [*PASSWORD](commands.md#password): ADT operation contract. | Complete session privilege lifecycle. |
+| *DEBUG | [*DEBUG](commands.md#debug): ADT operation contract. | Instrumentation selection and environment timing binding. |
 | HELP | [HELP](commands.md#help): ADT operation contract. | Concurrent temporary-sector effects, complete text/presentation binding. |
 | NEWS | [NEWS](commands.md#news): ADT operation contract. | Full control/terminal binding and environment resource failures. |
 | GRIPE | [GRIPE](commands.md#gripe): ADT operation contract. | Context rendering, partial storage failures and concurrent temporary-sector effects. |
@@ -47,8 +47,8 @@ not complete end-to-end conformance claims.
 
 ## Remaining command work
 
-A clause for every command is not a complete command specification. Convert the
-older pseudocode clauses to ADT contracts, close the dependencies above, and
+A clause for every command is not a complete command specification. Review the
+contracts together, close the dependencies above, and
 complete pregame *ZAP, name acquisition and remaining startup/admission edge cases. Command
 coverage does not establish lifecycle, concurrency or terminal conformance.
 
@@ -57,15 +57,15 @@ coverage does not establish lifecycle, concurrency or terminal conformance.
 - Abstract model: game-state ADT and operation-contract notation introduced;
   SHIELDS, RADIO, ENERGY, DOCK, REPAIR, SCAN, SRSCAN, STATUS, DAMAGES,
   TRACTOR, MOVE, IMPULSE, BUILD, CAPTURE,
-  PHASERS, TORPEDOS, POINTS, TYPE, TIME, USERS, SET, TELL, HELP, NEWS, GRIPE, QUIT and
+  PHASERS, TORPEDOS, LIST, SUMMARY, BASES, PLANETS, TARGETS, POINTS, TYPE, TIME, USERS, SET, TELL, *PASSWORD, *DEBUG, HELP, NEWS, GRIPE, QUIT and
   message publication/reception/discard use explicit contracts. Mapping/property notation,
   the nine device states and their distinction from hull damage and shield state
   are defined explicitly. Phaser-bank identities and independent deadlines are
-  defined separately from shared device damage. Terminal profiles and world-ended state, token categories, acquired-line/command input values, radio service and message observations, scan marks/rows,
+  defined separately from shared device damage. Report groups, admissions, telemetry and summary observations, terminal profiles and world-ended state, token categories, acquired-line/command input values, radio service and message observations, scan marks/rows,
   ordered status observations, device-damage rows, type/time/user observations, typed score columns/rows and ratio operands,
   session reporting metadata and commission clock baselines are defined. Sector objects, geometric points/vectors, PathResult,
-  symmetric beam membership and fixed base-identity order are defined. Existing
-  command pseudocode still needs conversion to that form. Identities, quantities,
+  symmetric beam membership and fixed base-identity order are defined. The main-command clauses use that form; shared operations and their dependencies
+  still require review. Identities, quantities,
   roster, installations, radio, tractor associations, preferences and score
   categories drafted; full lifecycle remains.
 - Lexical and command grammar: source-derived clauses retained with normalized

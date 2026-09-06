@@ -28,6 +28,12 @@ record CommissionTiming:
     elapsedOrigin: ClockOrigin
     executionAtStart: Duration
 
+record OperationTiming:
+    name: Text
+    completedCalls: nonnegative integer
+    totalExecution: Duration
+    maximumExecution: Duration
+
 record Session:
     captain: CaptainId
     phase: SessionPhase
@@ -39,12 +45,25 @@ record Session:
     informationActivity: InformationActivity
 
 query session(game: GameState, captain: CaptainId) -> Session
+query observeOperationTimings(captain: CaptainId) -> Sequence<OperationTiming>
 ```
 
 Account, execution and terminal identities are supplied by the environment;
 a captain's display name does not define any of them. The environment binding
 must document their equivalence rules. In particular, returning-player matching
 uses account and execution identity together, not display name or terminal alone.
+
+OperationTiming describes one registered diagnostic measurement in the viewer's
+execution environment. completedCalls counts completed measured calls;
+totalExecution is their cumulative measured duration; maximumExecution is the
+largest such duration. A registered measurement may have no completed calls.
+The observation query returns these records in first-registration order within
+the defined instrumentation domain. Querying does not clear the measurements.
+These durations are separate from ship turns and game scores. Instrumentation
+selection, clock failures, capacity exhaustion and rendering of time units
+belong to the environment binding.
+
+**Source basis:** [timing registration and reporting](../../legacy/utexas/WARMAC.MAC#L3606).
 
 SessionReporting contains the values advertised by the environment for reports.
 For an active commission these values are recorded during admission; USERS does
