@@ -631,3 +631,102 @@ not yet a complete world, combat or session model.
 [new ship state](../../legacy/utexas/SETUP.FOR#L367),
 [distance](../../legacy/utexas/WARMAC.MAC#L3720),
 [radio controls](../../legacy/utexas/DECWAR.FOR#L3129).
+
+## Coordination and overlapping operations
+
+A command can contain a **coordinated phase**: an interval in which another
+session cannot enter a coordinated phase in the same domain. This constrains
+permitted execution order; it does not require a particular threading model,
+mutex, database or storage layout. The Austin core distinguishes two domains:
+
+```text
+enum CoordinationDomain = WORLD_CHANGE | SHARED_SERVICE
+```
+
+WORLD_CHANGE includes the coordinated portions of admission, commission release,
+resume, ship relocation and planet updates. These portions share one domain;
+operating on different planets or distant sectors does not give them independent
+coordination. SHARED_SERVICE includes radio capacity admission, publication,
+message search/removal and administrative statistics clearing. In particular,
+statistics clearing is not independent of radio coordination.
+
+Different domains do not exclude each other by this rule. Uncoordinated actions
+and observations are not excluded merely because another session is in a
+coordinated phase. Thus coordination does not freeze the galaxy, make a complete
+command atomic or guarantee a consistent multirow report.
+
+### Phase boundaries
+
+The following boundaries supplement the relevant operation contracts. Entry
+means successful admission to the coordinated phase. A failed or pending entry
+has not begun that phase; the command's existing refusal or retry rule applies.
+
+| Operation portion | Ordinary boundary | Domain |
+| --- | --- | --- |
+| Admission | Begins before consuming the participant place and deciding galaxy reuse/creation. Ends after an available ship is selected, before its score is cleared and its commission is established. | WORLD_CHANGE |
+| MOVE or IMPULSE relocation | Begins after path selection and energy payment, before changing the actor's sector and position. Ends before tractor following. | WORLD_CHANGE |
+| Fifth BUILD conversion | Begins after the fifth build and its ordinary pending score have been recorded. Ends after planet removal, before the new base's position, strength and sector presence are installed; the no-base-place path ends after restoring build count. | WORLD_CHANGE |
+| CAPTURE update | Begins after adjacency and ownership checks. Includes discovery, faction counts, energy payment and build reset. Ends before the sector's new ownership and the defensive hit. | WORLD_CHANGE |
+| Planet damage by a player or Romulan torpedo | Includes the planet build reduction and any destruction/removal. Ends before publishing the resulting combat notice. | WORLD_CHANGE |
+| Planet damage by a nova | Includes build reduction, its combat notice and any destruction/removal. Ends after those effects. | WORLD_CHANGE |
+| Commission release | Begins before removing the ship's sector presence. Ordinarily ends after unread-message cleanup and marking the ship available, subject to the nested-phase rule below. | WORLD_CHANGE |
+| Radio capacity admission | Includes capacity-loss selection and reservation of a publication place. Ends before copying the accepted body. | SHARED_SERVICE |
+| Radio publication | Includes making the completed message available in publication order. Ends after that update. | SHARED_SERVICE |
+| Radio message search or recipient removal | Each search or removal is a separate phase; selecting a message does not keep the search phase active through the whole reception operation. | SHARED_SERVICE |
+| Administrative statistics clearing | Begins before the administrative feedback record and archive writes. Ordinarily ends at the operation's stated administrative-access release. | SHARED_SERVICE |
+
+These are boundaries within operations, not new commands. Intermediate effects
+outside a listed phase retain their source-defined ordering and are not rolled
+back simply because a later phase cannot begin. In particular, a failed fifth
+BUILD conversion does not imply that its earlier build and score changes never
+occurred. A blocked relocation does not refund the already paid movement cost.
+
+### Nested operations and waiting
+
+Coordination belongs to the session, not to a nested call. Ending any coordinated
+phase ends all coordination then held by that session, in both domains. Returning
+from a nested operation does not restore its caller's former coordination.
+This rule does not end another session's phase.
+
+For example, commission release can enter radio message search while discarding
+unread messages. Completion of that search ends the releasing session's
+WORLD_CHANGE coordination as well as its SHARED_SERVICE coordination, even
+though commission cleanup continues. Do not treat the whole release as an
+indivisible operation on that path. If no such nested phase completes, the
+ordinary release boundary still applies.
+
+Waiting for a command argument or an elapsed-time delay does not, by itself,
+end a coordinated phase. Admission can retain WORLD_CHANGE coordination across
+its faction and ship-choice prompts. Returning to ordinary command acquisition
+ends the session's remaining coordination before pending reports and input
+processing. Environment exit also ends it. These are distinct boundaries; a
+prompt inside an operation is not automatically a return to command acquisition.
+
+There is no FIFO admission, fairness, finite-wait or automatic-timeout guarantee
+in these rules. Failure causes, scheduling and environment termination must be
+stated by the applicable binding. Neither a failure indication nor a diagnostic
+establishes that another captain deliberately refused the action.
+
+**OPEN QUESTION:** Reentrant entry within the same domain, cross-galaxy scope,
+interruptions and every resulting stale-observation case still require the full
+coordination binding. The constraints above do not choose a winner for racing
+ship claims, invent a destination recheck or guarantee that a selected radio
+message remains available while a later phase begins. They establish which
+whole-operation atomicity assumptions are unsupported.
+
+**Source basis:** [coordination domains and release scope](../../legacy/utexas/WARMAC.MAC#L3768),
+[admission boundary](../../legacy/utexas/SETUP.FOR#L163),
+[ship-selection boundary](../../legacy/utexas/SETUP.FOR#L353),
+[relocation boundary](../../legacy/utexas/DECWAR.FOR#L2227),
+[BUILD conversion](../../legacy/utexas/DECWAR.FOR#L551),
+[CAPTURE update](../../legacy/utexas/DECWAR.FOR#L618),
+[nova planet update](../../legacy/utexas/DECWAR.FOR#L2375),
+[Romulan planet update](../../legacy/utexas/DECWAR.FOR#L3496),
+[player torpedo planet update](../../legacy/utexas/DECWAR.FOR#L4387),
+[commission release](../../legacy/utexas/DECWAR.FOR#L1082),
+[radio phases](../../legacy/utexas/WARMAC.MAC#L2603),
+[administrative phase](../../legacy/utexas/WARMAC.MAC#L4636),
+[input waiting](../../legacy/utexas/WARMAC.MAC#L1394),
+[elapsed waiting](../../legacy/utexas/WARMAC.MAC#L3372),
+[command acquisition](../../legacy/utexas/DECWAR.FOR#L1214),
+[environment exit](../../legacy/utexas/WARMAC.MAC#L1060).

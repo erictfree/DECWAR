@@ -263,7 +263,8 @@ ZapStatistics requires the PREGAME phase. If the captain lacks privilege, return
 Ignored without output, recording or archive access. Otherwise:
 
 1. Emit the statistics-clearing announcement. Obtain exclusive access to the
-   administrative statistics resource, retrying until access is obtained.
+   shared service domain, which also coordinates radio operations, retrying until
+   access is obtained under the [coordination rules](language-model.md#coordination-and-overlapping-operations).
 2. Attempt an administrative feedback record with the current feedback context
    and no body lines. Do not prompt for a gripe. Failure to record it does not
    cancel the subsequent statistics operations.
@@ -362,6 +363,12 @@ ship names in the full roster's ordinary first-match order, then must designate
 an available ship in the selected faction. An unrecognized or wrong-faction
 name repeats the choice list; an occupied ship produces the unavailable-ship
 report and repeats the list. Empty ship-choice input also repeats the list.
+
+Selecting an available ship ends admission's coordinated phase before the ship's
+individual score is cleared and its commission is established. Selection alone
+therefore does not atomically reserve that ship. The ordering is defined by
+[coordination boundaries](language-model.md#coordination-and-overlapping-operations);
+the final ownership result of racing claims remains open below.
 
 For the selected ship, clear the individual score and establish the new
 commission with the initial resources in the abstract game model: energy 5000,

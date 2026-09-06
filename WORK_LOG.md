@@ -3128,3 +3128,28 @@ continued scenario IDs against PDF text bounds. Source-structure checks are in
 `logs/spec-users-presentation-source-review.log`; audit passed in
 `logs/spec-users-presentation-audit.log`. No game or archive changes, and no full
 host-binding or concurrent-report equivalence claim. Goal remains active.
+
+
+## Specification checkpoint: Austin coordination boundaries
+
+Added an abstract coordinated-phase model with WORLD_CHANGE and SHARED_SERVICE
+domains, named boundaries within admission, relocation, conversion/capture,
+planet damage, release, radio and administrative operations. Documented that
+administrative statistics clearing shares the service domain with radio, that
+ending a nested phase ends the same session's coordination in both domains,
+and that input/time waiting does not itself end a phase. Admission now explicitly
+ends coordination before score clearing and ship reservation. Added six trace
+examples. The book prescribes overlap constraints rather than memory keys or a
+mutex implementation; reentrancy, races, interruption, cross-galaxy scope and
+full monitor behavior remain open. CompuServe is explicitly not assigned the
+Austin coordination scheme.
+
+Validation: `logs/spec-coordination-build-reviewed.log` passes 100 grammar
+productions, 12 terminal categories, 606 scenario rows, 475 links and 324 message
+fragments. Initial build detected an overfull administrative-service line;
+rewrapped it. Visual review then exposed a poorly allocated table column; moved
+the long boundary descriptions into the wide middle column and rebuilt.
+Reviewed physical pages 18–20, 136, 201 and 211 (page 18 unchanged by the table
+reorder). Source-order checks passed in `logs/spec-coordination-source-review.log`;
+source audit passed in `logs/spec-coordination-audit.log`. No executable/archive
+changes or proof of full scheduler behavior. Full specification goal stays active.

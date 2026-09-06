@@ -390,6 +390,17 @@ above is not a new player-visible rejection in those cases.
 
 **Source basis:** [post-reply choice and ordered relocation](../../legacy/compuserve/fortran%201978/TELL.FOR#L93).
 
+## Coordination amendment status
+
+The Austin [coordination domains and nested-phase rule](language-model.md#coordination-and-overlapping-operations)
+are not a completed CompuServe contract. CompuServe distinguishes more protected
+resources and its ordinary phase completion does not have Austin's release-all
+scope. Its waiting and interruption rules need a separate amendment. Do not
+infer the Austin two-domain relation or nested release behavior merely because
+both variants use the same game operations.
+
+**Source basis:** [CompuServe coordination and release](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L4462).
+
 ## Remaining amendments
 
 The direct-reply origin binding, standings persistence, concurrency and other

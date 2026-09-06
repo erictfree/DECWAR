@@ -587,6 +587,12 @@ defense phases. Other ships and installations do not alter the stated result.
 | EX-MODEL-574 | Privileged UserRow has only absolute position (3,4); LONG output | Append three spaces followed by `" 3- 4"`; no `@`. The ordinary six fields remain. |
 | EX-MODEL-575 | Privileged UserRow has only relative displacement (0,0) | Append three spaces followed by `"  0,  0"`; retain the zero displacement. |
 | EX-MODEL-576 | USERS has no commissioned ships in either faction; MEDIUM output | After the initial conditional blank-line request, emit the faction separator `"----\r\n"`; no captain row or LONG header. |
+| EX-MODEL-577 | Captain A is in CAPTURE's WORLD_CHANGE phase; captain B attempts MOVE's coordinated relocation on a distant sector | B cannot successfully enter its WORLD_CHANGE phase while A retains that domain. Distance and different affected objects do not make the phases independent. B's earlier movement cost is not refunded by this rule. |
+| EX-MODEL-578 | Privileged captain A is in statistics clearing's SHARED_SERVICE phase; captain B attempts radio capacity admission | The two phases share a domain. B cannot enter while A retains it; the rule supplies neither an admission deadline nor a FIFO grant promise. |
+| EX-MODEL-579 | A releasing session holds WORLD_CHANGE, enters a radio search phase and completes that search | Its coordination ends in both domains while the outer commission cleanup may continue. Returning from search does not restore WORLD_CHANGE. Other sessions' coordination is unchanged. |
+| EX-MODEL-580 | Captain A is in admission's faction/ship-choice dialogue after successful WORLD_CHANGE entry | Waiting for the reply does not by itself end A's coordinated phase. A prompt inside admission is not ordinary command acquisition. |
+| EX-MODEL-581 | Captain A has selected an available ship; admission reaches its ordinary phase end, before clearing that ship's score or establishing the commission | Selection has not atomically reserved the ship. The draft does not declare A the winner of a subsequent racing claim or invent a destination/availability recheck. |
+| EX-MODEL-582 | Captain A retains coordination; another captain B returns to ordinary command acquisition | B's remaining coordination ends. A's phase does not end merely because B reached that boundary. |
 
 EX-MODEL-06 deliberately uses fractional shield strength. Historical loss of
 that fraction is excluded by the numerical normalization policy. The grammar,

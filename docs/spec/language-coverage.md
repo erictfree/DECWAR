@@ -153,3 +153,14 @@ coverage does not establish lifecycle, concurrency or terminal conformance.
   broader command, lifecycle and multiplayer cases remain.
 
 No game code or legacy source is changed to conform to this draft.
+
+
+### Coordination review checkpoint
+
+The abstract model now defines Austin's two coordination domains, including
+administrative clearing in the radio-service domain, named operation boundaries,
+release-all scope across nested phases and waiting without implicit release.
+Admission explicitly ends coordination before the selected ship is reserved.
+These constrain traces; they do not complete all racing-claim, interrupted,
+reentrant or stale-observation cases. CompuServe's distinct coordination is
+marked as an unfinished amendment, not an implicit inheritance of Austin rules.

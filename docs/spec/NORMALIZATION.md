@@ -1425,3 +1425,24 @@ uses the observation's coordinate components rather than recomputing them from
 later state. Source: Austin DECWAR.FOR 4600–4629 and 3078–3098; WARMAC.MAC
 2187–2244, 1825–1839 and 1856–1880. Binding domains and pregame origin gaps stay
 explicit. No runtime changes.
+
+
+## Austin coordination domains and nested phases
+
+Expressed successful exclusion as nonoverlapping phases of game/service
+operations, with WORLD_CHANGE and SHARED_SERVICE vocabulary. No memory keys,
+addresses, monitor opcodes or required mutex design enter the book. The source
+maps ordinary callers to one domain and internal service callers to the other;
+STAZAP also uses the service domain. Corrected the too-narrow description of
+that domain as solely radio. The release scope remains session-wide across
+both domains, including a nested message search during commission cleanup.
+Input and elapsed waiting do not implicitly release coordination. Admission
+releases before clearing the selected ship's score and reserving it; no atomic
+claim or invented winner was supplied.
+
+Source: Austin WARMAC.MAC 3768–3795, 2603–2722, 1394–1405, 3372–3406,
+4636–4661; SETUP.FOR 163, 353; DECWAR.FOR 551, 618, 1082–1138,
+2227–2243, 2375–2390, 3496–3507, 4387–4397. Full reentrant, interruption,
+failed-monitor and cross-galaxy behavior remain binding questions. CompuServe
+has a distinct resource/release scheme and is explicitly not assigned Austin's
+coordination contract. No gameplay or immutable source changes.
