@@ -3946,3 +3946,18 @@ logs/spec-phaser-responses-build.log passed 662 scenarios, 100 productions,
 324 fragments, 14 chapters and 589 links. Inspected PDF physical pages 163–164;
 table and continued notices readable. No gameplay/archive changes. Full goal
 remains active; concurrent target validity and interrupted firing remain open.
+
+### Specification: TORPEDOS direct responses
+
+Added burst/target prompts, empty-inventory output-length distinction, invalid
+count inventory reporting, own-sector/range reuse, misfire ordinal and tube
+damage warning, and planet-entry refusal text. Clarified that the warning does
+not print damage and that tube-empty wording does not establish empty inventory.
+Kept missing-component inputs and actual notice delivery separately scoped.
+
+Validation: logs/spec-torpedo-responses-review.log checks ten fragments and
+source branch/order. An initial check used a mistyped PANDOC path; retained in
+logs/spec-torpedo-responses-check.log. Correct full build passed in
+logs/spec-torpedo-responses-build.log: 662 scenarios, 100 productions, 324
+fragments, 14 chapters and 596 links. Inspected PDF physical pages 164–165;
+response clause readable. No gameplay/archive changes; full goal active.

@@ -1610,7 +1610,8 @@ damage the firing ship.
 `(UnitDraw()-0.5)/5` to deflection. No subsequent shot in this burst launches,
 but the misfired shot still travels and can hit normally. On a misfire,
 `IntegerDraw(5) == 5` also adds `50 + IntegerDraw(3000)/10` damage units to
-s.devices[TORPEDO_TUBES].damage and reports that damage.
+s.devices[TORPEDO_TUBES].damage and emits a tube-damage warning without its numeric
+amount. Direct messages follow the [torpedo responses](presentation.md#torpedo-command-responses).
 
 Choose the shot's maximum path length using a new U:
 

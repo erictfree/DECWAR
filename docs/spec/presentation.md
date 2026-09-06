@@ -526,6 +526,55 @@ guarantee or energy precondition.
 [own-sector diagnostics](../../legacy/utexas/MSG.MAC#L85),
 [coordinate count diagnostic](../../legacy/utexas/MSG.MAC#L78).
 
+## Torpedo command responses
+
+TORPEDOS has no initial blank-line request of its own. TubesUnavailable emits
+`"Torpedo tubes critically damaged."` and one unconditional line ending before
+any argument acquisition. For NoAmmunition, SHORT uses the inventory report
+below; MEDIUM and LONG instead emit
+`"You have already used your supply of torpedoes!"` and one unconditional line
+ending.
+
+The burst prompt emits `"Number in burst (1-3) and "` immediately followed by
+the location reader's `"Coordinates: "`, with no appended line ending. A
+separate target prompt uses only `"Coordinates: "`. Reprompting follows the
+[TORPEDOS acquisition rules](commands.md#torpedos), including their distinction
+between original arguments, burst replies and target replies. Empty continuation
+and nonpositive burst count add no cancellation message. This recipe does not
+resolve the missing-component cases excluded by that contract.
+
+If a positive count exceeds current ammunition, first emit
+`"Insufficient torpedoes for burst!"` and one unconditional line ending.
+A count exceeding either ammunition or three then prints the inventory report:
+make a conditional blank-line request, emit the current integer torpedo count
+with Free width and no fractional digits, then `" torpedoes left."` and one
+unconditional line ending. It reports inventory, not the requested burst count.
+
+TargetOutOfRange emits `"Target out of range."` and one unconditional line
+ending. An own-sector target uses the same output-length-dependent own-sector
+text and ending as [PHASERS](#phaser-command-responses), at either TORPEDOS
+own-sector check. The command contract determines the different completion
+and readiness effects of these outcomes.
+
+A misfire emits `"Torpedo "`, the one-based shot number as an integer with Free
+width, `" MISFIRES!"`, and one unconditional line ending. If that misfire also
+damages the tubes, emit `"PHOTON TUBES DAMAGED!"` and one unconditional line
+ending. This warning does not print the added damage. Both responses precede
+the misfired shot's path and impact. They do not replace that shot with a miss.
+
+Failed planet-update entry emits
+`"Sorry, Captain, but the torpedo tubes are empty!"` and one unconditional line
+ending. This wording reports PlanetUpdateRefused; it does not establish zero
+inventory or change the shot count supplied by that outcome. Ordinary misses,
+black-hole absorption, friendly-target neutralization and impacts use published
+combat notices. Finishing a burst adds no direct success confirmation or
+automatic inventory report.
+
+**Source basis:** [TORP acquisition](../../legacy/utexas/DECWAR.FOR#L4228),
+[burst completion and direct responses](../../legacy/utexas/DECWAR.FOR#L4401),
+[torpedo strings](../../legacy/utexas/MSG.MAC#L341),
+[coordinate prompt](../../legacy/utexas/MSG.MAC#L38).
+
 ## Combat observation bodies
 
 These recipes present a CombatObservation that passed ReceiveNotice's reception

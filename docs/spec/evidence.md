@@ -640,3 +640,16 @@ in MSG but has no PHACON call and is not added to the presentation. MAKHIT
 publishes impact/base notices; the later readiness deadline is not contingent
 on their display. Added exact direct response recipes and clarified that
 boundary in the command. Interruption and concurrent target validity remain open.
+
+### TORPEDOS direct response paths
+
+TORP 4228–4261 distinguishes SHORT initial empty-inventory reporting from the
+fixed non-SHORT TORP01 sentence. Burst prompting concatenates TORP02 with RELOC's
+COORD1; target-only input omits TORP02. Nonpositive count is silent. Excess
+ammunition request emits TORP03, and exceeding ammunition or three reaches
+inventory output at 2600. Own-sector errors have their existing special finish
+path; range rejection uses PHACN1. At 2500 the misfire ordinal and optional
+TORP06 tube-damage warning precede travel, without displaying damage magnitude.
+The planet-entry failure message at 2800 is not proof of empty tubes. Added these
+recipes, MSG.MAC 341–348 and shared literals, without changing unresolved target
+components or firing semantics. Normal completion adds no direct confirmation.
