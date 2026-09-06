@@ -325,3 +325,10 @@ claims must disclose discretization, integer mapping and context advancement;
 a transcript does not certify distributions. No universal approximation tolerance
 is invented. Full per-operation draw-order and multiplayer-context review remains
 necessary; these validation rules alone do not complete it.
+
+Movement/weapon random-entry review now checks propulsion, coordinate/range,
+phaser target/strength and torpedo early-own-sector branches against Austin.
+The first phaser heat choice occurs even when overheating is impossible at the
+selected strength; late torpedo own-sector termination retains deflection choices.
+The review explicitly distinguishes the documented nonstar unused-draw
+normalization from native seeded parity. Full nested draw/context review remains.

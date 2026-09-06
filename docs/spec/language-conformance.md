@@ -692,6 +692,9 @@ defense phases. Other ships and installations do not alter the stated result.
 | EX-MODEL-600 | Next event belongs to captain B; reached request belongs to captain A | CAPTAIN_MISMATCH precedes request/value checks. Do not search forward for another captain A event. |
 | EX-MODEL-601 | Same captain; reached ChoiceRequest count 9; next event has IntegerRequest count 9 with value 2 | REQUEST_MISMATCH despite the same count and an in-range index. |
 | EX-MODEL-602 | Two replay contexts request Choice on different ordered collections of equal size, both with index 2 | Matching the random record alone does not prove the same selected member or complete game replay. Compare the operation state and collection order. |
+| EX-MODEL-603 | PHASERS strength 50 at an adjacent neutral planet with one build; shields down; valid target and ready bank; heat draw 1, planet draw 100 | Consume both IntegerDraw(100) requests in order. No overheating; reduce the planet to zero builds without destroying it. Do not optimize away the heat draw. |
+| EX-MODEL-604 | IMPULSE passes propulsion check; critical computer damage; valid destination two sectors away | Consume potential-damage IntegerDraw(4000), then the computer-deflection UnitDraw after departure. Reject ImpulseRangeExceeded, retaining GREEN/undocked state but no movement or turn. |
+| EX-MODEL-605 | A torpedo launch iteration passes the prior-misfire check, then finds its stored target now equals the shooter position | Retain that iteration's required deflection draws; stop with OWN_SECTOR before ammunition consumption or misfire sampling for that iteration. |
 
 EX-MODEL-06 deliberately uses fractional shield strength. Historical loss of
 that fraction is excluded by the numerical normalization policy. The grammar,

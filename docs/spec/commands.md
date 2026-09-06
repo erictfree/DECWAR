@@ -1343,6 +1343,11 @@ if (IntegerDraw(100) * strength > 18900) {
 }
 ```
 
+The overheating test consumes its IntegerDraw(100) even when the selected
+strength makes overheating impossible. For example, strength 50 still reaches
+that test. The additional damage draw occurs only when the test succeeds.
+Do not omit the first draw by simplifying the inequality before sampling.
+
 Overheating does not abort the shot. The new damage participates in this shot's
 damage calculation and in the bank's next readiness deadline.
 
@@ -1566,8 +1571,9 @@ if (s.shields.mode == UP) {
 ```
 
 If this shot's target has become the ship's own sector, report the error and
-finish with reason OWN_SECTOR and the delays already accumulated. Otherwise
-launch the shot. If s.docked is false, set `s.torpedoes = s.torpedoes - 1`;
+finish with reason OWN_SECTOR and the delays already accumulated. The deflection
+draws just specified have already occurred; this later check does not remove
+them from the random-event sequence. Otherwise launch the shot. If s.docked is false, set `s.torpedoes = s.torpedoes - 1`;
 if true, leave s.torpedoes unchanged. Docking does not waive the entry inventory
 checks. There is no s.energy firing charge, although a resulting explosion can
 damage the firing ship.

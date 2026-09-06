@@ -229,3 +229,29 @@ Sources: [LSTFLG coordinate path](../../legacy/utexas/DECWAR.FOR#L1765),
 [LSTOBJ](../../legacy/utexas/DECWAR.FOR#L2084),
 [LIST initialization](../../legacy/utexas/DECWAR.FOR#L1378),
 [LSTVAR bounds and scratch fields](../../legacy/utexas/LSTVAR.FOR#L1).
+
+## Austin movement and weapon random-entry audit
+
+This checkpoint concerns direct command draws before or around target validation.
+It is not a complete draw ledger for nested damage, path tracing, turn completion,
+nova chains or concurrent session activity.
+
+| Path | Source-established direct choice sequence | Specification disposition |
+| --- | --- | --- |
+| MOVE/IMPULSE propulsion rejection | Availability check precedes IRAN(4000). | No potential-damage choice on this path. |
+| MOVE/IMPULSE after propulsion passes | IRAN(4000) precedes LOCATE/RELOC; retries do not repeat it. | Potential damage remains a declared draw even on input cancellation. |
+| Accepted nonzero displacement | GREEN/undocking precedes conditional computer deflection, which precedes range checks. | Critical computer damage can consume UnitDraw before range rejection. |
+| WARP risk | IRAN(100) follows range/device rejection and reached speed-risk warning at five/six sectors. | No risk draw on earlier range rejection. |
+| PHASERS invalid target or strength | Target checks and readiness wait precede heat testing. | No direct heat choice before those rejections; the strength failure can still wait. |
+| PHASERS firing | Shield-control charge precedes IRAN(100); extra IRAN(100) only on overheat. | First test is sampled even at strength 50, which cannot overheat. |
+| TORPEDOS initial own-sector validation | Initial target checks precede loading and launch-deflection draws. | No launch-deflection draw at this initial check; turn completion remains separate. |
+| TORPEDOS per-shot own-sector check | Required deflection draws precede the repeated displacement test; consumption/misfire follow it. | A later own-sector result retains those draws, with no launch on that iteration. |
+| TORPEDOS non-star obstruction | Historical ARAN is obtained before object classification. | Existing normalization omits this unused result for nonstar objects; do not claim native seeded parity. |
+
+Sources: [movement entry and range](../../legacy/utexas/DECWAR.FOR#L2145),
+[phaser entry and heat](../../legacy/utexas/DECWAR.FOR#L2647),
+[torpedo entry and launch](../../legacy/utexas/DECWAR.FOR#L4228),
+[torpedo obstruction](../../legacy/utexas/DECWAR.FOR#L4303).
+The unused-obstruction choice disposition is already recorded in NORMALIZATION.md;
+this review preserves it rather than equating the abstract replay with the
+historical generator's complete call sequence.

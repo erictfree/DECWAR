@@ -3547,3 +3547,20 @@ engine or statistical certification. logs/spec-random-replay-build.log passed:
 650 scenarios, 100 productions, 324 fragments, 14 chapters and 546 links.
 Inspected PDF physical pages 91–92 and 217: readable types, validation rules and
 examples. No gameplay or archive edits. Full specification goal remains active.
+
+### Specification: movement and weapon random-entry audit
+
+Compared Austin MOVE/IMPULSE, PHACON and TORP entry/validation choice order with
+the declared operations. Added an evidence table covering nine scoped paths.
+Made explicit that even weak phasers consume their heat-test choice and that
+late torpedo own-sector detection retains launch-deflection choices. Preserved
+the previously documented nonstar obstruction-draw normalization. Added
+EX-MODEL-603–605; no gameplay changes or new normalization rules.
+
+Validation: logs/spec-random-entry-audit-review.log records focused source-order
+assertions and weak-phaser thresholds, including explicit guard checks. It is
+not a complete nested draw ledger or native seeded parity. Full build in
+logs/spec-random-entry-audit-build.log passed: 653 scenarios, 100 productions,
+324 fragments, 14 chapters and 546 links. Inspected PDF physical pages 59, 63
+and 217; readable changed rules and examples. Full nested/context, multiplayer
+and cross-chapter audit remains; goal stays active.
