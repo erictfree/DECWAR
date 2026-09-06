@@ -72,6 +72,30 @@ The alternative's name is its tag. For example,
 `Captured { planet: PlanetId }` carries a planet identity, while `Cancelled`
 carries no value. These names are not text the player enters.
 
+
+A result alternative belongs to the type or operation result in which it is
+introduced. Reusing a tag spelling does not create one global payload type.
+For example, PublishMessage returns Published with a MessageId, while
+PublishNotice returns Published with a NoticeId. The operation determines which
+result is meant; a message identity cannot be supplied where a notice identity
+is required. Likewise, Selected from terminal-profile selection is distinct
+from Selected from main-command acquisition.
+
+An operation signature can introduce its alternatives directly rather than
+naming a separate result type. A bare outcome name without a payload, such as
+Raised or Cancelled, denotes a singleton alternative in that result. When such
+an alternative appears as a Result parameter, the same convention applies:
+Result<Raised, ShieldsTooDamaged> has either Raised or
+Rejected { reason: ShieldsTooDamaged }. It does not imply undeclared mutable
+objects named Raised and ShieldsTooDamaged. A previously declared type name
+continues to denote that type, including all of its alternatives.
+
+Opaque identity declarations, including a comma-separated declaration of
+several identity types, introduce distinct types. An `abstract type` hides its
+representation; an `ordered type` additionally has the ordering defined by its
+own clause. These forms do not supply fields that can be accessed without a
+separate query or record declaration.
+
 Collections have one notation throughout the model:
 
 | Type | Meaning |

@@ -3328,3 +3328,16 @@ rule or implementation architecture. Updated the scope link and coverage matrix.
 were visually inspected. Criteria are now drafted; they do not certify the
 whole specification or any implementation. Full semantic review remains active.
 Runtime and source archives unchanged.
+
+### Specification checkpoint: type declaration and result-tag review
+
+Reviewed included-book named type declarations and clarified operation-local
+result alternatives, singleton outcomes in Result, and opaque/ordered identity
+declarations. Published and Selected do not imply one global record payload.
+`logs/spec-type-declarations-review.log` inventories 218 named declarations with
+no duplicates; it explicitly does not claim field/type or semantic validation.
+The initial heuristic capitalized-word scan was triage, not a type checker.
+
+`logs/spec-type-notation-build.log` passes; physical PDF page 9 was visually
+inspected. Property access and invariant review remain unfinished. Runtime and
+source archives unchanged.

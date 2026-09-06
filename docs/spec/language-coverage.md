@@ -232,3 +232,13 @@ conditional RSTART checks/restoration sequence. The TRAP-to-RSTART identity gap
 is explicit; these source effects are not classified as a completed environment
 continuation operation. Score, queue and tractor state are not silently folded
 into a whole-ship save/restore promise.
+
+## Type-notation review checkpoint
+
+The included-book declaration scan found no duplicate named type/enum
+introductions. Review distinguished opaque `abstract type` and `ordered type`
+declarations, comma-separated identities, EBNF names and operation-local result
+tags; a simple capitalized-word scan is not a type checker. The notation chapter
+now explicitly scopes result tags and explains bare singleton outcomes within
+Result. This closes a presentation ambiguity, not the whole type/property audit.
+Field accesses, operation inputs and invariant consistency still require review.
