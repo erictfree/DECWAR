@@ -347,8 +347,8 @@ the complete faction-order rule is not established by this abstract value.
 The source compares the leading primary score fields without an empty-group
 substitute. This draft does not invent zero for an absent record or use a
 memorial score instead. Pending-interrupt observation points and heading literals are defined below.
-Asynchronous control transfer, damaged source records and complete row formatting
-remain under review.
+Asynchronous control transfer, damaged source records and calendar binding
+remain environment review items.
 
 **Source basis:** [faction comparison and group display](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L5922).
 
@@ -410,7 +410,7 @@ binding is less than 80 columns and its rows omit those three fields. At 80
 columns or more the rows include them. Do not infer a changed width from a
 screenshot or silently remove heading labels to align a narrow report. The
 terminal binding supplies the width; this rule does not add a WIDTH command.
-Complete row-value and spacing rules remain under review.
+Row values and spacing are defined next.
 
 The group row traversal has no additional pending-interrupt check between
 records. An interrupt that becomes pending during the rows does not by itself
@@ -433,6 +433,75 @@ whole-report atomicity is implied.
 [column heading and row traversal](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L6002),
 [width selection](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L6045),
 [conditional line ending](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L2053).
+
+### Honor Roll row values and spacing
+
+```text
+type StandingDateParts = {
+    day: integer in 1..31;
+    month: integer in 1..12;
+    year: nonnegative integer;
+};
+
+query standingDateParts(date: RecordedDate): StandingDateParts
+query FormatHonorRollRow(record: CompuServeStanding,
+                        columns: positive integer): Text
+    requires record has a printable captain name of at most twelve characters
+    requires UserAccountLabel(record.account) has one to six digits per component
+```
+
+standingDateParts belongs to the environment's calendar binding. It describes
+the calendar date represented by recordedDate, not the date of the current
+report. The binding must identify its calendar and date acquisition; no time
+zone is inferred from an account identity. The parts query does not turn a date
+into elapsed game time or alter a record's rank.
+
+FormatHonorRollRow returns the following concatenation. It emits no line ending
+and changes no game state, record or presentation preference. Reuse the
+[account-label binding](presentation.md#users-reports) and FormatNumber
+from the presentation chapter.
+
+1. One `*` when record.markedMissing == true, otherwise one space.
+2. record.captainName, padded on the right to twelve characters, then one space.
+3. The account's project label padded on the left to six characters, a hyphen,
+   and its member label. If the member label has d digits, append
+   max(5 - d, 1) spaces. These are octal-digit display labels, not a change to
+   account identity. There is at least one space after a six-digit member label.
+4. The Credits value: record.score divided by 100 points, rounded to the nearest
+   integer, with an exact halfway value choosing the greater integer. Format
+   that integer with zero fractional digits, NEGATIVE_ONLY and Exactly { count: 6 }.
+
+When columns is less than 80, end the row here. Otherwise append:
+
+5. One space. Take the prefix of record.shipName before its first space, limited
+   to ten characters, and pad that prefix on the right to at least nine
+   characters. Thus a ten-character prefix occupies ten columns; every shorter
+   prefix occupies nine. Do not insert another separator before the next field.
+6. record.elapsed expressed in minutes, rounded to the nearest integer with
+   exact half-minutes choosing the greater integer. Format it with zero
+   fractional digits, NEGATIVE_ONLY and Exactly { count: 5 }.
+7. Four spaces, then the recorded date as `DD/MM/YY`. DD and MM are the day and
+   month with two decimal digits, including a leading zero when needed. YY is
+   the last two decimal digits of year, also including a leading zero.
+
+Credits is a rounded display of the existing score. It is not a separate
+currency, balance or score update, and ranking continues to compare the recorded
+score and elapsed time. Runtm is the rounded elapsed commission duration, not
+processor time. Neither a rank number nor missionNumber is added to the row.
+
+For example, scores 149 and 150 points display Credits 1 and 2 respectively;
+90 seconds displays Runtm 2. A score of -150 points displays Credits -1 under
+the specified halfway rule. The signed rounding rule uses ordinary arithmetic;
+its normalization is recorded separately from historical numeric behavior.
+The date format likewise denotes calendar components without requiring any
+particular epoch or packed date representation. Its calendar binding remains
+an explicit environment dependency.
+
+**Source basis:** [row fields and width](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L6020),
+[ship prefix and padding](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L2145),
+[fixed captain-name output](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L2213),
+[numeric field formatting](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L2286),
+[date components](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L6077).
 
 ### Commission numbering
 

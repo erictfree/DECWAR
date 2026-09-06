@@ -3463,3 +3463,21 @@ logs/spec-comp-honor-headings-build.log passed: 639 scenarios, 100 productions,
 and 223–225; no clipping or unreadable text. No gameplay or archive changes.
 Row numeric conversion, account/ship padding and date binding remain under
 review, alongside the full specification's other open work. Goal stays active.
+
+### Specification: Honor Roll row values and ordinary numeric display
+
+Added FormatHonorRollRow and StandingDateParts; specified marker/name/account
+fields, Credits, elapsed minutes, date components and narrow/wide suffixes.
+Preserved account-padding and ship-prefix output loops. Recorded explicit signed
+rounding and date-epoch normalization in NORMALIZATION.md without changing
+ranking, gameplay, runtime or legacy bytes. Added EX-COMP-45–48.
+
+Validation: logs/spec-comp-honor-rows-review.log checks source constants, every
+valid account-label width, ship-prefix lengths 0–10, nonnegative source rounding
+samples and explicit negative normalization. First build failed on an incorrect
+anchor (logs/spec-comp-honor-rows-build.log); fixed to users-reports. Final build
+logs/spec-comp-honor-rows-build-reviewed.log passed: 643 scenarios, 100 productions,
+324 fragments, 14 chapters and 540 links. Inspected physical PDF pages 218 and
+226–227, with legible rows, signatures and prose. These checks are not native
+terminal parity or calendar certification. Calendar/transport bindings, malformed
+records and other cross-chapter review remain; full goal stays active.

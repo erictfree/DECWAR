@@ -1638,3 +1638,27 @@ pending-interrupt traversal without inventing per-row cancellation. Source:
 WARMAC.MAC 5885–6103 and explicit callers in SETUP.FOR. Numeric row conversion,
 account padding, short ship-name padding and date binding are separate review
 items; headings do not settle those fields.
+
+### CompuServe Honor Roll row normalization
+
+DSPSTA's raw score is in tenths of a displayed point; adding 500 and dividing
+by 1000 corresponds to rounding score/100 for nonnegative scores. The generalized
+Credits display rounds to nearest integer, ties to the greater integer, across
+the signed domain. This deliberately removes the historical truncation bias for
+negative scores (for example -160 points normalizes to -2 Credits rather than
+the raw signed division's -1). It changes a display value, not ranking or score.
+Elapsed time similarly rounds to whole minutes, with half-minutes upward.
+
+Date presentation uses represented calendar day/month/year and a two-digit year,
+not the Dacon macro's epoch arithmetic or malformed negative year offset before
+2000. Calendar/date acquisition stays an environment binding; this does not
+claim byte parity for old malformed dates. Both normalizations follow the
+specification's ordinary-arithmetic policy and leave the runtime untouched.
+
+Retain observable text layout independently: member-label padding is
+max(5 - digits, 1), and OSTBX emits a prefix of at most ten characters padded
+to at least nine, despite its ten-column comment. These derive from the output
+loops, not from a required memory layout. The captain field is twelve printable
+characters with padding; account labels reuse the opaque account identity's
+terminal binding. Source: WARMAC.MAC DSPSTA 6020–6093, OSTBX 2145–2173,
+OSIX 2213 and ONUM 2286; date macro 34–44, O2DG 2180–2193.

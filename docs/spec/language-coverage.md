@@ -283,3 +283,10 @@ explicit-call narrow-versus-wide row selection, and report-level pending-interru
 observation points. Row values/spacing and asynchronous control transfer remain
 open. Examples EX-COMP-42–44 distinguish heading selection from row selection
 and group interruption from immediate per-row cancellation.
+
+FormatHonorRollRow now specifies names, account labels, Credits, elapsed minutes,
+calendar date fields, widths and separators. Signed rounding and date-epoch
+artifacts are explicitly normalized outside the book; ranking and game state
+are unchanged. Calendar/date acquisition, malformed records and asynchronous
+transport remain environment dependencies rather than guessed game rules.
+EX-COMP-45–48 cover rounded values and short/long name/account padding.
