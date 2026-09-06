@@ -4343,3 +4343,17 @@ Build passed (100 productions, 671 rows, 14 units, 677 links), recorded in
 logs/spec-model-dependencies-build.log. Inspected PDF pages 10, 13, 19 and 20;
 no clipping or overfull/undefined warnings. No gameplay changes. Full publication
 layout and cross-chapter type ordering remain review obligations.
+
+## Specification: combat observation type dependencies
+
+Centralized the existing critical/displacement/destruction types, impact snapshot
+records, combat observation alternatives and notice records in the model before
+World. Behavior remains in communication and world-rules with links to the
+value definitions. This removes the identified World-to-later-notice dependency
+without adding mechanics or selecting unresolved outcomes. Compared 103 named
+declaration chunks across the three chapters: unchanged after whitespace
+normalization. logs/spec-notice-type-order-review.log records scope and explicit
+chain checks. Build passed 100 productions, 671 scenario rows, 14 units and
+686 links (logs/spec-notice-type-order-build.log). Inspected PDF pages 19–21,
+103 and 133; no clipped text or overfull/undefined warnings. Whole-book semantic,
+example and final layout review remain open. No gameplay changes.

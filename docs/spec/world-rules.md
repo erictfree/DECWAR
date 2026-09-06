@@ -450,6 +450,9 @@ introduced by this draft.
 
 ### Operation and value types
 
+CriticalHit, DisplacementResult and DestructionCause are defined with the
+[combat observation values](language-model.md#combat-observation-and-notice-values).
+
 ```text
 type DamageTarget = ShipBody { ship: ShipId } | BaseBody { base: BaseId }
 type InstallationOrigin = BaseOrigin { base: BaseId }
@@ -458,11 +461,6 @@ type AttackSource = PlayerAttack { ship: ShipId } | RomulanAttack
                   | InstallationAttack { origin: InstallationOrigin }
 
 enum ImpactWeapon = PHASER | TORPEDO
-enum DestructionCause = DIRECT_DAMAGE | BLACK_HOLE
-
-type CriticalHit = DeviceCritical { device: Device, damage: Damage } | BaseCritical
-type DisplacementResult = Stayed | Moved { position: Position }
-                        | Swallowed { position: Position }
 type TargetDefense = ShipDefense { mode: ShieldMode, strength: Percentage }
                    | BaseDefense { strength: Percentage }
 

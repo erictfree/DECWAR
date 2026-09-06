@@ -536,7 +536,19 @@ it contains. ClockOrigin is introduced with the core identities and retains its
 session clock semantics. A comparison of 65 named declaration chunks across the
 model and session chapters found no definition changes after whitespace
 normalization (logs/spec-model-dependencies-review.log). This proves preservation
-for those extracted declarations, not complete type checking. World still uses
-the combat-notice service defined with observation types in communication;
-that cross-chapter dependency and illustrative notation references remain for
-the reading-order review.
+for those extracted declarations, not complete type checking. The subsequent combat-notice ordering review below closes that specific
+cross-chapter dependency. Illustrative notation references and other operation
+introductions remain for the reading-order review.
+
+### Combat-notice value dependency ordering
+
+The model now defines CriticalHit, DisplacementResult and DestructionCause,
+then impact snapshots, ImpactObservation, the remaining combat-observation
+alternatives and finally CombatNotice/CombatNoticeService before World. Notice
+queries, publication/reception operations and impact construction rules remain
+in their behavior chapters and link to these value definitions. Across model,
+communication and world-rules, 103 extracted named declaration chunks are
+unchanged after whitespace normalization. The explicit dependency chain is
+checked in logs/spec-notice-type-order-review.log. This closes the identified
+World-to-notice type dependency; it is not a proof of every operation's typing,
+valid observations, or concurrency behavior.

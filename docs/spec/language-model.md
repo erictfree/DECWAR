@@ -627,6 +627,136 @@ not yet a complete world, combat or session model.
 [distance](../../legacy/utexas/WARMAC.MAC#L3720),
 [radio controls](../../legacy/utexas/DECWAR.FOR#L3129).
 
+## Combat observation and notice values
+
+These values describe reports of combat and related events. They do not apply
+damage or deliver output by themselves. CriticalHit identifies an additional
+critical effect; DisplacementResult records whether an object stayed, moved or
+entered a black hole. DestructionCause distinguishes direct damage from a
+black-hole loss. The [combat rules](world-rules.md#weapon-damage-to-ships-and-bases)
+determine when those results occur.
+
+```text
+enum DestructionCause = DIRECT_DAMAGE | BLACK_HOLE
+
+type CriticalHit = DeviceCritical { device: Device, damage: Damage } | BaseCritical
+type DisplacementResult = Stayed | Moved { position: Position }
+                        | Swallowed { position: Position }
+type ShipImpactState = {
+    ship: ShipId;
+    position: Position;
+    shields: Shields;
+};
+
+type BaseImpactState = {
+    base: BaseId;
+    position: Position;
+    strength: Percentage;
+};
+
+type PlanetImpactState = {
+    planet: PlanetId;
+    owner: Optional<Team>;
+    position: Position;
+    builds: nonnegative integer;
+};
+
+type RomulanImpactState = {
+    position: Position;
+    energy: Energy;
+};
+
+type ImpactObject = ShipState { value: ShipImpactState }
+                  | BaseState { value: BaseImpactState }
+                  | PlanetState { value: PlanetImpactState }
+                  | RomulanState { value: RomulanImpactState }
+type ImpactOrigin = ObjectOrigin { object: ImpactObject } | StarOrigin { position: Position }
+enum ImpactKind = PHASER | TORPEDO | NOVA
+
+type ImpactObservation = {
+    origin: ImpactOrigin;
+    target: ImpactObject;
+    kind: ImpactKind;
+    damage: Optional<Damage>;
+    critical: Optional<CriticalHit>;
+    deflected: Boolean;
+    displacement: DisplacementResult;
+    destruction: Optional<DestructionCause>;
+};
+
+enum StarOutcome = EXPLODED | UNAFFECTED
+type StarObservation = {
+    position: Position;
+    outcome: StarOutcome;
+};
+
+enum TorpedoFlightOutcome = MISSED | ABSORBED | NEUTRALIZED
+type TorpedoObservation = {
+    shot: positive integer;
+    position: Position;
+    outcome: TorpedoFlightOutcome;
+};
+
+enum BaseNoticeReason = DISTRESS | DESTROYED
+type BaseObservation = {
+    base: BaseId;
+    position: Position;
+    reason: BaseNoticeReason;
+};
+
+type EnergyTransferObservation = {
+    sender: ShipId;
+    recipient: ShipId;
+    received: Energy;
+};
+
+enum TractorObservation = ACTIVATED | BROKEN
+
+type CombatObservation = Impact { value: ImpactObservation }
+    | StarEvent { value: StarObservation } | TorpedoEvent { value: TorpedoObservation }
+    | BaseEvent { value: BaseObservation } | RomulanDetected { position: Position }
+    | EnergyReceived { value: EnergyTransferObservation }
+    | TractorEvent { value: TractorObservation }
+
+enum CombatObservationKind = WEAPON_HIT | NOVA_HIT
+    | STAR_EXPLOSION | STAR_UNAFFECTED
+    | TORPEDO_MISS | TORPEDO_ABSORBED | TORPEDO_NEUTRALIZED
+    | BASE_DISTRESS | BASE_DESTROYED | ROMULAN_DETECTED
+    | ENERGY_TRANSFER | TRACTOR_ACTIVATED | TRACTOR_BROKEN
+
+abstract type NoticeId
+ordered type PublicationOrder
+
+type NoticePriority = integer in 1..40
+
+type CombatNotice = {
+    id: NoticeId;
+    publisher: ShipId;
+    priority: NoticePriority;
+    publication: PublicationOrder;
+    observation: CombatObservation;
+    recipients: Set<ShipId>;
+    remainingRecipients: Set<ShipId>;
+};
+
+type CombatNoticeService = {
+    notices: Set<CombatNotice>;
+};
+```
+
+Impact observations retain values from the reported event; they do not identify
+additional mutable entities. A combat notice associates one such observation
+with its publisher and intended and remaining recipients. NoticeId distinguishes
+notices. PublicationOrder orders completed publications chronologically and has
+no wraparound or time unit. NoticePriority is a delivery preference within a
+publisher's notices. The [notice service](communication.md#combat-notices)
+defines capacity, publication, selection and loss; the [impact rules](communication.md#impact-observation-adts)
+define the values recorded for each kind of hit.
+
+**Source basis:** [notice capacity](../../legacy/utexas/WARMAC.MAC#L183),
+[publication](../../legacy/utexas/WARMAC.MAC#L2771),
+[notice display](../../legacy/utexas/DECWAR.FOR#L2392).
+
 ## World
 
 ```text

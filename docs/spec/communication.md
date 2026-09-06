@@ -214,67 +214,11 @@ and informational reports are not thereby turned into queued combat notices.
 
 ### Notice service ADT
 
+The [combat observation and notice types](language-model.md#combat-observation-and-notice-values)
+define the values used by these operations.
+
 ```text
-enum StarOutcome = EXPLODED | UNAFFECTED
-type StarObservation = {
-    position: Position;
-    outcome: StarOutcome;
-};
-
-enum TorpedoFlightOutcome = MISSED | ABSORBED | NEUTRALIZED
-type TorpedoObservation = {
-    shot: positive integer;
-    position: Position;
-    outcome: TorpedoFlightOutcome;
-};
-
-enum BaseNoticeReason = DISTRESS | DESTROYED
-type BaseObservation = {
-    base: BaseId;
-    position: Position;
-    reason: BaseNoticeReason;
-};
-
-type EnergyTransferObservation = {
-    sender: ShipId;
-    recipient: ShipId;
-    received: Energy;
-};
-
-enum TractorObservation = ACTIVATED | BROKEN
-
-type CombatObservation = Impact { value: ImpactObservation }
-    | StarEvent { value: StarObservation } | TorpedoEvent { value: TorpedoObservation }
-    | BaseEvent { value: BaseObservation } | RomulanDetected { position: Position }
-    | EnergyReceived { value: EnergyTransferObservation }
-    | TractorEvent { value: TractorObservation }
-
-enum CombatObservationKind = WEAPON_HIT | NOVA_HIT
-    | STAR_EXPLOSION | STAR_UNAFFECTED
-    | TORPEDO_MISS | TORPEDO_ABSORBED | TORPEDO_NEUTRALIZED
-    | BASE_DISTRESS | BASE_DESTROYED | ROMULAN_DETECTED
-    | ENERGY_TRANSFER | TRACTOR_ACTIVATED | TRACTOR_BROKEN
-
 query observationKind(observation: CombatObservation): CombatObservationKind
-
-abstract type NoticeId
-ordered type PublicationOrder
-
-type NoticePriority = integer in 1..40
-
-type CombatNotice = {
-    id: NoticeId;
-    publisher: ShipId;
-    priority: NoticePriority;
-    publication: PublicationOrder;
-    observation: CombatObservation;
-    recipients: Set<ShipId>;
-    remainingRecipients: Set<ShipId>;
-};
-
-type CombatNoticeService = {
-    notices: Set<CombatNotice>;
-};
 
 query nextNotice(game: GameState, receiver: ShipId): Optional<CombatNotice>
 
@@ -316,51 +260,8 @@ attacker in the observation.
 
 An impact observation combines the acting object's reported state with the
 result of one weapon or nova effect. These are immutable report values, not
-additional ships or installations in World.
-
-```text
-type ShipImpactState = {
-    ship: ShipId;
-    position: Position;
-    shields: Shields;
-};
-
-type BaseImpactState = {
-    base: BaseId;
-    position: Position;
-    strength: Percentage;
-};
-
-type PlanetImpactState = {
-    planet: PlanetId;
-    owner: Optional<Team>;
-    position: Position;
-    builds: nonnegative integer;
-};
-
-type RomulanImpactState = {
-    position: Position;
-    energy: Energy;
-};
-
-type ImpactObject = ShipState { value: ShipImpactState }
-                  | BaseState { value: BaseImpactState }
-                  | PlanetState { value: PlanetImpactState }
-                  | RomulanState { value: RomulanImpactState }
-type ImpactOrigin = ObjectOrigin { object: ImpactObject } | StarOrigin { position: Position }
-enum ImpactKind = PHASER | TORPEDO | NOVA
-
-type ImpactObservation = {
-    origin: ImpactOrigin;
-    target: ImpactObject;
-    kind: ImpactKind;
-    damage: Optional<Damage>;
-    critical: Optional<CriticalHit>;
-    deflected: Boolean;
-    displacement: DisplacementResult;
-    destruction: Optional<DestructionCause>;
-};
-```
+additional ships or installations in World. Their records are defined in
+[combat observation and notice values](language-model.md#combat-observation-and-notice-values).
 
 Shields, Percentage, Energy and the identity types are defined in the abstract
 model. CriticalHit and DisplacementResult are the shared combat result types.
