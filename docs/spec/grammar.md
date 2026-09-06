@@ -54,35 +54,156 @@ The initial startup dialogue accepts HELP, PREGAME or empty input separately.
 
 ## GRAM-3 — Coordinate forms
 
-```
-numeric-locations = [kw(ABSOLUTE) | kw(RELATIVE)] integer {integer}
-computed-locations = kw(COMPUTED) [integer] target-name {target-name}
+### Accepted forms and result types
+
+```text
+numeric-locations = [kw(ABSOLUTE) | kw(RELATIVE)] {integer}
+computed-locations = kw(COMPUTED) [integer] {target-name}
 target-name = ship-name | kw(ROMULAN)
+
+LocationLimit = Exactly(positive integer) | AtMost(positive integer)
+
+record LocationValues:
+    scalar: Optional<integer>
+    positions: Sequence<Position>
+
+LocationError = ComputerUnavailable | WrongItemCount | TooManyItems
+              | NonNameTarget | UnknownTarget | TargetAbsent
+              | NonIntegerCoordinate | VerticalOutsideGalaxy
+              | HorizontalOutsideGalaxy
+LocationResult = Empty | Resolved(LocationValues)
+               | Rejected(LocationError)
+LocationReadOutcome = LocationResult | Cancelled
+
+operation ResolveLocations(actor: ShipId, arguments: Sequence<Token>,
+                           limit: LocationLimit)
+    on GameState -> LocationResult
+
+operation ReadLocations(actor: ShipId, limit: LocationLimit)
+    on GameState -> LocationReadOutcome
 ```
 
-A consuming command supplies an exact item count or maximum item count. Zero
-items are returned to the caller for its prompt/default handling. A count error
-or invalid type produces the corresponding location diagnostic and abort result.
+The actor must have a captain and recorded position. Let s be that ship and c
+its captain. LocationValues contains absolute positions and an optional leading
+scalar, such as phaser strength or torpedo count. Its item count is twice the
+number of positions, plus one when scalar is present. This type does not attach
+strength or torpedo meaning to the scalar; the consuming command does that.
+The productions describe category-correct forms. The ordered rules below also
+define how other tokens fail and which diagnostic takes precedence.
 
-Without an explicit mode, the input coordinate default applies: only the
-absolute setting selects absolute; other initial values take the relative path.
-Relative pairs add the acting ship's current vertical and horizontal coordinates.
-Each resulting coordinate MUST lie in 1 through 75. When the item count is odd,
-the first integer is a scalar (such as phaser strength or torpedo count), is not
-offset, and is not range-checked as a coordinate. Remaining items form V,H pairs.
-REAL-category coordinates are rejected even if their mathematical value is whole.
+ResolveLocations consumes the supplied arguments only. It does not request a
+continuation. Zero resulting items returns Empty, even for Exactly(2); this is
+distinct from a blank continuation. A nonzero count must equal an Exactly limit
+or not exceed an AtMost limit, giving WrongItemCount or TooManyItems otherwise.
+Count checks precede individual coordinate or target validation.
 
-COMPUTED resolves ship names in roster order and ROMULAN to current positions.
-The optional leading integer remains a scalar; each name contributes two items.
-An absent target is rejected; a named player ship must occupy its recorded
-location. Computing requires computer damage below 300 damage units.
-A nonprivileged session with terminal speed above 300 incurs a pause of twice
-that speed in milliseconds before the remaining computed input is validated.
-Computed coordinates are absolute, independent of the input default.
+ReadLocations emits the coordinates prompt and acquires another command input.
+A zero-token input gives Cancelled. Otherwise treat all its tokens as location
+arguments and return ResolveLocations's result. In particular, a reply containing
+only ABSOLUTE, RELATIVE or COMPUTED is not a zero-token reply: it can give Empty
+through resolution. Input editing and pending slash-separated input follow the
+ordinary lexical rules. This acquisition replaces the current input for any
+later automatic-repair selection.
 
-**Evidence:** [LOCATE/RELOC](../../legacy/utexas/DECWAR.FOR#L1404).
-**Open:** empty computed forms and boundary cases must be included in
-boundary examples before a complete acceptance grammar can be claimed.
+### Numeric locations
+
+Check an initial ABSOLUTE match, then RELATIVE, then COMPUTED. The first match
+selects the mode and consumes that token. Without one, use c.inputCoordinates;
+ABSOLUTE uses absolute coordinates, while RELATIVE or BOTH uses relative
+coordinates. A selects ABSOLUTE by this ordered matching, independent of its
+possible meaning in other argument parsers.
+
+For numeric mode, let n be the number of remaining tokens. If n is zero return
+Empty. Check n against limit before checking token categories. Every remaining
+token must have INTEGER category; otherwise reject NonIntegerCoordinate. A REAL
+whose value is mathematically integral still fails this check. Null tokens also
+fail it. Type validation of all items precedes coordinate-range validation.
+
+When n is odd, consume the first token as scalar without offsetting it or
+checking galaxy bounds. Its sign and magnitude are not restricted by the
+location reader. Pair the remaining tokens as vertical, horizontal coordinates.
+For absolute mode use those values directly. For relative mode add the actor's
+vertical and horizontal position respectively. Visit pairs in input order,
+checking each vertical component before its horizontal component. Each must
+lie in 1 through 75; give VerticalOutsideGalaxy or HorizontalOutsideGalaxy on
+the first failure. Return Resolved with the scalar and resulting positions.
+
+For an even n there is no scalar, including when a consuming command normally
+expects a leading count. This shared reader does not invent a command-specific
+odd-count check. A single numeric item is a scalar, not a one-component location.
+
+### Computed locations
+
+Before counting or validating targets, require:
+
+```text
+s.devices[COMPUTER].damage < 300 damage units
+```
+
+Failure gives ComputerUnavailable. Obtain the actor's recorded rate as follows:
+
+```text
+rate := session(game, c.id).reporting.advertisedSpeed
+```
+
+If c.privileged is false and rate exceeds 300,
+wait for `2*rate` milliseconds before the remaining validation. This delay applies
+even when the computed form later returns Empty or rejects. The delay does not
+itself charge energy, advance a turn or change a weapon-readiness deadline.
+Other world activity can occur during it.
+
+If the first token following COMPUTED has INTEGER category, consume it as the
+scalar. Every remaining token is a target candidate. Compute the item count
+from those candidates and scalar, and perform the count check before resolving
+any candidate. With no scalar or candidate return Empty; COMPUTED followed by
+one integer instead has one item and no target positions.
+
+Resolve target candidates from last to first. Each must have ALPHANUMERIC
+category, otherwise NonNameTarget. Search ship names in roster order and use
+the first match. If no ship matches, try ROMULAN; if that also fails, give
+UnknownTarget. A Romulan target requires world.romulan to be present. A named
+player target requires a commissioned ship, a recorded position and a nonempty
+sector at that position; otherwise give TargetAbsent. The sector need not
+identify that ship: a HELP activity's black-hole appearance does not prevent
+computed targeting of its commissioned ship.
+
+The resolved positions appear in the original target order despite reverse
+validation. They are absolute regardless of the input-coordinate preference.
+No numeric-mode offsets or second coordinate-range check are applied to these
+already-defined positions. A damaged computer is checked even with no targets;
+being unprivileged at a high advertised speed delays rather than prohibits use.
+
+### Caller policies and diagnostics
+
+Each command supplies the following item limit. Here k is the accepted burst
+count, and a target name contributes two coordinate items.
+
+| Caller | Interpretation | Limit |
+| --- | --- | --- |
+| MOVE, IMPULSE, BUILD, CAPTURE | One target position; no scalar. | Exactly(2) |
+| PHASERS | One position, with optional strength; a lone scalar is a wrong-count error. | AtMost(3) |
+| TORPEDOS initial input and burst prompt | Burst count and up to three positions in the normal form. | AtMost(7) |
+| TORPEDOS target continuation | Target positions without a count in the normal form. | AtMost(2*k) |
+
+The command controls whether Empty prompts again, and whether a valid result
+can name a friendly, absent, distant or own-sector target. Coordinate resolution
+alone imposes no weapon range, energy, movement or faction restriction.
+Its errors correspond respectively to the computer-damaged, wrong-number,
+too-many-coordinates, nonalphabetic-name, unrecognized-name, player-not-in-game,
+nonnumeric-coordinate, vertical-bound and horizontal-bound diagnostics. Errors
+abort this resolution; commands specify subsequent input handling.
+
+**Open:** Missing torpedo counts, incomplete pairs and zero-item replies at special continuation
+sites can make a caller request values that are not present in LocationValues.
+This draft does not manufacture values from another input or silently turn
+these cases into ordinary syntax rejection. Those caller paths remain outside
+the completed acceptance contract. Concurrent target disappearance during name
+resolution also requires the multiplayer ordering contract.
+
+**Source basis:** [LOCATE/RELOC](../../legacy/utexas/DECWAR.FOR#L1404),
+[MOVE/IMPULS](../../legacy/utexas/DECWAR.FOR#L2141),
+[PHACON](../../legacy/utexas/DECWAR.FOR#L2647),
+[TORP](../../legacy/utexas/DECWAR.FOR#L4228).
 
 ## GRAM-4 — Movement, capture and construction
 
@@ -223,7 +344,8 @@ prompt; blank continuation returns. Privileged switches are considered only
 when privilege is enabled. Most missing values prompt, but an unrecognized
 alphanumeric value for OUTPUT, PROMPT, SCANS, ICDEF or OCDEF returns without
 changing that preference. TTYTYPE instead diagnoses unknown/ambiguous values
-and prompts again. NAME has a separate raw-name rule still awaiting review.
+and prompts again. NAME follows the separate name-acquisition contract in
+[SET](commands.md#set).
 
 RADIO checks ON, OFF, then GAG/UNGAG. Invalid or missing switches prompt again;
 blank continuation returns. GAG/UNGAG can prompt separately for a name and use

@@ -2719,3 +2719,35 @@ Remaining work: full lexical/grammar edge forms, lifecycle and control contracts
 multiplayer interleavings, terminal binding, random distributions and CompuServe
 amendments. The book remains a working draft, not complete conformance. Preserve
 concurrent experiments/, docs/status.md and unrelated WORK_LOG.md changes.
+
+
+## 2026-09-05 — Typed coordinate parsing and continuation specification
+
+Defined LocationLimit, LocationValues, ordered LocationError outcomes and
+ResolveLocations/ReadLocations in GRAM-3. Numeric count checking precedes all
+type checking and then V/H bounds; odd item counts preserve a leading scalar.
+Computed coordinates preserve the computer gate, advertised-speed delay before
+validation, reverse target-validation order and original result order. Corrected
+the earlier own-sector-identity claim: computed ship targets require commission,
+position and nonempty sector, permitting the HELP appearance. Distinguish truly
+blank continuations from nonempty mode-only input. Added EX-MODEL-403–434 (32
+scenarios) and updated normalization/coverage; no game/server/archive changes.
+
+Source: Austin DECWAR.FOR LOCATE/RELOC 1404–1516, MOVE 2141–2178,
+PHACON 2647–2665, TORP 4228–4276, BUILD 523–535, CAPTUR 600–614;
+WARMAC.MAC GTKN 1407–1439. Malformed torpedo count/pairs, special zero-item
+caller paths and concurrent target disappearance remain explicit gaps instead
+of invented values or diagnostics. Existing SET name acquisition is now linked
+from grammar rather than incorrectly described there as awaiting review.
+
+Validation: logs/spec-coordinate-adt-audit.log passes 135 hashes and both source
+catalogues. Initial logs/spec-coordinate-adt-build.log failed on an overlong
+inline property path; replaced it with displayed pseudocode. Final
+logs/spec-coordinate-adt-build-final-3.log passes 13 chapters, 315 links, 434
+scenario rows and 324 source message fragments. The PDF is 156 pages. Earlier
+successful builds are retained; visual review prompted a heading/table
+pagination adjustment and clearer column ordering. Reviewed pages 22–24 and
+153–155, with final page 24 under tmp/pdfs/spec-coordinate-adt/. These are
+source/document checks, not executable conformance tests. Remaining scope
+includes random semantics/reproducibility, lifecycle, terminal/control binding,
+multiplayer and variant amendments. Concurrent unrelated work stays unstaged.

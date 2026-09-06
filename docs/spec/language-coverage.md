@@ -70,8 +70,10 @@ coverage does not establish lifecycle, concurrency or terminal conformance.
   still require review. Identities, quantities,
   roster, installations, radio, tractor associations, preferences and score
   categories drafted; full lifecycle remains.
-- Lexical and command grammar: source-derived clauses retained with normalized
-  numbers; malformed forms and some continuations still need complete productions.
+- Lexical and command grammar: ResolveLocations/ReadLocations now define typed
+  scalar/position results, arity/type/range precedence, computed target validation
+  and speed delay, including blank versus mode-only continuations. Malformed
+  torpedo forms and exceptional zero-item caller paths still need complete rules.
 - Turns: CompleteTurn, CommitPendingScore, automatic-repair selection, DefenseContext
   and life-support observations now use explicit contracts. Completion classes, pacing, base and planet
   defense and base replenishment drafted. Installation eligibility during HELP/GRIPE

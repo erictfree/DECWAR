@@ -988,3 +988,29 @@ An absent planet is the abstract invalid-target no-op, not a fabricated removal.
 Concurrent ownership disagreement and terminated-conversion observations remain
 open. Evidence: PLNRMV 2864–2892, BUILD 558–575, NOVA 2380–2389.
 No running game, server or archived source was changed.
+
+
+## Coordinate resolution contracts
+
+ResolveLocations/ReadLocations distinguish an absent input line, no resolved
+items, a scalar, absolute positions and a diagnostic. Exactly/AtMost express
+LOCATE's signed count parameter as an arity policy. Empty results precede count
+failure; nonzero numeric counts are checked before all integer-category checks,
+then range checks proceed V/H in input order. Odd numeric item counts have a
+leading unchecked scalar; even ones do not. No new uniform torpedo arity rejection
+is added. Computed mode tests computer damage and imposes its existing speed
+pause before count/name validation, validates targets right to left and returns
+positions in input order. Corrected the earlier grammar's misleading requirement
+that a computed target occupy its sector under its own identity: source tests
+ALIVE and nonempty DISP only, permitting HELP's temporary black-hole appearance.
+Evidence: DECWAR.FOR LOCATE/RELOC 1404–1516.
+
+The typed output does not mutate input tokens to expand names into coordinate
+slots. Tokens remain independent under the existing normalization policy. Empty
+computed mode no longer depends on an unshifted stale token category. Its normal
+empty result remains Empty. Initial no-argument input can prompt; an actually
+blank RELOC acquisition aborts; a mode-only acquired reply instead resolves zero
+items. Missing target values subsequently read by malformed TORP or MOVE's
+own-location retry are still open caller cases, not fabricated coordinates or
+an invented diagnostic. Evidence: MOVE 2158–2178, PHACON 2657–2665,
+TORP 4247–4276, GTKN 1407–1439. No executable changes.

@@ -413,6 +413,38 @@ defense phases. Other ships and installations do not alter the stated result.
 | EX-MODEL-400 | RemovePlanet with an absent identity and either neutral or faction ownership | Return NoPlanet without decrementing counts, changing docking, or invoking CheckWorldEnd. |
 | EX-MODEL-401 | RemovePlanet on the middle of three neutral planets, both factions having discovered it, with the galaxy continuing | Remove that identity from the planet collection and both knownPlanets sets; preserve the other two planets' identities, relative order and discovery. Do not change installation counts or perform docking re-evaluation. |
 | EX-MODEL-402 | RemovePlanet on an owned planet, called during conversion with a base-count increment already applied | Decrement the supplied former owner's captured-planet count, re-evaluate docking, remove planet identity, then check world end using the already-incremented base count. The caller supplies later sector replacement and base activation. |
+| EX-MODEL-403 | ResolveLocations with no arguments and Exactly(2) | Empty, not WrongItemCount. The calling command decides whether to prompt. |
+| EX-MODEL-404 | ReadLocations acquires a genuinely zero-token reply | Cancelled; do not treat it as a mode-only reply or reuse a prior coordinate result. |
+| EX-MODEL-405 | ReadLocations with Exactly(2) acquires ABSOLUTE only | Empty. The nonempty input has zero coordinate items; ordinary initial MOVE/BUILD/CAPTURE acquisition prompts again. |
+| EX-MODEL-406 | Actor at (37,37), relative default; ResolveLocations arguments 2 -3 with Exactly(2) | Resolved with absent scalar and position (39,34). |
+| EX-MODEL-407 | Same actor and limit; arguments ABSOLUTE 2 3 | Position (2,3), independent of the relative default. |
+| EX-MODEL-408 | Actor at (37,37), absolute default; arguments RELATIVE 2 -3 | Position (39,34). |
+| EX-MODEL-409 | Actor at (37,37), BOTH input preference; arguments 2 -3 | Use the relative path and return position (39,34). |
+| EX-MODEL-410 | Relative default, actor (37,37); arguments 200 2 -3, AtMost(3) | Scalar 200 and position (39,34). Do not offset or galaxy-range-check the scalar. |
+| EX-MODEL-411 | ResolveLocations arguments -999, AtMost(3) | Scalar -999 with no positions. Its consuming command decides legality; the reader imposes no positive-strength or burst-count rule. |
+| EX-MODEL-412 | Relative default, actor (37,37); arguments 1 2 3 4, AtMost(7) | No scalar; positions (38,39) and (40,41). The reader does not reinterpret the first integer as a torpedo count. |
+| EX-MODEL-413 | Arguments ABSOLUTE 77 1.0, Exactly(2) | NonIntegerCoordinate precedes the vertical-bound failure, although 1.0 has a whole mathematical value. |
+| EX-MODEL-414 | Arguments ABSOLUTE 77 BAD 3, Exactly(2) | WrongItemCount precedes type and coordinate-bound errors. |
+| EX-MODEL-415 | Four numeric items with AtMost(3) | TooManyItems before coordinate interpretation. |
+| EX-MODEL-416 | Arguments ABSOLUTE 0 76, Exactly(2) | VerticalOutsideGalaxy; the vertical component is checked before the invalid horizontal component. |
+| EX-MODEL-417 | Arguments ABSOLUTE 1 76, Exactly(2) | HorizontalOutsideGalaxy. |
+| EX-MODEL-418 | Two coordinate arguments, one NULL category produced by a comma, Exactly(2) | NonIntegerCoordinate. Null tokens count toward arity but are not zero-valued integer coordinates. |
+| EX-MODEL-419 | Arguments A 2 3, relative default, Exactly(2) | A matches ABSOLUTE first; resolve (2,3). Keyword ambiguity in other command contexts does not alter this ordered mode match. |
+| EX-MODEL-420 | COMPUTED only, computer damage 300, unprivileged captain with advertisedSpeed 9600 | ComputerUnavailable before speed delay or empty-result handling. |
+| EX-MODEL-421 | COMPUTED only, computer damage 299, unprivileged captain with advertisedSpeed 301, Exactly(2) | Wait 602 milliseconds, then return Empty. No energy, turn or readiness change from resolution. |
+| EX-MODEL-422 | Same mode-only input and damage, advertisedSpeed 300 | Empty without the computed-speed pause. The threshold is strictly above 300. |
+| EX-MODEL-423 | Privileged captain, advertisedSpeed 9600, computer functional; COMPUTED only | Empty without the computed-speed pause. Privilege does not bypass the computer-damage check. |
+| EX-MODEL-424 | COMPUTED 200, computer functional, AtMost(3) | Resolved with scalar 200 and no positions. PHASERS then diagnoses a lone scalar; resolution itself does not invent a target. |
+| EX-MODEL-425 | COMPUTED 200, Exactly(2), computer functional | WrongItemCount for one resolved item. |
+| EX-MODEL-426 | COMPUTED BOGUS 1.0, AtMost(4), computer functional | NonNameTarget for the last candidate precedes UnknownTarget for BOGUS because target validation runs right to left. |
+| EX-MODEL-427 | COMPUTED BOGUS WOLF, AtMost(4), Wolf absent and computer functional | TargetAbsent for Wolf precedes UnknownTarget for BOGUS. |
+| EX-MODEL-428 | COMPUTED BOGUS WOLF, AtMost(3), computer functional | TooManyItems for four candidate-derived items before either name or target-presence check. |
+| EX-MODEL-429 | COMPUTED F W, Exactly(4); commissioned Farragut at (20,21), Wolf at (30,31), both sectors nonempty, computer functional | Validate Wolf first, but return positions (20,21), then (30,31). F and W use roster-first name matching. |
+| EX-MODEL-430 | COMPUTED F, Exactly(2), with relative input preference and actor far from commissioned Farragut at (20,21) | Return absolute position (20,21), without adding the actor's location or imposing a weapon range in the reader. |
+| EX-MODEL-431 | COMPUTED F, Exactly(2); Farragut commissioned at (20,21), its sector appears as a black hole during HELP, computer functional | Resolve (20,21). The computed-name check requires a nonempty sector, not PlayerShip(Farragut) identity at that sector. |
+| EX-MODEL-432 | Same named ship and position but the sector is empty | TargetAbsent. |
+| EX-MODEL-433 | COMPUTED ROMULAN, Exactly(2), computer functional and Romulan absent | TargetAbsent, not UnknownTarget. |
+| EX-MODEL-434 | COMPUTED with one invalid name, Exactly(2), functional computer, unprivileged captain, advertisedSpeed 1200 | The 2400-millisecond delay precedes UnknownTarget. Rejection does not remove the already incurred delay. |
 
 EX-MODEL-06 deliberately uses fractional shield strength. Historical loss of
 that fraction is excluded by the numerical normalization policy. The grammar,
