@@ -245,6 +245,53 @@ prevent a claim of complete terminal conformance to this draft.
 [conditional blank line](../../legacy/utexas/WARMAC.MAC#L1696),
 [character output](../../legacy/utexas/WARMAC.MAC#L1309).
 
+## TELL command responses
+
+Player TELL makes no initial conditional blank-line request. RadioUnavailable
+emits TELL01 followed by CRLF. Recipient acquisition emits TELL02 with no
+appended ending. RepeatedTell emits TELL09 followed by CRLF. The embedded
+leading CRLF in these fragments is retained in every output length.
+
+For UnknownRecipient and AmbiguousGroup, emit TELL03 or TELL04 respectively,
+then the token's retained matching text with no added separator, and request
+a conditional blank line. SelfRecipient emits TELL05 followed by CRLF. These
+selection diagnostics occur in input order. Recipient-validation diagnostics
+follow in roster order: emit TELL06 for RecipientUnavailable or TELL07 for
+RecipientRadioUnavailable, then the selected ship's object label without an
+added separator, and request a conditional blank line. NoRecipients emits
+TELL08 followed by CRLF and returns before acquiring a body.
+
+When no inline body is supplied, the body prompt is `"Msg: "`, without a leading
+or appended ending. A cancelled body or an accepted body shorter than two
+characters emits `"No message sent"`, without a period or an appended ending.
+This is distinct from the TELL08 no-recipient response. Publication-capacity
+failure follows its own precedence and does not imply this short-body response.
+Successful publication adds no delivery confirmation or recipient echo.
+
+Whenever the player body/publication path returns to TELL, request a conditional
+blank line, including after publication refusal or body cancellation. Earlier
+recipient-selection returns do not pass through this final request. The
+[command contract](commands.md#tell) and [publication contract](communication.md)
+determine state changes and outcome precedence; output alone does not prove
+that any recipient has displayed a message. Input-reader echo and incoming
+notices remain separate output.
+
+| Fragment | Text |
+| --- | --- |
+| TELL01 | `"\r\nSub-Space radio damaged."` |
+| TELL02 | `"\r\nTo ship:  "` |
+| TELL03 | `"\r\nUnrecognized player or group name:  "` |
+| TELL04 | `"\r\nAmbiguous group name:  "` |
+| TELL05 | `"\r\nSelf excluded from message."` |
+| TELL06 | `"\r\nPlayer is not in the game:  "` |
+| TELL07 | `"\r\nCommunications:  Captain, we cannot raise the "` |
+| TELL08 | `"\r\nNo message sent."` |
+| TELL09 | `"\r\nWake up, Captain, I just sent that message!"` |
+
+**Source basis:** [TELL](../../legacy/utexas/DECWAR.FOR#L3977),
+[recipient fragments](../../legacy/utexas/MSG.MAC#L312),
+[body acquisition and publication](../../legacy/utexas/WARMAC.MAC#L2963).
+
 ## Configuration command responses
 
 SET has no initial conditional blank-line request. When setting selection

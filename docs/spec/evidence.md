@@ -798,3 +798,17 @@ public and internal entry choose separate fixed domains; failure returns a
 flag after a delay; release requests all locks held by the job. Existing
 caller-specific continuations remain unchanged. A host's reentrancy or fairness
 policy cannot fill the draft's unresolved source/environment domains by default.
+
+### Player TELL response ordering
+
+Austin DECWAR.FOR 3977–4063 emits TELL01/05/08/09 with suffix 1,
+TELL02 with suffix 0, and TELL03/04/06/07 with suffix 0 followed by token or
+ship output and CRLF. Selection precedes roster-order validation. Only the
+player MAKMSG return path reaches the final CRLF request. MAKMSG 2979 emits
+Msg: without suffix; mmsg.5 emits No message sent through ASCIL. Despite the
+macro's CRLF comment, the pinned ASCIL definition at WARMAC.MAC 22–24 expands
+only ASCIZ and supplies no embedded ending. The caller's final conditional
+CRLF therefore matters. TELL08 separately includes a leading CRLF and period.
+Capacity admission precedes short-body rejection in MAKMSG; the recipe does
+not invent NoMessageSent on failed admission. All nine fragment rows were
+extracted from immutable MSG.MAC without newline translation.

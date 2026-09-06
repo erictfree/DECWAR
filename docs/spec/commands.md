@@ -2804,7 +2804,8 @@ Submit an acquired body through PublishMessage(actor, recipients, body), and
 return its Published or NotPublished outcome. Ctrl-C at the body prompt instead
 returns Cancelled after emitting NoMessageSent, without submitting a publication.
 Publication and subsequent delivery follow [radio communication](communication.md).
-TELL completes no turn and charges no energy. Successful submission is distinct
+Direct [TELL responses](presentation.md#tell-command-responses) distinguish
+recipient diagnostics from message-body refusal. TELL completes no turn and charges no energy. Successful submission is distinct
 from a recipient displaying the message: it can later be gagged, discarded on
 release or lost under the bounded pending-message policy.
 

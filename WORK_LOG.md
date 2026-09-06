@@ -4102,3 +4102,20 @@ logs/spec-coordination-assessment-build.log records successful build (100
 productions, 671 scenarios, 618 links, 324 fragments). PDF pages 183–184 visually
 reviewed without clipping or overlap. git diff --check passed. No gameplay or
 archive edits; unresolved reentrancy/interruption domains remain outside claims.
+
+
+## Player TELL direct-response specification — 2026-09-06
+
+Added recipient prompt/diagnostic ordering, message-body prompt and refusal,
+silent successful publication and the final conditional line-break request.
+Distinguished TELL08's punctuated no-recipient message from MAKMSG's unpunctuated
+No message sent. Checked the actual ASCIL expansion rather than its conflicting
+CRLF comment. Linked command and presentation contracts; updated coverage.
+No gameplay or archive changes.
+
+logs/spec-tell-responses-review.log verifies all nine published MSG.MAC fragment
+rows byte-for-byte and records source scope. logs/spec-tell-responses-build.log
+records a successful build (100 productions, 671 scenarios, 624 links, 324
+fragments). PDF pages 159–160 visually checked without clipping/overlap.
+git diff --check passed. Full delivery/interruption and CompuServe amendments
+remain separate obligations; this is sender-response coverage only.
