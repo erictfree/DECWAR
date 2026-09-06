@@ -3185,3 +3185,19 @@ in `logs/spec-prompt-availability-build-reviewed.log` with 616 structural scenar
 rows and 489 links; physical PDF pages 139 and 204 were visually checked.
 The first build caught a separated table row; fixed the separator and retained
 `logs/spec-prompt-availability-build.log`. Runtime and archives unchanged.
+
+### Specification checkpoint: saved condition and continuation boundaries
+
+Defined SavedShipCondition in domain types and replaced the broad whole-ship
+resume implication with the actual saved fields. Documented conditional RSTART
+occupancy checks before coordination, restoration, refreshed reporting and
+retained commission timing. Explicitly retained the unresolved TRAP caller
+identity: it clears who before invoking RSTART. No automatic reconnect or new
+RESUME command is inferred. Source evidence is DECWAR.FOR 1082–1180, 4516–4526
+and PARAM.FOR 43–56.
+
+`logs/spec-saved-condition-source-review.log` verifies source structure and
+records the continuation limitation. `logs/spec-saved-condition-build.log`
+passes the book checks; physical PDF pages 141–142 were visually inspected.
+Runtime and immutable archives were not changed. Remaining work includes
+admission/concurrent lifecycle, final reporting and overall conformance review.

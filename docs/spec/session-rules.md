@@ -675,10 +675,10 @@ their messages. Radio-message removal has the effect of
 The ship becomes available for a subsequent commission.
 
 Release does not erase the roster identity, erase faction scores, award a kill,
-or advance a turn. It preserves the departing ship's state for the separate
-resume mechanism before clearing active presence and energy. That mechanism is
-an environment continuation facility, not a new player command named RESUME.
-Its full availability and restoration contract remains to be specified.
+or advance a turn. It preserves the departing ship's condition values for the separate
+[continuation facility](#saved-condition-and-environment-continuation) before
+clearing active presence and energy. This is not a new player command named
+RESUME or a promise that a later login restores the ship.
 
 The session's account, execution identity, terminal identity, departure time,
 faction and ship are recorded in recent-commission history. History holds ten
@@ -704,6 +704,76 @@ clock discontinuities also remain under review.
 [history matching](../../legacy/utexas/DECWAR.FOR#L1335),
 [history capacity and admission delay](../../legacy/utexas/PARAM.FOR#L30),
 [empty-galaxy reuse](../../legacy/utexas/SETUP.FOR#L168).
+
+
+## Saved condition and environment continuation
+
+```text
+type SavedShipCondition = {
+    position: Optional<Position>;
+    stardate: Stardate;
+    condition: Condition;
+    torpedoes: integer;
+    shields: Shields;
+    lifeSupportReserve: integer;
+    energy: Energy;
+    hullDamage: Damage;
+    devices: Map<Device, DeviceState>;
+};
+```
+
+SavedShipCondition is a value, not an identity or a reference to a live Ship.
+Its fields have the same meanings and units as the corresponding Ship fields.
+During ReleaseCommission, preserve the position, stardate, condition, torpedoes,
+shields, life-support reserve, energy and hull damage before clearing the active
+ship's position and energy. Preserve the device damage as well. A later change
+to the roster ship does not change these saved values. This preservation occurs
+after participant-count changes, beam release and recent-commission recording;
+it does not make the entire release an atomic snapshot.
+
+The saved condition contains neither score nor pending score, a tractor beam,
+docking state, radio messages, nor weapon-readiness deadlines. In particular,
+continuation does not recreate a released tractor beam or discarded messages
+from this value. This is a description of what is saved, not a rule to reset
+all omitted properties. The session also preserves the captain's displayed name,
+terminal profile and commission timing for the continuation path.
+
+The source supplies the following conditional restoration behavior **if the
+environment resumes that path with a valid roster identity and saved position**:
+
+1. If that roster ship currently has a position, emit fragment(free01) and
+   return control to the environment. A subsequent continuation retries from
+   this first check.
+2. Otherwise, if the saved sector is occupied, emit fragment(free02) and return
+   control to the environment. A subsequent continuation also retries from the
+   first check; it does not select another sector.
+3. Otherwise enter WORLD_CHANGE coordination, retrying entry on failure.
+   Reactivate the ship, increment the galaxy's participant count and its
+   faction's count, and restore the SavedShipCondition fields.
+4. Refresh the account, execution and terminal reporting values from the
+   environment. Restore the saved display name, terminal profile and commission
+   timing. Place that ship in the saved sector and end the coordinated phase.
+
+The occupancy checks precede coordination entry; the source does not repeat
+those checks after entry. This clause does not guarantee successful restoration
+against an intervening claim, promise a waiting deadline, or introduce a new
+player-visible rejection. It performs no new-ship resource initialization,
+random placement or turn completion. It does not remove the recent-commission
+history record written by release.
+
+**OPEN QUESTION:** The complete environment-continuation contract is unresolved.
+The supplied interruption path does not establish a valid restoring ship
+identity after release. Therefore these conditional effects do not define an
+available RESUME command, automatic reconnect, or successful restoration
+operation. Binding an interruption to that path, restoring captain/session
+associations, concurrent claims, ended galaxies and failed environment queries
+still require resolution. A repaired continuation policy must be identified
+separately.
+
+**Source basis:** [saved values during release](../../legacy/utexas/DECWAR.FOR#L1113),
+[conditional restoration](../../legacy/utexas/DECWAR.FOR#L1141),
+[interruption caller](../../legacy/utexas/DECWAR.FOR#L4516),
+[condition fields](../../legacy/utexas/PARAM.FOR#L43).
 
 ## World termination
 

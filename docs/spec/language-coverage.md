@@ -181,3 +181,9 @@ Austin CHKSEQ returns without scanning or releasing sessions (WARMAC.MAC
 3078–3079). The session chapter and EX-MODEL-592 now state that absence of an
 automatic availability check. Broader admission, resume and release contracts
 remain separate review items.
+
+SavedShipCondition now defines the release snapshot's domain values and the
+conditional RSTART checks/restoration sequence. The TRAP-to-RSTART identity gap
+is explicit; these source effects are not classified as a completed environment
+continuation operation. Score, queue and tractor state are not silently folded
+into a whole-ship save/restore promise.

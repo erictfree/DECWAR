@@ -1488,3 +1488,14 @@ subsequent job-sequence scan and ship-release statements are unreachable from
 that entry. Main-command acquisition therefore does not specify an availability
 scan or stale-session reclamation. This is a correction from executable source,
 not a new cleanup policy or a missing binding to be supplied by an implementer.
+
+### Saved ship condition versus continuation availability
+
+SavedShipCondition names the ten SHPCON values and device damage copied by FREE
+in ordinary domain types. It is not a whole Ship snapshot: score, pending score,
+beam, docking, queue and readiness state are not copied by these loops. The
+conditional RSTART description retains the two checks before coordination and
+its restored-versus-refreshed reporting distinction. It does not infer a working
+continuation from the comments: TRAP sets `who = 0` before `call rstart(who)`.
+The source supplied here does not establish recovery of that identity. No new
+RESUME command, fallback placement or automatic reconnect is specified.
