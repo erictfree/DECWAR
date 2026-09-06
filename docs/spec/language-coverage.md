@@ -528,3 +528,15 @@ contracts. Its final quality checks apply to the entire assembled book.
 The initial inspection covered the model's notation/query/contract introductions
 and SHIELDS through its examples, against Austin SHIELD's transfer and confirmation
 branches. It is not a whole-book semantic review. No new game behavior was chosen.
+
+### Core-record dependency ordering
+
+ScoreCategory and Score now precede Ship, and World follows the local records
+it contains. ClockOrigin is introduced with the core identities and retains its
+session clock semantics. A comparison of 65 named declaration chunks across the
+model and session chapters found no definition changes after whitespace
+normalization (logs/spec-model-dependencies-review.log). This proves preservation
+for those extracted declarations, not complete type checking. World still uses
+the combat-notice service defined with observation types in communication;
+that cross-chapter dependency and illustrative notation references remain for
+the reading-order review.

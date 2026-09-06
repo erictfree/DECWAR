@@ -4329,3 +4329,17 @@ layout-discovered directional prose. Inspected PDF pages 8, 19, 20 and 59, then
 rechecked final page 20; no overfull/undefined warnings. Full-book layout and
 remaining declaration dependencies are not yet certified. No game behavior or
 runtime changes.
+
+## Specification: core-record dependency order
+
+Moved ScoreCategory/Score before Ship and moved the World record and membership
+contract after its local component records. ClockOrigin is now introduced with
+core identities; session clock meaning is unchanged. The tractor section title
+now describes its remaining beam and Romulan content. A 65-declaration comparison
+across model/session found no changed definitions after whitespace normalization;
+logs/spec-model-dependencies-review.log records scope. CombatNoticeService and
+illustrative forward references remain explicitly outside this completed check.
+Build passed (100 productions, 671 rows, 14 units, 677 links), recorded in
+logs/spec-model-dependencies-build.log. Inspected PDF pages 10, 13, 19 and 20;
+no clipping or overfull/undefined warnings. No gameplay changes. Full publication
+layout and cross-chapter type ordering remain review obligations.

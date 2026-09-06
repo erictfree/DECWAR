@@ -161,6 +161,7 @@ numerical values match.
 ```text
 type ShipId, CaptainId, BaseId, PlanetId, TractorBeamId, MessageId
 type PublicationId
+type ClockOrigin
 type Text = sequence of characters
 type Boolean = true | false
 type Unit = unit
@@ -317,65 +318,24 @@ type Rectangle = {
     minHorizontal, maxHorizontal: Coordinate
 };
 
-type World = {
-    elapsedOrigin: Optional<ClockOrigin>;
-    ended: Boolean;
-    ships: Set<Ship>;
-    bases: Set<Base>;
-    baseOrder: Map<Team, List<BaseId>>;
-    baseCounts: Map<Team, nonnegative integer>;
-    capturedPlanetCounts: Map<Team, nonnegative integer>;
-    planets: List<Planet>;
-    knowledge: Map<Team, TeamKnowledge>;
-    playerCount: integer;
-    actionCount: integer;
-    teamTurns: Map<Team, integer>;
-    teamCommissions: Map<Team, nonnegative integer>;
-    romulanEnabled: Boolean;
-    blackHolesSelected: Boolean;
-    pacingClass: integer in 1..3;
-    beams: Set<TractorBeam>;
-    teamScores: Map<Team, Score>;
-    romulan: Optional<Romulan>;
-    romulanActivity: RomulanActivity;
-    combatNotices: CombatNoticeService;
-    radioService: RadioService;
-};
 ```
 
-World contains entity records, each identified by its id. Within each of
-ships, bases, planets and beams, no two entities have the same identity.
-Changing an entity's fields does not create a second entity or change its id.
-A historical observation can retain an earlier value for that same identity;
-it is not another member of the world's collection.
+## Score quantities
 
-The ship, base and beam sets do not establish iteration order. Rules that need
-an order state it explicitly, such as the roster order for ships and baseOrder
-for bases. The planet sequence does establish the current planet order used
-by discovery, reports and other traversals. Removing a planet preserves the
-relative order of the surviving planets under [RemovePlanet](world-rules.md#planet-removal).
-These are abstract membership and ordering properties, not a requirement for
-any particular container.
+```text
+enum ScoreCategory = ENEMY_DAMAGE | ENEMY_KILLS | BASE_DAMAGE
+                  | PLANET_CAPTURE | BASE_CONSTRUCTION
+                  | ROMULAN | STAR_DESTRUCTION | PLANET_DESTRUCTION
 
-The base set contains the fixed records identified by both factions' baseOrder
-lists, including bases with nonpositive strength. Its size is not the number
-of surviving bases. Likewise, a ship record remains in the roster when its
-commission ends. By contrast, the planet list contains the current planets;
-removed planets can remain in earlier observations without remaining members.
-A record's membership, its sector presence and its eligibility for an operation
-are distinct properties. The operation's own tests decide eligibility.
+type Score = Map<ScoreCategory, Points>
+```
 
-baseCounts is the maintained number of bases for each faction;
-capturedPlanetCounts is its maintained number of owned planets. These counters
-are explicit state because installation transitions update them at specified
-points. They need not equal a fresh count of positive-strength bases or current
-planet owners during an unfinished conversion or removal. Admission population,
-cumulative commission counts and installation counts are separate quantities.
+Score is expressed in the units shown by the POINTS command. Category values
+can be negative, and totals are their sum. A ship's pending score changes are
+distinct from its accumulated score until turn accounting commits them.
+Scoring rates and destruction bonuses are defined with the corresponding actions.
 
-**Source basis:** [world limits](../../legacy/utexas/PARAM.FOR#L5),
-[roster](../../legacy/utexas/DECWAR.FOR#L489),
-[world initialization](../../legacy/utexas/SETUP.FOR#L216),
-[planet order on removal](../../legacy/utexas/DECWAR.FOR#L2864).
+**Source basis:** [score categories and display](../../legacy/utexas/DECWAR.FOR#L2893).
 
 ## Ships
 
@@ -523,19 +483,13 @@ with the faction whose order contains its identity. The first identity without
 a surviving base is the next available identity for that faction. This order
 defines selection and report numbering, without prescribing a storage location.
 
-## Tractor beams and score
+## Tractor beams and Romulan activity
 
 ```text
 type TractorBeam = {
     id: TractorBeamId;
     endpoints: Set<ShipId> containing exactly two distinct identities;
 };
-
-enum ScoreCategory = ENEMY_DAMAGE | ENEMY_KILLS | BASE_DAMAGE
-                  | PLANET_CAPTURE | BASE_CONSTRUCTION
-                  | ROMULAN | STAR_DESTRUCTION | PLANET_DESTRUCTION
-
-type Score = Map<ScoreCategory, Points>
 
 type Romulan = {
     position: Position;
@@ -559,11 +513,6 @@ endpoint ships have `tractorBeam == b.id`; the endpoint set has no towing/towed
 ordering. Acquiring or releasing an association must establish the corresponding
 relationships on both ships. A movement command identifies which endpoint moves
 first for that action, without changing the beam's membership.
-
-Score is expressed in the units shown by the POINTS command. Category values
-can be negative, and totals are their sum. A ship's pending score changes are
-distinct from its accumulated score until turn accounting commits them.
-Scoring rates and destruction bonuses are defined with the corresponding actions.
 
 World.romulan describes the currently present autonomous ship. RomulanActivity
 describes the continuing activity across its appearances: cadence counts enabled
@@ -677,6 +626,69 @@ not yet a complete world, combat or session model.
 [new ship state](../../legacy/utexas/SETUP.FOR#L367),
 [distance](../../legacy/utexas/WARMAC.MAC#L3720),
 [radio controls](../../legacy/utexas/DECWAR.FOR#L3129).
+
+## World
+
+```text
+type World = {
+    elapsedOrigin: Optional<ClockOrigin>;
+    ended: Boolean;
+    ships: Set<Ship>;
+    bases: Set<Base>;
+    baseOrder: Map<Team, List<BaseId>>;
+    baseCounts: Map<Team, nonnegative integer>;
+    capturedPlanetCounts: Map<Team, nonnegative integer>;
+    planets: List<Planet>;
+    knowledge: Map<Team, TeamKnowledge>;
+    playerCount: integer;
+    actionCount: integer;
+    teamTurns: Map<Team, integer>;
+    teamCommissions: Map<Team, nonnegative integer>;
+    romulanEnabled: Boolean;
+    blackHolesSelected: Boolean;
+    pacingClass: integer in 1..3;
+    beams: Set<TractorBeam>;
+    teamScores: Map<Team, Score>;
+    romulan: Optional<Romulan>;
+    romulanActivity: RomulanActivity;
+    combatNotices: CombatNoticeService;
+    radioService: RadioService;
+};
+```
+
+World contains entity records, each identified by its id. Within each of
+ships, bases, planets and beams, no two entities have the same identity.
+Changing an entity's fields does not create a second entity or change its id.
+A historical observation can retain an earlier value for that same identity;
+it is not another member of the world's collection.
+
+The ship, base and beam sets do not establish iteration order. Rules that need
+an order state it explicitly, such as the roster order for ships and baseOrder
+for bases. The planet sequence does establish the current planet order used
+by discovery, reports and other traversals. Removing a planet preserves the
+relative order of the surviving planets under [RemovePlanet](world-rules.md#planet-removal).
+These are abstract membership and ordering properties, not a requirement for
+any particular container.
+
+The base set contains the fixed records identified by both factions' baseOrder
+lists, including bases with nonpositive strength. Its size is not the number
+of surviving bases. Likewise, a ship record remains in the roster when its
+commission ends. By contrast, the planet list contains the current planets;
+removed planets can remain in earlier observations without remaining members.
+A record's membership, its sector presence and its eligibility for an operation
+are distinct properties. The operation's own tests decide eligibility.
+
+baseCounts is the maintained number of bases for each faction;
+capturedPlanetCounts is its maintained number of owned planets. These counters
+are explicit state because installation transitions update them at specified
+points. They need not equal a fresh count of positive-strength bases or current
+planet owners during an unfinished conversion or removal. Admission population,
+cumulative commission counts and installation counts are separate quantities.
+
+**Source basis:** [world limits](../../legacy/utexas/PARAM.FOR#L5),
+[roster](../../legacy/utexas/DECWAR.FOR#L489),
+[world initialization](../../legacy/utexas/SETUP.FOR#L216),
+[planet order on removal](../../legacy/utexas/DECWAR.FOR#L2864).
 
 ## Game state and operations
 

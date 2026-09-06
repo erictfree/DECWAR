@@ -16,7 +16,6 @@ enum SessionPhase = STARTUP | PREGAME | ADMISSION | ACTIVE | ENDED
 enum InformationActivity = NONE | HELP | FEEDBACK
 
 type AccountIdentity, ExecutionIdentity, TerminalIdentity
-type ClockOrigin
 type TimeOfDay = duration since local midnight
 
 type SessionReporting = {
