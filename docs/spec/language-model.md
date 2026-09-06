@@ -35,6 +35,37 @@ associated values. Thus
 `Rejected { reason: CaptureRejection }` is an outcome carrying a reason, not
 terminal text or a command that the player can enter.
 
+### Query domains
+
+An entity query requires an identity belonging to the corresponding current
+game-state domain. The identity type distinguishes kinds of entity; it does not
+by itself prove that an entity is present in this game.
+
+| Query | Required domain and result |
+| --- | --- |
+| ship | A roster ShipId; returns that ship record, including when it has no current commission. |
+| base | A BaseId in the fixed base roster; returns the record even when its strength is zero. |
+| planet | A PlanetId in the current planet collection; returns that planet record. |
+| captain | A CaptainId represented by a participating session; returns that captain record. |
+| tractorBeam | A TractorBeamId in the current beam set; returns that association. |
+| sector | An in-galaxy Position; returns the interaction object at that position, or none for an empty sector. |
+
+A query outside its declared domain has no result defined by this specification.
+It does not create a default entity, return a record remembered from an earlier
+observation, or introduce a player-visible error message. An operation that
+accepts an absent identity states its own check and result before querying the
+entity. For example, RemovePlanet returns NoPlanet when its target is absent;
+that branch does not evaluate planet(game, target).
+
+Optional results describe permitted absence inside a query's domain. Thus an
+empty sector is a valid result, while a coordinate outside the galaxy is not a
+Position. A ship's absent position also does not prevent querying its roster
+record; it prevents using that optional position as a Position without checking
+presence. Concurrent invalidation between a check and use is governed by the
+operation's coordination contract; these domain rules do not make the pair atomic.
+
+### Operation contracts
+
 An operation contract states:
 
 - **Inputs and preconditions:** the values it accepts and conditions required

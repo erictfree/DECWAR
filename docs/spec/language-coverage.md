@@ -379,3 +379,11 @@ destruction retains the fixed record for BUILD reuse; planet removal changes
 current planet membership. The base set size is distinct from maintained and
 surviving-base counts. This matches existing operation contracts and source;
 full identity/optional-query domain review remains ongoing.
+
+
+Core query domains now distinguish typed identities from current membership,
+fixed ship/base rosters from removable planets/beams, and Optional absence from
+an invalid lookup. RemovePlanet's absent-target outcome precedes lookup; empty
+sectors remain valid Optional results. This makes existing signatures explicit
+without adding diagnostics or default records. Concurrent check/use cases remain
+an operation-level obligation; a full query-use audit is still required.

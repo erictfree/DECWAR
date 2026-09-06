@@ -3691,3 +3691,17 @@ and existing contracts. logs/spec-base-membership-build.log passed 659 scenarios
 100 productions, 324 fragments, 14 chapters and 546 links. Inspected PDF physical
 pages 14 and 17; readable record and installation clauses. Full identity/query
 and concurrency review remains; goal stays active.
+
+### Specification: core query domains
+
+Made identity-query domains explicit, distinguishing fixed rosters, current
+planet/beam membership, participating captains and Optional sector results.
+Absent-target operations check before lookup; invalid lookup supplies neither
+a default record nor a new diagnostic. Concurrent check/use remains separately
+constrained. No gameplay or grammar change.
+
+Validation: logs/spec-query-domains-review.log checks existing signatures and
+membership/removal clauses; logs/spec-query-domains-build.log passed 659 scenarios,
+100 productions, 324 fragments, 14 chapters and 546 links. Inspected PDF physical
+pages 8–9: readable table and operation context. Full query-use and lifecycle
+audit remains; goal stays active.
