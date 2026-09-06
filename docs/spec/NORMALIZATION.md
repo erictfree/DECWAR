@@ -1600,3 +1600,16 @@ failure abstractly. Its fictional report does not add a random combat hazard.
 The source evidence is DECWAR.FOR 132–169 and 333–350, WARMAC.MAC initialization
 at 1155 and fatal entry at 6106; STAZAP's temporary diagnostic flag is cleared
 before ordinary return at 6213. No runtime code or legacy bytes change.
+
+### CompuServe statistics transformation and access
+
+CompuServeStatistics models game number, per-ship missions/reported losses and
+four record lists without the packed statistics layout. PrepareStandingUpdate
+separates a value transformation from storage attempts. reportedLosses follows
+the caller's missing marker, rather than asserting physical destruction. The
+source's PAYING-first read dependency for NON_PAYING departure updates is
+retained; an opening failure is not normalized to proof of absent records.
+The book states normal-return access/write paths and explicitly leaves partial
+reads, non-returning errors and durable storage to unresolved environment
+bindings. WARMAC.MAC UPDSTA 5694–5883 supplies this behavior; UPDCAP's admission
+counter update is a separate operation still to be reviewed.

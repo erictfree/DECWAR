@@ -164,7 +164,7 @@ For each attempted source:
 2. Read and close the source. If all four record groups are empty, omit its
    heading and faction sections. The groups are Federation primary records,
    Federation memorial records, Empire primary records and Empire memorial
-   records; their membership and ordering remain to be specified.
+   records; their membership and ordering are defined below.
 3. Otherwise display the Honor Roll heading and its applicable faction
    sections. A NON_PAYING source adds the notice
    `"(**** non-paying users ****)"`. An empty source does not display that notice.
@@ -285,9 +285,8 @@ implied by the ordinary successful sequence.
 [common departure record](../../legacy/compuserve/fortran%201978/DECWAR.FOR#L333),
 [fatal environment event](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L6106).
 
-**OPEN QUESTION:** The full update operation still needs mission/destruction counters,
-source initialization, date binding,
-write failures and concurrent access. The placement rule does not promise a
+**OPEN QUESTION:** The commissioning-counter update, date binding,
+complete output and concurrent failure behavior still require review. The placement rule does not promise a
 durable write or define the treatment of malformed preexisting records. It does
 not reclassify a losing commission as a destroyed physical ship.
 
@@ -351,6 +350,99 @@ memorial score instead. Complete interruption placement, damaged source records,
 heading whitespace and row formatting also remain under review.
 
 **Source basis:** [faction comparison and group display](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L5922).
+
+### Preparing a standings update
+
+```text
+type CompuServeStatistics = {
+    gameNumber: nonnegative integer;
+    missions: Map<ShipId, nonnegative integer>;
+    reportedLosses: Map<ShipId, nonnegative integer>;
+    standings: CompuServeStandings;
+};
+
+type StandingUpdate = {
+    statistics: CompuServeStatistics;
+    placement: StandingsPlacement;
+    writeRequired: Boolean;
+};
+
+query PrepareStandingUpdate(before: CompuServeStatistics,
+                           ship: ShipId, team: Team,
+                           candidate: CompuServeStanding): StandingUpdate
+    requires candidate.elapsed >= 1000 milliseconds
+    requires before contains counters for ship and valid lists for team
+```
+
+This query describes the value to be submitted for storage; it does not itself
+read, write, display, advance the game, or release a commission. Its result is
+computed as follows:
+
+1. Start with the supplied statistics. If candidate.markedMissing == true,
+   increase reportedLosses[ship] by one. Otherwise retain that counter.
+2. Compute placement with FindStandingsPlacement on the team's primary list.
+3. For InsertAt, use a record with candidate's values except that missionNumber
+   is before.missions[ship]. Insert it at the selected position, retaining at
+   most ten records as specified above. Set writeRequired = true.
+4. For BelowCut or EarlierAccountRecord, retain all record lists and set
+   writeRequired = candidate.markedMissing.
+5. Return the resulting statistics, placement and writeRequired. The game
+   number, mission counters, other ships' loss counters and all other lists
+   retain their supplied values.
+
+reportedLosses counts qualifying missing-marked submissions. It is not a count
+of physical destruction events: the departure rules can mark a losing but
+living ship, or leave an immediate movement death unmarked. The display calls
+this count the number of times the named ship has been destroyed. When an
+increment makes the count greater than one, its historical comparison reports
+the count **before** this submission and the current mission count. The first
+increment omits that comparison. This notification precedes placement.
+
+A rejected placement can therefore still require a statistics write. A newly
+inserted record takes its mission number from the statistics read for the
+update, not from a separately remembered admission value. Its recordedDate is
+supplied by the environment when insertion is reached. Providing that date as
+a value to the query does not require observing it on rejected placements.
+
+### Standings access and write attempts
+
+The departure update first applies the elapsed-time threshold. A qualifying
+submission attempts exclusive statistics access, retrying unsuccessful entry.
+No finite retry limit, turn charge or guaranteed acquisition time is specified.
+The following sequence applies after entry when source operations return
+normally; interruption and non-returning failures need an environment binding.
+
+Start from empty record lists and zero counters, and attempt to open the PAYING
+statistics source for reading. If this opening fails, proceed with the empty
+statistics; do not attempt a NON_PAYING read on that branch. If opening succeeds,
+read the available contents and close it. For a NON_PAYING session, then replace
+the selected statistics with empty statistics and attempt the NON_PAYING read;
+a failed opening leaves that selection empty. For a PAYING session, retain the
+PAYING selection. A source that opens but supplies no contents leaves the
+initial empty values. Partial or malformed contents are outside this rule's
+valid-statistics domain.
+
+Apply PrepareStandingUpdate to the selected statistics. When writeRequired is
+false, release statistics access and return without opening a destination.
+When true, attempt to open the session's own service-class destination for
+writing. If that opening fails, release access and return; the caller is not
+given a successful-save guarantee. Otherwise submit the resulting statistics,
+close the destination, release access and return. Do not retry the destination
+opening or roll back already emitted placement notifications on these normal
+return paths. Completion of output and close, crash recovery and durable
+storage are environment questions, not promises made by a ranking message.
+
+In particular, a NON_PAYING departure whose initial PAYING read cannot be
+opened may submit statistics derived from empty values to the NON_PAYING
+destination. Do not silently replace this sequence with “read only the session's
+own source,” merge both sources, or interpret an opening failure as proof that
+no prior records exist.
+
+**Source basis:** [statistics counters](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L687),
+[entry and source selection](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L5694),
+[loss count and notification](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L5725),
+[earlier-account outcome](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L5783),
+[record insertion and write paths](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L5833).
 
 ## Ctrl-G during command input
 

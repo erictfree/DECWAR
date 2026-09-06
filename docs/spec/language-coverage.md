@@ -263,3 +263,10 @@ immediate movement death and intercepted fatal environment failure. Examples
 EX-COMP-32–34 distinguish these from fatal command-acquisition checks. The
 marker is not a ship-life invariant. Full standings persistence, counters and
 environment-failure continuation still require review.
+
+The CompuServe statistics ADT now includes mission and reported-loss counters.
+PrepareStandingUpdate specifies insertion and no-insertion write decisions;
+the access contract preserves PAYING-first selection, empty initial values,
+own-class writes and normal-return opening failures. Admission counter changes,
+partial reads, durable storage, interrupted access and full row output remain
+separate review items.

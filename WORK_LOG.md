@@ -3411,3 +3411,21 @@ logs/spec-comp-departure-build.log passed: 629 scenario rows, 100 productions,
 logs/spec-comp-departure-audit.log. Inspected rendered physical pages 217 and
 222: legible prose/table, no clipping. Remaining standings counters, persistence
 and failure-continuation work stays open; full goal remains active.
+
+### Specification: CompuServe statistics values and write decisions
+
+Added CompuServeStatistics, StandingUpdate and PrepareStandingUpdate to the
+variant appendix. Source UPDSTA (WARMAC.MAC 5694–5883) establishes marker-driven
+reported-loss counting, mission values from the selected statistics, write
+requirements even for rejected missing-marked entries, PAYING-first read
+selection and own-class write attempts. Kept IO/durability and partial-data
+binding limits explicit, and did not infer physical destruction from counters.
+Added EX-COMP-35–38 and normalization/coverage notes. No gameplay changes.
+
+Validation: logs/spec-comp-statistics-source-review.log contains branch/order
+assertions and scoped manual review. logs/spec-comp-statistics-build.log passed
+with 633 scenario rows, 100 productions, 324 fragments and 14 chapters. Visually
+reviewed PDF physical pages 217, 224–225: readable ADTs, prose and examples with
+no clipped content. Prior archive audit remains applicable; no archive or
+runtime edits. Admission counters, full output and interrupted storage access
+remain review items. Goal remains active.
