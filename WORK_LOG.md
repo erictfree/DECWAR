@@ -3759,3 +3759,16 @@ scenarios, 100 productions, 324 fragments, 14 chapters and 546 links. Inspected
 PDF physical page 146: readable resolved rule and remaining limits. No gameplay
 or archive changes. Reinitialization phase, exhaustion and concurrent placement
 remain open; full goal stays active.
+
+### Specification: installation eligibility cross-check
+
+Compared PLACE, DIST, DOCK, BASKIL, BASPHA and BASBLD group/record gates.
+Corrected EnemyBaseDefense's omitted maintained-base-count guard; made
+BaseReplenishment's record-only eligibility and faction/base order explicit.
+Recorded the comparison in evidence. Resource formulas unchanged.
+
+Validation: logs/spec-installation-eligibility-review.log checks relevant source
+gates/order; logs/spec-installation-eligibility-build.log passed 662 scenarios,
+100 productions, 324 fragments, 14 chapters and 546 links. Inspected PDF physical
+pages 118 and 120; readable defense/replenishment clauses. No gameplay/archive
+changes. Concurrent scans and ownership observations remain open; goal active.

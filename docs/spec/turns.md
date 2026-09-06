@@ -215,8 +215,10 @@ a later installation from selecting that ship as a commissioned target.
 ### EnemyBaseDefense
 
 In a player context activate the opposing faction's bases. In a Romulan context
-activate Federation bases, then Empire bases. Within each faction use base
-identity order, skipping bases with nonpositive strength. For each base:
+activate Federation bases, then Empire bases. Skip a faction when its maintained
+world.baseCounts[faction] is zero. For each remaining faction use base identity
+order, skipping bases with nonpositive strength. The group-count check does not
+recount records and remains distinct from the per-base strength check. For each base:
 
 ```text
 for (each opposing ship in roster order) {
@@ -303,6 +305,10 @@ context, let n be the total player count. Replenish every surviving base by
 `5/(n+1)` percentage points. Cap each resulting strength at 100%.
 Fractions are retained; there is no minimum
 whole-percentage replenishment and destroyed bases do not regenerate.
+Replenishment visits the applicable factions in Federation-then-Empire order
+and their records in base identity order. It has no maintained-base-count guard:
+a positive-strength record remains eligible even if that faction's maintained
+count is temporarily zero. It does not require a sector-presence check.
 
 These formulas use the session's maintained player counts. Their normal player
 context requires a positive count for the acting faction and a positive total

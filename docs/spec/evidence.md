@@ -450,3 +450,26 @@ count preserves docking when that base search did not preserve it. No change
 to that contract was needed. These guards differ from DOCK and DIST and must
 not be replaced by one shared eligibility predicate. Concurrent invalidation
 and exhausted placement domains remain outside this review's completed scope.
+
+
+## Installation eligibility cross-check
+
+The reviewed Austin routines have distinct group and record gates. The table
+records those gates for valid records; it is not a replacement for each
+operation's range, context, ordering, ownership or interruption rules.
+
+| Operation | Maintained-count gate | Base record gate |
+| --- | --- | --- |
+| Ship placement, PLACE 2774–2781 | Opposing NBASE positive | Every recorded opposing position; no strength or presence gate. |
+| Romulan selection, DIST 865–875 | Faction NBASE positive | Positive strength and nonempty sector. |
+| DOCK 899–914 | No base-count gate; NUMCAP gates planet scan | Positive strength and within one sector. |
+| Docking maintenance, BASKIL 349–366 | NBASE gates base scan; nonpositive NUMCAP retains docking after failed base support | Positive strength and within one sector. |
+| Base defense, BASPHA 383–390 | Faction NBASE positive | Positive strength; no base-sector-presence gate. |
+| Base replenishment, BASBLD 326–331 | No base-count gate | Positive strength; no sector-presence gate. |
+
+The base-defense clause omitted its faction-count gate and is corrected.
+Replenishment's record-only eligibility and ordering are now explicit. Planet
+Defense scans the current planet sequence, applies the neutral attack choice
+and acting-faction exclusion, then tests targets; it has no captured-planet-count
+gate. No universal installation-alive predicate or cached recount should replace
+these distinctions. Concurrent sector/ownership changes remain a separate audit.

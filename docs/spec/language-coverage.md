@@ -414,3 +414,10 @@ around every recorded opposing base position; zero skips it. The existing
 ReevaluateDocking count/strength guards also agree with BASKIL. Shared eligibility
 must not be inferred across PLACE, DOCK, DIST and docking maintenance. Exhausted
 domains, concurrent changes and galaxy-reinitialization phase remain open.
+
+
+Installation eligibility cross-check now compares six source routines together.
+Corrected the omitted base-defense faction-count gate and clarified replenishment's
+record-only scan/order. Placement, DIST, DOCK and docking-maintenance gates agree
+with their reviewed clauses. This does not establish atomic scans or complete
+planet ownership/sector behavior during concurrent updates.
