@@ -3367,3 +3367,17 @@ or refusal probability. Added EX-MODEL-593.
 branch. `logs/spec-capture-refusal-build.log` passes; physical PDF pages 56 and
 213 were visually inspected. Coverage now separates the known refusal cause
 from the unresolved coordination binding. Runtime/archive unchanged.
+
+### Specification checkpoint: BUILD conversion ordering
+
+Specified ConstructionCrewBusy as failed phase entry after the fifth-stage
+build and pending points, with no retry. Made discovery transfer before planet
+removal explicit and described the established partial state at its world-end
+check: points/count/discovery changed, planet removed, replacement base position
+and strength not yet installed. Intermediate sector/concurrent identity cases
+remain unresolved; no atomic conversion or rollback is introduced.
+
+`logs/spec-build-conversion-order-source-review.log` verifies event order.
+`logs/spec-build-conversion-order-build.log` passes; physical PDF pages 54–56
+were visually inspected. The first image lookup used an unpadded filename; the
+actual padded render files were then inspected. Runtime/archive unchanged.

@@ -1049,9 +1049,12 @@ it does not retry conversion. No new clamping or retry behavior is implied.
 
 ### Fifth-stage conversion
 
-A fifth stage can be refused with ConstructionCrewBusy. This outcome reports
-that the construction crew is busy with repairs, retaining the stage increment
-and its 250 pending points. It completes no turn.
+After the fifth stage's build and pending-point changes, attempt to enter the
+WORLD_CHANGE coordinated phase. Failed entry gives ConstructionCrewBusy with
+no retry. This outcome reports that the construction crew is busy with repairs,
+retaining the stage increment and its 250 pending points. It completes no turn.
+This phase-entry failure differs from CAPTURE refusal, which precedes its game
+changes.
 
 If conversion proceeds, choose the first available identity in
 `w.baseOrder[s.team]`. If none is available, give BaseLimitReached and its
@@ -1059,13 +1062,16 @@ diagnostic, restore p.builds to four and retain the 250 pending points.
 This later capacity failure completes no turn. It differs from the initial
 four-build capacity rejection, which adds no build or points.
 
-**OPEN QUESTION:** The conditions for conversion refusal, concurrent changes between the
-capacity checks and competing installation operations remain to be specified.
-The crew report does not define a new random failure or player-controlled crew
-resource.
+**OPEN QUESTION:** Complete phase-entry failure/waiting conditions and concurrent
+changes between the capacity checks remain to be specified. The crew report
+identifies failed coordination entry; it does not define a new random failure
+or player-controlled crew resource.
 
 With an available identity, conversion contributes a further 250 pending
-BASE_CONSTRUCTION points and increments w.baseCounts[s.team]. It then removes
+BASE_CONSTRUCTION points and increments w.baseCounts[s.team]. Before planet
+removal, transfer the selected planet's discovery to that base identity using
+the knowledge rule below, replacing knowledge of the old base at that identity.
+It then removes
 p through RemovePlanet with the acting captain as viewer and s.team as
 formerOwner, decrementing w.capturedPlanetCounts[s.team] before docking
 re-evaluation and the world-end check. After that removal returns, it introduces a base n at
@@ -1110,10 +1116,20 @@ If the galaxy continues, give BaseConstructed { base: n.id } and the constructio
 which identifies the acting ship, location and new base. The five normal stages
 contribute 1000 points altogether: 50, 100, 150, 200 and 500.
 
-**OPEN QUESTION:** The partially completed conversion state at a terminating world check,
-and the exact observations available to simultaneous actions during conversion,
-need a complete contract. The equations above describe normal completed
-conversion, not an indivisible change covering these intermediate events.
+At the world-end check inside planet removal, the fifth stage has contributed
+500 pending construction points in total, the acting faction's maintained base
+count has increased by one, and the base identity has received the planet's
+discovery. The planet has been removed from the planet sequence and the owned
+planet count has decreased. The base identity still has its previous position
+and nonpositive strength: installation of the new position, 100% strength and
+sector presence has not yet occurred. If the check ends the galaxy, BUILD does
+not subsequently install that base or emit the construction report. These prior
+effects are not rolled back by treating construction as one transaction.
+
+**OPEN QUESTION:** Exact sector observations during removal and concurrent changes
+to the selected identities remain unresolved. The completed-conversion equations
+above do not define those intermediate sector observations or make conversion
+indivisible.
 
 ### Completion
 

@@ -1579,3 +1579,13 @@ Target checks precede entry and are not repeated. This resolves the source
 cause of refusal without specifying missing monitor failure/timeout semantics
 or inventing stale-target revalidation. The successful unchanged-target contract
 and unresolved racing-target domain are distinguished.
+
+### BUILD refusal and terminating conversion checkpoint
+
+BUILD's phase-entry failure follows its stage increment and 250 pending points;
+it is not CAPTURE's pre-effect refusal. With a base identity selected, the extra
+250 points, maintained base count and discovery transfer precede PLNRMV. Its
+world-end check precedes replacement of base position/strength and sector
+installation. The book now distinguishes those established partial effects from
+unresolved intermediate sector observations; it does not invent a rollback or
+normalize the conversion into an atomic transaction.
