@@ -3662,3 +3662,18 @@ Validation: logs/spec-document-literal-review.log passed source-byte and output
 routine assertions. Evidence-only edit outside book.json; no PDF rebuild needed.
 No gameplay/archive changes. Other specification work remains available and
 the full goal stays active.
+
+### Specification: quantity arithmetic contract
+
+Defined real magnitudes with distinct units, same-kind arithmetic, scalar
+scaling, percentage-point interpretation and TimePoint/Duration relationships.
+Kept Coordinate/Stardate discrete and field-specific bounds/clamps explicit.
+This consolidates the existing ordinary-arithmetic policy without changing
+formulas or grammar. Added normalization rationale and scoped coverage.
+
+Validation: logs/spec-quantity-arithmetic-review.log checks representative
+existing combat, score and wait contracts; logs/spec-quantity-arithmetic-build.log
+passed 659 scenarios, 100 productions, 324 fragments, 14 chapters and 546 links.
+Inspected PDF physical pages 12–13; readable quantity and geometry sections.
+No gameplay/archive changes. Whole-book dimensional/type review remains; full
+goal stays active.

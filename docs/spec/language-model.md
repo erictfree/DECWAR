@@ -266,6 +266,42 @@ rule explicitly requires a discrete result or a formatted display. Historical
 word limits, overflow and intermediate truncation do not apply. This does not
 change the command grammar or permit new game mechanics.
 
+### Quantity arithmetic
+
+Energy, Damage, Percentage, Duration and Points have real numerical magnitudes
+in their declared units. Their type names alone impose no rounding, lower bound
+or upper bound. A field or operation can impose such a bound explicitly. For
+example, a fatal hit can leave energy negative, a score can be negative, and a
+base-hit observation can retain negative strength. These values are not silently
+replaced with zero by assigning them a quantity type.
+
+Addition, subtraction and comparison require quantities of the same kind.
+Multiplication or division by a dimensionless real preserves the quantity kind;
+dividing two quantities of the same kind gives a dimensionless real when the
+denominator is nonzero. A formula that transfers a numerical magnitude between
+different kinds states the conversion explicitly. Thus ApplyShipHit adds a
+numerical amount in damage units to hull damage and subtracts the same numerical
+amount in energy units from energy; Energy and Damage are still distinct types.
+
+Percentage is measured in percentage points: 100% has magnitude 100 and 5%
+has magnitude 5. Adding 5 percentage points to 20% produces 25%. Multiplying
+20% by 0.5 produces 10%. In a formula using a strength magnitude S, `S/100`
+is its dimensionless fraction. It does not divide an already fractional value
+by 100 again.
+
+Subtracting two TimePoint values on the same elapsed-time axis gives a Duration.
+Adding a Duration to a TimePoint gives a TimePoint on that axis. TimePoint is not
+a calendar date or a Stardate. A Duration may be negative, as in a deadline
+already passed; the waiting clause defines the effect of requesting a wait of
+at most zero. Calendar and clock-discontinuity bindings remain separate.
+
+Stardate and Coordinate retain their declared discrete domains. These arithmetic
+conventions do not turn command counts into real-valued inputs or add a legal
+command form. Explicit conversion, rounding, caps and fatal thresholds in the
+operation clauses take precedence over any informal expectation about a resource.
+
+### Sector geometry
+
 For positions a and b:
 
 ```text

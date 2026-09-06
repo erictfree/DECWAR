@@ -365,3 +365,10 @@ normalization maps that attempt to NoMessage; the reception clause now says so
 explicitly and preserves unread membership. The earlier statement that this
 outcome was unresolved was too broad. Failure timing, interruptions and atomic
 selection/removal remain unverified; this is not a completed radio audit.
+
+
+Quantity-notation review now defines unit-preserving arithmetic, percentage
+points and TimePoint/Duration operations centrally. Existing negative energy,
+base-hit observations, signed scores and nonpositive wait requests remain valid;
+field-specific bounds and clamps still belong to their operations. This clarifies
+the ADT vocabulary without claiming a whole-book dimensional or type proof.

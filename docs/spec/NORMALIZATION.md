@@ -1713,3 +1713,16 @@ retain the declared torpedo a/b/c draws before deflection and the base
 IntegerDraw(10) after critical strength loss, even when their result cannot
 change the immediate outcome. These are explicit abstract operation inputs;
 they must not be optimized away by a replay implementation. No runtime change.
+
+
+## Explicit quantity arithmetic
+
+The abstract-model quantity clause consolidates the existing ordinary-arithmetic
+policy: Energy, Damage, Percentage, Duration and Points carry real magnitudes
+and retain distinct units. It does not impose global nonnegative constraints or
+implicit clamps. Existing ApplyShipHit, critical base reporting, signed score
+updates and WaitElapsed's nonpositive request path require that distinction.
+Percentages use points (100% has magnitude 100); attenuation formulas explicitly
+convert that magnitude to a fraction. TimePoint differences are durations on a
+single elapsed-time axis, not dates or stardates. No formula, command grammar,
+resource bound or runtime representation changes with this clarification.
