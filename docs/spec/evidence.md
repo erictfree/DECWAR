@@ -890,3 +890,16 @@ restores input at shlp.9; all returns clear interrupt/output-stop conditions at
 shlp.e. Outer HELP continues its topic loop, then restores temporary presence.
 CompuServe's analogous open path uses its CRLF-bearing warning expansion.
 The recipe does not assert successful cleanup under an environment failure.
+
+### NEWS prompt, warning and exit boundaries
+
+Austin NEWS 3811–3856 emits boundary characters before testing a following dot;
+the dot instead enables output and prompts without a suffix. YES returns to
+news.1 at the next resource character. Refusal, EOF and detected line-boundary
+controls enter news.4, which clears controls and closes/restores input without
+an output suffix. Open failure branches directly to news.5, bypassing that
+cleanup. Corrected the overly broad cleanup statement and omitted percent
+prefix in the command overview. WARN's HUNGUP gates govern warning/flush output;
+CompuServe's macro supplies the only added warning ending. Ordinary NEWS body
+comparison is recorded in logs/spec-news-output-review.log. Resource cleanup
+failures and asynchronous control arrival remain separate environment questions.

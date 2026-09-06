@@ -92,6 +92,13 @@ missing-section diagnostic retain the core sequence.
 **Source basis:** [section opening](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L5128),
 [warning macro](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L62).
 
+For [NEWS output and failure](presentation.md#news-output-and-failure),
+CompuServe appends CRLF to `"%Can't read DECWAR.NWS"`. Its content, continuation
+prompt and ordinary viewing-exit output follow the core sequence.
+
+**Source basis:** [NEWS](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L4658),
+[warning expansion](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L59).
+
 Amending [movement relocation](commands.md#traversal-resource-cost-and-relocation),
 CompuServe Move can additionally return RelocationRefused. This is a semantic
 outcome, not command syntax or a new terminal message. When a required relocation

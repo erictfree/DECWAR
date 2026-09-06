@@ -2954,7 +2954,7 @@ operation ReadNews(captain: CaptainId): Finished | Stopped | Unavailable
 NEWS is available before commissioning and during play, including under RED
 alert. Trailing command arguments do not select a section or answer a later
 continuation prompt. Failure to open the news content yields `Unavailable`
-and the diagnostic `Can't read DECWAR.NWS`.
+and the diagnostic `%Can't read DECWAR.NWS`.
 
 ### Observations and state effects
 
@@ -2970,12 +2970,15 @@ line. A YES match, including an ordinary accepted abbreviation, continues; every
 part of the displayed news. End of content yields `Finished`; refusal or a
 stop control yields `Stopped`.
 
-Ctrl-C or the output-stop control stops viewing at a line boundary. Clear those
-controls on exit and restore command input. News output counts as activity for
+Ctrl-C or the output-stop control stops viewing at a line boundary. On exit
+from an opened news resource, clear those controls, close the resource and
+restore command input. Open failure has not entered resource input and does
+not pass through this viewing-exit cleanup. News output counts as activity for
 a commissioned ship. NEWS does not start HELP's temporary sector state: the
 ship remains present normally, subject to ordinary concurrent world events.
 
-NEWS changes no resources or scores and completes no turn. Elapsed time spent
+The [NEWS presentation](presentation.md#news-output-and-failure) defines prompt
+and failure-text endings. NEWS changes no resources or scores and completes no turn. Elapsed time spent
 reading does not stop other captains or make the reader immune to attacks.
 
 **Source basis:** [NEWS](../../legacy/utexas/WARMAC.MAC#L3811),

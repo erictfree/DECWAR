@@ -315,6 +315,29 @@ these response rules.
 [end-of-resource and cleanup](../../legacy/utexas/WARMAC.MAC#L4273),
 [warning output](../../legacy/utexas/WARMAC.MAC#L28).
 
+## NEWS output and failure
+
+NEWS adds no initial blank-line request. It emits the content selected by the
+[news binding](information.md#news-content), including the boundary character
+before a continuation dot. At that dot, enable output and emit
+`"Do you want to continue viewing the news file? "` with no added leading or
+trailing ending. Neither the dot nor an automatic line break replaces this
+prompt. On YES, resume at the next resource character; other replies finish
+viewing. Input echo follows the continuation-input rules.
+
+NEWS appends no completion message or final line ending on refusal, stop or
+end of content. Output already emitted remains. If the content could not be
+opened, request delivery of pending buffered terminal output, then emit
+`"%Can't read DECWAR.NWS"` without an appended ending in Austin. Suppress that
+flush request and warning when disconnection is already detected. This warning
+is separate from a successfully opened empty resource, which simply finishes.
+The [NEWS contract](commands.md#news) distinguishes viewing cleanup from open
+failure; these presentation rules do not promise successful cleanup after an
+environment failure.
+
+**Source basis:** [NEWS output and exits](../../legacy/utexas/WARMAC.MAC#L3811),
+[warning expansion](../../legacy/utexas/WARMAC.MAC#L28).
+
 ## TELL command responses
 
 Player TELL makes no initial conditional blank-line request. RadioUnavailable

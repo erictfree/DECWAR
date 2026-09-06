@@ -4225,3 +4225,18 @@ logs/spec-help-failure-build.log passed (100 productions, 671 scenarios, 650
 links, 324 fragments). PDF pages 89, 159 and 240 visually reviewed; no clipping
 or overlap in the new content. git diff --check passed. No runtime/archive edits.
 Complete terminal/control and concurrent failure review remains ongoing.
+
+
+## NEWS continuation and failure output — 2026-09-06
+
+Specified prompt boundaries, no added completion ending, percent-prefixed open
+warning and ordinary cleanup. Corrected the prior statement that every exit
+clears controls: open failure bypasses viewing cleanup. Compared complete NEWS
+executable bodies across variants; only warning macro expansion changes the
+specified suffix. No game-state or archive edits.
+
+logs/spec-news-output-review.log records comparison/source scope;
+logs/spec-news-output-build.log records successful build (100 productions, 671
+scenarios, 658 links, 324 fragments). PDF pages 90, 160 and 240 visually reviewed
+without clipping/overlap. git diff --check passed. Environment cleanup failures
+and asynchronous control delivery remain separate review domains.
