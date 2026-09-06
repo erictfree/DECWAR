@@ -1268,10 +1268,12 @@ capture credit. Subsequent world and lifecycle events have their own effects.
 
 ### Observations and completion
 
-The actor receives the capture and defensive-hit reports. A fatal outcome also
-produces the faction-specific death report. The final hit notification is
-available to the acting faction within distance 10 of the ship and to captains
-of either faction within distance 4.
+After resolving the defense, print the capture report and publish its defensive-hit
+notice under the combat-notice rules. A fatal resource state also produces the
+faction-specific death report. Direct text and ordering are specified in
+[capture responses](presentation.md#capture-responses). The final hit audience
+includes the acting faction within distance 10 of the ship and captains of either
+faction within distance 4; publication does not guarantee immediate reception.
 
 The capture deadline is command-entry time plus five seconds plus one second
 per former build. Time spent supplying coordinates and resolving capture counts

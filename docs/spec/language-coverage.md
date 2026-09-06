@@ -62,8 +62,8 @@ remaining dependencies below still limit end-to-end conformance claims.
 | DAMAGES | [DAMAGES](commands.md#damages): ADT operation contract, title observation and row presentation. | Full terminal controls and multiplayer observations. |
 | TRACTOR | [TRACTOR](commands.md#tractor): ADT operation contract. | Occupied trailing sectors and concurrent acquisition; direct responses and activation publication are specified. |
 | MOVE, IMPULSE | [MOVE and IMPULSE](commands.md#move-and-impulse): ADT operation contract. | Zero-item reply after an own-sector target, crowded towing, concurrent relocation, random distributions and responses. |
-| BUILD | [BUILD](commands.md#build): ADT operation contract. | Planet-update availability, conversion/world-end ordering and responses. |
-| CAPTURE | [CAPTURE](commands.md#capture): explicit ADT operation contract. | Coordination entry-failure binding, racing targets, final lifecycle and responses; refusal is explicitly tied to failed phase entry. |
+| BUILD | [BUILD](commands.md#build): ADT operation contract. | Planet-update availability and conversion/world-end ordering; ordinary stage/conversion/rejection responses specified. |
+| CAPTURE | [CAPTURE](commands.md#capture): explicit ADT operation contract. | Coordination entry-failure binding, racing targets and final lifecycle; direct responses and defensive-hit publication order specified. |
 | PHASERS | [PHASERS](commands.md#phasers): ADT operation contract. | Concurrent target changes, random distributions and complete delivery/presentation. |
 | TORPEDOS | [TORPEDOS](commands.md#torpedos): ADT operation contract. | Original-line missing target components and zero-item target continuation; complete four-/six-item cases specified. Concurrent target changes and complete delivery/presentation remain. |
 | LIST, SUMMARY, BASES, PLANETS, TARGETS | [Galaxy reports](commands.md#list-summary-bases-planets-and-targets): ADT operation contract. | Exhaustive selector-order coverage, concurrent reporting, interrupted output, terrain presentation; section boundaries and absence-message recipes are specified. |

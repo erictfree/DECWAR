@@ -396,6 +396,92 @@ the combat-notice rules. The direct-response table does not bypass those rules.
 [tractor strings](../../legacy/utexas/MSG.MAC#L349),
 [shared adjacency response](../../legacy/utexas/MSG.MAC#L70).
 
+## Construction responses
+
+BUILD's coordinate acquisition uses the shared location prompts and errors. It
+makes no additional initial blank-line request. After resolution, its direct
+responses are:
+
+| Outcome | Composition |
+| --- | --- |
+| NotAdjacent | Actor's current-sector object label, one space, `"not adjacent to planet."`, one unconditional line ending |
+| NotAPlanet | `"\r\nNo planet at those coordinates, Captain."`, one unconditional line ending |
+| NotOwned | `"\r\nPlanet not yet captured."`, with no appended line ending |
+| BaseLimitReached | `"\r\nAll "`, faction base label, `"s still functional, captain."`, one unconditional line ending |
+| ConstructionCrewBusy | `"Sorry, Captain, but the construction crew is"`, one unconditional line ending, `"busy with repairs at the moment."`, one unconditional line ending |
+
+Both capacity-failure paths use the same BaseLimitReached text despite their
+different effects on builds and points. The [BUILD contract](commands.md#build)
+determines those effects and the checks' order.
+
+A non-converting stage prints its new integer build count with Free width and
+no fractional digits, then `" build"`, then `"s"` only when the count is greater
+than one. Finish with a conditional blank-line request. A fifth stage does not
+print this count before attempting conversion.
+
+A normally completed base conversion makes a conditional blank-line request,
+then emits the actor's current-sector object label, one space,
+`"builds planet "`, the target location with Free fields in the actor's current
+coordinate/output preferences, `" into a "`, and the new base's object label
+without an added trailing space. Finish with a conditional blank-line request.
+If world termination prevents conversion from reaching this report, no conversion
+confirmation is implied by the earlier construction points or base-count change.
+
+**Source basis:** [BUILD](../../legacy/utexas/DECWAR.FOR#L522),
+[construction strings](../../legacy/utexas/MSG.MAC#L12).
+
+## Capture responses
+
+CAPTURE uses the shared coordinate acquisition. NotAdjacent makes a conditional
+blank-line request, emits the actor's current-sector object label and one space,
+then `"not adjacent to planet."` and one unconditional line ending.
+For NotAPlanet, select the text by the observed target kind:
+
+| Target kind | Text |
+| --- | --- |
+| Empty sector | `"\r\nNo planet at those coordinates, Captain."` |
+| Friendly ship or base | `"\r\nBut Captain, he's already on our side!"` |
+| Opposing ship or base | `"\r\nCaptain, the enemy refuses our surrender ultimatum!"` |
+| Romulan | `"\r\nCaptain, the Romulan refuses to surrender!"` |
+| Star or black hole | `"\r\nCapture THAT??  You have GOT to be kidding!!"` |
+
+Append one unconditional line ending. These are object-kind diagnostics, not
+additional attempts at diplomacy. SurrenderRefused instead emits
+`"The planet's government refuses to surrender."` and one unconditional line
+ending for the failed coordination entry specified by the command.
+
+AlreadyOwned emits `"\r\nPlanet already captured, Captain."` in SHORT or MEDIUM.
+In LONG, a Federation actor emits
+`"\r\nCaptain, are you feeling well?\r\nWe are orbiting a FEDERATION planet!"`;
+an Empire actor emits
+`"\r\nMESSAGE FROM PLANET:  Veer off you idiot!\r\nWe are ALREADY part of the Klingon Empire!"`.
+Append one unconditional line ending in each case.
+
+After applying the defensive attack and its discovery effects, accepted capture
+makes a conditional blank-line request. Emit the actor's ship label and one
+space, `"capturing "`, the planet label under its former ownership and one space,
+then the target location with Free fields and the actor's coordinate/output
+preferences. Make a conditional blank-line request, then publish the defensive
+hit notice. Publication does not guarantee its immediate display. This report
+uses the planet's former ownership even though capture has changed its owner.
+
+If the actor then has hull damage at least 2500 damage units or nonpositive
+energy, emit the faction-specific text:
+
+- Federation: `"\r\n\r\nScience Officer:  Captain, that was a MOST illogical tactic."`.
+- Empire: concatenate `"\r\n\r\nFirst Officer:  Commander, because of your incompetence"`
+  and `"\r\nwe must suffer the shame of DEFEAT!!"`.
+
+Append one unconditional line ending, then the actor's ship label, one space,
+`"DESTROYED during capture of planet!!"` and one unconditional line ending.
+This additional report does not undo ownership or pending capture points.
+Subsequent turn and lifecycle output follows the [CAPTURE contract](commands.md#capture).
+
+**Source basis:** [CAPTUR](../../legacy/utexas/DECWAR.FOR#L600),
+[capture strings](../../legacy/utexas/MSG.MAC#L20),
+[target-kind diagnostics](../../legacy/utexas/MSG.MAC#L148),
+[location completion](../../legacy/utexas/DECWAR.FOR#L3078).
+
 ## Combat observation bodies
 
 These recipes present a CombatObservation that passed ReceiveNotice's reception

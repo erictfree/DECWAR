@@ -612,3 +612,19 @@ association then publishes. Replaced the unqualified receipt wording
 in the engagement contract with publication of TractorEvent ACTIVATED. Exact
 strings are MSG.MAC 349–357, plus the shared name/absence/adjacency messages.
 This adds no notification, command or delivery guarantee.
+
+### BUILD and CAPTURE output composition
+
+Added BUILD ordinary stage, conversion and rejection recipes from Austin
+DECWAR.FOR 522–592 and MSG.MAC 12–19. BUILD7 has a leading CRLF and no
+appended ending; BUILD count pluralization is conditional >1. Conversion uses
+current-sector labels around PRLOC without a requested break until its final
+CRLF. Both capacity failures share a response but retain distinct state effects.
+
+CAPTUR 600–685 selects nonplanet diagnostics by object kind, with output-length/
+faction-specific AlreadyOwned text. After damage/discovery, it emits the former
+planet-ownership capture line, PRLOC with a conditional break, then MAKHIT.
+Death text follows publication and checks hull/energy, rather than a new outcome
+rollback. Reworded command observations to avoid promising immediate hit receipt.
+MSG.MAC 20–37,148–160 supplies embedded CRLFs. Full concurrent snapshots and
+interrupted output remain outside the ordinary recipes. No gameplay change.

@@ -3916,3 +3916,19 @@ logs/spec-radio-tractor-responses-build.log: 662 scenarios, 100 productions,
 324 fragments, 14 chapters and 574 links. Inspected PDF physical pages 160–162:
 response sections and following combat section readable. No gameplay/archive
 changes. Full goal remains active.
+
+### Specification: BUILD and CAPTURE response composition
+
+Added BUILD stage-count pluralization, conversion and all ordinary rejection
+recipes; distinguished identical capacity text from differing state effects.
+Added CAPTURE object-kind/ownership refusals, former-owner capture line,
+defensive-hit publication and fatal-resource text order. Corrected observation
+wording to distinguish direct reporting from notice publication.
+
+Validation: logs/spec-build-capture-responses-review.log checks 19 exact strings,
+BUILD suffix/count rules and capture damage/report/publication/points/death order.
+Initial PDF overflow retained in logs/spec-build-capture-responses-build.log;
+split the Empire literal into exact concatenated pieces. Retry passed in
+logs/spec-build-capture-responses-build-2.log: 662 scenarios, 100 productions,
+324 fragments, 14 chapters and 583 links. Inspected PDF physical pages 161–163;
+clauses readable. No gameplay/archive changes; full goal active.
