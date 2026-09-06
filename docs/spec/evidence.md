@@ -545,3 +545,17 @@ supports shared-service scope, not a requirement that independent installations
 share records. MOVE's three-sector grouping and STAZAP's distinct STABUF key
 remain outside the mapped ordinary operations. Pending/reentrant records and
 interrupted selection remain unresolved; the table does not assert atomicity.
+
+### Mapping-domain review
+
+Reviewed all Map declarations in the normative model, commands, shared world,
+turn, autonomous, communication, session and variant chapters. Team, Device,
+PhaserBank and ScoreCategory mappings use their declared finite enumeration
+domains. HistoricalStatistics explicitly binds StatisticId to the environment's
+schema. CompuServe missions/reportedLosses needed an explicit restriction to its
+roster: the appendix now states that domain and distinguishes zero-filled empty
+statistics from missing entries. Source WARMAC.MAC 5594–5597 clears the statistics
+value before reading; 5629–5630 increments the selected ship counter. The source
+roster is the appendix's existing ten-ship roster. This clarification adds no
+identity or missing-record repair. Property references and non-mapping type
+relationships still require their separate whole-book review.

@@ -3832,3 +3832,16 @@ logs/spec-comp-resource-map-build.log passed 662 scenarios, 100 productions,
 324 fragments, 14 chapters and 550 links. Inspected PDF physical pages 244–245;
 table and continued waiting rules are readable. No gameplay/archive changes.
 The full goal remains active; this does not complete multiplayer conformance.
+
+### Specification: statistics mapping domains
+
+Reviewed Map key domains in the abstract model and gameplay/session/variant
+chapters. Clarified CompuServe ship-counter mappings as total over its ten-ship
+roster, including uncommissioned ships; empty statistics has zero counters,
+not missing entries. Kept malformed persistent-record recovery outside this rule.
+
+Validation: logs/spec-mapping-domains-review.log inventories mapping declarations
+and checks source clearing/increment statements. Build passed in
+logs/spec-mapping-domains-build.log. Inspected PDF physical page 236: ADTs and
+scope paragraph readable. This is a mapping-domain review, not complete type
+verification. No gameplay/archive changes; full specification goal remains active.

@@ -529,6 +529,15 @@ operation RecordCommission(ship: ShipId,
                            service: CompuServeServiceClass): CommissionNumbers
 ```
 
+The missions and reportedLosses mappings are restricted to the ten identities
+in the CompuServe roster. A valid CompuServeStatistics value contains one counter
+of each kind for every such identity, including ships with no current commission.
+They do not contain counters for Austin-only ships, the Romulan or captains.
+Empty statistics means zero gameNumber, zero for every counter, and empty
+standings lists; it does not mean absent mapping entries. RecordCommission
+requires a ship identity in this roster. These domain requirements do not define
+recovery from an incomplete or damaged persistent record.
+
 compuServeGameNumber is the current galaxy's shared game number. It is distinct
 from gameNumber in either stored CompuServeStatistics value. RecordCommission
 is an admission action, not a player command. The admission caller invokes it
