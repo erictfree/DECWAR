@@ -156,6 +156,29 @@ defense phases. Other ships and installations do not alter the stated result.
 | EX-MODEL-143 | Ten recent-commission records in insertion order; oldest matching identity departs again | Update that record in place. The next previously unseen identity still replaces the oldest inserted record. |
 | EX-MODEL-144 | Returning session has the same display name and terminal as a recent departure but a different account/execution pair | That history entry does not match. Display name and terminal alone do not establish return identity. |
 | EX-MODEL-145 | News has a continuation boundary; acquired command line is NEWS / YES | The slash remainder supplies the continuation reply. An additional physical input line is not required for that boundary. |
+| EX-MODEL-146 | Initial startup dialogue; empty reply | Begin admission. Do not require PREGAME or ACTIVATE first. |
+| EX-MODEL-147 | Initial startup dialogue; HELP | Display general help and the command list, then repeat startup. Do not begin commissioning. |
+| EX-MODEL-148 | Pregame; MOVE | Diagnose a command valid only during play and include the help hint. No acting ship is created. |
+| EX-MODEL-149 | Pregame; ACTIVATE | Begin admission without selecting a faction or ship solely from that command. |
+| EX-MODEL-150 | No matching history; faction populations Federation 5, Empire 3 | Assign Empire without asking which faction. |
+| EX-MODEL-151 | No matching history; faction populations 4 and 4; empty faction reply | Select Federation. |
+| EX-MODEL-152 | No matching history; Federation 4, Empire 3; empty faction reply | Select Empire, the smaller faction. |
+| EX-MODEL-153 | Returning Federation captain; Federation full; YES to defection | Select Empire and offer its available ships. Existing captains retain their commissions. |
+| EX-MODEL-154 | Former faction has room but former ship is occupied; NO to another ship | Cancel admission without a faction-acceptance increment. Remove the overall participant reservation. |
+| EX-MODEL-155 | Faction has cumulative commission count 4; captain accepts it, then cancels during ship choice | Count becomes 5 and remains 5. Overall and faction participant reservations are removed. |
+| EX-MODEL-156 | Successful new commission before initialization commands | Energy 5000, ten torpedoes, shields UP at 100%, no damage, life reserve five, GREEN, stardate and individual score zero. |
+| EX-MODEL-157 | Pregame privilege enabled; successful admission | Admission does not clear privilege. Later commands still apply their explicit privilege rules. |
+| EX-MODEL-158 | No preference changes before admission; TYPE OUTPUT after commissioning | Initial input mode is reported BOTH, although unqualified numeric locations are relative. Terminal profile is CRT. |
+| EX-MODEL-159 | New-galaxy star draw 0, hole draw 0; holes selected | Choose 100 stars and ten black holes, along with twenty planets and ten bases per faction. |
+| EX-MODEL-160 | New-galaxy star draw 0.999, hole draw 0.999; holes selected | Choose 350 stars and fifty black holes. |
+| EX-MODEL-161 | New galaxy; empty regular/tournament reply, empty Romulan reply, empty black-hole reply | Regular game, Romulan activity enabled but none initially present, no black holes. The potential hole-count draw was still consumed. |
+| EX-MODEL-162 | Initial ship-placement candidate is empty but three sectors from an opposing base | Reject that candidate and draw another vertical/horizontal pair. |
+| EX-MODEL-163 | Eighteen participant places already occupied; another arrival | Attempt a different galaxy; do not evict an existing captain or offer an occupied ship. |
+| EX-MODEL-164 | Initialization resource unavailable after placement | Report its absence and continue with existing preferences. The error text does not assign replacement defaults. |
+| EX-MODEL-165 | One planet remains; Federation has no bases; ordinary world-end check | Galaxy continues because a planet remains. |
+| EX-MODEL-166 | No planets remain; both factions have at least one base | Galaxy continues. |
+| EX-MODEL-167 | No planets remain; Federation has no bases; Empire has a base | End the galaxy, announce Empire victory, and perform the checking captain's final report/release/exit. |
+| EX-MODEL-168 | No planets or bases remain | Announce total destruction, then both faction victory reports in their specified order. Do not invent a score bonus. |
 
 EX-MODEL-06 deliberately uses fractional shield strength. Historical loss of
 that fraction is excluded by the numerical normalization policy. The grammar,

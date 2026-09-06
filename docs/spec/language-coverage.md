@@ -49,7 +49,7 @@ not complete end-to-end conformance claims.
 
 A clause for every command is not a complete command specification. Convert the
 older pseudocode clauses to ADT contracts, close the dependencies above, and
-complete pregame ACTIVATE and *ZAP plus startup/admission dialogues. Command
+complete pregame *ZAP, name acquisition and remaining startup/admission edge cases. Command
 coverage does not establish lifecycle, concurrency or terminal conformance.
 
 ## Shared and variant work
@@ -70,9 +70,11 @@ coverage does not establish lifecycle, concurrency or terminal conformance.
 - Communication: message identities, recipient filtering, publication order,
   capacity loss, consumption and gagging drafted. Complete interleavings and
   autonomous speech's effects on captain preferences remain.
-- Sessions: temporary HELP/GRIPE activity and commission release drafted,
-  including history and empty-world retention. Complete startup, admission,
-  resume, world termination, controls and terminal presentation remain.
+- Sessions: startup, pregame ACTIVATE, admission, faction/ship selection,
+  galaxy creation, initialization commands, HELP/GRIPE activity, release and
+  world termination drafted. Name acquisition, concurrent claims/cancellation,
+  destroyed-base spawn exclusions, reused action-phase state, resume, full
+  control behavior and terminal presentation remain.
 - Information resources: help topic sections, news continuation boundaries and
   feedback records drafted; complete headers and storage-failure bindings remain.
 - CompuServe appendix: population, names, initial preferences and extra pregame

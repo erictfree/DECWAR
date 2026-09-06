@@ -1254,6 +1254,8 @@ scores remain negative. Follow category rows with each column's total.
 When faction or Romulan columns are selected, also report their cumulative
 number of commissions and total score per commission. These are historical
 commission counts for this galaxy, not the current simultaneous player count.
+Faction acceptance during admission increments its count even if ship selection
+is subsequently cancelled; see the admission contract.
 Do not place a per-commission value in the acting-ship column. Finally report
 score per turn: the ship's own completed turns for its column, and accumulated
 turns for each faction or the Romulan for theirs.
@@ -1267,7 +1269,8 @@ pointsPerTurn := total / completedTurns
 Ratios retain fractions until terminal formatting. The display of a ratio with
 a zero denominator remains unresolved; it is not implicitly zero, and this
 draft does not require a machine arithmetic exception. The lifecycle rules must
-establish the initial counts and define when each commission increments them.
+complete Romulan commission-count initialization and lifecycle effects.
+Faction admission increments are defined in the session rules.
 
 POINTS changes no score, resource, knowledge or stardate. A report does not
 recompute damage or turn credits and does not reconcile team totals to the sum

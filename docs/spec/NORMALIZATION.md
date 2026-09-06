@@ -268,3 +268,54 @@ category or score commit is added. Zero-denominator ratios remain unresolved.
 [history matching](../../legacy/utexas/DECWAR.FOR#L1335),
 [admission constants](../../legacy/utexas/PARAM.FOR#L30),
 [final POINTS](../../legacy/utexas/DECWAR.FOR#L2893).
+
+## Admission and world lifecycle
+
+Initial preference reports distinguish input mode BOTH from ABSOLUTE/RELATIVE,
+although LOCATE interprets unqualified coordinates in that initial mode relatively.
+This observable initial state is retained; it does not add a SET ICDEF BOTH form.
+The commented experience-level dialogue is not part of Austin admission. CRT is
+selected during admission, separately from the prior pregame terminal choice.
+
+Faction acceptance increments NUMSHP before a ship is fully selected. CC2 cancels
+the participant counts but does not decrement NUMSHP. The resulting denominator
+in POINTS therefore counts that accepted-faction attempt even after cancellation.
+This is an observable scoring rule, not a reason to redefine it as a count of
+successfully completed commissions. KILCHK is defined but is not called by the
+supplied admission path; its privilege-reset statement does not clear pregame
+privilege during actual admission. The preserved code has zero FORTRAN KWAIT too.
+
+Tournament names are abstract retained token keys; packed token words and their
+absolute integer values do not become key representations in the core. The
+random binding must still establish reproducibility and the effects of these
+keys without inventing a numeric-seed command. Population counts use ordinary
+floor operations on the source's unit-draw intervals. The hole-count draw occurs
+before the hole-option reply even when no holes will be placed.
+
+PLACE checks opposing-base positions when that faction has at least one base.
+It does not check the strength of every enumerated base position, so destroyed
+base locations need a separate normalization decision for later placement.
+Its planet comparison tests a planet's object kind against a faction value;
+ordinary planet kinds cannot match that test. The core does not invent an enemy-
+planet spawn exclusion by translating the source comment instead of the code.
+
+The world-clear range excludes DOTIME, the shared action-cycle counter. Virgin
+initialization and reuse of an expired shared world are therefore distinct
+review cases; the draft does not silently promise a zero action phase on reuse.
+Faction scores, discoveries and cumulative faction counts do lie in the cleared
+range. Individual ship score is cleared when that ship is selected.
+
+ENDGAM's visible reports independently test both factions' base counts; with
+both at zero it emits both victory reports, after total destruction if no planets
+remain. The tie-breaking WHOWON/TXWHY classification feeds only the commented
+standings update in this path, so it is not introduced as a new abstract winner
+or score effect. The source's actual reports and release behavior remain normative.
+
+**Source basis:** [main initialization](../../legacy/utexas/DECWAR.FOR#L1),
+[admission and creation](../../legacy/utexas/SETUP.FOR#L145),
+[cancellation](../../legacy/utexas/SETUP.FOR#L1),
+[initial coordinates](../../legacy/utexas/DECWAR.FOR#L1423),
+[preference reporting](../../legacy/utexas/DECWAR.FOR#L4560),
+[placement](../../legacy/utexas/DECWAR.FOR#L2765),
+[world-clear boundaries](../../legacy/utexas/HISEG.FOR#L1),
+[world-end reports](../../legacy/utexas/DECWAR.FOR#L961).

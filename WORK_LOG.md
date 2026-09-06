@@ -2100,3 +2100,61 @@ port/tool attribution remain separate.
   - Unrelated automated-player work is present concurrently in experiments/,
     docs/status.md and another WORK_LOG.md entry. This checkpoint stages only
     specification files and this log entry, preserving that work separately.
+
+
+- 2026-09-05 — Startup, admission and world-lifecycle contracts.
+  - Expanded session-rules.md with StartSession, pregame Activate, AdmitCaptain,
+    CreateGalaxy and CheckWorldEnd contracts. Defined startup HELP/PREGAME/empty
+    handling, pregame diagnostics, participant-place reservation, faction balancing,
+    recent-player preference/defection, ship choice, initialization and final
+    world-end observations. Sources: SETUP.FOR 76–450, DECWAR.FOR 1–50,
+    961–999 and 1184–1282. Full names, controls and concurrent transitions remain.
+  - Distinguished simultaneous participant places from cumulative commission
+    counts. Faction acceptance increments NUMSHP before ship choice; CC2 removes
+    participant counts but leaves the cumulative increment. Updated POINTS to
+    connect its denominator to this admission event. Sources: SETUP.FOR 1–28,
+    264–353 and DECWAR.FOR 2893. No new scoring rate was introduced.
+  - Verified initial preferences directly: medium output, normal prompt, long
+    scan style and both-coordinate output; the initial input mode displays BOTH
+    while LOCATE interprets unqualified locations relatively. SET ICDEF still
+    accepts only ABSOLUTE/RELATIVE. Admission selects CRT. The commented experience
+    dialogue is not part of Austin startup. Sources: DECWAR.FOR 1, 1423, 4560;
+    LOWSEG.FOR declarations and SETUP.FOR 263.
+  - Confirmed KILCHK has no caller in the supplied admission path, so its dormant
+    privilege reset is not an admission effect. Existing pregame privilege is
+    retained. Initial name acquisition and pregame SET NAME reconciliation remain
+    explicit review items rather than importing packed-buffer behavior.
+  - Defined ordinary-arithmetic population counts, option defaults, placement
+    order, collision retries and the preserved startup command resource.
+    Star counts are 100..350 by fives; potential holes 10..50, drawn even when
+    later declined. Bases are placed in alternating faction order, then planets,
+    stars and optional holes. Sources: SETUP.FOR 173–256, DECWAR.FOR PLACE 2765,
+    WARMAC.MAC DECINI 1096 and preserved reference DECWAR.INI.
+  - PLACE's comparison does not establish an enemy-planet spawn exclusion.
+    Destroyed-base positions in later placement remain a normalization question.
+    HISEG's cleared range excludes the shared action-cycle counter, so reuse of
+    an expired galaxy cannot yet be claimed to reset that phase. Both issues are
+    recorded explicitly in the draft and NORMALIZATION.md; no silent fix.
+  - World termination retains the no-planets/one-fleet-without-bases predicate,
+    forced termination, final score/release/exit order and per-session observation.
+    With both fleets absent, both victory reports follow total destruction, in
+    Empire-then-Federation order. Removed the unused standings classification
+    from the abstract rule; its only consumer is commented out. No new winner
+    tie-break or score bonus was added. Sources: DECWAR.FOR ENDGAM 961,
+    MSG.MAC 54–66, GETCMD 1184.
+  - Added 23 source-reviewed semantic examples, 168 total. The document build
+    passes 12 included sections, 238 local links, 168 scenario rows and 324 source
+    message fragments. Logs: logs/spec-admission-build.log and
+    logs/spec-admission-final.log. This is source/documentation validation, not
+    executable conformance or native differential verification.
+  - The PDF has 88 pages. Inspected physical pages 68, 69, 70, 71, 73 and 87;
+    after clarifying the victory-report order, rebuilt and rechecked page 73.
+    Renders: tmp/pdfs/spec-admission/page-*.png and final-73.png. No layout defects
+    found in those pages. npm run audit:check passed (logs/spec-admission-audit.log):
+    135 hashes, 83 declarations, 33 main-game/16 pregame slots, 324 strings and
+    both source-variant inventories. git diff --check passed.
+  - Goal remains active: complete name/control/resume and concurrency contracts,
+    autonomous world behavior/randomness, terminal bindings, CompuServe amendments,
+    remaining normalization questions and earlier clauses' ADT conversion.
+    No gameplay, archived source or running service changed. Concurrent automated-
+    player changes remain separate; only this entry is staged from WORK_LOG.md.
