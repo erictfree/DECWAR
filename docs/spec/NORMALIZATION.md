@@ -656,3 +656,42 @@ normalization entry; this change adds no memory-dependent behavior to the book.
 Sources: Austin DECWAR.FOR TELL 3977–4063, OUTMSG 2599–2623, FREE 1082–1140;
 SETUP.FOR default groups 358–364; WARMAC.MAC RSRV./UPDT./SRCH./REMV.
 2589–2750 and MAKMSG/GETMSG 2963–3075. No game code or archive bytes changed.
+
+
+## SET preference and world-control operations
+
+SET now dispatches ConfigureCaptain into SetPreference, SelectTerminalProfile,
+SetCaptainName or ApplyPrivilegedSetting. Each operation names the Captain or
+World property it changes. TerminalProfile is the finite set of eight source
+profile names; Captain.terminalProfile and TYPE's corresponding observation use
+that type. The unselected state remains Optional absence, with no invented
+fallback terminal behavior.
+
+The setting-name first-match order remains separate from value matching.
+Nonalphanumeric preference values prompt again; an unknown alphanumeric value
+finishes unchanged. Terminal selection instead clears the prior profile on each
+alphanumeric attempt, retains the first match while reporting ambiguity, and
+can remain absent after cancellation. Candidate token category requirements are
+operation domains; the command wrapper supplies prompting and cancellation.
+
+SET NAME uses raw acquired text after the delimiter following NAME, with at most
+twelve printable characters and LEX-1 case/punctuation transformation. The model
+does not require implicit storage padding as part of Captain.displayName; output
+field widths are a presentation matter. Explicit retained spaces remain name
+content. Nonprinting characters retain the earlier unresolved domain. NAME
+consumes the command remainder, and a failed inline attempt gets one further
+prompt. No pregame adjacent-memory name write is prescribed.
+
+World.ended is now an explicit Boolean. CheckWorldEnd names the CaptainId whose
+reports and session effects it performs. SET ENDFLG sets ended before invoking
+that check; ordinary destruction checks set it when their end condition holds.
+The total-destruction notification is determined from remaining objects, not a
+special numeric flag representation. Full lifecycle/availability binding remains
+open. BHREMV visits sectors in vertical/horizontal order and clears every
+BlackHoleObject, including HELP/GRIPE temporary sectors, while retaining the
+original black-hole option and ship association. Its effect is not filtered
+through an independently maintained black-hole inventory.
+
+Sources: Austin DECWAR.FOR SET 3624–3737, profile table 480–488, ENDGAM 961–992;
+WARMAC.MAC USRNAM 3415–3458. This is a specification-only conversion; no game
+code, terminal server or preserved source bytes changed.

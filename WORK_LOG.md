@@ -2501,3 +2501,39 @@ source preservation, not executable conformance or full semantic coverage.
 No gameplay, server, archive or generated source data changed. Concurrent
 experiments, status edits and unrelated work-log additions stay outside this
 specification checkpoint. Next: SET preference operations and their effects.
+
+
+## 2026-09-05 — SET preference and world-control ADTs
+
+Converted SET into ConfigureCaptain, SetPreference, SelectTerminalProfile,
+SetCaptainName and ApplyPrivilegedSetting. Added the finite TerminalProfile type
+and used it in Captain state and TYPE observations. Added World.ended and an
+explicit viewer argument to CheckWorldEnd, connecting forced termination to
+its state property and the affected session. Kept first-match setting selection,
+value prompting versus silent unchanged results, provisional/absent terminal
+profiles, raw name retention and privileged-setting effects source-grounded.
+BHREMV includes temporary HELP/GRIPE black-hole sectors, retains ship association
+and the original option, and leaves restoration to the activity contract.
+
+Reviewed Austin SET (DECWAR.FOR 3624–3737), terminal names (480–488),
+ENDGAM (961–992) and USRNAM (WARMAC.MAC 3415–3458). Added EX-MODEL-278 through
+EX-MODEL-287, including ordered abbreviations, repeated numeric value prompts,
+profile cancellation, name spaces/remainders, privileged dispatch and forced
+world-end observation. Corrected the blank-name scenario to thirteen spaces
+after NAME: one is the delimiter and twelve are retained name content. Removed
+redundant profile prose after introducing the operation contract.
+
+Validation: audit passed (135 hashes, 83 declarations, 33 main and 16 pregame
+commands, 324 strings). Both PDF builds passed. Final build checks 13 chapters,
+289 links, 287 scenario rows and 324 message fragments; final PDF has 125 pages.
+Visually reviewed physical pages 9, 63–65, 100 and 123 for type declarations,
+SET operations, world termination and scenarios. Logs:
+logs/spec-set-adt-audit.log, logs/spec-set-adt-build.log and
+logs/spec-set-adt-build-2.log; renders tmp/pdfs/spec-set-adt/.
+
+At the user's preview request, queued the current PDF for display in Codex.
+The book remains a working draft: 26 main commands have explicit ADT contracts;
+remaining command conversions are the five galaxy-report commands, *PASSWORD
+and *DEBUG. Lifecycle/concurrency, terminal bindings, CompuServe amendments and
+whole-book consistency/conformance remain. No gameplay or preserved source
+changed; unrelated experiments, status edits and log entries remain unstaged.

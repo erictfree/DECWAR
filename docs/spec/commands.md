@@ -1872,7 +1872,7 @@ TypeObservation = OutputLengthValue(value: OutputLength)
     | PromptStyleValue(value: PromptStyle) | ScanStyleValue(value: ScanStyle)
     | InputCoordinatesValue(value: CoordinateMode)
     | OutputCoordinatesValue(value: CoordinateMode)
-    | TerminalProfileValue(name: Text) | VersionValue(text: Text)
+    | TerminalProfileValue(name: TerminalProfile) | VersionValue(text: Text)
     | RomulanOptionValue(enabled: Boolean)
     | BlackHoleOptionValue(selected: Boolean)
 
@@ -2090,20 +2090,67 @@ only with privilege. An absent or unrecognized setting prompts for one; an empty
 continuation cancels. SET changes one setting per invocation. It has no ordinary
 energy charge or turn completion.
 
+### Operations and dispatch
+
+```text
+enum PreferenceSetting = OUTPUT | PROMPT | SCANS | ICDEF | OCDEF
+enum PrivilegedSetting = ROMOPT | ENDFLG | BHREMV
+
+operation ConfigureCaptain(viewer: CaptainId, input: CommandInput)
+    on GameState -> Finished | Cancelled | SessionEnded
+
+operation SetPreference(viewer: CaptainId, setting: PreferenceSetting,
+                        candidate: Token)
+    on GameState -> Assigned | Unchanged
+
+operation SelectTerminalProfile(viewer: CaptainId, candidate: Token)
+    on GameState -> Selected(TerminalProfile) | RetryProfile
+
+operation SetCaptainName(viewer: CaptainId, text: Text)
+    on GameState -> Named | Unchanged
+
+operation ApplyPrivilegedSetting(viewer: CaptainId,
+                                 setting: PrivilegedSetting)
+    on GameState -> Applied | SessionEnded
+```
+
+Let c be captain(game, viewer) and w be world(game). ConfigureCaptain resolves
+one setting, acquiring a continuation as required by the syntax rules, and
+invokes the corresponding operation below. Setting selection requires a token
+of category ALPHANUMERIC. An unprivileged candidate for ROMOPT, ENDFLG or
+BHREMV follows the unrecognized-setting prompt path; it does not invoke a
+privileged operation. A continuation supplies the current line and arguments
+used by the selected setting, just as for other CommandInput consumers.
+
+Ordinary completion of the selected operation returns Finished, including an
+Unchanged result. Empty replies that cancel setting or value selection return
+Cancelled, with any effects already made retained. NAME's one additional
+prompt has its own completion rule below. Forced world termination returns
+SessionEnded for this viewer. No ship is required for preference changes in
+pregame; c denotes the session's captain in both phases.
+
 ### Presentation preferences
 
 | Setting | State change |
 | --- | --- |
-| OUTPUT | Set `captain.outputLength` to SHORT, MEDIUM or LONG. |
-| PROMPT | Set `captain.promptStyle` to NORMAL or INFORMATIVE. |
-| SCANS | Set `captain.scanStyle` to SHORT or LONG. |
-| ICDEF | Set `captain.inputCoordinates` to ABSOLUTE or RELATIVE. |
-| OCDEF | Set `captain.outputCoordinates` to ABSOLUTE, RELATIVE or BOTH. |
+| OUTPUT | Set `c.outputLength` to SHORT, MEDIUM or LONG. |
+| PROMPT | Set `c.promptStyle` to NORMAL or INFORMATIVE. |
+| SCANS | Set `c.scanStyle` to SHORT or LONG. |
+| ICDEF | Set `c.inputCoordinates` to ABSOLUTE or RELATIVE. |
+| OCDEF | Set `c.outputCoordinates` to ABSOLUTE, RELATIVE or BOTH. |
 
 For these five settings, a missing or nonalphanumeric value prompts for a value.
 An empty reply cancels. An alphanumeric value that matches none of the setting's
 choices ends the command with that preference unchanged; it does not prompt
 again or diagnose an unknown choice. Subsequent arguments are ignored.
+
+SetPreference requires an ALPHANUMERIC candidate; ConfigureCaptain obtains one
+before invoking it. Compare candidate.text with the table's choices in their
+listed order using ordinary keyword matching. Each matching choice assigns
+the corresponding property. At least one match returns Assigned, even when
+the assigned value equals the old value; no match returns Unchanged. All other
+Captain properties and all ship/world properties remain unchanged. No success
+report is emitted by this assignment.
 
 Preferences affect later input interpretation and output; they do not move a
 ship, change its sensors, or alter an already published message. Explicit command
@@ -2116,14 +2163,17 @@ The terminal names, in matching order, are ACT-IV, ADM-2, ADM-3A, DATAPOINT,
 ACT-V, SOROC, BEEHIVE and CRT. Ordinary five-character keyword matching applies.
 A missing or nonalphanumeric value prompts; an empty reply cancels.
 
-When an alphanumeric candidate is tested, clear the current terminal selection
-and select the first matching profile, if any. If there is one match, finish.
-If several profiles match, diagnose ambiguity, list the available names and
-prompt again; the first match remains selected while awaiting another answer.
-If none matches, list the available names and prompt again, leaving no profile
-selected. Cancelling at that point does not silently restore an earlier profile.
-The presentation binding must specify how an unselected profile is handled;
-the unselected case remains unresolved.
+SelectTerminalProfile requires an ALPHANUMERIC candidate. Set
+c.terminalProfile to none, then examine TerminalProfile values in the order
+listed above. On the first match, assign that profile to c.terminalProfile.
+On discovering a second match, emit the ambiguity diagnostic and stop the
+matching pass. Return Selected(c.terminalProfile) for exactly one match;
+otherwise list the available names and return RetryProfile. ConfigureCaptain
+then prompts again. No other preference changes.
+
+The selected value, including none, remains in effect while ConfigureCaptain
+awaits another reply. Cancelling leaves that value in place. The presentation
+binding for an unselected profile remains unresolved.
 
 ### Captain name
 
@@ -2136,6 +2186,23 @@ characters. Spaces are retained. The result replaces the captain's display name
 when it contains a nonspace character. It does not change ship, faction or
 account identity.
 
+For SetCaptainName, text is the raw name portion acquired by the rules above,
+not the transformed text of a Token. For text consisting of printable characters:
+
+```text
+name = case-transform(first 12 characters of text)
+if name contains a character other than space:
+    c.displayName := name
+    return Named
+return Unchanged
+```
+
+The transformation is the character transformation in LEX-1, including its
+punctuation transformations. Spaces among the retained characters remain part
+of displayName. These equations do not require twelve-character padding; name
+field widths belong to output formatting. The printable-character restriction
+is the current defined domain, not a new input-rejection rule.
+
 If no name is obtained from the command line, prompt once for a name. An empty
 or all-space reply leaves the name unchanged and ends the command. NAME consumes
 the rest of the acquired command line, including text that would otherwise form
@@ -2144,17 +2211,27 @@ edge case.
 
 ### Privileged settings
 
+ApplyPrivilegedSetting requires c.privileged true. Its three effects are:
+
+| Setting | Effect and outcome |
+| --- | --- |
+| ROMOPT | Set w.romulanEnabled to true and return Applied. |
+| BHREMV | Apply the sector-removal rule below and return Applied. |
+| ENDFLG | Set w.ended to true, then perform the world-end check for viewer; return SessionEnded. |
+
+For BHREMV, visit each galaxy position p in increasing vertical coordinate,
+then increasing horizontal coordinate. When sector(game, p) is BlackHoleObject,
+the sector-removal event satisfies:
+
 ```text
-SET ROMOPT:
-    world.romulanEnabled := true
-
-SET BHREMV:
-    remove every black hole from the galaxy
-
-SET ENDFLG:
-    request world termination
-    perform the world-end operation for this session
+after(sector(game, p)) == none
 ```
+
+Other sectors are unchanged. This rule includes a temporary black-hole sector
+used by HELP or GRIPE; it does not release or move the ship involved in that
+activity. Later activity cleanup follows its own restoration rule. Preserve
+w.blackHolesSelected, all knowledge, resources, score and preferences. No
+black-hole count is used to decide which sectors to remove.
 
 ROMOPT enables future Romulan activity; it does not immediately create a Romulan
 or provide an OFF form. BHREMV removes existing black holes without changing the

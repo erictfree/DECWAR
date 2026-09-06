@@ -288,6 +288,16 @@ defense phases. Other ships and installations do not alter the stated result.
 | EX-MODEL-275 | Published A addresses Farragut and Wolf; published B addresses only Farragut; both unread; DiscardUnread(Farragut) | Remove Farragut from both remaining audiences and remove B from service.messages. A remains for Wolf with its original audience still containing both ships. No display or radio/gag change. |
 | EX-MODEL-276 | Publication to Wolf has obtained capacity but is not yet published; DiscardUnread(Wolf) | That publication remains in progress. DiscardUnread affects published unread messages; it does not unsubscribe Wolf from later publication. |
 | EX-MODEL-277 | Displayable system message with body Notice; ReceiveMessage for its recipient | Emit MessageObservation with heading absent and body Notice. Consume that recipient's unread status; do not manufacture a player sender or recipient heading. |
+| EX-MODEL-278 | Output LONG, output coordinates RELATIVE; SET O SHORT | O selects OUTPUT before OCDEF. Assign SHORT to outputLength; leave outputCoordinates RELATIVE. |
+| EX-MODEL-279 | SET PROMPT 12, then 34, then BOGUS at successive value prompts | Numeric values prompt again. The alphanumeric BOGUS ends the command with promptStyle unchanged and no unknown-choice diagnostic. |
+| EX-MODEL-280 | CRT profile selected; SET TTYTYPE 12, then empty reply | Cancel before testing any alphanumeric profile candidate. Keep CRT selected. |
+| EX-MODEL-281 | CRT profile selected; SET TTYTYPE ACT, then BOGUS, then empty reply | ACT provisionally selects ACT-IV and reports ambiguity; BOGUS then clears the selection. Final cancellation leaves terminalProfile none. |
+| EX-MODEL-282 | SET NAME followed by two spaces and ab/scan | After the first delimiter, retain the extra leading space. displayName becomes one space followed by AB/SCAN. Consume the line remainder; do not invoke SCAN. |
+| EX-MODEL-283 | Existing captain name KIRK; SET NAME followed by thirteen spaces and X, then empty name reply | Skip the first delimiter and consider only the next twelve name characters, all spaces. X does not establish a name. Prompt once; leave KIRK unchanged after the empty reply. |
+| EX-MODEL-284 | Unprivileged viewer; SET ROMOPT, then OUTPUT SHORT at the setting prompt | ROMOPT is not dispatched. Assign SHORT output after the continuation; leave world.romulanEnabled unchanged. |
+| EX-MODEL-285 | Privileged viewer; Romulan disabled and absent; SET ROMOPT OFF | Enable romulanEnabled; do not create a Romulan. Ignore OFF rather than treating it as a disabling value. |
+| EX-MODEL-286 | Privileged viewer; SET BHREMV while another commissioned ship occupies a temporary HELP black-hole sector | Clear that sector as well as ordinary black holes. Preserve the ship's commission and position, blackHolesSelected, resources and scores. The activity's later restoration rule still applies. |
+| EX-MODEL-287 | Privileged commissioned viewer; planets and both factions' bases remain; SET ENDFLG | Set world.ended true and invoke the viewer's world-end processing despite the ordinary end condition being false. Other sessions observe termination at their own checks. No ordinary turn is completed. |
 
 
 EX-MODEL-06 deliberately uses fractional shield strength. Historical loss of

@@ -31,7 +31,7 @@ remaining dependencies below still limit end-to-end conformance claims.
 | TYPE | [TYPE](commands.md#type): ADT operation contract. | Unselected terminal profile, concurrent observations and terminal formatting. |
 | TIME | [TIME](commands.md#time): ADT operation contract. | Environment clock/accounting binding and duration formatting. |
 | USERS | [USERS](commands.md#users): ADT operation contract. | Session metadata binding, admission interleavings and terminal formatting. |
-| SET | [SET](commands.md#set) | Unselected terminal profile, nonprinting name characters, world termination and responses. |
+| SET | [SET](commands.md#set): ADT operation contract. | Unselected terminal profile, nonprinting name characters, world termination and responses. |
 | TELL | [TELL](commands.md#tell): ADT operation contract. | Full multiplayer publication/receipt conditions and terminal presentation. |
 | *PASSWORD | [*PASSWORD](commands.md#password) | Complete session privilege lifecycle. |
 | *DEBUG | [*DEBUG](commands.md#debug) | Instrumentation selection and environment timing binding. |
@@ -57,11 +57,11 @@ coverage does not establish lifecycle, concurrency or terminal conformance.
 - Abstract model: game-state ADT and operation-contract notation introduced;
   SHIELDS, RADIO, ENERGY, DOCK, REPAIR, SCAN, SRSCAN, STATUS, DAMAGES,
   TRACTOR, MOVE, IMPULSE, BUILD, CAPTURE,
-  PHASERS, TORPEDOS, POINTS, TYPE, TIME, USERS, TELL, HELP, NEWS, GRIPE, QUIT and
+  PHASERS, TORPEDOS, POINTS, TYPE, TIME, USERS, SET, TELL, HELP, NEWS, GRIPE, QUIT and
   message publication/reception/discard use explicit contracts. Mapping/property notation,
   the nine device states and their distinction from hull damage and shield state
   are defined explicitly. Phaser-bank identities and independent deadlines are
-  defined separately from shared device damage. Token categories, acquired-line/command input values, radio service and message observations, scan marks/rows,
+  defined separately from shared device damage. Terminal profiles and world-ended state, token categories, acquired-line/command input values, radio service and message observations, scan marks/rows,
   ordered status observations, device-damage rows, type/time/user observations, typed score columns/rows and ratio operands,
   session reporting metadata and commission clock baselines are defined. Sector objects, geometric points/vectors, PathResult,
   symmetric beam membership and fixed base-identity order are defined. Existing

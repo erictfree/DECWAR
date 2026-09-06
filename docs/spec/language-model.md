@@ -119,6 +119,8 @@ enum OutputLength = SHORT | MEDIUM | LONG
 enum PromptStyle = NORMAL | INFORMATIVE
 enum ScanStyle = SHORT | LONG
 enum CoordinateMode = ABSOLUTE | RELATIVE | BOTH
+type TerminalProfile = "ACT-IV" | "ADM-2" | "ADM-3A" | "DATAPOINT"
+                     | "ACT-V" | "SOROC" | "BEEHIVE" | "CRT"
 enum Device     = SHIELDS | WARP_ENGINES | IMPULSE_ENGINES
                 | LIFE_SUPPORT | TORPEDO_TUBES | PHASERS
                 | COMPUTER | RADIO | TRACTOR_BEAM
@@ -222,6 +224,7 @@ record Rectangle:
 
 record World:
     elapsedOrigin: Optional<ClockOrigin>
+    ended: Boolean
     ships: collection of Ship
     bases: collection of Base
     baseOrder: Team -> Sequence<BaseId>
@@ -437,7 +440,7 @@ record Captain:
     scanStyle: ScanStyle
     inputCoordinates: CoordinateMode
     outputCoordinates: CoordinateMode
-    terminalProfile: Optional<Text>
+    terminalProfile: Optional<TerminalProfile>
     radio: RadioSettings
     phaserReady: PhaserBank -> TimePoint
     torpedoesReady: TimePoint

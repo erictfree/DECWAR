@@ -264,6 +264,7 @@ are zero; there are no published messages or tractor associations.
 In particular, world.teamCommissions maps each Team to zero.
 World.radioService starts with an empty messages sequence and an empty
 publicationsInProgress set.
+World.ended starts false.
 Set world.elapsedOrigin to the new galaxy's clock origin.
 
 Place bases in alternating faction order by base identity: Federation first,
@@ -417,17 +418,18 @@ clock discontinuities also remain under review.
 ## World termination
 
 ```text
-operation CheckWorldEnd()
+operation CheckWorldEnd(viewer: CaptainId)
     on GameState -> Continues | Ended
 
 endCondition = no planets remain
     and (Federation has no bases or Empire has no bases)
 ```
 
-A galaxy that has not already ended continues while any planet remains, or
-while both factions still have a base. When the end condition is met, retire
-it from new admission and mark it ended. SET ENDFLG can also request termination
-without waiting for that condition.
+Let w be world(game). If w.ended is false and the end condition is false,
+return Continues. Otherwise set w.ended to true and retire the galaxy from
+new admission. Perform the following end observations and session effects for
+viewer. SET ENDFLG can set w.ended before invoking this operation, without
+waiting for the ordinary end condition.
 
 Announce the end. If no planets and no bases of either faction remain, announce
 total destruction. Then test each faction's base count and give the corresponding
