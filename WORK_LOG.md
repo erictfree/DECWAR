@@ -3233,3 +3233,16 @@ physical PDF pages 159–160 were visually inspected. The earlier build predates
 the corrected coordinate-ending wording and is retained in
 `logs/spec-report-absence-build.log`. No runtime/archive changes. Full grouped
 separators, terrain semantics and concurrent reporting remain under review.
+
+### Specification checkpoint: galaxy-report section boundaries
+
+Defined entry, named-group and deferred-class conditional line requests,
+including TARGETS exceptions and omission of empty classes. Corrected the
+NoObjectAt relative origin to the viewer position at formatting, consistent
+with PRLOC and the detail contract. No new observation syntax or game effect.
+
+`logs/spec-report-boundaries-source-review.log` verifies source ordering and
+TARGETS branch structure. `logs/spec-report-boundaries-build.log` passes;
+physical PDF pages 158 and 160 were visually inspected. Terrain fallthrough,
+concurrent reporting and interrupted output remain separate open work. Runtime
+and archive files unchanged.

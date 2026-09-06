@@ -1520,3 +1520,14 @@ an object label: LSTOBJ's computed branch falls through to its Romulan case for
 terrain object codes. The current Terrain observation lacks the full values
 needed to express that path. Its generalized treatment remains an explicit
 review item; no new terrain telemetry is introduced here.
+
+### Galaxy-report section boundaries
+
+The report recipe expresses selection-dependent conditional line requests
+without introducing masks or output-buffer state into the game ADTs. Named
+queries remain immediate; deferred classes retain their separate entry and
+post-detail requests, including a post-detail request when there is no summary
+row. TARGETS omits those post-detail requests and has its own positive-total
+boundary. NoObjectAt relative coordinates use the viewer's position at formatting,
+matching PRLOC and the existing detail-coordinate contract; the previous wording
+incorrectly substituted the saved distance-test origin and has been corrected.

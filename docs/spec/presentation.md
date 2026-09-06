@@ -731,6 +731,48 @@ recipes disclose only information already present in an observation. A detail's
 recorded affiliation determines faction-sensitive labels; presentation does not
 look up a planet's later owner or infer hidden strength.
 
+
+### Report and section boundaries
+
+Request a conditional blank line on entering ReportGalaxy, before processing
+its argument groups. Immediate exact-position observations are emitted where
+their groups are processed, with no extra group separator beyond the observation's
+own recipe. Each named-object group requests a conditional blank line before
+its named Romulan and ship observations. An ordinary group's NoMatches message
+has its own ending but no additional leading separator.
+
+After successful group processing, deferred output follows the semantic
+operation's object-class order. These boundaries concern selections accumulated
+for deferred output; an immediate named or coordinate observation does not by
+itself make a deferred section present.
+
+1. If a deferred Romulan detail is selected, request a conditional blank line
+   before it. If a Romulan summary is selected, request another conditional
+   blank line before that summary, whether or not there was a detail.
+2. If at least one player ship is selected for deferred detail or summary,
+   request a conditional blank line before processing that ship section. Emit
+   its detail rows in roster order. Outside TARGETS, request a conditional blank
+   line after the details, then emit its nonzero faction summaries. This request
+   still occurs when no ship summary row is selected.
+3. Apply the same section-entry and post-detail rules to selected bases, then
+   to selected planets, using their established detail and summary order.
+   A class with no deferred selections contributes no section-boundary requests.
+4. TARGETS omits the post-detail requests and ordinary faction/planet summaries
+   from steps 2–3. If its target total is positive, request a conditional blank
+   line before its final TargetSummary. A zero target total emits neither that
+   request nor a summary line.
+
+Every detail or summary retains the ending in its own line recipe. These
+requests are conditional under the line-composition rules, not unconditional
+empty lines between all observations. There is no additional final separator
+beyond those already prescribed. A later syntax rejection retains earlier
+immediate output but does not flush deferred selections; selection and rejection
+ordering remain governed by ReportGalaxy.
+
+**Source basis:** [entry and group processing](../../legacy/utexas/DECWAR.FOR#L1378),
+[named-group boundary](../../legacy/utexas/DECWAR.FOR#L1806),
+[deferred section boundaries](../../legacy/utexas/DECWAR.FOR#L1959).
+
 ### Detail lines
 
 For a ReportDetail, emit `"*"` when opposingMarker is true and one space when
@@ -831,7 +873,9 @@ NoObjectAt emits `"No base "`, `"No planet "` or `"No target "` for BASES,
 PLANETS or TARGETS respectively. Then emit the observed position using the
 viewer's output-coordinate preference, LONG coordinate presentation and Free
 field width, followed by a conditional blank-line request. A required relative
-origin is the report context's origin, not a fabricated zero or later position.
+origin is the viewer's position when the coordinate is formatted, matching the
+ordinary report-coordinate rule. If that position is unavailable, no zero
+origin is fabricated.
 The source supplies no LIST or SUMMARY noun at this branch; a path reaching it
 for those verbs remains unresolved and this recipe does not invent one.
 
@@ -866,7 +910,7 @@ WHOLE_GALAXY. SHORT omits the scope suffix. Finish with a conditional blank-line
 request. For example, SHORT with knownQualifier true, affiliations {EMPIRE}
 and kinds {BASE} emits `"No known Empire bases"` before that request.
 
-**OPEN QUESTION:** Complete terrain-line and grouped-separator presentation,
+**OPEN QUESTION:** Complete terrain-line presentation,
 interrupted output, and relative-origin availability remain unfinished. These
 absence recipes do not define a label-only terrain row or replace a source
 fallthrough with newly designed telemetry.

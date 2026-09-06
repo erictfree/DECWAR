@@ -2023,7 +2023,7 @@ search uses this same absence observation.
 
 Detail and summary lines follow the [galaxy-report presentation](presentation.md#galaxy-report-lines).
 
-**OPEN QUESTION:** Complete grouped separators, terrain/absence presentation, interrupted
+**OPEN QUESTION:** Complete terrain presentation, interrupted
 output and concurrent changes that remove or replace an entity between selection
 and its detail remain part of the report and multiplayer work. No whole-command
 snapshot is implied.

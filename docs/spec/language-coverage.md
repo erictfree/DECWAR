@@ -26,7 +26,7 @@ remaining dependencies below still limit end-to-end conformance claims.
 | CAPTURE | [CAPTURE](commands.md#capture): explicit ADT operation contract. | Surrender-refusal conditions, final lifecycle and responses; former-faction docking ordering is specified. |
 | PHASERS | [PHASERS](commands.md#phasers): ADT operation contract. | Concurrent target changes, random distributions and complete delivery/presentation. |
 | TORPEDOS | [TORPEDOS](commands.md#torpedos): ADT operation contract. | Original-line missing count/incomplete targets, zero-item target continuation, concurrent target changes and complete delivery/presentation. |
-| LIST, SUMMARY, BASES, PLANETS, TARGETS | [Galaxy reports](commands.md#list-summary-bases-planets-and-targets): ADT operation contract. | Exhaustive selector-order coverage, concurrent reporting, interrupted output, grouped separators and terrain presentation; absence-message recipes are specified. |
+| LIST, SUMMARY, BASES, PLANETS, TARGETS | [Galaxy reports](commands.md#list-summary-bases-planets-and-targets): ADT operation contract. | Exhaustive selector-order coverage, concurrent reporting, interrupted output, terrain presentation; section boundaries and absence-message recipes are specified. |
 | POINTS | [POINTS](commands.md#points): ADT operation contract. | Zero-denominator presentation and concurrent counts; ordinary headings, rows and field formatting are specified. |
 | TYPE | [TYPE](commands.md#type): ADT operation contract. | Unselected terminal profile, concurrent observations and full terminal controls. |
 | TIME | [TIME](commands.md#time): ADT operation contract. | Environment clock/accounting binding and unavailable origins. |
