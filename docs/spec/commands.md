@@ -1415,8 +1415,9 @@ c.phaserReady[bank] = now
 CompleteTurn(s.id, automaticRepair = false)
 ```
 
-The readiness delay starts after the hit and its notifications, rather than
-at command entry. The other bank's deadline is unchanged. The result is
+The readiness delay starts after the hit and its notice publications, rather than
+at command entry or after their eventual display. Direct responses follow the
+[phaser presentation rules](presentation.md#phaser-command-responses). The other bank's deadline is unchanged. The result is
 Fired { bank: bank } when the normal completion path returns. Successful firing completes
 one turn without automatic device repair. The command consumes no torpedoes and
 does not change c.torpedoesReady. Energy exhaustion after firing is handled by

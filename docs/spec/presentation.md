@@ -482,6 +482,50 @@ Subsequent turn and lifecycle output follows the [CAPTURE contract](commands.md#
 [target-kind diagnostics](../../legacy/utexas/MSG.MAC#L148),
 [location completion](../../legacy/utexas/DECWAR.FOR#L3078).
 
+## Phaser command responses
+
+PHASERS makes no initial blank-line request of its own. The shared location
+reader supplies coordinate prompts and errors. Exactly one resolved numeric
+item gives `"Wrong number of coordinates specified."` and one unconditional
+line ending, then rejects without firing. Empty coordinate continuation cancels
+without an additional phaser response.
+
+The [PHASERS contract](commands.md#phasers) determines validation order, including
+the bank wait before an invalid-strength response. Each direct response below
+has one unconditional line ending appended after its full text.
+
+| Result | Text |
+| --- | --- |
+| PhasersUnavailable | `"Phasers critically damaged."` |
+| InvalidTarget | `"\r\nPhaser control unable to lock on target, Captain."` |
+| OwnSector in SHORT or MEDIUM | `"ERROR!  Own location used!"` |
+| OwnSector in LONG | Concatenate `"ERROR detected by computer!!  You have attempted"` and `"\r\nto use your present location."` |
+| FriendlyTarget | `"\r\nWeapons Officer:  Attempting to hit friendly object, Captain."` |
+| OutOfRange | `"Target out of range."` |
+| InvalidStrength | `"\r\nWeapons Officer:  Improper energy consumption for phaser hit, Captain."` |
+
+When firing with shields up, MEDIUM and LONG emit
+`"High speed shield control activated."` and one unconditional line ending;
+SHORT omits this notice. The shield-control charge occurs in all output lengths.
+If the overheating test succeeds, emit
+`"WARNING! WARNING!  PHASERS OVERHEATING."` and one unconditional line ending.
+LONG then additionally emits the concatenation of
+`"********** CRACKLE! POP! SIZZLE! POOF! **********"` and
+`"\r\nPHASERS DAMAGED."`, followed by one unconditional line ending.
+These notices precede the target's impact and do not cancel firing.
+
+Impact reports and base distress/destruction announcements are published combat
+notices, rendered on reception. A successful shot has no additional direct
+firing confirmation. PHASERS does not print a special shield-energy-exhaustion
+line when its charge exhausts the engines. Subsequent command acquisition and
+lifecycle output retain their own rules; omitting such a line adds no survival
+guarantee or energy precondition.
+
+**Source basis:** [PHACON](../../legacy/utexas/DECWAR.FOR#L2647),
+[phaser response strings](../../legacy/utexas/MSG.MAC#L196),
+[own-sector diagnostics](../../legacy/utexas/MSG.MAC#L85),
+[coordinate count diagnostic](../../legacy/utexas/MSG.MAC#L78).
+
 ## Combat observation bodies
 
 These recipes present a CombatObservation that passed ReceiveNotice's reception

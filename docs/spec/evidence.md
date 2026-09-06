@@ -628,3 +628,15 @@ Death text follows publication and checks hull/energy, rather than a new outcome
 rollback. Reworded command observations to avoid promising immediate hit receipt.
 MSG.MAC 20–37,148–160 supplies embedded CRLFs. Full concurrent snapshots and
 interrupted output remain outside the ordinary recipes. No gameplay change.
+
+### PHASERS direct responses and notice boundary
+
+Reviewed PHACON (Austin DECWAR.FOR 2647–2759) and MSG.MAC 196–208. Device
+failure precedes input; one resolved item prints ERLOC1. Invalid target,
+self/faction/range and strength messages follow the established validation
+order; strength validation follows PAUSE. Shield-control notice is non-SHORT;
+overheat warning is universal with an extra multiline LONG body. PHACN3 exists
+in MSG but has no PHACON call and is not added to the presentation. MAKHIT
+publishes impact/base notices; the later readiness deadline is not contingent
+on their display. Added exact direct response recipes and clarified that
+boundary in the command. Interruption and concurrent target validity remain open.

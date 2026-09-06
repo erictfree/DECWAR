@@ -3932,3 +3932,17 @@ split the Empire literal into exact concatenated pieces. Retry passed in
 logs/spec-build-capture-responses-build-2.log: 662 scenarios, 100 productions,
 324 fragments, 14 chapters and 583 links. Inspected PDF physical pages 161–163;
 clauses readable. No gameplay/archive changes; full goal active.
+
+### Specification: PHASERS direct responses
+
+Added exact device, target, range, strength and own-sector diagnostics, location
+count rejection, shield-control and overheat text. Preserved output-length
+branches and embedded line endings. Excluded unused PHACN3 from command output.
+Clarified that bank readiness follows notice publication, not eventual display.
+
+Validation: logs/spec-phaser-responses-review.log checks eleven messages,
+concatenated layout literals, wait/strength order and publication/deadline order.
+logs/spec-phaser-responses-build.log passed 662 scenarios, 100 productions,
+324 fragments, 14 chapters and 589 links. Inspected PDF physical pages 163–164;
+table and continued notices readable. No gameplay/archive changes. Full goal
+remains active; concurrent target validity and interrupted firing remain open.
