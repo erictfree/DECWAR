@@ -21,20 +21,20 @@ distinguish characters emitted by the game from characters echoed by the client.
 
 ```text
 type PresentationContext = {
-    outputLength: OutputLength
-    coordinates: CoordinateMode
-    origin: Optional<Position>
-}
+    outputLength: OutputLength;
+    coordinates: CoordinateMode;
+    origin: Optional<Position>;
+};
 
-type FieldWidth = Free | Exactly(positive integer)
-                | AtLeast(positive integer)
+type FieldWidth = Free | Exactly { count: positive integer }
+                | AtLeast { count: positive integer }
 enum NumberSign = NEGATIVE_ONLY | NONZERO | ALWAYS_ZERO_NEGATIVE
 
 query FormatNumber(value: real, fractionalDigits: 0 | 1,
-                   sign: NumberSign, width: FieldWidth) -> Text
+                   sign: NumberSign, width: FieldWidth): Text
 
 query FormatLocation(position: Position, context: PresentationContext,
-                     field: Free | Exactly(2)) -> Text
+                     field: Free | Exactly { count: 2 }): Text
 ```
 
 PresentationContext is selected for a particular report. Usually it uses the
@@ -66,16 +66,16 @@ zero fractional digits are requested. A displayed minus on zero is a formatting
 choice, not a negative-zero game quantity.
 
 The integer field consists of the sign, if any, and the integer digits. Free
-adds no padding. AtLeast(n) pads on the left with spaces to at least n characters
-and expands if necessary. Exactly(n) pads on the left when it fits; if it does
+adds no padding. AtLeast { count: n } pads on the left with spaces to at least n characters
+and expands if necessary. Exactly { count: n } pads on the left when it fits; if it does
 not fit, retain the required sign and replace the remaining integer-field
 positions with `*`. A fractional suffix follows that field and is not included
 in its width. For example:
 
 ```text
-FormatNumber(12,     0, NEGATIVE_ONLY, Exactly(4)) == "  12"
-FormatNumber(-12,    0, NEGATIVE_ONLY, Exactly(2)) == "-*"
-FormatNumber(123.49, 1, NEGATIVE_ONLY, Exactly(2)) == "**.4"
+FormatNumber(12,     0, NEGATIVE_ONLY, Exactly { count: 4 }) == "  12"
+FormatNumber(-12,    0, NEGATIVE_ONLY, Exactly { count: 2 }) == "-*"
+FormatNumber(123.49, 1, NEGATIVE_ONLY, Exactly { count: 2 }) == "**.4"
 FormatNumber(-0.59,  1, NEGATIVE_ONLY, Free)       == "-0.5"
 FormatNumber(0,      1, ALWAYS_ZERO_NEGATIVE, Free) == "-0.0"
 ```
@@ -111,7 +111,7 @@ position; BOTH produces only its absolute part, with no trailing space.
 Otherwise BOTH inserts one space after its absolute part. RELATIVE and BOTH
 then append the signed vertical displacement, `,`, and the signed horizontal
 displacement from context.origin. These fields use NONZERO. Their width is
-Free when field is Free, and Exactly(3) when field is Exactly(2). Zero
+Free when field is Free, and Exactly { count: 3 } when field is Exactly { count: 2 }. Zero
 displacement is `0`, not `+0`. ABSOLUTE has no relative suffix.
 
 Examples with origin (20,20), Free fields and position (21,18):
@@ -183,16 +183,20 @@ The NORMAL main prompt is exactly `"Command: "`. The INFORMATIVE prompt is
 constructed from the acting ship s, in this order, with no inserted separators:
 
 ```text
-text := ""
-if s.devices[LIFE_SUPPORT].damage >= 300:
-    text += decimal(s.lifeSupportReserve) + "L"
-if s.shields.strength <= 10 or s.shields.mode == DOWN:
-    text += "S"
-if s.hullDamage >= 2000:
-    text += "D"
-if s.energy <= 1000:
-    text += "E"
-text += "> "
+text = "";
+if (s.devices[LIFE_SUPPORT].damage >= 300) {
+    text += decimal(s.lifeSupportReserve) + "L";
+}
+if (s.shields.strength <= 10 or s.shields.mode == DOWN) {
+    text += "S";
+}
+if (s.hullDamage >= 2000) {
+    text += "D";
+}
+if (s.energy <= 1000) {
+    text += "E";
+}
+text += "> ";
 ```
 
 Here decimal is FormatNumber with zero fractional digits, NEGATIVE_ONLY and
@@ -229,7 +233,7 @@ activation body begins with a line ending; LONG combat reception can already
 have made its leading conditional blank-line request. Both requests have their
 own places in the output sequence.
 
-**Open:** The complete treatment of tabs, cursor controls, output after
+**OPEN QUESTION:** The complete treatment of tabs, cursor controls, output after
 disconnect, transport echo, terminal-profile editing sequences and all report
 recipes remains under review. The ordinary layout clause above does not
 silently define those controls or impose conventional tab stops. These gaps
@@ -444,7 +448,7 @@ A system message with the same body has no heading and displays exactly
 
 Present the ordered [StatusObservation](commands.md#meaning-of-report-items)
 values from ReportStatus. Make one conditional blank-line request on entry.
-The numeric field width is Free in SHORT and Exactly(4) otherwise. Counts use
+The numeric field width is Free in SHORT and Exactly { count: 4 } otherwise. Counts use
 zero fractional digits; energy, damage and shield readings use the precision
 for the output length.
 
@@ -535,7 +539,7 @@ For every selected or general DeviceDamageRow, in its observation order:
    trailing space.
 2. In SHORT, emit one more space. In MEDIUM, pad to column 10; in LONG, pad to
    column 19. Padding follows the earlier column rule and never erases text.
-3. Emit damage with NEGATIVE_ONLY and Exactly(4), at the output length's
+3. Emit damage with NEGATIVE_ONLY and Exactly { count: 4 }, at the output length's
    ordinary precision. Append `" units"` only in LONG.
 4. Make a conditional blank-line request.
 
@@ -561,8 +565,8 @@ observations. The report itself does not repair anything.
 ## Time reports
 
 ```text
-query FormatDuration(value: Duration) -> Text
-    require value >= 0 milliseconds
+query FormatDuration(value: Duration): Text
+    requires value >= 0 milliseconds;
 ```
 
 Let totalSeconds be floor(value / 1000 milliseconds), hours be
@@ -595,7 +599,7 @@ All output lengths use these same labels and duration format. Pregame omits
 both commission observations and their prefixes. Elapsed and execution values
 are separate observations; rendering does not substitute one for the other.
 
-**Open:** Invalid or negative environment clock readings have no presentation
+**OPEN QUESTION:** Invalid or negative environment clock readings have no presentation
 rule here. This domain restriction does not introduce a TIME command rejection
 or silently turn an unavailable clock origin into zero.
 
@@ -705,7 +709,7 @@ The sparse horizontal labels do not omit sectors or rescale their coordinates.
 In a one-sector SHORT scan at horizontal coordinate 75, the axis label is 76;
 it does not assert that the galaxy contains a sector 76.
 
-For Interrupted(partial), include the top axis and every completed row in
+For Interrupted { partial: partial }, include the top axis and every completed row in
 partial, including the last row's ending. Omit the remaining rows and bottom
 axis. The scan interruption rule consumes the request at a row boundary;
 presentation does not undo discovery already performed. A RejectedSyntax
@@ -741,12 +745,12 @@ Append telemetry according to its alternative:
 | Telemetry | Text after the label and column padding |
 | --- | --- |
 | OutOfRange | `"out of range"`; no position, strength or percent suffix. |
-| ShipTelemetry | Position, then the signed shield reading with Exactly(6), followed by `%` outside SHORT. |
-| RomulanTelemetry | Position, then its reported percentage with NEGATIVE_ONLY and Exactly(6), followed by `%` outside SHORT. |
-| BaseTelemetry | Position; if strength is present, append it with NEGATIVE_ONLY and Exactly(6), followed by `%` outside SHORT. |
-| PlanetTelemetry | Position; if builds is nonzero, append the integer count with NEGATIVE_ONLY and Exactly(6). In MEDIUM append `" b"`; in LONG append `" build"` for one and `" builds"` otherwise. SHORT has no build suffix. |
+| ShipTelemetry | Position, then the signed shield reading with Exactly { count: 6 }, followed by `%` outside SHORT. |
+| RomulanTelemetry | Position, then its reported percentage with NEGATIVE_ONLY and Exactly { count: 6 }, followed by `%` outside SHORT. |
+| BaseTelemetry | Position; if strength is present, append it with NEGATIVE_ONLY and Exactly { count: 6 }, followed by `%` outside SHORT. |
+| PlanetTelemetry | Position; if builds is nonzero, append the integer count with NEGATIVE_ONLY and Exactly { count: 6 }. In MEDIUM append `" b"`; in LONG append `" build"` for one and `" builds"` otherwise. SHORT has no build suffix. |
 
-Every position uses FormatLocation with Exactly(2) and the viewer's current
+Every position uses FormatLocation with Exactly { count: 2 } and the viewer's current
 output-coordinate preference and output length. Relative values use the viewer's
 position at presentation, not the earlier origin used to test sensor range.
 Numeric fields immediately follow the position; no extra separator is inserted
@@ -776,16 +780,16 @@ asterisk because its observations have opposingMarker false.
 ### Summary lines
 
 ReportSummary has a positive count. Emit that count with zero fractional digits,
-NEGATIVE_ONLY and Exactly(3). If knownQualifier is true, append `" known"`.
+NEGATIVE_ONLY and Exactly { count: 3 }. If knownQualifier is true, append `" known"`.
 Then append one space and the category's singular text:
 
 | Category | Singular text |
 | --- | --- |
 | RomulanSummary | `"Romulan"` |
-| ShipSummary(FEDERATION) / ShipSummary(EMPIRE) | `"Federation ship"` / `"Empire ship"` |
-| BaseSummary(FEDERATION) / BaseSummary(EMPIRE) | `"Federation base"` / `"Empire base"` |
-| PlanetSummary(none) | `"neutral planet"` |
-| PlanetSummary(FEDERATION) / PlanetSummary(EMPIRE) | `"Federation planet"` / `"Empire planet"` |
+| ShipSummary { team: FEDERATION } / ShipSummary { team: EMPIRE } | `"Federation ship"` / `"Empire ship"` |
+| BaseSummary { team: FEDERATION } / BaseSummary { team: EMPIRE } | `"Federation base"` / `"Empire base"` |
+| PlanetSummary { owner: none } | `"neutral planet"` |
+| PlanetSummary { owner: FEDERATION } / PlanetSummary { owner: EMPIRE } | `"Federation planet"` / `"Empire planet"` |
 | TargetSummary | `"target"` |
 
 Append `"s"` when count differs from one. In MEDIUM or LONG, append

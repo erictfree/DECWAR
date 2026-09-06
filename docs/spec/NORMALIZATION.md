@@ -1261,3 +1261,47 @@ known/scope labels and singular/plural forms remain semantic observations.
 Source: DECWAR.FOR LSTOUT/LSTSUM/LSTOBJ 1959–2141. Group separators, terrain
 fallback and incomplete absence text remain under review; no new generic
 no-results line is substituted.
+
+
+World collection fields now use explicit Set<Ship>, Set<Base>, Sequence<Planet>
+and Set<TractorBeam> types instead of the vague phrase collection of. Entity
+identities are unique within each collection and survive field updates. Set
+notation does not grant arbitrary iteration order: existing rules still select
+roster/base order, while the planet sequence exposes the source's preserved
+current order. Planet removal already specifies order preservation; this is
+made visible in the type model. Source: SETUP initialization, DECWAR.FOR LSTOUT
+1959–2058 and PLNRMV 2864–2890; see the existing RemovePlanet derivation.
+No new entity, ordering freedom or game mechanic is introduced.
+
+
+The grammar overview now uses the same ::= production delimiter and quoted
+keyword notation as command entries. Keyword quotes still denote LEX-6 matching,
+including abbreviations; they are not quotes the player types and do not require
+full keyword spelling. Productions keep the same token sequences and alternatives.
+This removes two editorial spellings for the same grammar concepts without
+changing DECWAR input syntax or acceptance rules.
+
+
+## Updated C-family specification notation
+
+The updated editorial guide selects typed C-family pseudocode. The book now uses
+List, Set and Map for collections, braces for blocks and named record/variant
+values, colon return types, = for assignment and == for equality. Requires and
+ensures state contracts; invariant is defined for properties of every valid
+observable state. Copy-with, local bindings, entity identity and value equality
+are defined explicitly. These are document conventions, not a TypeScript runtime
+or a change to DECWAR input, arithmetic, timing or game rules.
+
+Result<T, Error> abbreviates T or a Rejected value carrying its reason. This
+retains existing outcome tags and does not introduce rollback, atomic commands,
+extra error checks or a new success test. Cancellation and lifecycle outcomes
+remain distinct. Earlier positional payloads now have field names, with the same
+payload order and types. TorpedoFlightOutcome names the flight-observation enum,
+removing its collision with the command's TorpedoOutcome type. The unnamed
+administrative statistic mapping now uses Map consistently; no statistic key,
+value or storage schema is added.
+
+World collection and EBNF notation changes described above are included in this
+editorial pass. Full type-definition order, grammar metavariable definitions,
+invariant coverage and unresolved lifecycle/concurrency behavior remain separate
+review work. Readable notation is not evidence of semantic completeness.

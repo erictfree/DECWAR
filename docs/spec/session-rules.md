@@ -20,37 +20,37 @@ type ClockOrigin
 type TimeOfDay = duration since local midnight
 
 type SessionReporting = {
-    advertisedSpeed: nonnegative integer
-    connectionLabel: Text
-    sessionNumber: integer
-}
+    advertisedSpeed: nonnegative integer;
+    connectionLabel: Text;
+    sessionNumber: integer;
+};
 
 type CommissionTiming = {
-    elapsedOrigin: ClockOrigin
-    executionAtStart: Duration
-}
+    elapsedOrigin: ClockOrigin;
+    executionAtStart: Duration;
+};
 
 type OperationTiming = {
-    name: Text
-    completedCalls: nonnegative integer
-    totalExecution: Duration
-    maximumExecution: Duration
-}
+    name: Text;
+    completedCalls: nonnegative integer;
+    totalExecution: Duration;
+    maximumExecution: Duration;
+};
 
 type Session = {
-    captain: CaptainId
-    phase: SessionPhase
-    entryName: Optional<Text>
-    account: AccountIdentity
-    execution: ExecutionIdentity
-    terminal: TerminalIdentity
-    reporting: SessionReporting
-    commissionTiming: Optional<CommissionTiming>
-    informationActivity: InformationActivity
-}
+    captain: CaptainId;
+    phase: SessionPhase;
+    entryName: Optional<Text>;
+    account: AccountIdentity;
+    execution: ExecutionIdentity;
+    terminal: TerminalIdentity;
+    reporting: SessionReporting;
+    commissionTiming: Optional<CommissionTiming>;
+    informationActivity: InformationActivity;
+};
 
-query session(game: GameState, captain: CaptainId) -> Session
-query observeOperationTimings(captain: CaptainId) -> Sequence<OperationTiming>
+query session(game: GameState, captain: CaptainId): Session
+query observeOperationTimings(captain: CaptainId): List<OperationTiming>
 ```
 
 Account, execution and terminal identities are supplied by the environment;
@@ -84,9 +84,9 @@ clock. It is an abstract marker, not a required timestamp representation.
 The environment supplies these observations:
 
 ```text
-observeElapsed(origin: ClockOrigin) -> Duration
-observeExecution(captain: CaptainId) -> Duration
-observeTimeOfDay() -> TimeOfDay
+observeElapsed(origin: ClockOrigin): Duration
+observeExecution(captain: CaptainId): Duration
+observeTimeOfDay(): TimeOfDay
 ```
 
 Elapsed duration includes waiting; execution duration is the environment's
@@ -119,11 +119,9 @@ create a ship position merely to satisfy such a contract.
 StartupReply ::= empty | "HELP" | "PREGAME"
 ActivateCommand ::= "ACTIVATE"
 
-operation StartSession(captain: CaptainId)
-    on GameState -> Pregame | AdmissionStarted | SessionEnded
+operation StartSession(captain: CaptainId): Pregame | AdmissionStarted | SessionEnded
 
-operation Activate(captain: CaptainId)
-    on GameState -> AdmissionStarted
+operation Activate(captain: CaptainId): AdmissionStarted
 ```
 
 A new session acquires its environment identity and captain name, then enters
@@ -172,11 +170,9 @@ separate from the current commission's display name. Its presence permits later
 identity acquisition to reuse the name without another name prompt.
 
 ```text
-operation AcquireEntryName(viewer: CaptainId)
-    on GameState -> Named(Text) | SessionEnded
+operation AcquireEntryName(viewer: CaptainId): Named { name: Text } | SessionEnded
 
-operation AcceptEntryName(viewer: CaptainId, text: Text)
-    on GameState -> Named(Text) | RetryName
+operation AcceptEntryName(viewer: CaptainId, text: Text): Named { name: Text } | RetryName
 ```
 
 AcquireEntryName returns an existing entryName immediately. Otherwise it emits
@@ -208,8 +204,8 @@ Let name be the converted text. If its first six characters contain no nonspace
 character, return RetryName and request a fresh name. Otherwise:
 
 ```text
-session(game, viewer).entryName := name
-return Named(name)
+session(game, viewer).entryName = name
+return Named { name: name }
 ```
 
 Leading and embedded spaces count toward both limits. A nonspace character only
@@ -242,18 +238,17 @@ enum StatisticsArchiveKind = REGULAR | FREE_ACCOUNT
 type StatisticId
 
 type HistoricalStatistics = {
-    serial: integer
-    values: Mapping<StatisticId, real>
-}
+    serial: integer;
+    values: Map<StatisticId, real>;
+};
 
 type AdministrativeState = {
-    statistics: HistoricalStatistics
-}
+    statistics: HistoricalStatistics;
+};
 
-query administration(viewer: CaptainId) -> AdministrativeState
+query administration(viewer: CaptainId): AdministrativeState
 
-operation ZapStatistics(viewer: CaptainId)
-    on GameState -> Ignored | Finished(Optional<StatisticsArchiveKind>)
+operation ZapStatistics(viewer: CaptainId): Ignored | Finished { archive: Optional<StatisticsArchiveKind> }
 ```
 
 StatisticId identifies an administrative score, count or other recorded statistic
@@ -280,7 +275,7 @@ Ignored without output, recording or archive access. Otherwise:
    REGULAR, then attempt the same replacement of FREE_ACCOUNT. An open failure
    there is reported without rolling back the REGULAR replacement.
 5. Release administrative access and emit the completion message. Return
-   Finished(none) if both replacements completed, or Finished(kind) identifying
+   Finished { archive: none } if both replacements completed, or Finished { archive: kind } identifying
    the archive that could not be opened.
 
 The operation does not reset live scores, alter galaxy objects, commission a
@@ -314,8 +309,7 @@ No atomic two-archive transaction or rollback is implied.
 ## Admission and faction selection
 
 ```text
-operation AdmitCaptain(captain: CaptainId)
-    on GameState -> Commissioned(ShipId) | Cancelled
+operation AdmitCaptain(captain: CaptainId): Commissioned { ship: ShipId } | Cancelled
                  | DifferentGalaxyRequired | GalaxyEnded
 ```
 
@@ -384,7 +378,7 @@ ACTIVE play. Begin reading the installation's initialization commands through
 the ordinary command language. Admission does not clear a previously enabled
 session privilege merely because a ship was selected.
 
-**Open:** Concurrent claims to the same final ship, cancellation during the
+**OPEN QUESTION:** Concurrent claims to the same final ship, cancellation during the
 transition to a placed commission, and stale metadata in pacing selection need
 full contracts. The preceding reservation stages specify effects but do not
 require a particular lock or whole-dialogue transaction.
@@ -401,8 +395,7 @@ require a particular lock or whole-dialogue transaction.
 GameKindReply ::= empty | "REGULAR" | "TOURNAMENT" [TournamentKey]
 OptionReply   ::= empty | "YES" | "NO"
 
-operation CreateGalaxy()
-    on GameState
+operation CreateGalaxy(): Unit
 ```
 
 The first admission creating a galaxy chooses REGULAR or TOURNAMENT; empty
@@ -454,7 +447,7 @@ A placed player ship must also avoid sectors within distance four of opposing
 base positions considered by the placement rule. No corresponding planet
 exclusion is established by this reconstruction's placement behavior.
 
-**Open:** The treatment of destroyed-base positions in later ship placement
+**OPEN QUESTION:** The treatment of destroyed-base positions in later ship placement
 and action-cycle phase when an expired galaxy is reinitialized require
 normalization review. Initial placement has no destroyed bases. Exact
 admission interruption during creation and exhausted eligible-placement
@@ -494,11 +487,10 @@ Other configured command resources must be identified in a conformance scenario.
 ## Temporary information activities
 
 ```text
-operation BeginInformationActivity(captain, activity)
-    on GameState
+operation BeginInformationActivity(captain: CaptainId,
+                                   activity: InformationActivity): Unit
 
-operation EndInformationActivity(captain)
-    on GameState
+operation EndInformationActivity(captain: CaptainId): Unit
 ```
 
 These are shared effects of accepted HELP and GRIPE commands, not player commands.
@@ -521,7 +513,7 @@ normal sector presence at its then-current position. If it is no longer active,
 do not reintroduce it. The session leaves the information activity. Cancellation
 and content/storage failures use this same completion rule.
 
-**Open:** Movement or destruction during the activity can interact with the
+**OPEN QUESTION:** Movement or destruction during the activity can interact with the
 original sector and the completion position. Complete interleaving rules for
 those cases remain to be derived; the contract above does not authorize moving
 all concurrent sector effects to the final position or restoring a lost commission.
@@ -533,8 +525,7 @@ all concurrent sector effects to the final position or restoring a lost commissi
 ## Releasing a commission
 
 ```text
-operation ReleaseCommission(actor: ShipId)
-    on GameState -> Released | AlreadyAvailable
+operation ReleaseCommission(actor: ShipId): Released | AlreadyAvailable
 ```
 
 If the ship is already available after completed release, the operation has no
@@ -580,7 +571,7 @@ to reuse the empty galaxy.
 Recent-commission history imposes no mandatory elapsed-time cooldown before
 reentry in Austin.
 
-**Open:** Admission reservations and simultaneous releases need their complete
+**OPEN QUESTION:** Admission reservations and simultaneous releases need their complete
 ordering contract. Resume availability, final-report failures and the environment's
 clock discontinuities also remain under review.
 
@@ -592,8 +583,7 @@ clock discontinuities also remain under review.
 ## World termination
 
 ```text
-operation CheckWorldEnd(viewer: CaptainId)
-    on GameState -> Continues | Ended
+operation CheckWorldEnd(viewer: CaptainId): Continues | Ended
 
 endCondition = no planets remain
     and (w.baseCounts[FEDERATION] == 0 or w.baseCounts[EMPIRE] == 0)
@@ -624,7 +614,7 @@ World-end checks occur before the active command prompt and while awaiting
 input, as well as at the command-specific checks stated elsewhere. Fatal-ship
 handling can precede a world-end check and has its own reentry behavior.
 
-**Open:** Complete command-specific check placement, forced termination during
+**OPEN QUESTION:** Complete command-specific check placement, forced termination during
 admission, final-report failures and the exact timing of other sessions' end
 observations remain to be closed with the multiplayer and control contracts.
 

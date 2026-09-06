@@ -75,27 +75,27 @@ enum TokenCategory = NULL | INTEGER | REAL | ALPHANUMERIC
 type InputPosition = character position within an acquired input
 
 type Token = {
-    text: Text
-    category: TokenCategory
-    numericValue: real
-    origin: InputPosition
-}
+    text: Text;
+    category: TokenCategory;
+    numericValue: real;
+    origin: InputPosition;
+};
 
 type AcquiredLine = {
-    raw: Text
-    repeated: Boolean
-}
+    raw: Text;
+    repeated: Boolean;
+};
 
 type CommandInput = {
-    line: AcquiredLine
-    arguments: Sequence<Token>
-}
+    line: AcquiredLine;
+    arguments: List<Token>;
+};
 ```
 
 Token is an abstract description of input, not a required lexer object.
 The text property is the retained, transformed spelling; numericValue is the
 quantity determined below. A name-category token means ALPHANUMERIC; it does
-not introduce a fifth category. Operation parameters of type `Sequence<Token>`
+not introduce a fifth category. Operation parameters of type `List<Token>`
 contain arguments only, excluding the command name and end boundary.
 
 AcquiredLine.raw is the retained line after editing, without its terminating

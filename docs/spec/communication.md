@@ -9,8 +9,7 @@ delivery removes only the receiving ship from remaining recipients.
 
 ```text
 operation PublishMessage(sender: MessageSender, recipients: Set<ShipId>,
-                         body: Text)
-    on GameState -> Published(MessageId) | NotPublished
+                         body: Text): Published { id: MessageId } | NotPublished
 ```
 
 TELL defines recipient selection and body acquisition. `PublishMessage` receives
@@ -64,7 +63,7 @@ at the publication step delays completion: it does not turn that accepted
 publication into a successful return with a missing message. No finite wait or
 fairness guarantee follows from this rule.
 
-**Open:** The complete multiplayer admission, waiting, interruption and
+**OPEN QUESTION:** The complete multiplayer admission, waiting, interruption and
 failure conditions remain to be specified, including the case where all capacity
 belongs to publications in progress. These gaps do not establish a random
 message-loss rate, fairness guarantee or automatic timeout.
@@ -77,18 +76,17 @@ message-loss rate, fairness guarantee or automatic timeout.
 
 ```text
 type RadioHeading = {
-    sender: ShipId | ROMULAN
-    recipients: Sequence<ShipId>
-}
+    sender: ShipId | ROMULAN;
+    recipients: List<ShipId>;
+};
 
 type MessageObservation = {
-    heading: Optional<RadioHeading>
-    body: Text
-}
+    heading: Optional<RadioHeading>;
+    body: Text;
+};
 
-operation ReceiveMessage(receiver: ShipId)
-    on GameState -> Displayed(MessageId)
-                 | Suppressed(MessageId) | NoMessage
+operation ReceiveMessage(receiver: ShipId): Displayed { id: MessageId }
+                 | Suppressed { id: MessageId } | NoMessage
 ```
 
 Let r be ship(game, receiver), and let c be the captain identified by r.captain.
@@ -99,7 +97,7 @@ service.messages whose remainingRecipients contains receiver. If one is
 received, its state effect is:
 
 ```text
-after(m.remainingRecipients)
+ensures after(m.remainingRecipients)
     == before(m.remainingRecipients) - {receiver}
 ```
 
@@ -109,8 +107,8 @@ capacity. When no message is received, the outcome is `NoMessage` and no message
 is displayed or consumed.
 
 If m.sender is a ShipId in c.radio.gaggedSenders,
-the outcome is `Suppressed(m.id)` and nothing is displayed. Otherwise the outcome
-is `Displayed(m.id)`. In both cases the message has been consumed. A Romulan or
+the outcome is `Suppressed { id: m.id }` and nothing is displayed. Otherwise the outcome
+is `Displayed { id: m.id }`. In both cases the message has been consumed. A Romulan or
 system sender is distinct from every player-ship identity.
 
 Turning the radio off or suffering radio damage after publication does not
@@ -118,7 +116,7 @@ revoke an already addressed message. Those checks happen during TELL recipient
 validation. Leaving a commission discards that ship's unread messages under the
 release rules.
 
-For Displayed(m.id), emit a MessageObservation with body m.body. Its heading
+For Displayed { id: m.id }, emit a MessageObservation with body m.body. Its heading
 is absent when m.sender is SYSTEM. Otherwise the heading contains m.sender
 and the members of m.recipients in roster order. Displayed player and Romulan
 messages identify the sender and show those original recipient initials,
@@ -127,7 +125,7 @@ The [radio presentation](presentation.md#radio-message-bodies-and-headings)
 supplies line endings and separators; they are not part of the retained body text. A suppressed
 message produces no MessageObservation.
 
-**Open:** The complete scheduling and shared-state availability rules for message
+**OPEN QUESTION:** The complete scheduling and shared-state availability rules for message
 reception remain part of the multiplayer contract.
 
 **Source basis:** [GETMSG](../../legacy/utexas/WARMAC.MAC#L3036),
@@ -137,8 +135,7 @@ reception remain part of the multiplayer contract.
 ## Discarding an unread audience
 
 ```text
-operation DiscardUnread(receiver: ShipId)
-    on GameState -> Discarded
+operation DiscardUnread(receiver: ShipId): Discarded
 ```
 
 Let service be world(game).radioService. For each m in service.messages:
@@ -216,37 +213,37 @@ and informational reports are not thereby turned into queued combat notices.
 ```text
 enum StarOutcome = EXPLODED | UNAFFECTED
 type StarObservation = {
-    position: Position
-    outcome: StarOutcome
-}
+    position: Position;
+    outcome: StarOutcome;
+};
 
-enum TorpedoOutcome = MISSED | ABSORBED | NEUTRALIZED
+enum TorpedoFlightOutcome = MISSED | ABSORBED | NEUTRALIZED
 type TorpedoObservation = {
-    shot: positive integer
-    position: Position
-    outcome: TorpedoOutcome
-}
+    shot: positive integer;
+    position: Position;
+    outcome: TorpedoFlightOutcome;
+};
 
 enum BaseNoticeReason = DISTRESS | DESTROYED
 type BaseObservation = {
-    base: BaseId
-    position: Position
-    reason: BaseNoticeReason
-}
+    base: BaseId;
+    position: Position;
+    reason: BaseNoticeReason;
+};
 
 type EnergyTransferObservation = {
-    sender: ShipId
-    recipient: ShipId
-    received: Energy
-}
+    sender: ShipId;
+    recipient: ShipId;
+    received: Energy;
+};
 
 enum TractorObservation = ACTIVATED | BROKEN
 
-type CombatObservation = Impact(ImpactObservation)
-    | StarEvent(StarObservation) | TorpedoEvent(TorpedoObservation)
-    | BaseEvent(BaseObservation) | RomulanDetected(Position)
-    | EnergyReceived(EnergyTransferObservation)
-    | TractorEvent(TractorObservation)
+type CombatObservation = Impact { value: ImpactObservation }
+    | StarEvent { value: StarObservation } | TorpedoEvent { value: TorpedoObservation }
+    | BaseEvent { value: BaseObservation } | RomulanDetected { position: Position }
+    | EnergyReceived { value: EnergyTransferObservation }
+    | TractorEvent { value: TractorObservation }
 
 enum CombatObservationKind = WEAPON_HIT | NOVA_HIT
     | STAR_EXPLOSION | STAR_UNAFFECTED
@@ -254,8 +251,7 @@ enum CombatObservationKind = WEAPON_HIT | NOVA_HIT
     | BASE_DISTRESS | BASE_DESTROYED | ROMULAN_DETECTED
     | ENERGY_TRANSFER | TRACTOR_ACTIVATED | TRACTOR_BROKEN
 
-query observationKind(observation: CombatObservation)
-    -> CombatObservationKind
+query observationKind(observation: CombatObservation): CombatObservationKind
 
 abstract type NoticeId
 ordered type PublicationOrder
@@ -263,31 +259,27 @@ ordered type PublicationOrder
 type NoticePriority = integer in 1..40
 
 type CombatNotice = {
-    id: NoticeId
-    publisher: ShipId
-    priority: NoticePriority
-    publication: PublicationOrder
-    observation: CombatObservation
-    recipients: Set<ShipId>
-    remainingRecipients: Set<ShipId>
-}
+    id: NoticeId;
+    publisher: ShipId;
+    priority: NoticePriority;
+    publication: PublicationOrder;
+    observation: CombatObservation;
+    recipients: Set<ShipId>;
+    remainingRecipients: Set<ShipId>;
+};
 
 type CombatNoticeService = {
-    notices: Set<CombatNotice>
-}
+    notices: Set<CombatNotice>;
+};
 
-query nextNotice(game: GameState, receiver: ShipId)
-    -> Optional<CombatNotice>
+query nextNotice(game: GameState, receiver: ShipId): Optional<CombatNotice>
 
 operation PublishNotice(publisher: ShipId, recipients: Set<ShipId>,
-                        observation: CombatObservation)
-    on GameState -> Published(NoticeId) | NotPublished
+                        observation: CombatObservation): Published { id: NoticeId } | NotPublished
 
-operation ReceiveNotice(receiver: ShipId)
-    on GameState -> Displayed(NoticeId) | Suppressed(NoticeId) | NoNotice
+operation ReceiveNotice(receiver: ShipId): Displayed { id: NoticeId } | Suppressed { id: NoticeId } | NoNotice
 
-operation DiscardNotices(receiver: ShipId)
-    on GameState -> Discarded
+operation DiscardNotices(receiver: ShipId): Discarded
 ```
 
 CombatObservation is an immutable value supplied by the producing clause.
@@ -324,46 +316,46 @@ additional ships or installations in World.
 
 ```text
 type ShipImpactState = {
-    ship: ShipId
-    position: Position
-    shields: Shields
-}
+    ship: ShipId;
+    position: Position;
+    shields: Shields;
+};
 
 type BaseImpactState = {
-    base: BaseId
-    position: Position
-    strength: Percentage
-}
+    base: BaseId;
+    position: Position;
+    strength: Percentage;
+};
 
 type PlanetImpactState = {
-    planet: PlanetId
-    owner: Optional<Team>
-    position: Position
-    builds: nonnegative integer
-}
+    planet: PlanetId;
+    owner: Optional<Team>;
+    position: Position;
+    builds: nonnegative integer;
+};
 
 type RomulanImpactState = {
-    position: Position
-    energy: Energy
-}
+    position: Position;
+    energy: Energy;
+};
 
-type ImpactObject = ShipState(ShipImpactState)
-                  | BaseState(BaseImpactState)
-                  | PlanetState(PlanetImpactState)
-                  | RomulanState(RomulanImpactState)
-type ImpactOrigin = ObjectOrigin(ImpactObject) | StarOrigin(Position)
+type ImpactObject = ShipState { value: ShipImpactState }
+                  | BaseState { value: BaseImpactState }
+                  | PlanetState { value: PlanetImpactState }
+                  | RomulanState { value: RomulanImpactState }
+type ImpactOrigin = ObjectOrigin { object: ImpactObject } | StarOrigin { position: Position }
 enum ImpactKind = PHASER | TORPEDO | NOVA
 
 type ImpactObservation = {
-    origin: ImpactOrigin
-    target: ImpactObject
-    kind: ImpactKind
-    damage: Optional<Damage>
-    critical: Optional<CriticalHit>
-    deflected: Boolean
-    displacement: DisplacementResult
-    destruction: Optional<DestructionCause>
-}
+    origin: ImpactOrigin;
+    target: ImpactObject;
+    kind: ImpactKind;
+    damage: Optional<Damage>;
+    critical: Optional<CriticalHit>;
+    deflected: Boolean;
+    displacement: DisplacementResult;
+    destruction: Optional<DestructionCause>;
+};
 ```
 
 Shields, Percentage, Energy and the identity types are defined in the abstract
@@ -403,7 +395,7 @@ hit that leaves zero builds does not destroy the planet. Preserve these values
 before removal or a subsequent change of ownership; no damage number is inferred
 from the reduction in builds.
 
-For a nova result hit, set origin to StarOrigin(hit.origin), kind to NOVA,
+For a nova result hit, set origin to StarOrigin { position: hit.origin }, kind to NOVA,
 and copy its damage, displacement and destruction. Translate its target
 identity, position and defense to the
 corresponding ImpactObject. For a planet include its ownership at impact before
@@ -479,10 +471,12 @@ one-based launch ordinal in that burst, not an object identity or a cumulative
 torpedo count. Its position is determined by the path result:
 
 ```text
-if outcome == MISSED:
-    position == trace.lastClear
-else:
-    position == trace.obstruction.position
+if (outcome == MISSED) {
+    ensures position == trace.lastClear;
+}
+else {
+    ensures position == trace.obstruction.position;
+}
 ```
 
 An absorbed shot encountered a black hole. A neutralized shot encountered a
@@ -501,12 +495,12 @@ can therefore produce both a nearby impact observation and a distinct
 faction-wide BaseObservation. Rendering the latter does not require that the
 base still be present, or report a new base later created with the same identity.
 
-RomulanDetected(position) has kind ROMULAN_DETECTED. It identifies the Romulan
+RomulanDetected { position: position } has kind ROMULAN_DETECTED. It identifies the Romulan
 at its appearance position and contains no energy reading. Appearance's nearby
 and privileged-recipient rules determine its audience. Movement before delivery
 does not replace that position or cancel the observation.
 
-EnergyReceived(value) has kind ENERGY_TRANSFER. Its sender and recipient are
+EnergyReceived { value: value } has kind ENERGY_TRANSFER. Its sender and recipient are
 the two ships in TransferEnergy; received is the amount actually added to the
 recipient's engine energy. It is neither the requested amount nor the amount
 charged to the sender. Publish to the recipient only, after the energy changes;
@@ -514,7 +508,7 @@ the sender's immediate completion report is separate. A successful transfer
 limited to zero by recipient capacity still produces a zero-amount observation.
 The report does not disclose either ship's remaining energy.
 
-TractorEvent(ACTIVATED) and TractorEvent(BROKEN) have kinds TRACTOR_ACTIVATED and
+TractorEvent { value: ACTIVATED } and TractorEvent { value: BROKEN } have kinds TRACTOR_ACTIVATED and
 TRACTOR_BROKEN. They announce establishment or release of a tractor association
 to its two endpoints. Their bodies do not identify the endpoints, a towing
 ship or a cause of release. The association operation selects the recipients;
@@ -587,16 +581,16 @@ request in LONG output precedes the following presentation check.
 
 For BASE_DISTRESS or BASE_DESTROYED, suppress the observation body if the
 receiver's radio is off or its radio-device damage is greater than 300 damage
-units. Give Suppressed(n.id); the notice has still been consumed. Damage exactly
+units. Give Suppressed { id: n.id }; the notice has still been consumed. Damage exactly
 300 does not suppress it. This reception check is additional to the producing
 operation's faction and radio-on recipient selection. Restoring the radio later
 does not restore a consumed notice. The leading LONG-format separator can still
 have been emitted before suppression.
 
-All other kinds give Displayed(n.id) and present n.observation regardless of
+All other kinds give Displayed { id: n.id } and present n.observation regardless of
 radio-enabled or radio-damage state. No notice kind uses sender-gag filtering.
 For base kinds that pass their reception check, also present n.observation and
-give Displayed(n.id). Presentation uses the receiver's current output and
+give Displayed { id: n.id }. Presentation uses the receiver's current output and
 coordinate preferences. Positions and
 resource values contained in the observation remain the published ones; relative
 coordinates are displayed from the receiver's current position. Rendering a
@@ -626,7 +620,7 @@ until no corresponding unread item remains; it does not advance a turn. A
 publication arriving during that activity follows the same next-item selection
 rule if it is observed before draining completes.
 
-**Open:** Complete terminal-control behavior, concurrent observation boundaries,
+**OPEN QUESTION:** Complete terminal-control behavior, concurrent observation boundaries,
 publication/reception interleavings and the release-versus-new-publication window
 remain to be closed. This contract preserves complete observations; it does not
 make the entire firing command, drain loop or commission release indivisible.

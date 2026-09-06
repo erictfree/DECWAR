@@ -59,8 +59,14 @@ coverage does not establish lifecycle, concurrency or terminal conformance.
   TRACTOR, MOVE, IMPULSE, BUILD, CAPTURE,
   PHASERS, TORPEDOS, LIST, SUMMARY, BASES, PLANETS, TARGETS, POINTS, TYPE, TIME, USERS, SET, TELL, *PASSWORD, *DEBUG, HELP, NEWS, GRIPE, QUIT and
   message publication/reception/discard use explicit contracts. Compact type-record
-  declarations, tagged result alternatives, Map/Sequence/Set/Optional and the
-  distinction between local assignment and game-state updates are explicit. Mapping/property notation,
+  declarations, tagged result alternatives, Map/List/Set/Optional/Result and the
+  distinction between local assignment and game-state updates are explicit. The
+  updated guide uses C-family blocks, colon return types, named variant fields,
+  assignment =, equality ==, and requires/ensures/invariant contracts. Failure
+  aliases preserve the declared rejection and cancellation paths. Full definition
+  order, grammatical metavariables and invariant coverage remain under review. World
+  collections now distinguish unordered identity sets from the ordered planet
+  sequence, with identity uniqueness and stable surviving planet order. Mapping/property notation,
   the nine device states and their distinction from hull damage and shield state
   are defined explicitly. Phaser-bank identities and independent deadlines are
   defined separately from shared device damage. Report groups, admissions, telemetry and summary observations, terminal profiles and world-ended state, token categories, acquired-line/command input values, radio service and message observations, scan marks/rows,

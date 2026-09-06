@@ -59,25 +59,25 @@ order; the resource is not replaced by a summary of its prose.
 
 ```text
 type FeedbackRecord = {
-    context: FeedbackContext
-    lines: Sequence<Text>
-}
+    context: FeedbackContext;
+    lines: List<Text>;
+};
 
 type FeedbackContext = {
-    version: Text
-    dateAndTime: environment date and time
-    ship: Optional<ShipId>
-    captainName: Text
-    terminalSpeed: environment speed value
-    account: AccountIdentity
-    terminal: TerminalIdentity
-    execution: ExecutionIdentity
-    gameNumber: integer
-    blackHolesSelected: Boolean
-    romulanEnabled: Boolean
-}
+    version: Text;
+    dateAndTime: environment date and time;
+    ship: Optional<ShipId>;
+    captainName: Text;
+    terminalSpeed: environment speed value;
+    account: AccountIdentity;
+    terminal: TerminalIdentity;
+    execution: ExecutionIdentity;
+    gameNumber: integer;
+    blackHolesSelected: Boolean;
+    romulanEnabled: Boolean;
+};
 
-query feedbackRecords(game: GameState) -> Sequence<FeedbackRecord>
+query feedbackRecords(game: GameState): List<FeedbackRecord>
 ```
 
 Records are ordered newest submission first. Their context describes the

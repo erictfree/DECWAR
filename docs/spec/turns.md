@@ -44,16 +44,16 @@ mean that typing any recognized command necessarily consumes a turn.
 enum AutomaticRepairSelection = STANDARD | ALL_DEVICES
 
 operation AutomaticRepair(actor: ShipId,
-                          selection: AutomaticRepairSelection)
-    on GameState -> DevicesAdjusted
-
-AutomaticRepair(actor, selection):
-    s := ship(game, actor)
-    maximum := max(s.devices[d].damage for d in Device)
-    if maximum > 0 damage units:
-        amount := maximum if selection == ALL_DEVICES
-                  else min(30 damage units, maximum)
-        RepairDevices(actor, amount)
+                          selection: AutomaticRepairSelection): DevicesAdjusted {
+    let s: Ship = ship(game, actor);
+    let maximum: Damage = max(s.devices[d].damage for d in Device);
+    if (maximum > 0 damage units) {
+        let amount: Damage = (selection == ALL_DEVICES)
+            ? maximum : min(30 damage units, maximum);
+        RepairDevices(actor, amount);
+    }
+    return DevicesAdjusted;
+}
 ```
 
 This operation uses the [RepairDevices contract](commands.md#shared-device-repair-operation).
@@ -82,16 +82,14 @@ additional player setting or a change to device-repair units.
 ## Turn accounting
 
 ```text
-type DefenseContext = PlayerDefense(ShipId) | RomulanDefense(CaptainId)
+type DefenseContext = PlayerDefense { ship: ShipId } | RomulanDefense { captain: CaptainId }
 type TurnOutcome = Completed | SessionEnded
-type TurnObservation = LifeSupportWarning(integer)
+type TurnObservation = LifeSupportWarning { reserve: integer }
 
 operation CompleteTurn(actor: ShipId, automaticRepair: Boolean,
-                        repairSelection: AutomaticRepairSelection = STANDARD)
-    on GameState -> TurnOutcome
+                        repairSelection: AutomaticRepairSelection = STANDARD): TurnOutcome
 
-operation CommitPendingScore(actor: ShipId)
-    on GameState -> Committed
+operation CommitPendingScore(actor: ShipId): Committed
 ```
 
 CompleteTurn requires an existing ship with a captain association and a positive
@@ -106,35 +104,45 @@ The captain association must be present when c is obtained. A normal completion
 performs the following steps in order:
 
 ```text
-CompleteTurn(actor, automaticRepair, repairSelection):
-    if automaticRepair:
-        AutomaticRepair(actor, repairSelection)
+operation CompleteTurn(actor: ShipId, automaticRepair: Boolean,
+                        repairSelection: AutomaticRepairSelection): TurnOutcome {
+    if (automaticRepair) {
+        AutomaticRepair(actor, repairSelection);
+    }
 
-    w.actionCount += 1
-    if w.actionCount >= w.playerCount:
-        w.actionCount := 0
-        context := PlayerDefense(actor)
-        EnemyBaseDefense(context)
-        PlanetDefense(context)
-        BaseReplenishment(context)
-        if w.romulanEnabled:
-            outcome := AdvanceRomulan(c.id)
-            if outcome == GalaxyEnded:
-                return SessionEnded
+    w.actionCount += 1;
+    if (w.actionCount >= w.playerCount) {
+        w.actionCount = 0;
+        let context: DefenseContext = PlayerDefense { ship: actor };
+        EnemyBaseDefense(context);
+        PlanetDefense(context);
+        BaseReplenishment(context);
+        if (w.romulanEnabled) {
+            let outcome: RomulanStepOutcome = AdvanceRomulan(c.id);
+            if (outcome == GalaxyEnded) {
+                return SessionEnded;
+            }
+        }
+    }
 
-    s.stardate += 1
-    w.teamTurns[s.team] += 1
+    s.stardate += 1;
+    w.teamTurns[s.team] += 1;
 
-    if s.devices[LIFE_SUPPORT].damage >= 300 damage units:
-        if not s.docked:
-            s.lifeSupportReserve -= 1
-        if s.lifeSupportReserve < 0:
-            s.hullDamage := 2500 damage units
-        if c.promptStyle == NORMAL:
-            emit LifeSupportWarning(s.lifeSupportReserve)
+    if (s.devices[LIFE_SUPPORT].damage >= 300 damage units) {
+        if (not s.docked) {
+            s.lifeSupportReserve -= 1;
+        }
+        if (s.lifeSupportReserve < 0) {
+            s.hullDamage = 2500 damage units;
+        }
+        if (c.promptStyle == NORMAL) {
+            emit LifeSupportWarning { reserve: s.lifeSupportReserve };
+        }
+    }
 
-    CommitPendingScore(actor)
-    return Completed
+    CommitPendingScore(actor);
+    return Completed;
+}
 ```
 
 PlayerDefense identifies the acting ship's faction and its associated captain
@@ -161,10 +169,10 @@ suppresses that warning without changing the state effects.
 CommitPendingScore visits ScoreCategory in its declared order. For each category k:
 
 ```text
-amount := s.pendingScore[k]
+amount = s.pendingScore[k]
 s.score[k] += amount
 w.teamScores[s.team][k] += amount
-s.pendingScore[k] := 0 points
+s.pendingScore[k] = 0 points
 ```
 
 Each amount is used once for the ship and once for its faction, including zero
@@ -174,7 +182,7 @@ counts. Repeating it with all pending values zero makes no further score change.
 POINTS can therefore observe different values before and after this operation;
 its own report does not perform this commitment.
 
-**Open:** Interruption between category updates, simultaneous changes to the
+**OPEN QUESTION:** Interruption between category updates, simultaneous changes to the
 participant threshold and the complete session-control precedence need the
 multiplayer binding. No whole-turn transaction or automatic rollback is implied.
 
@@ -186,12 +194,9 @@ multiplayer binding. No whole-turn transaction or automatic rollback is implied.
 ## Automatic installation defenses
 
 ```text
-operation EnemyBaseDefense(context: DefenseContext)
-    on GameState -> Completed
-operation PlanetDefense(context: DefenseContext)
-    on GameState -> Completed
-operation BaseReplenishment(context: DefenseContext)
-    on GameState -> Completed
+operation EnemyBaseDefense(context: DefenseContext): Completed
+operation PlanetDefense(context: DefenseContext): Completed
+operation BaseReplenishment(context: DefenseContext): Completed
 ```
 
 These operations run when turn accounting activates world defenses. A player
@@ -214,24 +219,28 @@ activate Federation bases, then Empire bases. Within each faction use base
 identity order, skipping bases with nonpositive strength. For each base:
 
 ```text
-for each opposing ship in roster order:
-    if eligible and within four sectors of the base:
-        source := InstallationAttack(BaseOrigin(base.id))
-        hit := PhaserHit(source, ShipBody(ship.id),
-            strength = 200/world.playerCount,
-            distance = Distance(base.position, ship.position))
-        world.teamScores[base.team][ENEMY_DAMAGE] += hit.damage in points
-        if hit.destruction != none:
-            world.teamScores[base.team][ENEMY_KILLS] += 500 points
-        announce the hit
-
-if the Romulan exists and is within four sectors:
-    hit := RomulanPhaserHit(strength = 200/world.playerCount,
-                           distance = distance from base)
-    world.teamScores[base.team][ROMULAN] += hit.damage in points
-    if hit.destroyed:
-        world.teamScores[base.team][ROMULAN] += 500 points
-    announce the hit
+for (each opposing ship in roster order) {
+    if (eligible and within four sectors of the base) {
+        source = InstallationAttack { origin: BaseOrigin { base: base.id } };
+        hit = PhaserHit(source, ShipBody { ship: ship.id },
+            strength: 200/world.playerCount,
+            distance: distance(base.position, ship.position));
+        world.teamScores[base.team][ENEMY_DAMAGE] += hit.damage in points;
+        if (hit.destruction != none) {
+            world.teamScores[base.team][ENEMY_KILLS] += 500 points;
+        }
+        announce the hit;
+    }
+}
+if (the Romulan exists and is within four sectors) {
+    hit = RomulanPhaserHit(strength: 200/world.playerCount,
+                           distance: distance from base);
+    world.teamScores[base.team][ROMULAN] += hit.damage in points;
+    if (hit.destroyed) {
+        world.teamScores[base.team][ROMULAN] += 500 points;
+    }
+    announce the hit;
+}
 ```
 
 `PhaserHit` and `RomulanPhaserHit` denote the shared damage rules, without the
@@ -251,26 +260,32 @@ skips its entire defensive action, including a possible attack on the Romulan.
 In a player context, skip planets owned by the acting faction. Otherwise:
 
 ```text
-for each ship in roster order:
-    if eligible and not of the planet's faction
-       and within two sectors of the planet:
-        strength := (50 + 30*planet.builds)/world.playerCount
-        origin := PlanetOrigin(planet.id, planet.owner)
-        source := InstallationAttack(origin)
-        hit := PhaserHit(source, ShipBody(ship.id), strength, distance to ship)
-        if planet.owner != none:
-            credit hit.damage to owner's ENEMY_DAMAGE total
-            if hit.destruction != none:
-                credit 500 to owner's ENEMY_KILLS total
-        announce the hit
-
-if the Romulan exists and is within two sectors:
-    strength := 50 + 30*planet.builds
-    hit := RomulanPhaserHit(strength, distance to Romulan)
-    if planet.owner != none:
-        credit hit.damage to owner's ROMULAN total
-        if hit.destroyed, credit 500 to owner's ROMULAN total
-    announce the hit
+for (each ship in roster order) {
+    if (eligible and not of the planet's faction and within two sectors of the planet) {
+        strength = (50 + 30*planet.builds)/world.playerCount;
+        origin = PlanetOrigin { planet: planet.id, owner: planet.owner };
+        source = InstallationAttack { origin: origin };
+        hit = PhaserHit(source, ShipBody { ship: ship.id }, strength, distance to ship);
+        if (planet.owner != none) {
+            credit hit.damage to owner's ENEMY_DAMAGE total;
+            if (hit.destruction != none) {
+                credit 500 to owner's ENEMY_KILLS total;
+        }
+        announce the hit;
+    }
+}
+if (the Romulan exists and is within two sectors) {
+    strength = 50 + 30*planet.builds;
+    hit = RomulanPhaserHit(strength, distance to Romulan);
+    if (planet.owner != none) {
+        credit hit.damage to owner's ROMULAN total;
+        if (hit.destroyed) {
+            credit 500 to owner's ROMULAN total;
+        }
+    }
+    announce the hit;
+}
+}
 ```
 
 A neutral planet has no friendly faction and receives no team score. A captured

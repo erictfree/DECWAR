@@ -56,7 +56,7 @@ choice requires documentation by the implementation. Unresolved behavior means
 this draft cannot yet state the rule; it does not grant unlimited behavior or
 establish that the original program behaved unpredictably.
 
-Each clause is normative unless marked **Evidence**, **Explanation**, **Open** or
+Each clause is normative unless marked **Evidence**, **Explanation**, **OPEN QUESTION** or
 **Example**. Requirements in this incomplete draft apply only to the identified
 clause and its stated domain. No implementation may use a few passing examples
 as a claim of complete DECWAR conformance. Examples illustrate requirements;

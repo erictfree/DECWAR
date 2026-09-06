@@ -2948,3 +2948,38 @@ logs/spec-galaxy-report-line-build.log. Audit passes:
 logs/spec-galaxy-report-line-audit.log. Reviewed PDF pages 60, 148–149 and 191;
 no clipping or overflow. The working draft is 192 pages. Source-derived example
 review is not runtime or native parity. No game/server/archive changes.
+
+
+## 2026-09-05 — Align specification with updated C-family editorial guide
+
+Applied the updated Modern_System_Specification_Guide.md as an editorial
+reference only. The assembled book now uses List/Set/Map, named record and
+variant fields, colon return types, C-family blocks, = assignment and == equality.
+Defined local bindings, record copy-with, entity identity versus value equality,
+Unit results and requires/ensures/invariant contracts. Result<T, Error> retains
+existing non-rejected outcomes and a reason-bearing rejection; it does not add
+rollback, atomic commands or game rules. Cancellation/lifecycle paths remain
+explicit. Disambiguated TorpedoFlightOutcome from the command's TorpedoOutcome.
+Added explicit World collection types and identity/order rules; unified grammar
+overview ::= and keyword notation without changing matching or abbreviations.
+
+Verified all 68 named records retain field names, order and domains, with only
+collection spelling and the flight-enum rename; preserved grammar production
+lines, random-call arguments/order and presentation quoted-string sequence.
+Evidence: logs/spec-guide-update-consistency.log. The initial consistency check
+caught missing parameter names in two random-operation declarations; restored
+them and reran successfully. The initial log is retained separately. Reviewed
+algorithm branch structure and record construction after notation conversion.
+These checks are structural/editorial evidence, not an executable semantics test.
+
+Build passes 14 chapters, 411 links, 563 scenario rows and 324 named source
+fragments: logs/spec-guide-update-build-final.log. The first build caught a long
+inline outcome overflowing its paragraph; moved that example into a code block
+and rebuilt. Failed and intermediate logs retained. Source archive audit passes:
+logs/spec-guide-update-audit.log. The compiled draft is 195 pages. Visually
+reviewed PDF pages 8–10, 51, 87 and 104 for notation, CAPTURE, path traversal and
+turn ordering. Full type-definition order, common grammar terms, invariants,
+remaining responses, lifecycle/concurrency and CompuServe amendments remain.
+
+No game code, running servers or immutable archives changed. Preserved concurrent
+WORK_LOG/docs/status changes and experiments without staging them.

@@ -24,8 +24,7 @@ and trailing-input rules are also part of its acceptance behavior.
 ### Raising shields
 
 ```text
-operation RaiseShields(actor: ShipId)
-    on GameState -> Raised | Rejected(ShieldsTooDamaged)
+operation RaiseShields(actor: ShipId): Result<Raised, ShieldsTooDamaged>
 ```
 
 Let s be `ship(game, actor)`. The precondition is
@@ -36,8 +35,8 @@ with the damaged-shields diagnostic and changes none of s's state. Exactly
 On success, the shield-raising event satisfies:
 
 ```text
-after(s.shields.mode) == UP
-after(s.energy) == max(0 energy units,
+ensures after(s.shields.mode) == UP
+ensures after(s.energy) == max(0 energy units,
                        before(s.energy) - 100 energy units)
 ```
 
@@ -51,8 +50,7 @@ or automatic repair; subsequent command acquisition handles exhausted energy.
 ### Lowering shields
 
 ```text
-operation LowerShields(actor: ShipId)
-    on GameState -> Lowered
+operation LowerShields(actor: ShipId): Lowered
 ```
 
 Let s be `ship(game, actor)`. No shield-damage precondition applies.
@@ -68,8 +66,7 @@ return shield energy to the engines. Twenty-five energy units correspond to one
 percentage point of shield strength. Fractional increases are retained.
 
 ```text
-operation TransferShieldEnergy(actor: ShipId, requested: Energy)
-    on GameState -> Transferred(amount: Energy) | Cancelled
+operation TransferShieldEnergy(actor: ShipId, requested: Energy): Transferred { amount: Energy } | Cancelled
 ```
 
 The command's Integer denotes requested energy units. Let s be the acting ship.
@@ -91,22 +88,22 @@ s.shields.strength immediately before the transfer. The transfer event satisfies
 amount = max(candidate,
              -25 energy units * S / 1%,
              E - 5000 energy units)
-after(s.energy) == E - amount
-after(s.shields.strength) == S + amount / (25 energy units) * 1%
-after(s.shields.mode) == DOWN if after(s.shields.strength) <= 0%
-                        else before(s.shields.mode)
-after(s.condition) == YELLOW if after(s.energy) < 1000 energy units
-                     else GREEN
+ensures after(s.energy) == E - amount
+ensures after(s.shields.strength) == S + amount / (25 energy units) * 1%
+ensures after(s.shields.mode) ==
+    (after(s.shields.strength) <= 0% ? DOWN : before(s.shields.mode))
+ensures after(s.condition) ==
+    (after(s.energy) < 1000 energy units ? YELLOW : GREEN)
 ```
 
-The actor receives the signed transfer amount; the outcome is Transferred(amount).
+The actor receives the signed transfer amount; the outcome is Transferred { amount: amount }.
 The confirmation precedes the lower limits on amount. Confirming does not cap
 the transfer at available engine energy, so a completed transfer can exhaust
 the engines. At exactly 1000 remaining energy units this event sets condition
 GREEN. Subsequent command acquisition has its own condition and lifecycle rules.
 There is no turn completion or automatic repair.
 
-**Open:** Changes by other actors during the confirmation interval still need
+**OPEN QUESTION:** Changes by other actors during the confirmation interval still need
 a complete multiplayer contract. The equations do not make that interval an
 indivisible transaction.
 
@@ -140,12 +137,10 @@ need not be commissioned. Naming the acting ship causes no change or confirmatio
 ### Operations and state effects
 
 ```text
-operation RadioOn(actor: CaptainId) on GameState -> Enabled
-operation RadioOff(actor: CaptainId) on GameState -> Disabled
-operation Gag(actor: CaptainId, sender: ShipId)
-    on GameState -> Gagged | Unchanged
-operation Ungag(actor: CaptainId, sender: ShipId)
-    on GameState -> Ungagged | Unchanged
+operation RadioOn(actor: CaptainId): Enabled
+operation RadioOff(actor: CaptainId): Disabled
+operation Gag(actor: CaptainId, sender: ShipId): Gagged | Unchanged
+operation Ungag(actor: CaptainId, sender: ShipId): Ungagged | Unchanged
 ```
 
 Let c be `captain(game, actor)`. The command acts on the radio preferences
@@ -194,9 +189,8 @@ for that transfer and its loss.
 
 ```text
 operation TransferEnergy(actor: ShipId, target: ShipId,
-                         requested: Energy)
-    on GameState -> Transferred(received: Energy, charged: Energy)
-                 | Rejected(reason: EnergyRejection)
+                         requested: Energy):
+    Result<Transferred { received: Energy, charged: Energy }, EnergyRejection>
 
 type EnergyRejection = CannotTransferToSelf | ShipNotInGame
                 | CannotTransferToEnemy | RecipientNotAdjacent
@@ -226,11 +220,11 @@ The transfer event satisfies:
 received = min(0.9 * requested,
                5000 energy units - before(r.energy))
 charged = received / 0.9
-after(s.energy) == before(s.energy) - charged
-after(r.energy) == before(r.energy) + received
+ensures after(s.energy) == before(s.energy) - charged
+ensures after(r.energy) == before(r.energy) + received
 ```
 
-The outcome is Transferred(received, charged). The actor receives the transfer
+The outcome is Transferred { received: received, charged: charged }. The actor receives the transfer
 report; publish EnergyReceived with the actor, target and received amount to
 the recipient, as defined in [combat observations](communication.md#observation-values).
 A recipient already at capacity produces a successful zero-amount transfer,
@@ -259,9 +253,9 @@ prevent docking; ALL after STATUS does not select full repair.
 ### Operation and preconditions
 
 ```text
-operation ReplenishAtDock(actor: ShipId)
-    on GameState -> Docked | Rejected(NoAdjacentFriendlyInstallation)
-                 | CommissionEnded
+operation ReplenishAtDock(actor: ShipId):
+    Result<Docked, NoAdjacentFriendlyInstallation>
+    | CommissionEnded
 ```
 
 Each surviving friendly base within one sector contributes two supply shares;
@@ -288,17 +282,17 @@ At replenishment, the effects are:
 
 ```text
 hullRepair = 50 damage units * shares
-             * (2 if before(s.docked) else 1)
-after(s.torpedoes) == min(10, before(s.torpedoes) + 5 * shares)
-after(s.energy) == min(5000 energy units,
+             * (before(s.docked) ? 2 : 1)
+ensures after(s.torpedoes) == min(10, before(s.torpedoes) + 5 * shares)
+ensures after(s.energy) == min(5000 energy units,
                        before(s.energy) + 500 energy units * shares)
-after(s.shields.strength) == min(100%,
+ensures after(s.shields.strength) == min(100%,
                                 before(s.shields.strength) + 10% * shares)
-after(s.hullDamage) == max(0 damage units,
+ensures after(s.hullDamage) == max(0 damage units,
                            before(s.hullDamage) - hullRepair)
-after(s.docked) == true
-after(s.lifeSupportReserve) == 5
-after(s.condition) == GREEN
+ensures after(s.docked) == true
+ensures after(s.lifeSupportReserve) == 5
+ensures after(s.condition) == GREEN
 ```
 
 The outcome is Docked and the actor receives the docking report. Repeated
@@ -343,15 +337,14 @@ DAMAGES rules.
 ### Shared device-repair operation
 
 ```text
-operation RepairDevices(actor: ShipId, amount: Damage)
-    on GameState -> DevicesAdjusted
+operation RepairDevices(actor: ShipId, amount: Damage): DevicesAdjusted
 ```
 
 Let s be `ship(game, actor)`. For every device d in Device, the repair event
 satisfies:
 
 ```text
-after(s.devices[d].damage) == max(0 damage units,
+ensures after(s.devices[d].damage) == max(0 damage units,
                                  before(s.devices[d].damage) - amount)
 ```
 
@@ -363,10 +356,9 @@ It produces no report, delay or turn by itself. Both explicit REPAIR and
 ### Explicit repair and completion
 
 ```text
-type RepairRequest = Default | All | Amount(value: Damage)
+type RepairRequest = Default | All | Amount { value: Damage }
 
-operation ExplicitRepair(actor: ShipId, request: RepairRequest)
-    on GameState -> Repaired(amount: Damage) | NothingToRepair
+operation ExplicitRepair(actor: ShipId, request: RepairRequest): Repaired { amount: Damage } | NothingToRepair
 ```
 
 The command's Integer denotes the value for Amount. ALL denotes All; absence
@@ -380,11 +372,11 @@ repair deadline or turn. Otherwise select the amount:
 | --- | --- |
 | Default | `min(maximum, 100 damage units)` if s.docked, otherwise `min(maximum, 50 damage units)` |
 | All | maximum |
-| Amount(value) | `min(maximum, value)` |
+| Amount { value: value } | `min(maximum, value)` |
 
 Before the repair event, establish a deadline of now plus amount times the
 repair rate. The rate is 40 milliseconds per damage unit if s.docked, otherwise
-80. Apply RepairDevices(actor, amount); the outcome is Repaired(amount).
+80. Apply RepairDevices(actor, amount); the outcome is Repaired { amount: amount }.
 
 An accepted DAMAGE suffix produces its selected report after device adjustment,
 or after determining NothingToRepair. One acceptance exception applies: when
@@ -431,31 +423,30 @@ enum ScanVerb = SCAN | SRSCAN
 enum ScanDirection = UP | DOWN | RIGHT | LEFT | CORNER
 
 type ScanRequest = {
-    verb: ScanVerb
-    direction: Optional<ScanDirection>
-    extents: Sequence<integer> containing zero to two values
-    warning: Boolean
-}
+    verb: ScanVerb;
+    direction: Optional<ScanDirection>;
+    extents: List<integer> containing zero to two values;
+    warning: Boolean;
+};
 
-type ScanMark = EmptySpace | BlankSpace | ShipMark(ship: ShipId)
-         | BaseMark(team: Team) | RomulanMark
-         | PlanetMark(owner: Optional<Team>) | StarMark | WarningMark
+type ScanMark = EmptySpace | BlankSpace | ShipMark { ship: ShipId }
+         | BaseMark { team: Team } | RomulanMark
+         | PlanetMark { owner: Optional<Team> } | StarMark | WarningMark
 
 type ScanRow = {
-    vertical: Coordinate
-    cells: Sequence<ScanMark>
-}
+    vertical: Coordinate;
+    cells: List<ScanMark>;
+};
 
 type ScanReport = {
-    bounds: Rectangle
-    rows: Sequence<ScanRow>
-}
+    bounds: Rectangle;
+    rows: List<ScanRow>;
+};
 
-operation Scan(actor: ShipId, request: ScanRequest)
-    on GameState -> ScanOutcome
+operation Scan(actor: ShipId, request: ScanRequest): ScanOutcome
 
-type ScanOutcome = Reported(report: ScanReport)
-            | Interrupted(partial: ScanReport) | RejectedSyntax
+type ScanOutcome = Reported { report: ScanReport }
+            | Interrupted { partial: ScanReport } | RejectedSyntax
 ```
 
 Let s be `ship(game, actor)` and w be `world(game)`. The actor must have a
@@ -486,18 +477,19 @@ value the decreasing side, and its magnitude is the extent. Zero selects neither
 side of that axis.
 
 ```text
-operation BoundScan(position: Position, up: integer, down: integer,
-                    right: integer, left: integer) -> Rectangle:
-    up := clamp(up, 0, 10)
-    down := clamp(down, 0, 10)
-    right := clamp(right, 0, 10)
-    left := clamp(left, 0, 10)
-    return Rectangle(
-        minVertical = max(1, position.vertical - down),
-        maxVertical = min(75, position.vertical + up),
-        minHorizontal = max(1, position.horizontal - left),
-        maxHorizontal = min(75, position.horizontal + right)
-    )
+function BoundScan(position: Position, up: integer, down: integer,
+                    right: integer, left: integer): Rectangle {
+    up = clamp(up, 0, 10);
+    down = clamp(down, 0, 10);
+    right = clamp(right, 0, 10);
+    left = clamp(left, 0, 10);
+    return Rectangle {
+        minVertical: max(1, position.vertical - down),
+        maxVertical: min(75, position.vertical + up),
+        minHorizontal: max(1, position.horizontal - left),
+        maxHorizontal: min(75, position.horizontal + right)
+    };
+}
 ```
 
 `clamp(value, lower, upper)` means `min(upper, max(lower, value))`.
@@ -518,13 +510,15 @@ including those outside the displayed rectangle. Discovery belongs to the
 acting team, so other captains on that team can use it.
 
 ```text
-knowledge := w.knowledge[s.team]
-for each planet within distance 10 of origin:
-    knowledge.knownPlanets :=
-        knowledge.knownPlanets union {planet.id}
-for each surviving enemy base within distance 10 of origin:
-    knowledge.knownBases :=
-        knowledge.knownBases union {base.id}
+let knowledge: TeamKnowledge = w.knowledge[s.team];
+for (each planet within distance 10 of origin) {
+    knowledge.knownPlanets =
+        knowledge.knownPlanets union {planet.id};
+}
+for (each surviving enemy base within distance 10 of origin) {
+    knowledge.knownBases =
+        knowledge.knownBases union {base.id};
+}
 ```
 
 With WARNING, enemy planets considered by that discovery step mark a square
@@ -542,8 +536,8 @@ The discovery and warning steps finish before rows are emitted. Therefore a
 scan interrupted during row output retains all the discovery already performed.
 At a row boundary, an observed scan-interruption request stops further rows and
 omits the bottom axis labels, consumes that scan-interruption request and gives
-Interrupted(partial). The just-emitted row is included. Otherwise emit the
-bottom labels and give Reported(report).
+Interrupted { partial: partial }. The just-emitted row is included. Otherwise emit the
+bottom labels and give Reported { values: report }.
 
 Initial sector observations visit increasing vertical and then horizontal
 coordinates. Warning areas are reconsidered during installation discovery,
@@ -562,12 +556,12 @@ their own presentation binding:
 | EmptySpace | space then `.` | `.` |
 | BlankSpace | two spaces | space |
 | ShipMark | space then roster initial | roster initial |
-| BaseMark(FEDERATION) | `<>` | `>` |
-| BaseMark(EMPIRE) | `)(` | `(` |
+| BaseMark { team: FEDERATION } | `<>` | `>` |
+| BaseMark { team: EMPIRE } | `)(` | `(` |
 | RomulanMark | `??` | `?` |
-| PlanetMark(none) | space then `@` | `@` |
-| PlanetMark(FEDERATION) | `@F` | `F` |
-| PlanetMark(EMPIRE) | `@E` | `E` |
+| PlanetMark { owner: none } | space then `@` | `@` |
+| PlanetMark { owner: FEDERATION } | `@F` | `F` |
+| PlanetMark { owner: EMPIRE } | `@E` | `E` |
 | StarMark | space then `*` | `*` |
 | WarningMark | space then `!` | `!` |
 
@@ -613,17 +607,15 @@ apply command-name ambiguity detection to the items.
 ```text
 enum RadioState = DAMAGED | ON | OFF
 
-type StatusObservation = StardateValue(value: Stardate)
-    | ShieldValue(mode: ShieldMode, strength: Percentage,
-                  equivalentEnergy: Optional<Energy>)
-    | LocationValue(position: Position)
-    | ConditionValue(condition: Condition, docked: Boolean)
-    | TorpedoValue(count: integer) | EnergyValue(value: Energy)
-    | HullDamageValue(value: Damage) | RadioValue(state: RadioState)
+type StatusObservation = StardateValue { value: Stardate }
+    | ShieldValue { mode: ShieldMode, strength: Percentage, equivalentEnergy: Optional<Energy> }
+    | LocationValue { position: Position }
+    | ConditionValue { condition: Condition, docked: Boolean }
+    | TorpedoValue { count: integer } | EnergyValue { value: Energy }
+    | HullDamageValue { value: Damage } | RadioValue { state: RadioState }
     | InvalidStatusItem
 
-operation ReportStatus(actor: ShipId, arguments: Sequence<Token>)
-    on GameState -> Sequence<StatusObservation>
+operation ReportStatus(actor: ShipId, arguments: List<Token>): List<StatusObservation>
 ```
 
 Token and its categories are defined in the [lexical rules](lexical.md).
@@ -675,18 +667,16 @@ can match several identifiers: T matches both TO and TR.
 
 ```text
 type DeviceDamageRow = {
-    device: Device
-    damage: Damage
-}
+    device: Device;
+    damage: Damage;
+};
 
 enum DamageReportStyle = SELECTED | GENERAL
 
 type DamageReport = AllDevicesFunctional
-    | Rows(style: DamageReportStyle, titleObject: Optional<SectorObject>,
-           values: Sequence<DeviceDamageRow>)
+    | Rows { style: DamageReportStyle, titleObject: Optional<SectorObject>, values: List<DeviceDamageRow> }
 
-operation ReportDamage(actor: ShipId, arguments: Sequence<Token>)
-    on GameState -> DamageReport
+operation ReportDamage(actor: ShipId, arguments: List<Token>): DamageReport
 ```
 
 Let s be `ship(game, actor)`. The actor must have a captain and position.
@@ -701,24 +691,31 @@ Selector spellings in the syntax correspond to these values in that order.
 Token categories follow the lexical chapter.
 
 ```text
-if no device has positive damage:
-    emit AllDevicesFunctional
-    return AllDevicesFunctional
-
-titleObject := none
-if the first argument is a name-category token:
-    style := SELECTED
-    for each argument until a non-name-category token:
-        for each matching DeviceSelector in displayed order:
-            emit DeviceDamageRow(device, s.devices[device].damage)
-else:
-    style := GENERAL
-    if captain(game, s.captain).outputLength == LONG:
-        titleObject := sector(game, s.position)
-    for each device in displayed order:
-        if s.devices[device].damage > 0 damage units:
-            emit DeviceDamageRow(device, s.devices[device].damage)
-return Rows(style, titleObject, the emitted rows in order)
+if (no device has positive damage) {
+    emit AllDevicesFunctional;
+    return AllDevicesFunctional;
+}
+let titleObject: Optional<SectorObject> = none;
+let style: DamageReportStyle;
+if (the first argument is a name-category token) {
+    style = SELECTED;
+    for (each argument until a non-name-category token) {
+        for (each matching DeviceSelector in displayed order) {
+            emit DeviceDamageRow { device: device, damage: s.devices[device].damage };
+        }
+    }
+} else {
+    style = GENERAL;
+    if (captain(game, s.captain).outputLength == LONG) {
+        titleObject = sector(game, s.position);
+    }
+    for (each device in displayed order) {
+        if (s.devices[device].damage > 0 damage units) {
+            emit DeviceDamageRow { device: device, damage: s.devices[device].damage };
+        }
+    }
+}
+return Rows { style: style, titleObject: titleObject, values: the emitted rows in order };
 ```
 
 An unmatched selector is silently skipped. Explicit matches report zero damage
@@ -753,9 +750,8 @@ beam reports that no beam is in use. Unused trailing arguments are ignored.
 ### Engagement operation and preconditions
 
 ```text
-operation EngageTractor(actor: ShipId, target: ShipId)
-    on GameState -> Engaged(beam: TractorBeamId)
-                 | Rejected(reason: TractorRejection)
+operation EngageTractor(actor: ShipId, target: ShipId):
+    Result<Engaged { beam: TractorBeamId }, TractorRejection>
 
 type TractorRejection = BeamAlreadyActive | CannotTractorSelf
                  | CannotTractorEnemy | ShipNotInGame
@@ -789,12 +785,12 @@ Engagement establishes a new TractorBeam b with a distinct identity. Let w be
 
 ```text
 b.endpoints == {s.id, r.id}
-after(w.beams) == before(w.beams) union {b}
-after(s.tractorBeam) == b.id
-after(r.tractorBeam) == b.id
+ensures after(w.beams) == before(w.beams) union {b}
+ensures after(s.tractorBeam) == b.id
+ensures after(r.tractorBeam) == b.id
 ```
 
-The outcome is Engaged(b.id), and both endpoints receive the tractor-engagement
+The outcome is Engaged { beam: b.id }, and both endpoints receive the tractor-engagement
 notification. Positions, energy, shields, device damage, condition, docking and
 stardates are unchanged. Either endpoint may subsequently move using the same
 association; engagement does not choose a permanent towing ship.
@@ -806,7 +802,7 @@ invokes [ReleaseTractorBeam](world-rules.md#release). With no beam, OFF instead
 reports that none is in use and changes no state. No TRACTOR outcome charges
 energy or completes a turn or automatic repair.
 
-**Open:** Simultaneous engagements involving a shared endpoint still need a
+**OPEN QUESTION:** Simultaneous engagements involving a shared endpoint still need a
 complete resolution rule. The successful relationship above does not establish
 that the input and validation sequence is indivisible.
 
@@ -832,13 +828,12 @@ The propulsion check below precedes coordinate acquisition.
 ```text
 enum Propulsion = WARP | IMPULSE
 
-operation Move(actor: ShipId, destination: Position, mode: Propulsion)
-    on GameState -> MovementOutcome
+operation Move(actor: ShipId, destination: Position, mode: Propulsion): MovementOutcome
 
-type MovementOutcome = Moved(position: Position)
-                | Obstructed(position: Position, at: Position)
-                | Rejected(reason: MovementRejection)
-                | Cancelled | CommissionEnded
+type MovementOutcome =
+    Result<Moved { position: Position } | Obstructed { position: Position, at: Position }, MovementRejection>
+    |  Cancelled
+    | CommissionEnded
 
 type MovementRejection = WarpUnavailable | ImpulseUnavailable
                   | WarpRangeExceeded | DamagedWarpRangeExceeded
@@ -867,8 +862,8 @@ has no movement effects or turn completion.
 Accepting a nonzero displacement begins departure. This event satisfies:
 
 ```text
-after(s.condition) == GREEN
-after(s.docked) == false
+ensures after(s.condition) == GREEN
+ensures after(s.docked) == false
 ```
 
 Define the displacement and intended distance:
@@ -898,7 +893,7 @@ IntegerDraw(100). Overheating occurs when `d == 5 and q > 90`, or when
 `d == 6 and q > 80`. The overheating event satisfies:
 
 ```text
-after(s.devices[WARP_ENGINES].damage)
+ensures after(s.devices[WARP_ENGINES].damage)
     == before(s.devices[WARP_ENGINES].damage) + potentialDamage
 ```
 
@@ -915,10 +910,10 @@ Obtain `trace = TracePath(s.position, displacement, d, deflection)` under the
 satisfies:
 
 ```text
-shieldFactor = 2 if s.shields.mode == UP else 1
-tractorFactor = 3 if s.tractorBeam != none else 1
+let shieldFactor: integer = (s.shields.mode == UP ? 2 : 1)
+let tractorFactor: integer = (s.tractorBeam != none ? 3 : 1)
 cost = 4 * d^2 * shieldFactor * tractorFactor energy units
-after(s.energy) == before(s.energy) - cost
+ensures after(s.energy) == before(s.energy) - cost
 ```
 
 The intended distance determines cost even when an obstruction prevents reaching
@@ -930,16 +925,21 @@ Subsequent lifecycle rules handle exhausted energy.
 If trace.lastClear differs from s.position, relocation satisfies:
 
 ```text
-after(s.position) == trace.lastClear
+ensures after(s.position) == trace.lastClear
 ```
 
-The former sector becomes empty and trace.lastClear contains PlayerShip(s.id).
+The former sector becomes empty and trace.lastClear contains PlayerShip { id: s.id }.
 After this relocation, an existing
 beam invokes [FollowTractorBeam](world-rules.md#following-a-moving-endpoint)
 with s.id and trace.step. If s does not change sector, its partner does not move.
 
-With an obstruction, report it and give Obstructed(trace.lastClear,
-trace.obstruction.position). Otherwise give Moved(trace.lastClear). Moved denotes
+With an obstruction, report it and give:
+
+```text
+Obstructed { position: trace.lastClear, at: trace.obstruction.position }
+```
+
+Otherwise give `Moved { position: trace.lastClear }`. Moved denotes
 normal traversal completion; its position can still equal the starting sector
 when a galaxy boundary prevents advancement. Neither an obstruction nor a
 boundary exit refunds energy. The moving ship precedes its following partner;
@@ -953,7 +953,7 @@ that advances no sectors. If the commission has ended before turn completion
 is selected, the outcome is CommissionEnded and session exit takes precedence.
 Earlier energy and movement effects are not rolled back on that account.
 
-**Open:** Concurrent obstruction changes, relocation claims, temporary sector
+**OPEN QUESTION:** Concurrent obstruction changes, relocation claims, temporary sector
 kinds and crowded or out-of-bounds tractor following still need complete rules.
 The ordinary relocation contract applies to the clear destination established
 by the trace; it does not grant the actor a reservation while other actions occur.
@@ -979,13 +979,12 @@ Time spent acquiring the location counts toward that deadline.
 ### Operation and preconditions
 
 ```text
-operation Build(actor: ShipId, target: Position)
-    on GameState -> BuildOutcome
+operation Build(actor: ShipId, target: Position): BuildOutcome
 
-type BuildOutcome = StageCompleted(planet: PlanetId, builds: integer)
-             | BaseConstructed(base: BaseId)
-             | Rejected(reason: BuildRejection)
-             | Cancelled | GalaxyEnded
+type BuildOutcome =
+    Result<StageCompleted { planet: PlanetId, builds: integer } | BaseConstructed { base: BaseId }, BuildRejection>
+    |  Cancelled
+    | GalaxyEnded
 
 type BuildRejection = NotAdjacent | NotAPlanet | NotOwned
                | BaseLimitReached | ConstructionCrewBusy
@@ -996,7 +995,7 @@ Let s be `ship(game, actor)` and w be `world(game)`. After resolving a valid
 location, check the following in order:
 
 1. `distance(s.position, target) <= 1`; otherwise NotAdjacent.
-2. `sector(game, target)` is PlanetObject(id); otherwise NotAPlanet.
+2. `sector(game, target)` is PlanetObject { id: id }; otherwise NotAPlanet.
    Let p be `planet(game, id)` for the remaining checks.
 3. `p.owner == s.team`; otherwise NotOwned.
 4. If `p.builds == 4` and `w.baseCounts[s.team] == 10`, give BaseLimitReached.
@@ -1012,13 +1011,13 @@ Let p be the selected planet and b its builds immediately before this event.
 The stage event satisfies:
 
 ```text
-after(p.builds) == b + 1
-after(s.pendingScore[BASE_CONSTRUCTION])
+ensures after(p.builds) == b + 1
+ensures after(s.pendingScore[BASE_CONSTRUCTION])
     == before(s.pendingScore[BASE_CONSTRUCTION]) + 50 * (b + 1) points
 ```
 
 If the new build count is not five, report that count and give
-StageCompleted(p.id, b + 1). The planet's identity, position and ownership are
+StageCompleted { planet: p.id, builds: b + 1 }. The planet's identity, position and ownership are
 unchanged. A fifth build instead attempts the base conversion described below.
 Pending points are not yet part of the ship's or faction's committed score.
 
@@ -1039,7 +1038,7 @@ diagnostic, restore p.builds to four and retain the 250 pending points.
 This later capacity failure completes no turn. It differs from the initial
 four-build capacity rejection, which adds no build or points.
 
-**Open:** The conditions for conversion refusal, concurrent changes between the
+**OPEN QUESTION:** The conditions for conversion refusal, concurrent changes between the
 capacity checks and competing installation operations remain to be specified.
 The crew report does not define a new random failure or player-controlled crew
 resource.
@@ -1056,7 +1055,7 @@ n.id == selected base identity
 n.team == s.team
 n.position == p.position
 n.strength == 100%
-after(w.planets) == before(w.planets) minus {p}
+ensures after(w.planets) == before(w.planets) minus {p}
 ```
 
 The base collection retains its existing identities; the selected entry is now
@@ -1068,9 +1067,9 @@ Remaining planets keep their identities and relative report order. For each
 faction, let k denote its TeamKnowledge. The knowledge effects are:
 
 ```text
-after(k.knownPlanets) == before(k.knownPlanets) minus {p.id}
-after(k.knownBases) == (before(k.knownBases) minus {n.id})
-    union ({n.id} if p.id in before(k.knownPlanets) else {})
+ensures after(k.knownPlanets) == before(k.knownPlanets) minus {p.id}
+ensures after(k.knownBases) == (before(k.knownBases) minus {n.id})
+    union (p.id in before(k.knownPlanets) ? {n.id} : {})
 ```
 
 Thus prior discovery of p becomes discovery of n. Reusing a base identity does
@@ -1086,11 +1085,11 @@ committed points; the newly pending construction points are not committed by
 an additional turn on this path. Session release and exit follow the
 [world-termination rules](session-rules.md#world-termination).
 
-If the galaxy continues, give BaseConstructed(n.id) and the construction report,
+If the galaxy continues, give BaseConstructed { base: n.id } and the construction report,
 which identifies the acting ship, location and new base. The five normal stages
 contribute 1000 points altogether: 50, 100, 150, 200 and 500.
 
-**Open:** The partially completed conversion state at a terminating world check,
+**OPEN QUESTION:** The partially completed conversion state at a terminating world check,
 and the exact observations available to simultaneous actions during conversion,
 need a complete contract. The equations above describe normal completed
 conversion, not an indivisible change covering these intermediate events.
@@ -1122,12 +1121,9 @@ the ordinary location rules.
 ### Operation and preconditions
 
 ```text
-operation Capture(actor: ShipId, target: Position)
-    on GameState -> CaptureOutcome
+operation Capture(actor: ShipId, target: Position): CaptureOutcome
 
-type CaptureOutcome = Captured(planet: PlanetId)
-               | Rejected(reason: CaptureRejection)
-               | Cancelled
+type CaptureOutcome = Result<Captured { planet: PlanetId }, CaptureRejection> | Cancelled
 
 type CaptureRejection = NotAdjacent | NotAPlanet
                  | AlreadyOwned | SurrenderRefused
@@ -1146,7 +1142,7 @@ also yield `SurrenderRefused`, reported as “The planet's government refuses to
 surrender.” Rejection or cancellation makes no capture changes, incurs no
 capture energy charge and does not complete a turn.
 
-**Open:** The multiplayer conditions under which a valid capture is refused,
+**OPEN QUESTION:** The multiplayer conditions under which a valid capture is refused,
 and the resolution of simultaneous changes to the target, still need a complete
 contract. Surrender refusal is not a random chance or a new diplomatic mechanic.
 
@@ -1163,9 +1159,9 @@ automatically undocked merely because this capture succeeds.
 The capture event has these effects:
 
 ```text
-after(p.owner)  == t
-after(p.builds) == 0
-after(s.energy) == before(s.energy) - 50 * b energy units
+ensures after(p.owner)  == t
+ensures after(p.builds) == 0
+ensures after(s.energy) == before(s.energy) - 50 * b energy units
 ```
 
 The planet's identity and position are unchanged. The capturing faction gains
@@ -1194,7 +1190,7 @@ damage, expressed in points. If that attack destroys s, o also earns 500
 ENEMY_KILLS points. A neutral former owner receives no faction score.
 
 The capture contributes 100 points to s's pending PLANET_CAPTURE score, committed
-by normal turn accounting. Its outcome is `Captured(p.id)` even if the defensive
+by normal turn accounting. Its outcome is `Captured { planet: p.id }` even if the defensive
 attack destroys s. Destruction does not restore former ownership or cancel the
 capture credit. Subsequent world and lifecycle events have their own effects.
 
@@ -1215,7 +1211,7 @@ turn rules apply even after a fatal defensive hit; lifecycle handling follows
 those rules. The state effects above describe the capture and its defense, not
 an exemption from other events in turn completion.
 
-**Open:** Concurrent audience changes and complete notification rendering still
+**OPEN QUESTION:** Concurrent audience changes and complete notification rendering still
 need their final shared-rule contracts.
 
 **Source basis:** [CAPTUR](../../legacy/utexas/DECWAR.FOR#L600),
@@ -1245,11 +1241,9 @@ resolved forms; the location reader supplies diagnostics for malformed input.
 ### Operation and ordered validation
 
 ```text
-operation FirePhasers(actor: ShipId, aim: Position, strength: integer = 200)
-    on GameState -> PhaserOutcome
+operation FirePhasers(actor: ShipId, aim: Position, strength: integer = 200): PhaserOutcome
 
-type PhaserOutcome = Fired(bank: PhaserBank)
-              | Rejected(reason: PhaserRejection) | Cancelled
+type PhaserOutcome = Result<Fired { bank: PhaserBank }, PhaserRejection> | Cancelled
 type PhaserRejection = PhasersUnavailable | InvalidTarget | OwnSector
                 | FriendlyTarget | OutOfRange | InvalidStrength
 ```
@@ -1279,7 +1273,7 @@ is selected once; the command does not alternate banks independently of their
 deadlines. Rejection leaves both deadlines unchanged, costs no firing energy
 and completes no turn. InvalidStrength may nevertheless follow a wait.
 
-**Open:** Target movement, disappearance or replacement during the wait and
+**OPEN QUESTION:** Target movement, disappearance or replacement during the wait and
 interrupting that wait require the multiplayer/control contract. This clause
 does not introduce automatic retargeting or a second device-availability check.
 
@@ -1290,15 +1284,17 @@ control. The shield mode stays up. The command does not require sufficient
 s.energy for this charge or for the later firing charge.
 
 ```text
-if s.shields.mode == UP:
-    if c.outputLength != SHORT:
-        emit the shield-control notice
-    s.energy -= 200 energy units
-
-if IntegerDraw(100) * strength > 18900:
-    emit PhasersOverheated
-    addedDamage := 75 + 0.0075 * IntegerDraw(100) * strength
-    s.devices[PHASERS].damage += addedDamage damage units
+if (s.shields.mode == UP) {
+    if (c.outputLength != SHORT) {
+        emit the shield-control notice;
+    }
+    s.energy -= 200 energy units;
+}
+if (IntegerDraw(100) * strength > 18900) {
+    emit PhasersOverheated;
+    addedDamage = 75 + 0.0075 * IntegerDraw(100) * strength;
+    s.devices[PHASERS].damage += addedDamage damage units;
+}
 ```
 
 Overheating does not abort the shot. The new damage participates in this shot's
@@ -1310,13 +1306,13 @@ damage calculation and in the bank's next readiness deadline.
 | --- | --- |
 | PlayerShip or Starbase | Apply the [shared phaser-damage rule](world-rules.md#phaser-impact), including shields, critical hits and pending score for actor. |
 | RomulanObject | Apply the [Romulan phaser-damage and score rule](world-rules.md#damage-to-the-romulan). |
-| Neutral or opposing PlanetObject | If `IntegerDraw(100)*strength/(25*distance) > 150`, set `target.builds := max(0, target.builds - 1)`. Otherwise leave target.builds unchanged. |
+| Neutral or opposing PlanetObject | If `IntegerDraw(100)*strength/(25*distance) > 150`, set `target.builds = max(0, target.builds - 1)`. Otherwise leave target.builds unchanged. |
 
 Phasers do not destroy a planet when its build count reaches zero. They do not
 perform path traversal through intervening sectors. A phaser hit on a ship does
 not itself invoke tractor release.
 
-For a ship or base, invoke PhaserHit with PlayerAttack(actor), the target's
+For a ship or base, invoke PhaserHit with PlayerAttack { ship: actor }, the target's
 ShipBody or BaseBody identity, the selected strength and distance. Its WeaponHit
 supplies the ensuing hit observations; its score effects are already applied
 to pending score. For a Romulan, use RomulanPhaserHit and apply the caller-owned
@@ -1334,8 +1330,8 @@ rules remain separate.
 
 ```text
 s.energy -= strength energy units
-s.condition := RED
-c.phaserReady[bank] := now
+s.condition = RED
+c.phaserReady[bank] = now
     + (w.pacingClass + 1) * 1500 milliseconds
     + s.devices[PHASERS].damage * 10 milliseconds per damage unit
 CompleteTurn(s.id, automaticRepair = false)
@@ -1343,7 +1339,7 @@ CompleteTurn(s.id, automaticRepair = false)
 
 The readiness delay starts after the hit and its notifications, rather than
 at command entry. The other bank's deadline is unchanged. The result is
-Fired(bank) when the normal completion path returns. Successful firing completes
+Fired { bank: bank } when the normal completion path returns. Successful firing completes
 one turn without automatic device repair. The command consumes no torpedoes and
 does not change c.torpedoesReady. Energy exhaustion after firing is handled by
 the subsequent lifecycle rules, without undoing the shot. World termination
@@ -1383,7 +1379,7 @@ requests up to twice that count in coordinate items; an odd-sized reply requests
 coordinates again. A nonpositive count cancels without firing. An excessive count
 is rejected; a count above the available inventory also reports that limitation.
 
-**Open acceptance cases:** incomplete pairs supplied on the original command line
+**OPEN QUESTION — acceptance cases:** incomplete pairs supplied on the original command line
 and an empty coordinates continuation follow inconsistent historical paths.
 Their language-level acceptance and diagnostics remain under review. They do
 not authorize manufacturing target coordinates from unrelated input state.
@@ -1392,16 +1388,16 @@ not authorize manufacturing target coordinates from unrelated input state.
 
 ```text
 type TorpedoRequest = {
-    count: integer
-    targets: Sequence<Position> containing one to three positions
-}
+    count: integer;
+    targets: List<Position> containing one to three positions;
+};
 
-operation FireTorpedoes(actor: ShipId, request: TorpedoRequest)
-    on GameState -> TorpedoOutcome
+operation FireTorpedoes(actor: ShipId, request: TorpedoRequest): TorpedoOutcome
 
-type TorpedoOutcome = Finished(shots: integer, reason: BurstEnd)
-               | Rejected(reason: TorpedoRejection) | Cancelled
-               | PlanetUpdateRefused(shots: integer) | GalaxyEnded
+type TorpedoOutcome =
+    Result<Finished { shots: integer, reason: BurstEnd } | PlanetUpdateRefused { shots: integer }, TorpedoRejection>
+    |  Cancelled
+    | GalaxyEnded
 enum BurstEnd = REQUEST_FULFILLED | MISFIRE | OWN_SECTOR
 type TorpedoRejection = TubesUnavailable | NoAmmunition
                  | InvalidBurstCount | TargetOutOfRange
@@ -1438,7 +1434,7 @@ location reader before target selection; they are not successful burst outcomes.
 
 An own-sector target takes a different path: report the invalid target, set the
 tubes' readiness deadline c.torpedoesReady to now, and complete one turn without
-automatic repair, giving Finished(0, OWN_SECTOR).
+automatic repair, giving Finished { shots: 0, reason: OWN_SECTOR }.
 No torpedo is launched or consumed. This early path does not set red condition.
 It can be reached before the previous readiness delay has expired.
 
@@ -1454,17 +1450,18 @@ checks are not repeated between shots. Compute deflection as follows; each U is 
 `UnitDraw()`:
 
 ```text
-deflection := (U1 - 0.5)/5
-if s.devices[TORPEDO_TUBES].damage > 0 damage units
-   or s.devices[COMPUTER].damage > 0 damage units:
-    deflection += (U2 - 0.5)/10
-if s.shields.mode == UP:
-    deflection += (s.shields.strength / 1%) * (U3 - 0.5)/1000
+deflection = (U1 - 0.5)/5;
+if (s.devices[TORPEDO_TUBES].damage > 0 damage units or s.devices[COMPUTER].damage > 0 damage units) {
+    deflection += (U2 - 0.5)/10;
+}
+if (s.shields.mode == UP) {
+    deflection += (s.shields.strength / 1%) * (U3 - 0.5)/1000;
+}
 ```
 
 If this shot's target has become the ship's own sector, report the error and
 finish with reason OWN_SECTOR and the delays already accumulated. Otherwise
-launch the shot. If s.docked is false, set `s.torpedoes := s.torpedoes - 1`;
+launch the shot. If s.docked is false, set `s.torpedoes = s.torpedoes - 1`;
 if true, leave s.torpedoes unchanged. Docking does not waive the entry inventory
 checks. There is no s.energy firing charge, although a resulting explosion can
 damage the firing ship.
@@ -1487,7 +1484,7 @@ Choose the shot's maximum path length using a new U:
 Add this shot's reload delay to the accumulated delay:
 
 ```text
-shotDelay := (w.pacingClass + 1) * 1000 milliseconds
+shotDelay = (w.pacingClass + 1) * 1000 milliseconds
     + s.devices[TORPEDO_TUBES].damage * 10 milliseconds per damage unit
 accumulatedReloadDelay += shotDelay
 ```
@@ -1516,8 +1513,8 @@ A full-strength enemy base makes its faction-wide distress call before damage.
 A destroyed base makes its faction-wide destruction call after the hit notice.
 These two calls address captains of the base's faction whose radios are on.
 
-For a ship or base, use TorpedoHit with PlayerAttack(actor), the target's
-ShipBody or BaseBody identity and the PathResult.step. Applied(hit) supplies
+For a ship or base, use TorpedoHit with PlayerAttack { ship: actor }, the target's
+ShipBody or BaseBody identity and the PathResult.step. Applied { hit: hit } supplies
 the damage, defense, displacement and destruction observations. It already
 includes the shared weapon score effects. The TargetAlreadyFatal report case
 remains open as stated in the shared damage contract. For a Romulan, use
@@ -1525,13 +1522,13 @@ RomulanTorpedoHit before the caller's possible displacement and ROMULAN credit.
 
 A planet hit first requires an accepted planet update. If refused, output
 “Sorry, Captain, but the torpedo tubes are empty!” and stop without updating the
-readiness deadline or completing a turn, giving PlanetUpdateRefused(shots).
+readiness deadline or completing a turn, giving PlanetUpdateRefused { shots: shots }.
 The refused shot is included in shots. Prior shots, consumption and score
 changes remain in effect. This diagnostic does not mean the inventory was
 actually reduced to zero.
 
 For an accepted hit let p be the impacted planet. `IntegerDraw(4) == 4` sets
-`p.builds := p.builds - 1`; other results leave p.builds unchanged.
+`p.builds = p.builds - 1`; other results leave p.builds unchanged.
 A negative build count destroys the planet and invokes
 planet removal and world-end rules. Subtract 100 points from the pending
 PLANET_DESTRUCTION score. Exactly zero builds survives. Notify captains within
@@ -1543,7 +1540,7 @@ result; an earlier destroyed object does not make a later surviving planet die.
 ### Completion
 
 ```text
-c.torpedoesReady := now + accumulatedReloadDelay
+c.torpedoesReady = now + accumulatedReloadDelay
 CompleteTurn(s.id, automaticRepair = false)
 ```
 
@@ -1552,14 +1549,14 @@ by a misfire. It does not happen after the explicitly identified early returns.
 The reload deadline starts at burst completion; it gates the next burst rather
 than adding a wait between this burst's shots.
 
-Give Finished(shots, reason), with REQUEST_FULFILLED after all requested shots,
+Give Finished { shots: shots, reason: reason }, with REQUEST_FULFILLED after all requested shots,
 MISFIRE when a misfire prevents a remaining shot, or OWN_SECTOR for the described
 aim failure. A misfire on the last requested shot still fulfills the request.
 Leave both c.phaserReady deadlines unchanged. Pending damage/kill points accrue
 through the impact rules; normal turn completion commits them under the turn
 contract. A refused update or terminating galaxy does not add that commitment.
 
-**Open:** The complete conditions for refusing a planet update, interruptions
+**OPEN QUESTION:** The complete conditions for refusing a planet update, interruptions
 during reloading/publication, and firing after the actor loses its position or
 commission during a burst belong to the multiplayer/lifecycle contract. They
 do not imply a new random miss probability, automatic cancellation on tube
@@ -1613,36 +1610,35 @@ enum ReportVerb = LIST | SUMMARY | BASES | PLANETS | TARGETS
 enum ReportKind = SHIP | BASE | PLANET
 enum ReportMode = DETAIL | COUNT
 type ReportAffiliation = Team | NEUTRAL | ROMULAN
-type ReportRange = SensorRange | SpecifiedRange(positive integer)
+type ReportRange = SensorRange | SpecifiedRange { distance: positive integer }
                  | WholeGalaxy
 
 type ReportGroup = {
-    kinds: Set<ReportKind>
-    affiliations: Set<ReportAffiliation>
-    modes: Set<ReportMode>
-    range: ReportRange
-    namedShips: Set<ShipId>
-    namedRomulan: Boolean
-    exactPosition: Optional<Position>
-    closest: Boolean
-}
+    kinds: Set<ReportKind>;
+    affiliations: Set<ReportAffiliation>;
+    modes: Set<ReportMode>;
+    range: ReportRange;
+    namedShips: Set<ShipId>;
+    namedRomulan: Boolean;
+    exactPosition: Optional<Position>;
+    closest: Boolean;
+};
 
 type ReportContext = {
-    viewer: CaptainId
-    verb: ReportVerb
-    origin: Optional<Position>
-    team: Optional<Team>
-}
+    viewer: CaptainId;
+    verb: ReportVerb;
+    origin: Optional<Position>;
+    team: Optional<Team>;
+};
 
-type ReportEntity = ShipEntity(ShipId) | BaseEntity(BaseId)
-                  | PlanetEntity(PlanetId) | RomulanEntity
+type ReportEntity = ShipEntity { ship: ShipId } | BaseEntity { base: BaseId }
+                  | PlanetEntity { planet: PlanetId } | RomulanEntity
 
-type ReportError = IllegalSelector(Token) | SelectorConflict(Token)
-                 | IllegalPosition(integer, integer) | EmptyGroup
+type ReportError = IllegalSelector { token: Token } | SelectorConflict { token: Token }
+                 | IllegalPosition { vertical: integer, horizontal: integer } | EmptyGroup
 
 operation ReportGalaxy(viewer: CaptainId, verb: ReportVerb,
-                       arguments: Sequence<Token>)
-    on GameState -> Reported | Rejected(ReportError)
+                       arguments: List<Token>): Result<Reported, ReportError>
 ```
 
 ReportGroup describes the meaning of one legally parsed group. It is not an
@@ -1670,36 +1666,36 @@ The following observation types separate game information from its textual
 format. A detail's telemetry must correspond to its entity kind.
 
 ```text
-type ReportTelemetry = ShipTelemetry(Position, ShieldMode, Percentage)
-                     | RomulanTelemetry(Position, Percentage)
-                     | BaseTelemetry(Position, Optional<Percentage>)
-                     | PlanetTelemetry(Position, integer)
+type ReportTelemetry = ShipTelemetry { position: Position, mode: ShieldMode, strength: Percentage }
+                     | RomulanTelemetry { position: Position, strength: Percentage }
+                     | BaseTelemetry { position: Position, strength: Optional<Percentage> }
+                     | PlanetTelemetry { position: Position, builds: integer }
                      | OutOfRange
 
 type ReportDetail = {
-    entity: ReportEntity
-    affiliation: ReportAffiliation
-    opposingMarker: Boolean
-    telemetry: ReportTelemetry
-}
+    entity: ReportEntity;
+    affiliation: ReportAffiliation;
+    opposingMarker: Boolean;
+    telemetry: ReportTelemetry;
+};
 
 enum TerrainKind = EMPTY | STAR | BLACK_HOLE
 enum ReportScopeLabel = SENSOR_RANGE | SPECIFIED_RANGE | WHOLE_GALAXY
-type SummaryClass = RomulanSummary | ShipSummary(Team)
-                  | BaseSummary(Team) | PlanetSummary(Optional<Team>)
+type SummaryClass = RomulanSummary | ShipSummary { team: Team }
+                  | BaseSummary { team: Team } | PlanetSummary { owner: Optional<Team> }
                   | TargetSummary
 
 type ReportSummary = {
-    category: SummaryClass
-    count: positive integer
-    scope: ReportScopeLabel
-    knownQualifier: Boolean
-}
+    category: SummaryClass;
+    count: positive integer;
+    scope: ReportScopeLabel;
+    knownQualifier: Boolean;
+};
 
-type GalaxyReportObservation = Detail(ReportDetail)
-    | Terrain(TerrainKind) | Summary(ReportSummary)
-    | ShipAbsent(ShipId) | RomulanDisabled | RomulanAbsent
-    | SensorRangeExceeded(Position) | NoObjectAt(ReportVerb, Position)
+type GalaxyReportObservation = Detail { value: ReportDetail }
+    | Terrain { kind: TerrainKind } | Summary { value: ReportSummary }
+    | ShipAbsent { ship: ShipId } | RomulanDisabled | RomulanAbsent
+    | SensorRangeExceeded { position: Position } | NoObjectAt { verb: ReportVerb, position: Position }
     | NoMatches(ReportGroup, ReportScopeLabel, knownQualifier: Boolean)
 ```
 
@@ -1754,18 +1750,19 @@ For an object outside ten sectors that is neither friendly nor admitted by
 privilege, use these rules:
 
 ```text
-if object is a base or planet:
-    known := object is in the acting faction's corresponding knowledge set
-else:
-    known := this is a whole-game group and not a CLOSEST request
-
-if known:
-    admit the requested result modes if within the group's distance limit
-    mark its detail as out of sensor range
-else if counts were requested for the whole game:
-    admit counts only
-else:
-    omit the candidate
+if (object is a base or planet) {
+    known = object is in the acting faction's corresponding knowledge set;
+} else {
+    known = this is a whole-game group and not a CLOSEST request;
+}
+if (known) {
+    admit the requested result modes if within the group's distance limit;
+    mark its detail as out of sensor range;
+} else if (counts were requested for the whole game) {
+    admit counts only;
+} else {
+    omit the candidate;
+}
 ```
 
 Whole-game selection means the unrestricted scope obtained without an explicit
@@ -1774,21 +1771,20 @@ whole-game disclosure rule: it remains a specified-range query. In particular,
 SUMMARY can count unknown remote bases or planets, but a specified-range summary
 requires their prior discovery when they are beyond normal sensor range.
 
-For a group g, SensorRange imposes a distance limit of ten, SpecifiedRange(n)
+For a group g, SensorRange imposes a distance limit of ten, SpecifiedRange { distance: n }
 imposes n, and WholeGalaxy imposes no distance limit. The distinction between
 these range values remains observable through disclosure and summary labels.
 The following operation expresses ordinary filtered admission:
 
 ```text
 type ReportAdmission = {
-    modes: Set<ReportMode>
-    outOfRange: Boolean
-    privilegedDisclosure: Boolean
-}
+    modes: Set<ReportMode>;
+    outOfRange: Boolean;
+    privilegedDisclosure: Boolean;
+};
 
 operation AdmitReportEntity(context: ReportContext, group: ReportGroup,
-                            entity: ReportEntity)
-    on GameState -> ReportAdmission
+                            entity: ReportEntity): ReportAdmission
 ```
 
 The candidate has already passed kind, affiliation and presence selection.
@@ -1806,8 +1802,8 @@ An omitted candidate has an empty modes set. For remote installations, the
 knowledge tests are membership in the appropriate sets:
 
 ```text
-BaseEntity(id):   id in w.knowledge[context.team].knownBases
-PlanetEntity(id): id in w.knowledge[context.team].knownPlanets
+BaseEntity { base: id }:   id in w.knowledge[context.team].knownBases
+PlanetEntity { planet: id }: id in w.knowledge[context.team].knownPlanets
 ```
 
 The pregame whole-galaxy COUNT-only case admits
@@ -1891,15 +1887,13 @@ summary after these details, while retaining a requested Romulan summary.
 
 ```text
 operation ObserveReportDetail(context: ReportContext,
-                              entity: ReportEntity, outOfRange: Boolean)
-    on GameState -> ReportDetail
+                              entity: ReportEntity, outOfRange: Boolean): ReportDetail
 ```
 
 ObserveReportDetail reads the entity's current properties. For a player ship s,
-visible telemetry is ShipTelemetry(s.position, s.shields.mode, s.shields.strength).
-For a base b it is BaseTelemetry(b.position, b.strength), replacing strength
-with none when outOfRange. For a planet p it is PlanetTelemetry(p.position,
-p.builds). A visible Romulan has its current position and one percentage point
+visible telemetry is ShipTelemetry { position: s.position, mode: s.shields.mode, strength: s.shields.strength }.
+For a base b it is BaseTelemetry { position: b.position, strength: b.strength }, replacing strength
+with none when outOfRange. For a planet p it is PlanetTelemetry { position: p.position, builds: p.builds }. A visible Romulan has its current position and one percentage point
 of displayed strength per ten energy units. For a ship or Romulan, outOfRange
 instead produces OutOfRange telemetry.
 
@@ -1929,8 +1923,8 @@ After a deferred base or planet detail row, add that identity to the acting
 faction's knowledge, unless accumulated privilegedDisclosure is true:
 
 ```text
-BaseEntity(id):   w.knowledge[context.team].knownBases += {id}
-PlanetEntity(id): w.knowledge[context.team].knownPlanets += {id}
+BaseEntity { base: id }:   w.knowledge[context.team].knownBases += {id}
+PlanetEntity { planet: id }: w.knowledge[context.team].knownPlanets += {id}
 ```
 
 These updates require a present context.team. Summary-only
@@ -1981,7 +1975,7 @@ search uses this same absence observation.
 
 Detail and summary lines follow the [galaxy-report presentation](presentation.md#galaxy-report-lines).
 
-**Open:** Complete grouped separators, terrain/absence presentation, interrupted
+**OPEN QUESTION:** Complete grouped separators, terrain/absence presentation, interrupted
 output and concurrent changes that remove or replace an entity between selection
 and its detail remain part of the report and multiplayer work. No whole-command
 snapshot is implied.
@@ -2019,26 +2013,26 @@ activity is disabled. If no column remains selected, report invalid input.
 ### Operation and observations
 
 ```text
-type ScoreColumn = ShipScore(ShipId) | TeamScore(Team) | RomulanScore
+type ScoreColumn = ShipScore { ship: ShipId } | TeamScore { team: Team } | RomulanScore
 
 type ScoreRatio = {
-    numerator: Points
-    denominator: nonnegative integer
-}
+    numerator: Points;
+    denominator: nonnegative integer;
+};
 
-type ScoreReportRow = CategoryRow(ScoreCategory, Sequence<Points>)
-                   | TotalRow(Sequence<Points>)
-                   | CommissionRow(Sequence<Optional<integer>>)
-                   | PerCommissionRow(Sequence<Optional<ScoreRatio>>)
-                   | PerTurnRow(Sequence<ScoreRatio>)
+type ScoreReportRow = CategoryRow { category: ScoreCategory, values: List<Points> }
+                   | TotalRow { values: List<Points> }
+                   | CommissionRow { values: List<Optional<integer>> }
+                   | PerCommissionRow { values: List<Optional<ScoreRatio>> }
+                   | PerTurnRow { values: List<ScoreRatio> }
 
 type ScoreReport = {
-    columns: Sequence<ScoreColumn>
-    rows: Sequence<ScoreReportRow>
-}
+    columns: List<ScoreColumn>;
+    rows: List<ScoreReportRow>;
+};
 
-operation ReportPoints(viewer: CaptainId, arguments: Sequence<Token>)
-    -> Reported(ScoreReport) | Rejected(InvalidScoreSelector)
+operation ReportPoints(viewer: CaptainId, arguments: List<Token>):
+    Result<Reported { report: ScoreReport }, InvalidScoreSelector>
 ```
 
 Each row's sequence has one value for each report column, in the same order.
@@ -2050,9 +2044,9 @@ defined quotient in this draft; its terminal treatment remains open. This
 record does not introduce a new textual ratio notation into POINTS output.
 
 Let c be captain(game, viewer) and w be world(game). Resolve arguments using
-the syntax and selection rules above. Select ShipScore(c.ship) only when
-c.ship is present. FEDERATION and HUMANS select TeamScore(FEDERATION);
-EMPIRE and KLINGONS select TeamScore(EMPIRE). ROMULANS selects RomulanScore.
+the syntax and selection rules above. Select ShipScore { ship: c.ship } only when
+c.ship is present. FEDERATION and HUMANS select TeamScore { team: FEDERATION };
+EMPIRE and KLINGONS select TeamScore { team: EMPIRE }. ROMULANS selects RomulanScore.
 Invalid selectors reject before any report rows. No arguments and a
 nonalphanumeric first argument are distinct: the former applies the defaults,
 whereas the latter ends an explicitly supplied selection with no columns.
@@ -2061,15 +2055,15 @@ The following observation functions specify the state read for each column.
 Their names are local to ReportPoints; they do not add stored state.
 
 ```text
-scoreFor(ShipScore(id)) = ship(game, id).score
-scoreFor(TeamScore(t)) = w.teamScores[t]
+scoreFor(ShipScore { ship: id }) = ship(game, id).score
+scoreFor(TeamScore { team: t }) = w.teamScores[t]
 scoreFor(RomulanScore) = w.romulanActivity.score
 
-turnsFor(ShipScore(id)) = ship(game, id).stardate
-turnsFor(TeamScore(t)) = w.teamTurns[t]
+turnsFor(ShipScore { ship: id }) = ship(game, id).stardate
+turnsFor(TeamScore { team: t }) = w.teamTurns[t]
 turnsFor(RomulanScore) = w.romulanActivity.turns
 
-commissionsFor(TeamScore(t)) = w.teamCommissions[t]
+commissionsFor(TeamScore { team: t }) = w.teamCommissions[t]
 commissionsFor(RomulanScore) = w.romulanActivity.appearances
 ```
 
@@ -2091,7 +2085,7 @@ Within those columns, visit categories in this order:
 7. Star destruction.
 8. Planet destruction.
 
-For category k, the column value is scoreFor(column)[k]. Omit CategoryRow(k)
+For category k, the column value is scoreFor(column)[k]. Omit the CategoryRow for k
 only if every selected column has zero for that category. Otherwise include
 each selected column's value, including zero. Negative scores remain negative.
 Follow the category rows with TotalRow, summing each column's eight category
@@ -2151,16 +2145,15 @@ one of these switches.
 ```text
 enum TypeSelection = OUTPUT | OPTION
 
-type TypeObservation = OutputLengthValue(value: OutputLength)
-    | PromptStyleValue(value: PromptStyle) | ScanStyleValue(value: ScanStyle)
-    | InputCoordinatesValue(value: CoordinateMode)
-    | OutputCoordinatesValue(value: CoordinateMode)
-    | TerminalProfileValue(name: TerminalProfile) | VersionValue(text: Text)
-    | RomulanOptionValue(enabled: Boolean)
-    | BlackHoleOptionValue(selected: Boolean)
+type TypeObservation = OutputLengthValue { value: OutputLength }
+    | PromptStyleValue { value: PromptStyle } | ScanStyleValue { value: ScanStyle }
+    | InputCoordinatesValue { value: CoordinateMode }
+    | OutputCoordinatesValue { value: CoordinateMode }
+    | TerminalProfileValue { name: TerminalProfile } | VersionValue { text: Text }
+    | RomulanOptionValue { enabled: Boolean }
+    | BlackHoleOptionValue { selected: Boolean }
 
-operation ReportType(viewer: CaptainId, selection: TypeSelection)
-    on GameState -> Reported(values: Sequence<TypeObservation>) | Cancelled
+operation ReportType(viewer: CaptainId, selection: TypeSelection): Reported { values: List<TypeObservation> } | Cancelled
 ```
 
 Let c be `captain(game, viewer)` and w be `world(game)`. Selection follows the
@@ -2169,19 +2162,19 @@ no preference. The signature names the eventual resolved selection.
 
 For OUTPUT, observe c's properties in this order:
 
-1. OutputLengthValue(c.outputLength).
-2. PromptStyleValue(c.promptStyle).
-3. ScanStyleValue(c.scanStyle).
-4. InputCoordinatesValue(c.inputCoordinates).
-5. OutputCoordinatesValue(c.outputCoordinates).
-6. TerminalProfileValue(c.terminalProfile), when that optional property is present.
+1. OutputLengthValue { value: c.outputLength }.
+2. PromptStyleValue { value: c.promptStyle }.
+3. ScanStyleValue { value: c.scanStyle }.
+4. InputCoordinatesValue { value: c.inputCoordinates }.
+5. OutputCoordinatesValue { value: c.outputCoordinates }.
+6. TerminalProfileValue { name: c.terminalProfile }, when that optional property is present.
 
 For OPTION, emit these observations in order:
 
 ```text
-VersionValue("[DECWAR Version 2.3, 20-Nov-81]")
-RomulanOptionValue(w.romulanEnabled)
-BlackHoleOptionValue(w.blackHolesSelected)
+VersionValue { text: "[DECWAR Version 2.3, 20-Nov-81]" }
+RomulanOptionValue { enabled: w.romulanEnabled }
+BlackHoleOptionValue { selected: w.blackHolesSelected }
 ```
 
 The version text identifies this Austin source edition; it is distinct from the
@@ -2194,10 +2187,10 @@ or complete a turn. Its preference and option labels follow the
 [preference presentation](presentation.md#preference-and-option-reports). The same
 reports are available before commissioning, subject to the session's current configuration.
 
-**Open:** Before a terminal profile has been selected, the first five OUTPUT
+**OPEN QUESTION:** Before a terminal profile has been selected, the first five OUTPUT
 observations are defined, but the final profile observation and its presentation
 remain unspecified. TYPE does not select CRT or invent a profile name on that
-account. A complete report returns Reported(values); concurrent preference
+account. A complete report returns Reported { values: values }; concurrent preference
 changes and interrupted output remain subject to the observation/control rules.
 
 **Source basis:** [TYPE](../../legacy/utexas/DECWAR.FOR#L4540),
@@ -2211,12 +2204,11 @@ TimeCommand ::= "TIME"
 ```
 
 ```text
-type TimeObservation = GameElapsed(value: Duration)
-    | CommissionElapsed(value: Duration) | CommissionExecution(value: Duration)
-    | SessionExecution(value: Duration) | TimeOfDayValue(value: TimeOfDay)
+type TimeObservation = GameElapsed { value: Duration }
+    | CommissionElapsed { value: Duration } | CommissionExecution { value: Duration }
+    | SessionExecution { value: Duration } | TimeOfDayValue { value: TimeOfDay }
 
-operation ReportTime(viewer: CaptainId)
-    on GameState -> Sequence<TimeObservation>
+operation ReportTime(viewer: CaptainId): List<TimeObservation>
 ```
 
 Let c be `captain(game, viewer)`, q be `session(game, viewer)`, and w be
@@ -2228,13 +2220,13 @@ present, q.commissionTiming must also be present; let timing denote that record.
 TIME performs and emits these observations in order:
 
 ```text
-emit GameElapsed(observeElapsed(w.elapsedOrigin))
-if c.ship is present:
-    emit CommissionElapsed(observeElapsed(timing.elapsedOrigin))
-    emit CommissionExecution(
-        observeExecution(viewer) - timing.executionAtStart)
-emit SessionExecution(observeExecution(viewer))
-emit TimeOfDayValue(observeTimeOfDay())
+emit GameElapsed { value: observeElapsed(w.elapsedOrigin) };
+if (c.ship is present) {
+    emit CommissionElapsed { value: observeElapsed(timing.elapsedOrigin) };
+    emit CommissionExecution { value: observeExecution(viewer) - timing.executionAtStart };
+}
+emit SessionExecution { value: observeExecution(viewer) };
+emit TimeOfDayValue { value: observeTimeOfDay() };
 ```
 
 The two execution observations are separate. Accounting can advance between
@@ -2270,24 +2262,23 @@ UsersCommand ::= "USERS"
 
 ```text
 type ReportedPosition = {
-    absolute: Optional<Position>
-    relative: Optional<SectorVector>
-}
+    absolute: Optional<Position>;
+    relative: Optional<SectorVector>;
+};
 
 type UserRow = {
-    ship: ShipId
-    captainName: Text
-    advertisedSpeed: nonnegative integer
-    account: AccountIdentity
-    connectionLabel: Text
-    sessionNumber: integer
-    position: Optional<ReportedPosition>
-}
+    ship: ShipId;
+    captainName: Text;
+    advertisedSpeed: nonnegative integer;
+    account: AccountIdentity;
+    connectionLabel: Text;
+    sessionNumber: integer;
+    position: Optional<ReportedPosition>;
+};
 
-type UserReportEntry = CaptainRow(value: UserRow) | FactionSeparator
+type UserReportEntry = CaptainRow { value: UserRow } | FactionSeparator
 
-operation ReportUsers(viewer: CaptainId)
-    on GameState -> Sequence<UserReportEntry>
+operation ReportUsers(viewer: CaptainId): List<UserReportEntry>
 ```
 
 Let c be `captain(game, viewer)`. Visit ships in the fixed roster order. At the
@@ -2343,7 +2334,7 @@ Return the entries in their emitted order. No resource, preference, knowledge,
 score or ship state changes. In the terminal binding the faction separator is
 `----`. The normal six fields remain present even in SHORT output.
 
-**Open:** Privileged RELATIVE or BOTH output before the viewer has a ship lacks
+**OPEN QUESTION:** Privileged RELATIVE or BOTH output before the viewer has a ship lacks
 a reference position; this draft does not manufacture an origin from unrelated
 state. Privileged ABSOLUTE output does not require such a reference. Loss of a
 target's commission during row output and complete metadata formatting remain
@@ -2381,22 +2372,17 @@ energy charge or turn completion.
 enum PreferenceSetting = OUTPUT | PROMPT | SCANS | ICDEF | OCDEF
 enum PrivilegedSetting = ROMOPT | ENDFLG | BHREMV
 
-operation ConfigureCaptain(viewer: CaptainId, input: CommandInput)
-    on GameState -> Finished | Cancelled | SessionEnded
+operation ConfigureCaptain(viewer: CaptainId, input: CommandInput): Finished | Cancelled | SessionEnded
 
 operation SetPreference(viewer: CaptainId, setting: PreferenceSetting,
-                        candidate: Token)
-    on GameState -> Assigned | Unchanged
+                        candidate: Token): Assigned | Unchanged
 
-operation SelectTerminalProfile(viewer: CaptainId, candidate: Token)
-    on GameState -> Selected(TerminalProfile) | RetryProfile
+operation SelectTerminalProfile(viewer: CaptainId, candidate: Token): Selected { profile: TerminalProfile } | RetryProfile
 
-operation SetCaptainName(viewer: CaptainId, text: Text)
-    on GameState -> Named | Unchanged
+operation SetCaptainName(viewer: CaptainId, text: Text): Named | Unchanged
 
 operation ApplyPrivilegedSetting(viewer: CaptainId,
-                                 setting: PrivilegedSetting)
-    on GameState -> Applied | SessionEnded
+                                 setting: PrivilegedSetting): Applied | SessionEnded
 ```
 
 Let c be captain(game, viewer) and w be world(game). ConfigureCaptain resolves
@@ -2452,7 +2438,7 @@ SelectTerminalProfile requires an ALPHANUMERIC candidate. Set
 c.terminalProfile to none, then examine TerminalProfile values in the order
 listed above. On the first match, assign that profile to c.terminalProfile.
 On discovering a second match, emit the ambiguity diagnostic and stop the
-matching pass. Return Selected(c.terminalProfile) for exactly one match;
+matching pass. Return Selected { profile: c.terminalProfile } for exactly one match;
 otherwise list the available names and return RetryProfile. ConfigureCaptain
 then prompts again. No other preference changes.
 
@@ -2476,11 +2462,12 @@ not the transformed text of a Token. The following state transition requires
 an active commission. For text consisting of printable characters:
 
 ```text
-name = case-transform(first 12 characters of text)
-if name contains a character other than space:
-    c.displayName := name
-    return Named
-return Unchanged
+let name: Text = case-transform(first 12 characters of text);
+if (name contains a character other than space) {
+    c.displayName = name;
+    return Named;
+}
+return Unchanged;
 ```
 
 The transformation is the character transformation in LEX-1, including its
@@ -2515,7 +2502,7 @@ then increasing horizontal coordinate. When sector(game, p) is BlackHoleObject,
 the sector-removal event satisfies:
 
 ```text
-after(sector(game, p)) == none
+ensures after(sector(game, p)) == none
 ```
 
 Other sectors are unchanged. This rule includes a temporary black-hole sector
@@ -2551,14 +2538,14 @@ TELL prompts `Msg: ` after recipient selection succeeds.
 ```text
 type TellFailure = RadioUnavailable | RepeatedTell | NoRecipients
 
-type TellObservation = UnknownRecipient(Text) | AmbiguousGroup(Text)
-                     | SelfRecipient | RecipientUnavailable(ShipId)
-                     | RecipientRadioUnavailable(ShipId)
+type TellObservation = UnknownRecipient { text: Text } | AmbiguousGroup { text: Text }
+                     | SelfRecipient | RecipientUnavailable { ship: ShipId }
+                     | RecipientRadioUnavailable { ship: ShipId }
                      | NoRecipients | NoMessageSent
 
-operation SendTell(actor: ShipId, input: CommandInput)
-    on GameState -> Published(MessageId) | NotPublished
-                 | Cancelled | Rejected(TellFailure)
+operation SendTell(actor: ShipId, input: CommandInput):
+    Result<Published { id: MessageId } | NotPublished, TellFailure>
+    | Cancelled
 ```
 
 Let s be ship(game, actor), and let c be the captain identified by s.captain.
@@ -2568,7 +2555,7 @@ Require an active commission and a present captain. The device precondition is:
 s.devices[RADIO].damage < 300 damage units
 ```
 
-Failure returns Rejected(RadioUnavailable) before changing radio state or
+Failure returns Rejected { reason: RadioUnavailable } before changing radio state or
 reading recipients. Otherwise set c.radio.enabled to true. If input.arguments
 is empty, prompt for recipients and acquire a continuation. An empty continuation
 returns Cancelled, leaving the radio on. Otherwise use the continuation's tokens
@@ -2584,11 +2571,11 @@ token as POINTS does. Tokens that match no recipient are diagnosed and skipped.
 
 For each recipient token, first recognize ROMULAN and skip it: Austin player
 TELL does not address the Romulan or cause a reply. For any other recipient,
-if the current line's repeated property is true, return Rejected(RepeatedTell)
+if the current line's repeated property is true, return Rejected { reason: RepeatedTell }
 before name lookup. Then try ship names in
 roster order, before checking group names. Group abbreviations must match exactly
 one group name; matching several names is ambiguous even if they denote the same
-faction. Emit UnknownRecipient(token.text) or AmbiguousGroup(token.text) for
+faction. Emit UnknownRecipient { text: token.text } or AmbiguousGroup { text: token.text } for
 an unknown or ambiguous recipient, then skip it; other tokens can still supply
 valid recipients.
 
@@ -2611,8 +2598,7 @@ Use the shared recipient-validation operation below. It is also used by
 autonomous speech, so it does not itself exclude the caller's ship.
 
 ```text
-operation ValidateRadioRecipients(viewer: CaptainId, selected: Set<ShipId>)
-    on GameState -> Set<ShipId>
+operation ValidateRadioRecipients(viewer: CaptainId, selected: Set<ShipId>): Set<ShipId>
 ```
 
 Examine selected identities in roster order. For each id let r be ship(game, id).
@@ -2620,9 +2606,9 @@ Apply the first matching rule below and send any diagnostic to viewer:
 
 | Condition | Observation and result for id |
 | --- | --- |
-| `r.devices[RADIO].damage >= 300 damage units` | Emit RecipientRadioUnavailable(id); exclude id. |
-| `r.commissioned == false` | Emit RecipientUnavailable(id); exclude id. |
-| Otherwise, with rc the captain identified by r.captain, `rc.radio.enabled == false` | Emit RecipientRadioUnavailable(id); exclude id. |
+| `r.devices[RADIO].damage >= 300 damage units` | Emit RecipientRadioUnavailable { ship: id }; exclude id. |
+| `r.commissioned == false` | Emit RecipientUnavailable { ship: id }; exclude id. |
+| Otherwise, with rc the captain identified by r.captain, `rc.radio.enabled == false` | Emit RecipientRadioUnavailable { ship: id }; exclude id. |
 | Otherwise | Retain id. |
 
 A commissioned recipient requires a present captain. Validation changes no
@@ -2630,11 +2616,12 @@ ship or captain property, and imposes no distance or faction restriction.
 Back in SendTell, perform these effects in order:
 
 ```text
-recipients = ValidateRadioRecipients(c.id, selected) - {actor}
-c.radio.gaggedSenders -= recipients
-if recipients is empty:
-    emit NoRecipients
-    return Rejected(NoRecipients)
+let recipients: Set<ShipId> = ValidateRadioRecipients(c.id, selected) - {actor};
+c.radio.gaggedSenders -= recipients;
+if (recipients is empty) {
+    emit NoRecipients;
+    return Rejected { reason: NoRecipients };
+}
 ```
 
 Sending to a ship ungags that ship in the sender's own radio settings. It does
@@ -2669,8 +2656,7 @@ release or lost under the bounded pending-message policy.
 ```text
 PasswordCommand ::= "*PASSWORD" [PasswordToken]
 
-operation SetPrivilege(viewer: CaptainId, candidate: Optional<Token>)
-    on GameState -> PrivilegeSet(Boolean)
+operation SetPrivilege(viewer: CaptainId, candidate: Optional<Token>): PrivilegeSet { enabled: Boolean }
 ```
 
 The Austin password is `*MINK`. Compare the retained token exactly, using the
@@ -2681,7 +2667,7 @@ further arguments. It changes no resources and completes no turn.
 
 Let c be captain(game, viewer). Set c.privileged to true exactly when candidate
 is present and candidate.text is an exact keyword match for *MINK under LEX-6;
-otherwise set it to false. Return PrivilegeSet(c.privileged). The operation
+otherwise set it to false. Return PrivilegeSet { enabled: c.privileged }. The operation
 does not require prior privilege or an acting ship, and changes no other
 Captain, Ship or World property. The command passes its first argument, or
 none when absent. There is no separate token-category requirement.
@@ -2702,12 +2688,11 @@ password's representation is not a new authentication protocol.
 ```text
 DebugCommand ::= "*DEBUG"
 
-operation ReportDiagnostics(viewer: CaptainId)
-    on GameState -> Reported | Rejected(UnknownCommand)
+operation ReportDiagnostics(viewer: CaptainId): Result<Reported, UnknownCommand>
 ```
 
 Let c be captain(game, viewer). If c.privileged is false, report an unknown
-command and the help hint, then return Rejected(UnknownCommand). Do not query
+command and the help hint, then return Rejected { reason: UnknownCommand }. Do not query
 or disclose timing observations on that path. Otherwise call the environment's
 observeOperationTimings(viewer) query defined in the session chapter.
 Emit its observations in the returned order under the headings Name, Calls,
@@ -2736,8 +2721,7 @@ HelpTopic   ::= CommandName | ExtraTopic
 ExtraTopic  ::= "CTL-C" | "INTRO" | "HINTS" | "INPUT"
              | "OUTPUT" | "PAUSES" | "PREGAME"
 
-operation ReadHelp(captain: CaptainId, topics: Sequence<Text>)
-    on GameState -> Finished | Rejected(RedAlert)
+operation ReadHelp(captain: CaptainId, topics: List<Text>): Result<Finished, RedAlert>
 ```
 
 HELP is available before commissioning and during play. If the captain has an
@@ -2797,8 +2781,7 @@ or a universal whole-command cancellation rule.
 ```text
 NewsCommand ::= "NEWS"
 
-operation ReadNews(captain: CaptainId)
-    on GameState -> Finished | Stopped | Unavailable
+operation ReadNews(captain: CaptainId): Finished | Stopped | Unavailable
 ```
 
 NEWS is available before commissioning and during play, including under RED
@@ -2838,9 +2821,9 @@ reading does not stop other captains or make the reader immune to attacks.
 ```text
 GripeCommand ::= "GRIPE"
 
-operation SubmitFeedback(captain: CaptainId)
-    on GameState -> Recorded | Cancelled
-                 | Rejected(RedAlert) | StorageFailure
+operation SubmitFeedback(captain: CaptainId):
+    Result<Recorded | StorageFailure, RedAlert>
+    | Cancelled
 ```
 
 GRIPE is available before commissioning and during play. If the acting ship is
@@ -2870,7 +2853,7 @@ Successful recording adds a new feedback record ahead of every existing record,
 leaving their relative order unchanged:
 
 ```text
-after(feedbackRecords)
+ensures after(feedbackRecords)
     == [newRecord] followed by before(feedbackRecords)
 ```
 
@@ -2904,8 +2887,7 @@ adds no feedback record.
 ```text
 QuitCommand ::= "QUIT"
 
-operation Quit(captain: CaptainId)
-    on GameState -> SessionEnded | Continued
+operation Quit(captain: CaptainId): SessionEnded | Continued
 ```
 
 Before commissioning, QUIT ends the session without confirmation or a ship-score

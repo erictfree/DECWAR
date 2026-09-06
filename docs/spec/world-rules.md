@@ -12,9 +12,9 @@ Random choices are inputs to game operations. Their mathematical distributions
 are:
 
 ```text
-UnitDraw() -> real uniformly distributed in [0,1)
-IntegerDraw(n: positive integer) -> integer uniformly distributed in 1..n
-Choice(values: nonempty ordered collection) -> one uniformly selected member
+UnitDraw(): real uniformly distributed in [0,1)
+IntegerDraw(n: positive integer): integer uniformly distributed in 1..n
+Choice(values: nonempty ordered collection): one uniformly selected member
 ```
 
 For UnitDraw, the probability of an interval `[a,b)` contained in `[0,1)` is
@@ -62,18 +62,18 @@ where a generator is stored or how concurrent execution is scheduled.
 A reproducibility record can describe random input with the following values:
 
 ```text
-type RandomRequest = UnitRequest | IntegerRequest(positive integer)
-              | ChoiceRequest(positive integer)
-type RandomValue = UnitValue(UnitDraw) | IndexValue(positive integer)
+type RandomRequest = UnitRequest | IntegerRequest { count: positive integer }
+              | ChoiceRequest { count: positive integer }
+type RandomValue = UnitValue { value: UnitDraw } | IndexValue { value: positive integer }
 
 type RandomEvent = {
-    captain: CaptainId
-    request: RandomRequest
-    value: RandomValue
-}
+    captain: CaptainId;
+    request: RandomRequest;
+    value: RandomValue;
+};
 ```
 
-UnitRequest requires UnitValue. An IntegerRequest(n) or ChoiceRequest(n) requires
+UnitRequest requires UnitValue. An IntegerRequest { count: n } or ChoiceRequest { count: n } requires
 an IndexValue in 1..n; the latter chooses that position in the stated ordered
 collection. The event must match the request reached by the operation. Supplying
 an index outside its domain or a value for the wrong request is an invalid
@@ -163,7 +163,7 @@ need not map the same key to the same galaxy. Cross-implementation replay instea
 supplies the same random events and other semantic inputs for every operation
 within the completed contract.
 
-**Open:** Complete control and multiplayer event ordering, and acceptance criteria
+**OPEN QUESTION:** Complete control and multiplayer event ordering, and acceptance criteria
 for finite-precision random-source bindings, remain part of the conformance and
 environment work. These gaps do not permit changing the stated game odds.
 
@@ -180,19 +180,18 @@ environment work. These gaps do not permit changing the stated game odds.
 
 ```text
 type PathObstruction = {
-    position: Position
-    object: SectorObject
-}
+    position: Position;
+    object: SectorObject;
+};
 
 type PathResult = {
-    lastClear: Position
-    step: SectorVector
-    obstruction: Optional<PathObstruction>
-}
+    lastClear: Position;
+    step: SectorVector;
+    obstruction: Optional<PathObstruction>;
+};
 
 operation TracePath(start: Position, displacement: SectorVector,
-                    steps: integer, deflection: real)
-    on GameState -> PathResult
+                    steps: integer, deflection: real): PathResult
 ```
 
 The displacement must be nonzero, its components must be whole numbers of
@@ -215,17 +214,20 @@ The running position begins at the start; its nondominant coordinate can be
 fractional.
 In the algorithm, running is a GridPoint. The words dominant and nondominant
 select its vertical or horizontal component according to the axis choice above;
-they are not additional record fields. A candidate whose two coordinates are
+they are not additional record fields. In a copy-with expression, nondominant
+therefore replaces that selected coordinate. A candidate whose two coordinates are
 whole and inside the galaxy is used as a Position in a sector query.
 
 For a running nondominant coordinate c, define candidate sectors as follows:
 
 ```text
-PathCandidates(c):
-    fraction := c - floor(c)
-    if abs(fraction - 0.5) < 0.1:
-        return [floor(c), floor(c) + 1]
-    return [floor(c + 0.5)]
+function PathCandidates(c: real): List<integer> {
+    let fraction: real = c - floor(c);
+    if (abs(fraction - 0.5) < 0.1) {
+        return [floor(c), floor(c) + 1];
+    }
+    return [floor(c + 0.5)];
+}
 ```
 
 This is a geometric rule: near the boundary between two sector centers, both
@@ -233,33 +235,53 @@ sectors can obstruct the path. Sector selection requires whole coordinates;
 damage and other continuous game quantities do not inherit this rounding.
 
 ```text
-TracePath(start, displacement, steps, deflection):
-    step := dominant and nondominant steps defined above
-    running := GridPoint(start.vertical, start.horizontal)
-    lastClear := start
+operation TracePath(start: Position, displacement: SectorVector,
+                    steps: integer, deflection: real): PathResult {
+    requires displacement != SectorVector { vertical: 0, horizontal: 0 };
+    requires both displacement components are whole numbers of sectors;
+    requires steps >= 0;
 
-    repeat at most steps times:
-        running := running + step
-        if dominant coordinate is outside 1..75:
-            return PathResult(lastClear, step, none)
+    let step: SectorVector = dominant and nondominant steps defined above;
+    let running: GridPoint = GridPoint {
+        vertical: start.vertical, horizontal: start.horizontal
+    };
+    let lastClear: Position = start;
 
-        candidates := PathCandidates(running.nondominant)
-        for each candidate in listed order:
-            position := running with nondominant coordinate = candidate
-            if position is outside the galaxy:
-                return PathResult(lastClear, step, none)
-            object := sector(game, position)
-            if object != none:
-                obstruction := PathObstruction(position, object)
-                return PathResult(lastClear, step, obstruction)
-
-        if count(candidates) == 2:
-            selected := floor(running.nondominant + UnitDraw())
-        else:
-            selected := candidates[1]
-        lastClear := running with nondominant coordinate = selected
-
-    return PathResult(lastClear, step, none)
+    for (let i: integer = 1; i <= steps; i += 1) {
+        running = running + step;
+        if (dominant coordinate is outside 1..75) {
+            return PathResult {
+                lastClear: lastClear, step: step, obstruction: none
+            };
+        }
+        let candidates: List<integer> = PathCandidates(running.nondominant);
+        for (candidate in candidates) {
+            let position = running with { nondominant: candidate };
+            if (position is outside the galaxy) {
+                return PathResult {
+                    lastClear: lastClear, step: step, obstruction: none
+                };
+            }
+            let object: Optional<SectorObject> = sector(game, position);
+            if (object != none) {
+                let obstruction = PathObstruction {
+                    position: position, object: object
+                };
+                return PathResult {
+                    lastClear: lastClear, step: step, obstruction: obstruction
+                };
+            }
+        }
+        let selected: integer;
+        if (count(candidates) == 2) {
+            selected = floor(running.nondominant + UnitDraw());
+        } else {
+            selected = candidates[1];
+        }
+        lastClear = running with { nondominant: selected };
+    }
+    return PathResult { lastClear: lastClear, step: step, obstruction: none };
+}
 ```
 
 The list notation here uses the first candidate as `candidates[1]`. Ordinary
@@ -273,7 +295,7 @@ Leaving the galaxy stops at the last clear sector without reporting an object
 collision. Probe order and obstruction timing are part of the rule, not a
 permission to choose any straight-line grid traversal.
 
-**Open:** The resolution of concurrent changes between probes and subsequent
+**OPEN QUESTION:** The resolution of concurrent changes between probes and subsequent
 movement or impact is still being specified. A result does not reserve its
 clear sectors or guarantee that the encountered object remains present.
 
@@ -284,17 +306,17 @@ clear sectors or guarantee that the encountered object remains present.
 ### Release
 
 ```text
-operation ReleaseTractorBeam(beam: TractorBeamId)
-    on GameState -> Released
+operation ReleaseTractorBeam(beam: TractorBeamId): Released
 ```
 
 The beam must identify an established association. Let b be
 `tractorBeam(game, beam)` and w be `world(game)`. The release event satisfies:
 
 ```text
-after(w.beams) == before(w.beams) minus {b}
-for each endpoint in b.endpoints:
-    after(ship(game, endpoint).tractorBeam) == none
+ensures after(w.beams) == before(w.beams) minus {b};
+for (each endpoint in b.endpoints) {
+    ensures after(ship(game, endpoint).tractorBeam) == none;
+}
 ```
 
 Both former endpoints receive the tractor-release notification. The outcome is
@@ -306,8 +328,7 @@ is handled by the command and does not invoke this operation.
 ### Following a moving endpoint
 
 ```text
-operation FollowTractorBeam(moving: ShipId, step: SectorVector)
-    on GameState -> Followed(partner: ShipId, position: Position)
+operation FollowTractorBeam(moving: ShipId, step: SectorVector): Followed { partner: ShipId, position: Position }
 ```
 
 After a ship actually changes sector while associated with a beam, the other
@@ -323,9 +344,9 @@ trailing.horizontal = floor(s.position.horizontal - step.horizontal)
 
 When trailing is inside the galaxy and empty or already occupied by r, following
 has `after(r.position) == trailing`. Its former sector becomes empty if it
-differs from trailing, and trailing contains PlayerShip(r.id). Both the position
+differs from trailing, and trailing contains PlayerShip { id: r.id }. Both the position
 and the sector query then describe that one location. The outcome is
-Followed(r.id, trailing). If the moving endpoint did not change sector, the
+Followed { partner: r.id, position: trailing }. If the moving endpoint did not change sector, the
 command does not invoke following and the partner stays in place.
 
 The other endpoint's energy, condition and docking state are not directly changed
@@ -333,7 +354,7 @@ by following. Shield and device state, beam membership and stardate are likewise
 unchanged. No separate following notification or turn is added. Either endpoint
 can issue a movement command; the beam has no permanent towing endpoint.
 
-**Open:** The generalized outcome when the resulting trailing sector is occupied
+**OPEN QUESTION:** The generalized outcome when the resulting trailing sector is occupied
 by a different object or outside the galaxy remains unresolved. Concurrent
 relocation and the interaction with temporary information activities also need
 their full contracts. No collision damage or alternative safe placement is
@@ -347,41 +368,39 @@ introduced by this draft.
 ### Operation and value types
 
 ```text
-type DamageTarget = ShipBody(ShipId) | BaseBody(BaseId)
-type InstallationOrigin = BaseOrigin(BaseId)
-                        | PlanetOrigin(PlanetId, Optional<Team>)
-type AttackSource = PlayerAttack(ShipId) | RomulanAttack
-                  | InstallationAttack(InstallationOrigin)
+type DamageTarget = ShipBody { ship: ShipId } | BaseBody { base: BaseId }
+type InstallationOrigin = BaseOrigin { base: BaseId }
+                        | PlanetOrigin { planet: PlanetId, owner: Optional<Team> }
+type AttackSource = PlayerAttack { ship: ShipId } | RomulanAttack
+                  | InstallationAttack { origin: InstallationOrigin }
 
 enum ImpactWeapon = PHASER | TORPEDO
 enum DestructionCause = DIRECT_DAMAGE | BLACK_HOLE
 
-type CriticalHit = DeviceCritical(Device, Damage) | BaseCritical
-type DisplacementResult = Stayed | Moved(Position)
-                        | Swallowed(Position)
-type TargetDefense = ShipDefense(ShieldMode, Percentage)
-                   | BaseDefense(Percentage)
+type CriticalHit = DeviceCritical { device: Device, damage: Damage } | BaseCritical
+type DisplacementResult = Stayed | Moved { position: Position }
+                        | Swallowed { position: Position }
+type TargetDefense = ShipDefense { mode: ShieldMode, strength: Percentage }
+                   | BaseDefense { strength: Percentage }
 
 type WeaponHit = {
-    target: DamageTarget
-    weapon: ImpactWeapon
-    damage: Damage
-    critical: Optional<CriticalHit>
-    deflected: Boolean
-    defense: TargetDefense
-    displacement: DisplacementResult
-    destruction: Optional<DestructionCause>
-}
+    target: DamageTarget;
+    weapon: ImpactWeapon;
+    damage: Damage;
+    critical: Optional<CriticalHit>;
+    deflected: Boolean;
+    defense: TargetDefense;
+    displacement: DisplacementResult;
+    destruction: Optional<DestructionCause>;
+};
 
-type TorpedoHitOutcome = Applied(WeaponHit) | TargetAlreadyFatal
+type TorpedoHitOutcome = Applied { hit: WeaponHit } | TargetAlreadyFatal
 
 operation PhaserHit(source: AttackSource, target: DamageTarget,
-                    strength: real, distance: nonnegative integer)
-    on GameState -> WeaponHit
+                    strength: real, distance: nonnegative integer): WeaponHit
 
 operation TorpedoHit(source: AttackSource, target: DamageTarget,
-                     step: SectorVector)
-    on GameState -> TorpedoHitOutcome
+                     step: SectorVector): TorpedoHitOutcome
 ```
 
 DamageTarget selects either a ship's state or a base's state by identity.
@@ -425,7 +444,7 @@ the named game quantities.
 ### Phaser impact
 
 Draw b and c with `UnitDraw()`. Let `F = (0.9 + 0.02*c)^distance`. For
-PlayerAttack(attacker), let s be ship(game, attacker). If either
+PlayerAttack { ship: attacker }, let s be ship(game, attacker). If either
 s.devices[PHASERS].damage or s.devices[COMPUTER].damage is positive, multiply
 F by 0.8. InstallationAttack and RomulanAttack do not receive this reduction.
 
@@ -433,8 +452,8 @@ For a ship with shields down, `H = 8*F*firingStrength`; shield strength does not
 change. For a shielded ship or base, use its strength before this attack:
 
 ```text
-H := 4 * F * firingStrength * (1 - S/100)
-newStrength := S - 0.03 *
+H = 4 * F * firingStrength * (1 - S/100)
+newStrength = S - 0.03 *
     (4 * F * firingStrength * max(S/100, 0.1) + 1)
 ```
 
@@ -458,15 +477,17 @@ For a ship with shields down, set H to rawDamage and leave shield strength
 unchanged. For a shielded ship or a base, first test deflection using its current S:
 
 ```text
-if b - (S/100)*a + 0.1 <= 0:
-    H := 0
-    strength := max(0, S - 5*b) percentage points
-    result.deflected := true
-else:
-    H := rawDamage * (1 - S/100)
-    strength := S - 0.03 * (rawDamage * max(S/100, 0.1) + 1)
-    if target is a ship:
-        strength := max(0, strength)
+if (b - (S/100)*a + 0.1 <= 0) {
+    H = 0;
+    strength = max(0, S - 5*b) percentage points;
+    result.deflected = true;
+} else {
+    H = rawDamage * (1 - S/100);
+    strength = S - 0.03 * (rawDamage * max(S/100, 0.1) + 1);
+    if (target is a ship) {
+        strength = max(0, strength);
+    }
+}
 ```
 
 A deflected hit skips critical damage and ordinary hull, energy and base-strength
@@ -474,7 +495,7 @@ damage. It still lowers exhausted shields, sets a ship's condition red, and
 attempts to displace a surviving ship. A hit that was not deflected applies the
 critical, ordinary-damage and score rules below, using b from this impact.
 Set result.deflected true on the deflection path and result.weapon to TORPEDO
-on both paths. Return Applied(result) when this impact has been resolved.
+on both paths. Return Applied { hit: result } when this impact has been resolved.
 
 After damage, a surviving ship is displaced along the torpedo's trace step.
 Destruction by that displacement earns the same 500-point ship kill credit.
@@ -483,19 +504,20 @@ the victim's tractor beam after the hit notification, including a deflected hit.
 
 ### Critical ship damage
 
-For ShipBody(id), target in the following equations means ship(game, id).
+For ShipBody { ship: id }, target in the following equations means ship(game, id).
 If `H*(b+0.1) >= 170`, a ship takes a critical hit:
 
 ```text
-criticalDamage := H / 2
-device := Choice(Device)
-target.devices[device].damage += criticalDamage damage units
-if device == SHIELDS:
-    target.shields.mode := DOWN
-H := criticalDamage + 100 * (UnitDraw() - 0.5)
+criticalDamage = H / 2;
+device = Choice(Device);
+target.devices[device].damage += criticalDamage damage units;
+if (device == SHIELDS) {
+    target.shields.mode = DOWN;
+}
+H = criticalDamage + 100 * (UnitDraw() - 0.5);
 ```
 
-Set result.critical to DeviceCritical(device, criticalDamage). This field records
+Set result.critical to DeviceCritical { device: device, damage: criticalDamage }. This field records
 the amount added to the selected DeviceState; result.damage is the adjusted H.
 The critical-damage report names the device and the damage added to it. H after
 the final adjustment is the ordinary hit damage reported and applied to hull
@@ -503,23 +525,23 @@ and engine energy. An attack that does not meet the critical condition leaves
 device damage unchanged.
 
 ```text
-operation ApplyShipHit(source: AttackSource, targetId: ShipId, H: Damage)
-    on GameState -> Survived | Destroyed
-
-ApplyShipHit(source, targetId, H):
-    target := ship(game, targetId)
-    amount := numerical value of H in damage units
-    target.hullDamage += amount damage units
-    target.energy -= amount energy units
-    if target.shields.strength <= 0%:
-        target.shields.mode := DOWN
-    apply eligible ordinary attack credit for H
-    target.condition := RED
-    if target.hullDamage >= 2500 damage units or target.energy <= 0:
-        remove target's presence from the galaxy
-        target.commissioned := false
-        return Destroyed
-    return Survived
+operation ApplyShipHit(source: AttackSource, targetId: ShipId, H: Damage): Survived | Destroyed {
+    let target: Ship = ship(game, targetId);
+    let amount: real = numerical value of H in damage units;
+    target.hullDamage += amount damage units;
+    target.energy -= amount energy units;
+    if (target.shields.strength <= 0%) {
+        target.shields.mode = DOWN;
+    }
+    apply eligible ordinary attack credit for H;
+    target.condition = RED;
+    if (target.hullDamage >= 2500 damage units or target.energy <= 0) {
+        remove target's presence from the galaxy;
+        target.commissioned = false;
+        return Destroyed;
+    }
+    return Survived;
+}
 ```
 
 ApplyShipHit changes hull damage and energy by equal numerical amounts in their
@@ -533,7 +555,7 @@ and notification effects. A torpedo with Survived next invokes Displace using
 its supplied step; a Swallowed result records BLACK_HOLE destruction. A deflected
 torpedo uses H zero for these ship effects and can still be displaced.
 
-Set result.defense to ShipDefense(target.shields.mode, target.shields.strength)
+Set result.defense to ShipDefense { mode: target.shields.mode, strength: target.shields.strength }
 after applying the damage. Displacement does not change either defense property.
 Phaser damage does not displace the target. Shield-device damage by itself does
 not invoke SHIELDS UP's validation rule; the critical-device selection and
@@ -543,18 +565,16 @@ strength rules above determine whether these hits lower shields.
 
 ```text
 type BaseHitResolution = {
-    creditedDamage: Damage
-    critical: Boolean
-    reportedStrength: Percentage
-    destroyed: Boolean
-}
+    creditedDamage: Damage;
+    critical: Boolean;
+    reportedStrength: Percentage;
+    destroyed: Boolean;
+};
 
 operation ResolveBaseHit(source: AttackSource, targetId: BaseId,
-                         H: Damage, b: UnitDraw)
-    on GameState -> BaseHitResolution
+                         H: Damage, b: UnitDraw): BaseHitResolution
 
-operation RemoveWeaponDestroyedBase(source: AttackSource, targetId: BaseId)
-    on GameState -> Destroyed
+operation RemoveWeaponDestroyedBase(source: AttackSource, targetId: BaseId): Destroyed
 ```
 
 These operations follow the weapon's initial strength reduction. In the following
@@ -572,19 +592,22 @@ reportedStrength equal to the resulting strength. Nonpositive strength takes
 the critical base path, retaining that creditedDamage.
 
 ```text
-critical base path:
-    critical := true
-    base.strength -= (5 + 10 * UnitDraw()) percentage points
-    reportedStrength := base.strength
-    destroyed := IntegerDraw(10) == 10 or base.strength <= 0%
-    if destroyed:
-        RemoveWeaponDestroyedBase(source, base.id)
+// Critical base path
+{
+    critical = true;
+    base.strength -= (5 + 10 * UnitDraw()) percentage points;
+    reportedStrength = base.strength;
+    destroyed = IntegerDraw(10) == 10 or base.strength <= 0%;
+    if (destroyed) {
+        RemoveWeaponDestroyedBase(source, base.id);
+    }
+}
 ```
 
 Return BaseHitResolution with these four values. The enclosing impact retains
 H as result.damage, records BaseCritical when critical is true, and records
 DIRECT_DAMAGE destruction when destroyed is true. Its result.defense is
-BaseDefense(reportedStrength), not a post-removal strength query.
+BaseDefense { strength: reportedStrength }, not a post-removal strength query.
 
 The early critical path skips ordinary base damage and ordinary damage-score
 credit. Its hit report still carries the originally calculated H. A destroyed
@@ -605,20 +628,19 @@ The firing command supplies the subsequent destruction notification.
 
 ```text
 operation AddAttackCredit(source: AttackSource, category: ScoreCategory,
-                          amount: Points)
-    on GameState -> Credited | CallerAccounts
+                          amount: Points): Credited | CallerAccounts
 ```
 
 ```text
 AddAttackCredit(source, category, amount):
     match source:
-        PlayerAttack(id):
+        PlayerAttack { ship: id }:
             ship(game, id).pendingScore[category] += amount
             return Credited
         RomulanAttack:
             world(game).romulanActivity.score[category] += amount
             return Credited
-        InstallationAttack(origin):
+        InstallationAttack { origin: origin }:
             return CallerAccounts
 ```
 
@@ -656,7 +678,7 @@ ship-fired credits. The returned hit describes damage, critical damage/device,
 shield mode and strength after the hit, and destruction. Recipient selection
 and rendering belong to the invoking command or defense rule.
 
-**Open:** The caller's report behavior after TargetAlreadyFatal, concurrent
+**OPEN QUESTION:** The caller's report behavior after TargetAlreadyFatal, concurrent
 target removal or replacement, interruptions between these effects and complete
 hit-delivery ordering still require the multiplayer and terminal bindings.
 TargetAlreadyFatal does not manufacture a new zero-damage hit notification.
@@ -668,17 +690,15 @@ TargetAlreadyFatal does not manufacture a new zero-damage hit notification.
 
 ```text
 type RomulanHit = {
-    weapon: ImpactWeapon
-    damage: Damage
-    remainingEnergy: Energy
-    destroyed: Boolean
-}
+    weapon: ImpactWeapon;
+    damage: Damage;
+    remainingEnergy: Energy;
+    destroyed: Boolean;
+};
 
-operation RomulanPhaserHit(strength: real, distance: positive integer)
-    on GameState -> RomulanHit
+operation RomulanPhaserHit(strength: real, distance: positive integer): RomulanHit
 
-operation RomulanTorpedoHit()
-    on GameState -> RomulanHit
+operation RomulanTorpedoHit(): RomulanHit
 ```
 
 These operations require a present Romulan. Phaser strength is nonnegative;
@@ -722,8 +742,7 @@ and result.destroyed once, according to the owning-faction rule.
 ```text
 type DisplacementTarget = DamageTarget | RomulanBody
 
-operation Displace(target: DisplacementTarget, step: SectorVector)
-    on GameState -> DisplacementResult
+operation Displace(target: DisplacementTarget, step: SectorVector): DisplacementResult
 ```
 
 The target has a recorded position; for RomulanBody the Romulan must exist.
@@ -737,7 +756,7 @@ the target or any sector.
 For an empty candidate, move the target there and update its galaxy presence.
 A displaced player ship becomes undocked and red. Displacement itself does not
 charge energy, change shields, or release a tractor association.
-Return Moved(candidate). A base or Romulan changes its position and sector
+Return Moved { position: candidate }. A base or Romulan changes its position and sector
 presence without gaining a ship's docking or condition fields.
 
 For a black hole, remove the target from its old sector without replacing the
@@ -745,7 +764,7 @@ black hole. A ship receives 2500 hull-damage units and ceases to be commissioned
 a base receives zero strength; the Romulan ceases to exist. Keep the target's
 last occupied position distinct from that
 reported destination. The caller performs its destruction scoring and notices.
-Return Swallowed(candidate). This result does not advance a turn or end a
+Return Swallowed { position: candidate }. This result does not advance a turn or end a
 captain's session. A ship swallowed by a black hole retains its other resource,
 device, docking and condition values; in particular this branch does not apply
 the undocking effect of displacement into an empty sector.
@@ -762,39 +781,37 @@ receive nova damage too. Each chain retains its initiating attacker for scoring,
 even if that attacker is destroyed during the chain.
 
 ```text
-type NovaSource = PlayerNova(ShipId) | RomulanNova
-type NovaTarget = DamageTarget | RomulanBody | PlanetBody(PlanetId)
+type NovaSource = PlayerNova { ship: ShipId } | RomulanNova
+type NovaTarget = DamageTarget | RomulanBody | PlanetBody { planet: PlanetId }
 
 type NovaContext = {
-    source: NovaSource
-    viewer: CaptainId
-}
+    source: NovaSource;
+    viewer: CaptainId;
+};
 
-type NovaDefense = ShipAfterNova(ShieldMode, Percentage)
-            | BaseAfterNova(Percentage)
-            | RomulanAfterNova(Energy)
-            | PlanetAfterNova(nonnegative integer)
+type NovaDefense = ShipAfterNova { mode: ShieldMode, strength: Percentage }
+            | BaseAfterNova { strength: Percentage }
+            | RomulanAfterNova { energy: Energy }
+            | PlanetAfterNova { builds: nonnegative integer }
 
 type NovaHit = {
-    origin: Position
-    target: NovaTarget
-    position: Position
-    damage: Optional<Damage>
-    defense: NovaDefense
-    displacement: DisplacementResult
-    destruction: Optional<DestructionCause>
-}
+    origin: Position;
+    target: NovaTarget;
+    position: Position;
+    damage: Optional<Damage>;
+    defense: NovaDefense;
+    displacement: DisplacementResult;
+    destruction: Optional<DestructionCause>;
+};
 
-type NovaImpactOutcome = Completed(NovaHit)
+type NovaImpactOutcome = Completed { hit: NovaHit }
                   | PlanetUpdateRefused | GalaxyEnded
 type NovaChainOutcome = Completed | GalaxyEnded
 
 operation NovaImpact(context: NovaContext, origin: Position,
-                     target: NovaTarget, step: SectorVector)
-    on GameState -> NovaImpactOutcome
+                     target: NovaTarget, step: SectorVector): NovaImpactOutcome
 
-operation ExplodeStar(context: NovaContext, origin: Position)
-    on GameState -> NovaChainOutcome
+operation ExplodeStar(context: NovaContext, origin: Position): NovaChainOutcome
 ```
 
 DamageTarget, DisplacementResult and DestructionCause are the shared combat
@@ -882,7 +899,7 @@ device order. If shield-device damage then reaches 300 units, lower shields.
 This lowering does not recompute d. For either a ship or a base, define:
 
 ```text
-H := 8*d + IntegerDraw(1000)/10       // damage units
+H = 8*d + IntegerDraw(1000)/10       // damage units
 ```
 
 Before the remaining effects, credit H pending points to a player initiator
@@ -896,22 +913,25 @@ is independent of the subsequent ship-energy loss or base-strength change.
 Let s be the target ship. After severity, device damage and ordinary score:
 
 ```text
-s.hullDamage += H damage units
-s.energy -= H * UnitDraw() energy units
-if s.shields.mode == UP:
-    s.shields.strength := max(0,
-        s.shields.strength - 30% + (IntegerDraw(100)/10)*1%)
-if s.shields.strength <= 0%:
-    s.shields.mode := DOWN
-
-if s.hullDamage >= 2500 damage units or s.energy <= 0:
-    remove s from its sector
-    s.commissioned := false
-    destruction := DIRECT_DAMAGE
-else:
-    displacement := Displace(ShipBody(s.id), step)
-    if displacement is Swallowed:
-        destruction := BLACK_HOLE
+s.hullDamage += H damage units;
+s.energy -= H * UnitDraw() energy units;
+if (s.shields.mode == UP) {
+    s.shields.strength = max(0,
+        s.shields.strength - 30% + (IntegerDraw(100)/10)*1%);
+}
+if (s.shields.strength <= 0%) {
+    s.shields.mode = DOWN;
+}
+if (s.hullDamage >= 2500 damage units or s.energy <= 0) {
+    remove s from its sector;
+    s.commissioned = false;
+    destruction = DIRECT_DAMAGE;
+} else {
+    displacement = Displace(ShipBody { ship: s.id }, step);
+    if (displacement is Swallowed) {
+        destruction = BLACK_HOLE;
+    }
+}
 ```
 
 A shield device made critical by this impact suppresses the later shield-strength
@@ -929,7 +949,7 @@ initiator receives 500 directly in its own activity score.
 Construct the NovaHit from s's current shield state and recorded position,
 including damage H and the displacement/destruction results. Publish that hit,
 then release the target's tractor beam if one remains attached. Return
-Completed(hit). Destruction does not itself release the captain's session or
+Completed { hit: hit }. Destruction does not itself release the captain's session or
 end the chain. The shared ApplyShipHit operation is not used here: the nova's
 energy, condition and scoring effects are the ones in this clause.
 
@@ -940,10 +960,11 @@ a base whose strength is exactly 100% announces distress to its faction's
 captains whose radios are on. Then:
 
 ```text
-b.strength := max(0,
-    b.strength - 30% + (IntegerDraw(100)/10)*1%)
-if b.strength > 0%:
-    displacement := Displace(BaseBody(b.id), step)
+b.strength = max(0,
+    b.strength - 30% + (IntegerDraw(100)/10)*1%);
+if (b.strength > 0%) {
+    displacement = Displace(BaseBody { base: b.id }, step);
+}
 ```
 
 If strength is now zero, mark destruction BLACK_HOLE when displacement is
@@ -957,7 +978,7 @@ Construct the NovaHit with damage H, the base's strength and its recorded
 position. Publish it before the final removal notice. For a destroyed base,
 clear its remaining sector presence and announce destruction to its faction's
 captains whose radios are on. Retain its base identity and recorded position,
-and return Completed(hit). Destruction alone does not invoke CheckWorldEnd
+and return Completed { hit: hit }. Destruction alone does not invoke CheckWorldEnd
 here. The ordinary H credit applies whether or not distress was announced,
 and independently of strength reduction and any destruction bonus.
 
@@ -977,7 +998,7 @@ additional nova-energy test.
 
 After publishing a destruction hit, add a further 500 pending ROMULAN points
 for a player initiator, or subtract 500 from a Romulan initiator's score.
-Return Completed(hit). This order places the destruction bonus after the
+Return Completed { hit: hit }. This order places the destruction bonus after the
 hit publication, unlike the ship and base bonuses.
 
 ### Planet effect
@@ -988,18 +1009,18 @@ hit observation; it does not abort the remaining chain. The complete access
 and interruption rules belong to the multiplayer contract.
 
 Subtract three from p.builds. Construct a NovaHit with damage absent,
-displacement Stayed, the planet's position, and PlanetAfterNova(max(p.builds,0)).
+displacement Stayed, the planet's position, and PlanetAfterNova { builds: max(p.builds,0) }.
 Destruction is DIRECT_DAMAGE if the new count is negative and absent otherwise.
 Publish the hit before any destruction penalty or identity removal. A count
 of exactly zero survives.
 
-For a survivor, release the update and return Completed(hit). For destruction,
+For a survivor, release the update and return Completed { hit: hit }. For destruction,
 subtract 100 PLANET_DESTRUCTION points from the player's pending score or the
 Romulan's score. Save the current ownership, clear the planet's sector, and
 invoke RemovePlanet(context.viewer, p.id, savedOwner). If it ends the galaxy,
-return GalaxyEnded. Otherwise release the update and return Completed(hit).
+return GalaxyEnded. Otherwise release the update and return Completed { hit: hit }.
 
-**Open:** Full concurrent changes during neighborhood discovery, impact and
+**OPEN QUESTION:** Full concurrent changes during neighborhood discovery, impact and
 planet-update acquisition remain to be specified. These ordered effects do not
 make the chain one indivisible action or introduce a random update-failure rate.
 
@@ -1015,8 +1036,7 @@ make the chain one indivisible action or introduce a random update-failure rate.
 type PlanetRemovalOutcome = Removed | NoPlanet | GalaxyEnded
 
 operation RemovePlanet(viewer: CaptainId, target: PlanetId,
-                       formerOwner: Optional<Team>)
-    on GameState -> PlanetRemovalOutcome
+                       formerOwner: Optional<Team>): PlanetRemovalOutcome
 ```
 
 The caller supplies the ownership being removed; none means a neutral planet.
@@ -1051,8 +1071,7 @@ Docking re-evaluation is invoked during installation loss or ownership changes.
 Its operation is:
 
 ```text
-operation ReevaluateDocking(team: Team)
-    on GameState -> Completed
+operation ReevaluateDocking(team: Team): Completed
 ```
 
 It visits that faction's docked ships in roster order. A nearby surviving friendly
@@ -1070,7 +1089,7 @@ tests. ReevaluateDocking does not change resources, scores, installation counts
 or membership. With zero capturedPlanetCounts and no adjacent base, the ship
 remains docked in that branch.
 
-**Open:** Full interleavings of base conversion, world termination and concurrent
+**OPEN QUESTION:** Full interleavings of base conversion, world termination and concurrent
 installation changes remain under review. This chapter does not make the entire
 sequence one indivisible action.
 

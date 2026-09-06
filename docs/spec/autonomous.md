@@ -17,18 +17,18 @@ do not freeze a snapshot across interactive or concurrent events.
 enum RomulanWeapon = PHASERS | TORPEDOS
 
 type RomulanStepResult = {
-    appeared: Boolean
-    repositioned: Boolean
-    weapon: Optional<RomulanWeapon>
-}
+    appeared: Boolean;
+    repositioned: Boolean;
+    weapon: Optional<RomulanWeapon>;
+};
 
-type RomulanStepOutcome = Completed(result: RomulanStepResult) | GalaxyEnded
+type RomulanStepOutcome = Completed { result: RomulanStepResult } | GalaxyEnded
 
 type RomulanTarget = {
-    object: SectorObject restricted to PlayerShip or Starbase
-    position: Position
-    range: integer
-}
+    object: SectorObject restricted to PlayerShip or Starbase;
+    position: Position;
+    range: integer;
+};
 ```
 
 A result records whether this activation created a Romulan, changed its position,
@@ -40,8 +40,7 @@ the remaining activation and ordinary return to its triggering turn.
 ## Activation and appearance
 
 ```text
-operation AdvanceRomulan(trigger: CaptainId)
-    on GameState -> RomulanStepOutcome
+operation AdvanceRomulan(trigger: CaptainId): RomulanStepOutcome
 ```
 
 The turn rules invoke this operation only while Romulan activity is enabled.
@@ -60,10 +59,10 @@ Below that value the activation ends. At or above it, IntegerDraw(5) equal to
 5 defers appearance; the other four results allow it. On appearance:
 
 ```text
-after(a.cadence) == 0
-after(a.appearances) == before(a.appearances) + 1
+ensures after(a.cadence) == 0
+ensures after(a.appearances) == before(a.appearances) + 1
 newRomulan.energy == 200 + IntegerDraw(200) energy units
-after(w.romulan) == newRomulan
+ensures after(w.romulan) == newRomulan
 ```
 
 Choose its position by drawing vertical and then horizontal coordinates from
@@ -89,8 +88,7 @@ remain part of the open lifecycle contract.
 ## Target selection
 
 ```text
-operation SelectRomulanTarget()
-    on GameState -> RomulanTarget
+operation SelectRomulanTarget(): RomulanTarget
 ```
 
 A Romulan must be present. Targets are player ships and surviving bases;
@@ -123,7 +121,7 @@ Chebyshev distance between that position and the Romulan, not the squared
 ranking distance. A different object with smaller grid range does not take
 precedence over the winner of the squared-distance comparison.
 
-**Open:** This selection contract currently covers states with an eligible target
+**OPEN QUESTION:** This selection contract currently covers states with an eligible target
 within a Euclidean distance of 75 sectors. With no eligible target, or with all
 candidates farther away, the generalized selection outcome remains unresolved.
 This is a limit of this draft's defined domain, not a newly specified pursuit
@@ -135,8 +133,7 @@ selection also remain unresolved.
 ## Movement toward a target
 
 ```text
-operation PursueRomulanTarget(trigger: CaptainId, target: RomulanTarget)
-    on GameState -> RomulanTarget
+operation PursueRomulanTarget(trigger: CaptainId, target: RomulanTarget): RomulanTarget
 ```
 
 Let r be the present Romulan. If target.range is at most one, proceed to weapon
@@ -177,7 +174,7 @@ change. If the new target's range exceeds ten, reset a.cadence to zero and end
 without attacking. Otherwise proceed to weapon selection. The point-blank path
 skips this movement attempt, second selection and privileged movement report.
 
-**Open:** Concurrent destination changes and temporary interaction states need
+**OPEN QUESTION:** Concurrent destination changes and temporary interaction states need
 complete resolution rules. No reservation or collision-damage policy is implied.
 
 **Source basis:** [ROMDRV movement](../../legacy/utexas/DECWAR.FOR#L3323),
@@ -235,11 +232,10 @@ faction for the ten-sector audience, as defined in the turn rules.
 ## Torpedo aim and burst
 
 ```text
-operation RomulanTorpedoes(target: RomulanTarget)
-    on GameState -> RomulanBurstOutcome
+operation RomulanTorpedoes(target: RomulanTarget): RomulanBurstOutcome
 
-type RomulanBurstOutcome = Finished(shots: integer)
-                   | RomulanDestroyed(shots: integer) | GalaxyEnded
+type RomulanBurstOutcome = Finished { shots: integer }
+                   | RomulanDestroyed { shots: integer } | GalaxyEnded
 ```
 
 Before the first shot, examine the target's clipped three-by-three neighborhood
@@ -254,10 +250,11 @@ energy charge. A misfire allows its own shot to travel but prevents subsequent
 shots in the burst. Each launched shot has:
 
 ```text
-deflection = (UnitDraw() - 0.5) / 2.5
-misfire = IntegerDraw(100) > 96
-if misfire:
-    deflection += (UnitDraw() - 0.5) / 5
+deflection = (UnitDraw() - 0.5) / 2.5;
+misfire = IntegerDraw(100) > 96;
+if (misfire) {
+    deflection += (UnitDraw() - 0.5) / 5;
+}
 ```
 
 Trace length has the same discrete selection as player torpedoes:
@@ -293,7 +290,7 @@ update was refused skips this retargeting and retains its aim. An unobstructed
 shot also skips retargeting. The misfire still prevents a following launch.
 
 For ship and base impacts, TorpedoHit receives RomulanAttack, the encountered
-ShipBody or BaseBody identity, and the trace step. Applied(hit) provides the
+ShipBody or BaseBody identity, and the trace step. Applied { hit: hit } provides the
 hit observations and has already applied the shared Romulan score effects.
 The TargetAlreadyFatal caller-report case remains open in the shared contract.
 
@@ -307,7 +304,7 @@ the session exit rules. The enclosing activation
 then follows its post-weapon speech and installation rules unless the galaxy
 has ended.
 
-**Open:** Concurrent target or firing-position changes, unavailable target
+**OPEN QUESTION:** Concurrent target or firing-position changes, unavailable target
 selection and interrupted notification sequences need their complete contracts.
 
 **Source basis:** [ROMSTR](../../legacy/utexas/DECWAR.FOR#L3400),

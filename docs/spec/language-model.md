@@ -13,27 +13,26 @@ observe; they do not require mutable objects, tables or a particular database.
 ```text
 abstract type GameState
 
-query ship(game: GameState, id: ShipId) -> Ship
-query base(game: GameState, id: BaseId) -> Base
-query planet(game: GameState, id: PlanetId) -> Planet
-query captain(game: GameState, id: CaptainId) -> Captain
-query world(game: GameState) -> World
-query tractorBeam(game: GameState, id: TractorBeamId) -> TractorBeam
-query sector(game: GameState, position: Position)
-    -> Optional<SectorObject>
+query ship(game: GameState, id: ShipId): Ship
+query base(game: GameState, id: BaseId): Base
+query planet(game: GameState, id: PlanetId): Planet
+query captain(game: GameState, id: CaptainId): Captain
+query world(game: GameState): World
+query tractorBeam(game: GameState, id: TractorBeamId): TractorBeam
+query sector(game: GameState, position: Position): Optional<SectorObject>
 
-operation Capture(actor: ShipId, target: Position)
-    on GameState -> CaptureOutcome
+operation Capture(actor: ShipId, target: Position): CaptureOutcome
 ```
 
 Queries describe the current state without changing it. Operations describe
 permitted changes and observations. Their names are specification vocabulary,
 not additional commands or a required software interface. For example, the
 CAPTURE grammar determines how player input invokes the `Capture` operation.
-In an operation declared `on GameState`, game denotes the state on which it
-acts. The result following the arrow is a semantic outcome: vertical bars
-separate alternatives, and parentheses give any associated values. Thus
-`Rejected(reason: CaptureRejection)` is an outcome carrying a reason, not
+Within a game operation, `game` denotes the current GameState. A query or pure
+function has no implicit permission to change it. The result type follows the
+parameter list's colon. Vertical bars separate alternatives; braces name their
+associated values. Thus
+`Rejected { reason: CaptureRejection }` is an outcome carrying a reason, not
 terminal text or a command that the player can enter.
 
 An operation contract states:
@@ -68,22 +67,31 @@ numbers, object identity, inheritance or runtime behavior.
 
 `type Name = { ... }` defines a record of named fields. `property: T` gives a
 field's type. An enum lists mutually exclusive symbolic values. A union lists
-alternatives separated by `|`; an alternative may carry named values in
-parentheses. The alternative's name is its tag. For example,
-`Captured(planet: PlanetId)` carries a planet identity, while `Cancelled`
+alternatives separated by `|`; an alternative may carry named fields in braces.
+The alternative's name is its tag. For example,
+`Captured { planet: PlanetId }` carries a planet identity, while `Cancelled`
 carries no value. These names are not text the player enters.
 
 Collections have one notation throughout the model:
 
 | Type | Meaning |
 | --- | --- |
-| `Sequence<T>` | Ordered values of type T; duplicates are permitted unless a rule excludes them. |
+| `List<T>` | Ordered values of type T; duplicates are permitted unless a rule excludes them. |
 | `Set<T>` | Unordered values of type T, without duplicates. |
 | `Map<K, V>` | One value of V for every key in K; a total mapping unless explicitly restricted. |
 | `Optional<T>` | A value of T or none. Absence is not an operation failure. |
+| `Result<T, Error>` | A non-rejected outcome of type T or a rejection carrying an Error. |
 
-An operation's result union describes its success, rejection, cancellation or
-other outcomes; it is distinct from Optional. The declared domain determines
+```text
+type Result<T, Error> = T | Rejected { reason: Error };
+```
+
+Here T excludes the Rejected alternative. This alias keeps each operation's
+named successful outcomes, such as Raised or Captured. Cancellation and lifecycle
+outcomes are stated separately when they are possible. A rejection says why the
+operation stopped; it does not promise that no earlier effects occurred or that
+they were rolled back. Optional expresses absence, not rejection.
+The declared domain determines
 whether counts, quantities or identities are valid. Type aliases such as Energy
 and Damage retain their units even when their notation resembles a scalar.
 
@@ -91,8 +99,8 @@ For example, `devices: Map<Device, DeviceState>` associates every one of the
 nine Device values with its own device state. Square brackets select a mapping
 entry; a dot selects a named field. These are mathematical observations, not
 requirements to use a JavaScript Map, array or mutable object. In query and
-operation signatures, `->` gives the result type; it does not denote a mapping
-field. Type declarations can refer to other named types in the abstract model.
+operation signatures, the colon after the parameter list gives the result type.
+Named types can refer to other named types in the abstract model.
 
 The query `ship(game, actor)` selects the ship identified by actor. A command
 may bind that ship to s and then write `s.energy` or
@@ -104,18 +112,45 @@ rules for admission and release handle absence explicitly.
 Pseudocode describes the meaning of an operation:
 
 ```text
-if condition:
-    statement
-else:
-    statement
+if (condition) {
+    statement;
+}
+else {
+    statement;
+}
 ```
 
-`:=` assigns a value to its named destination. Assigning a local variable changes
+`=` assigns a value to its named destination. Assigning a local variable changes
 only that local binding. Assigning a game-state property, such as s.energy,
 updates that property. An operation's state-effects clause determines which
 updates occur; a query does not update game state.
 
-`==` compares values in pseudocode, and `=` states mathematical equality in equations and contracts.
+`==` states equality, including in preconditions and postconditions; `!=` states
+inequality. A Unit result carries no additional value and does not by itself assert success.
+The equals sign in a type declaration introduces its definition,
+and in a default parameter supplies its default value. Neither changes game state.
+`let name: T = value` introduces a local binding. A local's type may be omitted
+when its value or the immediately preceding definition determines it. A
+conditional expression `condition ? a : b` selects a when the condition is true
+and b otherwise. Only the selected expression is evaluated.
+
+`requires` states a precondition of an operation or a defined substep; `ensures`
+states a condition at its completion. `invariant` states a property of every
+valid observable state in its declared scope. These words express requirements,
+not runtime checks or automatic error handling. A command's rejection clauses
+still determine what happens when player input cannot satisfy a precondition.
+
+A record value is written `Name { field: value, ... }`; a bare name denotes
+a variant with no payload. Declared payload names identify the same fields when
+an outcome is constructed, inspected or described in an example.
+
+`value with { field: replacement }` produces a record value with those fields
+replaced and every other field preserved. It does not update the original.
+`for (item in values)` visits a list in its order; a set requires an explicit
+order whenever order affects observations. Bounded loops state their bounds.
+Short English predicates and effects within pseudocode refer to the rules in
+the surrounding clause; they are not additional fields or callable services.
+
 `emit` produces an observable game event or response; it is a separate effect,
 and its terminal rendering is specified separately.
 `reject` ends the current operation with the named diagnostic. Unless a rule
@@ -131,6 +166,15 @@ this is a notation convention, not a required indexing scheme.
 A local name bound to a ship or another state record denotes that same game
 entity. Updating a field through that name changes the entity's state.
 
+Entity identity and value equality are distinct: two ship observations identify
+the same ship when their ShipId values match, even if its resources changed
+between observations. Record values compare equal when corresponding fields
+compare equal. Lists compare by length and corresponding elements; sets compare
+by membership; maps compare by keys and their associated values. Different
+variant tags are unequal. Quantities compare within their declared units;
+an energy quantity is not interchangeable with damage merely because the
+numerical values match.
+
 ## Quantities and identities
 
 ```text
@@ -138,6 +182,7 @@ type ShipId, CaptainId, BaseId, PlanetId, TractorBeamId, MessageId
 type PublicationId
 type Text = sequence of characters
 type Boolean = true | false
+type Unit = unit
 
 enum Team       = FEDERATION | EMPIRE
 enum ShieldMode = UP | DOWN
@@ -164,19 +209,19 @@ type Points     = quantity in displayed game points
 type UnitDraw   = real number in [0, 1)
 
 type Position = {
-    vertical: Coordinate
-    horizontal: Coordinate
-}
+    vertical: Coordinate;
+    horizontal: Coordinate;
+};
 
 type SectorVector = {
-    vertical: real number of sectors
-    horizontal: real number of sectors
-}
+    vertical: real number of sectors;
+    horizontal: real number of sectors;
+};
 
 type GridPoint = {
-    vertical: real coordinate
-    horizontal: real coordinate
-}
+    vertical: real coordinate;
+    horizontal: real coordinate;
+};
 ```
 
 The identities distinguish entities. Names and name-matching order are separate
@@ -188,10 +233,12 @@ change the command grammar or permit new game mechanics.
 For positions a and b:
 
 ```text
-distance(a, b) = max(
-    abs(a.vertical - b.vertical),
-    abs(a.horizontal - b.horizontal)
-)
+function distance(a: Position, b: Position): nonnegative integer {
+    return max(
+        abs(a.vertical - b.vertical),
+        abs(a.horizontal - b.horizontal)
+    );
+}
 ```
 
 Thus diagonal neighbors have distance one.
@@ -216,8 +263,8 @@ sector has a different temporary interaction kind, as defined in
 [session activities](session-rules.md#temporary-information-activities).
 
 ```text
-type SectorObject = PlayerShip(id: ShipId) | Starbase(id: BaseId)
-             | PlanetObject(id: PlanetId) | RomulanObject
+type SectorObject = PlayerShip { id: ShipId } | Starbase { id: BaseId }
+             | PlanetObject { id: PlanetId } | RomulanObject
              | StarObject | BlackHoleObject
 ```
 
@@ -251,37 +298,47 @@ and initialization are defined in [galaxy creation](session-rules.md#galaxy-crea
 type Rectangle = {
     minVertical, maxVertical: Coordinate
     minHorizontal, maxHorizontal: Coordinate
-}
+};
 
 type World = {
-    elapsedOrigin: Optional<ClockOrigin>
-    ended: Boolean
-    ships: collection of Ship
-    bases: collection of Base
-    baseOrder: Map<Team, Sequence<BaseId>>
-    baseCounts: Map<Team, nonnegative integer>
-    capturedPlanetCounts: Map<Team, nonnegative integer>
-    planets: collection of Planet
-    knowledge: Map<Team, TeamKnowledge>
-    playerCount: integer
-    actionCount: integer
-    teamTurns: Map<Team, integer>
-    teamCommissions: Map<Team, nonnegative integer>
-    romulanEnabled: Boolean
-    blackHolesSelected: Boolean
-    pacingClass: integer in 1..3
-    beams: collection of TractorBeam
-    teamScores: Map<Team, Score>
-    romulan: Optional<Romulan>
-    romulanActivity: RomulanActivity
-    combatNotices: CombatNoticeService
-    radioService: RadioService
-}
+    elapsedOrigin: Optional<ClockOrigin>;
+    ended: Boolean;
+    ships: Set<Ship>;
+    bases: Set<Base>;
+    baseOrder: Map<Team, List<BaseId>>;
+    baseCounts: Map<Team, nonnegative integer>;
+    capturedPlanetCounts: Map<Team, nonnegative integer>;
+    planets: List<Planet>;
+    knowledge: Map<Team, TeamKnowledge>;
+    playerCount: integer;
+    actionCount: integer;
+    teamTurns: Map<Team, integer>;
+    teamCommissions: Map<Team, nonnegative integer>;
+    romulanEnabled: Boolean;
+    blackHolesSelected: Boolean;
+    pacingClass: integer in 1..3;
+    beams: Set<TractorBeam>;
+    teamScores: Map<Team, Score>;
+    romulan: Optional<Romulan>;
+    romulanActivity: RomulanActivity;
+    combatNotices: CombatNoticeService;
+    radioService: RadioService;
+};
 ```
 
-This is the portion of world state used by the converted command families.
-Ordered iteration is stated wherever it affects a result; a collection does
-not imply a particular container or an arbitrary permission to reorder effects.
+World contains entity records, each identified by its id. Within each of
+ships, bases, planets and beams, no two entities have the same identity.
+Changing an entity's fields does not create a second entity or change its id.
+A historical observation can retain an earlier value for that same identity;
+it is not another member of the world's collection.
+
+The ship, base and beam sets do not establish iteration order. Rules that need
+an order state it explicitly, such as the roster order for ships and baseOrder
+for bases. The planet sequence does establish the current planet order used
+by discovery, reports and other traversals. Removing a planet preserves the
+relative order of the surviving planets under [RemovePlanet](world-rules.md#planet-removal).
+These are abstract membership and ordering properties, not a requirement for
+any particular container.
 
 baseCounts is the maintained number of bases for each faction;
 capturedPlanetCounts is its maintained number of owned planets. These counters
@@ -292,40 +349,41 @@ cumulative commission counts and installation counts are separate quantities.
 
 **Source basis:** [world limits](../../legacy/utexas/PARAM.FOR#L5),
 [roster](../../legacy/utexas/DECWAR.FOR#L489),
-[world initialization](../../legacy/utexas/SETUP.FOR#L216).
+[world initialization](../../legacy/utexas/SETUP.FOR#L216),
+[planet order on removal](../../legacy/utexas/DECWAR.FOR#L2864).
 
 ## Ships
 
 ```text
 type Shields = {
-    mode: ShieldMode
-    strength: Percentage
-}
+    mode: ShieldMode;
+    strength: Percentage;
+};
 
 type DeviceState = {
-    damage: Damage
-}
+    damage: Damage;
+};
 
 type Ship = {
-    id: ShipId
-    name: Text
-    team: Team
-    position: Optional<Position>
-    captain: Optional<CaptainId>
-    commissioned: Boolean
-    energy: Energy
-    hullDamage: Damage
-    shields: Shields
-    devices: Map<Device, DeviceState>
-    torpedoes: integer
-    lifeSupportReserve: integer
-    condition: Condition
-    docked: Boolean
-    tractorBeam: Optional<TractorBeamId>
-    stardate: Stardate
-    score: Score
-    pendingScore: Score
-}
+    id: ShipId;
+    name: Text;
+    team: Team;
+    position: Optional<Position>;
+    captain: Optional<CaptainId>;
+    commissioned: Boolean;
+    energy: Energy;
+    hullDamage: Damage;
+    shields: Shields;
+    devices: Map<Device, DeviceState>;
+    torpedoes: integer;
+    lifeSupportReserve: integer;
+    condition: Condition;
+    docked: Boolean;
+    tractorBeam: Optional<TractorBeamId>;
+    stardate: Stardate;
+    score: Score;
+    pendingScore: Score;
+};
 ```
 
 A new commission begins with 5000 energy units, ten torpedoes, no hull or device
@@ -392,18 +450,18 @@ resource, not an additional property of either propulsion device.
 
 ```text
 type Base = {
-    id: BaseId
-    team: Team
-    position: Position
-    strength: Percentage
-}
+    id: BaseId;
+    team: Team;
+    position: Position;
+    strength: Percentage;
+};
 
 type Planet = {
-    id: PlanetId
-    owner: Optional<Team>
-    position: Position
-    builds: integer
-}
+    id: PlanetId;
+    owner: Optional<Team>;
+    position: Position;
+    builds: integer;
+};
 ```
 
 A base survives while its strength is positive. An owner of `none` denotes a
@@ -423,9 +481,9 @@ defines selection and report numbering, without prescribing a storage location.
 
 ```text
 type TractorBeam = {
-    id: TractorBeamId
-    endpoints: Set<ShipId> containing exactly two distinct identities
-}
+    id: TractorBeamId;
+    endpoints: Set<ShipId> containing exactly two distinct identities;
+};
 
 enum ScoreCategory = ENEMY_DAMAGE | ENEMY_KILLS | BASE_DAMAGE
                   | PLANET_CAPTURE | BASE_CONSTRUCTION
@@ -434,18 +492,18 @@ enum ScoreCategory = ENEMY_DAMAGE | ENEMY_KILLS | BASE_DAMAGE
 type Score = Map<ScoreCategory, Points>
 
 type Romulan = {
-    position: Position
-    energy: Energy
-}
+    position: Position;
+    energy: Energy;
+};
 
 type RomulanActivity = {
-    cadence: integer
-    turns: Stardate
-    appearances: integer
-    phaserReady: TimePoint
-    torpedoesReady: TimePoint
-    score: Score
-}
+    cadence: integer;
+    turns: Stardate;
+    appearances: integer;
+    phaserReady: TimePoint;
+    torpedoesReady: TimePoint;
+    score: Score;
+};
 ```
 
 A tractor beam associates two ships symmetrically. Either endpoint can act on
@@ -478,45 +536,45 @@ The [autonomous rules](autonomous.md) define later changes.
 
 ```text
 type TeamKnowledge = {
-    knownPlanets: Set<PlanetId>
-    knownBases: Set<BaseId>
-}
+    knownPlanets: Set<PlanetId>;
+    knownBases: Set<BaseId>;
+};
 
 type RadioSettings = {
-    enabled: Boolean
-    gaggedSenders: Set<ShipId>
-}
+    enabled: Boolean;
+    gaggedSenders: Set<ShipId>;
+};
 
 type Captain = {
-    id: CaptainId
-    ship: Optional<ShipId>
-    displayName: Text
-    privileged: Boolean
-    outputLength: OutputLength
-    promptStyle: PromptStyle
-    scanStyle: ScanStyle
-    inputCoordinates: CoordinateMode
-    outputCoordinates: CoordinateMode
-    terminalProfile: Optional<TerminalProfile>
-    radio: RadioSettings
-    phaserReady: Map<PhaserBank, TimePoint>
-    torpedoesReady: TimePoint
-}
+    id: CaptainId;
+    ship: Optional<ShipId>;
+    displayName: Text;
+    privileged: Boolean;
+    outputLength: OutputLength;
+    promptStyle: PromptStyle;
+    scanStyle: ScanStyle;
+    inputCoordinates: CoordinateMode;
+    outputCoordinates: CoordinateMode;
+    terminalProfile: Optional<TerminalProfile>;
+    radio: RadioSettings;
+    phaserReady: Map<PhaserBank, TimePoint>;
+    torpedoesReady: TimePoint;
+};
 
 type MessageSender = ShipId | ROMULAN | SYSTEM
 
 type Message = {
-    id: MessageId
-    sender: MessageSender
-    recipients: Set<ShipId>
-    remainingRecipients: Set<ShipId>
-    body: Text
-}
+    id: MessageId;
+    sender: MessageSender;
+    recipients: Set<ShipId>;
+    remainingRecipients: Set<ShipId>;
+    body: Text;
+};
 
 type RadioService = {
-    messages: Sequence<Message>
-    publicationsInProgress: Set<PublicationId>
-}
+    messages: List<Message>;
+    publicationsInProgress: Set<PublicationId>;
+};
 ```
 
 The recipients name the audience of a message. Message-delivery state is

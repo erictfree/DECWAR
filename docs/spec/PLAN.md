@@ -83,8 +83,14 @@ The naming and type conventions are language-neutral; they do not mandate a
 TypeScript representation. The supplied Modern System Specification Guide is an
 additional editorial reference, not a source of DECWAR behavior. Use compact
 `type Name = { ... }` record declarations, tagged alternatives and consistent
-Sequence, Set, Map and Optional notation. Distinguish absence from operation
-failure, local assignment from game-state updates, and emitted observations
+List, Set, Map, Optional and Result notation. The updated Markdown guide selects
+typed C-family pseudocode: braces for blocks and record values, colon return
+types, `=` for assignment and `==` for equality. Use `requires`, `ensures` and
+`invariant` for contracts, and named fields for tagged outcomes. Define copy-with
+notation and distinguish identity from value equality. Keep EBNF separate from
+these behavioral constructs; notation changes must not change accepted input.
+Distinguish absence from operation failure, cancellation from rejection, local
+assignment from game-state updates, and emitted observations
 from state effects. Retain explicit units, bounds and nondeterministic choices.
 Review vocabulary and type references, invariant coverage, failure behavior,
 ordering/atomicity and examples together; readable notation alone is not a
@@ -119,9 +125,8 @@ consequences without prescribing how a new implementation realizes them.
 | language-coverage.md | Conversion progress and remaining dependencies, outside the book. |
 | NORMALIZATION.md | Numerical/representation decisions and source derivations, outside the book. |
 
-Further chapters will cover complete world rules, sessions, randomness,
-multiplayer ordering and response/terminal presentation. Add them to book.json
-only after expressing their requirements in the abstract model. Earlier state.md,
+Continue completing the existing world, session, randomness, multiplayer and
+presentation chapters under their documented coverage gaps. Earlier state.md,
 execution.md, session.md, gameplay.md, randomness.md, terminal.md, conformance.md
 and compuserve.md remain research inputs outside the manifest. The evidence and
 unresolved records preserve source analysis; they are not extra normative clauses

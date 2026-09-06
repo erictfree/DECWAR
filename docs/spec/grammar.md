@@ -7,11 +7,18 @@ grammar. A command synopsis does not replace the ordered parsing rules.
 
 ## GRAM-1 — Notation
 
-Productions operate on tokens from LEX-1 through LEX-7, not directly on typed
-characters. `kw(NAME)` means a keyword match under LEX-6, `integer` means an
-integer-category token, `[x]` means optional, `{x}` means repetition, and `|`
-means alternatives. Order in a displayed alternative list is not a generic
-matching-precedence rule; prose establishes branch order where it matters.
+Productions use extended BNF over the tokens defined by the lexical chapter.
+`::=` defines a production, juxtaposition means sequence, `[x]` means optional,
+`{x}` means zero or more repetitions, `|` means alternatives, and parentheses
+group alternatives. A quoted keyword such as `"MOVE"` means a keyword match
+under LEX-6, including its permitted abbreviations; it does not require the
+player to type quotation marks or the full spelling. Quoted punctuation has
+its stated token meaning. `integer` means an integer-category token.
+
+The command entries use the same notation. Order in a displayed alternative
+list is not a generic matching-precedence rule; prose establishes branch order
+where it matters. Productions describe the external input form, while typed
+operations and contracts describe its meaning.
 
 `end` means the command-input operation's end sentinel. A physical line can
 supply more than one command through slash. Commands need not reject every
@@ -57,31 +64,28 @@ The initial startup dialogue accepts HELP, PREGAME or empty input separately.
 ### Accepted forms and result types
 
 ```text
-numeric-locations = [kw(ABSOLUTE) | kw(RELATIVE)] {integer}
-computed-locations = kw(COMPUTED) [integer] {target-name}
-target-name = ship-name | kw(ROMULAN)
+numeric-locations ::= ["ABSOLUTE" | "RELATIVE"] {integer}
+computed-locations ::= "COMPUTED" [integer] {target-name}
+target-name ::= ship-name | "ROMULAN"
 
-type LocationLimit = Exactly(positive integer) | AtMost(positive integer)
+type LocationLimit = Exactly { count: positive integer } | AtMost { count: positive integer }
 
 type LocationValues = {
-    scalar: Optional<integer>
-    positions: Sequence<Position>
-}
+    scalar: Optional<integer>;
+    positions: List<Position>;
+};
 
 type LocationError = ComputerUnavailable | WrongItemCount | TooManyItems
               | NonNameTarget | UnknownTarget | TargetAbsent
               | NonIntegerCoordinate | VerticalOutsideGalaxy
               | HorizontalOutsideGalaxy
-type LocationResult = Empty | Resolved(LocationValues)
-               | Rejected(LocationError)
+type LocationResult = Result<Empty | Resolved { value: LocationValues }, LocationError>
 type LocationReadOutcome = LocationResult | Cancelled
 
-operation ResolveLocations(actor: ShipId, arguments: Sequence<Token>,
-                           limit: LocationLimit)
-    on GameState -> LocationResult
+operation ResolveLocations(actor: ShipId, arguments: List<Token>,
+                           limit: LocationLimit): LocationResult
 
-operation ReadLocations(actor: ShipId, limit: LocationLimit)
-    on GameState -> LocationReadOutcome
+operation ReadLocations(actor: ShipId, limit: LocationLimit): LocationReadOutcome
 ```
 
 The actor must have a captain and recorded position. Let s be that ship and c
@@ -93,7 +97,7 @@ The productions describe category-correct forms. The ordered rules below also
 define how other tokens fail and which diagnostic takes precedence.
 
 ResolveLocations consumes the supplied arguments only. It does not request a
-continuation. Zero resulting items returns Empty, even for Exactly(2); this is
+continuation. Zero resulting items returns Empty, even for Exactly { count: 2 }; this is
 distinct from a blank continuation. A nonzero count must equal an Exactly limit
 or not exceed an AtMost limit, giving WrongItemCount or TooManyItems otherwise.
 Count checks precede individual coordinate or target validation.
@@ -144,7 +148,7 @@ s.devices[COMPUTER].damage < 300 damage units
 Failure gives ComputerUnavailable. Obtain the actor's recorded rate as follows:
 
 ```text
-rate := session(game, c.id).reporting.advertisedSpeed
+rate = session(game, c.id).reporting.advertisedSpeed
 ```
 
 If c.privileged is false and rate exceeds 300,
@@ -181,10 +185,10 @@ count, and a target name contributes two coordinate items.
 
 | Caller | Interpretation | Limit |
 | --- | --- | --- |
-| MOVE, IMPULSE, BUILD, CAPTURE | One target position; no scalar. | Exactly(2) |
-| PHASERS | One position, with optional strength; a lone scalar is a wrong-count error. | AtMost(3) |
-| TORPEDOS initial input and burst prompt | Burst count and up to three positions in the normal form. | AtMost(7) |
-| TORPEDOS target continuation | Target positions without a count in the normal form. | AtMost(2*k) |
+| MOVE, IMPULSE, BUILD, CAPTURE | One target position; no scalar. | Exactly { count: 2 } |
+| PHASERS | One position, with optional strength; a lone scalar is a wrong-count error. | AtMost { count: 3 } |
+| TORPEDOS initial input and burst prompt | Burst count and up to three positions in the normal form. | AtMost { count: 7 } |
+| TORPEDOS target continuation | Target positions without a count in the normal form. | AtMost { count: 2*k } |
 
 The command controls whether Empty prompts again, and whether a valid result
 can name a friendly, absent, distant or own-sector target. Coordinate resolution
@@ -194,7 +198,7 @@ too-many-coordinates, nonalphabetic-name, unrecognized-name, player-not-in-game,
 nonnumeric-coordinate, vertical-bound and horizontal-bound diagnostics. Errors
 abort this resolution; commands specify subsequent input handling.
 
-**Open:** Missing torpedo counts, incomplete pairs and zero-item replies at special continuation
+**OPEN QUESTION:** Missing torpedo counts, incomplete pairs and zero-item replies at special continuation
 sites can make a caller request values that are not present in LocationValues.
 This draft does not manufacture values from another input or silently turn
 these cases into ordinary syntax rejection. Those caller paths remain outside
@@ -209,10 +213,10 @@ resolution also requires the multiplayer ordering contract.
 ## GRAM-4 — Movement, capture and construction
 
 ```
-move = kw(MOVE) [locations-producing-two-items]
-impulse = kw(IMPULSE) [locations-producing-two-items]
-capture = kw(CAPTURE) [locations-producing-two-items]
-build = kw(BUILD) [locations-producing-two-items]
+move ::= "MOVE" [locations-producing-two-items]
+impulse ::= "IMPULSE" [locations-producing-two-items]
+capture ::= "CAPTURE" [locations-producing-two-items]
+build ::= "BUILD" [locations-producing-two-items]
 ```
 
 Missing locations request a coordinates continuation. Empty continuation aborts;
@@ -228,13 +232,13 @@ a valid target or successful completion.
 ## GRAM-5 — Phasers and torpedoes
 
 ```
-phasers = kw(PHASERS) [phaser-target]
-phaser-target = [kw(ABSOLUTE) | kw(RELATIVE)] [integer] pair
-              | kw(COMPUTED) [integer] target-name
-torpedoes-normal-form = kw(TORPEDOS) [count-and-targets]
-count-and-targets = [kw(ABSOLUTE) | kw(RELATIVE)] integer [pair [pair [pair]]]
-                  | kw(COMPUTED) integer [target-name [target-name [target-name]]]
-pair = integer integer
+phasers ::= "PHASERS" [phaser-target]
+phaser-target ::= ["ABSOLUTE" | "RELATIVE"] [integer] pair
+              | "COMPUTED" [integer] target-name
+torpedoes-normal-form ::= "TORPEDOS" [count-and-targets]
+count-and-targets ::= ["ABSOLUTE" | "RELATIVE"] integer [pair [pair [pair]]]
+                  | "COMPUTED" integer [target-name [target-name [target-name]]]
+pair ::= integer integer
 ```
 
 Phasers accept two location items with default strength 200 or a scalar strength
@@ -256,14 +260,14 @@ visit those selected aims in order and stop on their first failure. The distinct
 outcomes and state effects are defined by [FireTorpedoes](commands.md#torpedos).
 
 **Evidence:** [PHACON](../../legacy/utexas/DECWAR.FOR#L2647),
-[TORP](../../legacy/utexas/DECWAR.FOR#L4228). **Open:** malformed torpedo forms are
+[TORP](../../legacy/utexas/DECWAR.FOR#L4228). **OPEN QUESTION:** malformed torpedo forms are
 recorded in the coverage matrix; they must not be silently rejected by a new parser.
 
 ## GRAM-6 — Scans
 
 ```
-scan = (kw(SCAN) | kw(SRSCAN)) [direction] [integer [integer]] [kw(WARNING)] end
-direction = kw(UP) | kw(DOWN) | kw(RIGHT) | kw(LEFT) | kw(CORNER)
+scan ::= ("SCAN" | "SRSCAN") [direction] [integer [integer]] ["WARNING"] end
+direction ::= "UP" | "DOWN" | "RIGHT" | "LEFT" | "CORNER"
 ```
 
 WARNING is recognized only as the last token and is removed before parsing the
@@ -289,11 +293,11 @@ zero extent on both sides of that axis.
 ## GRAM-7 — Ship resources
 
 ```
-shields = kw(SHIELDS) [kw(UP) | kw(DOWN) | kw(TRANSFER) [integer]]
-energy = kw(ENERGY) [ship-name integer]
-repair = kw(REPAIR) [integer | kw(ALL)] [kw(DAMAGE) {report-modifier}]
-dock = kw(DOCK) [kw(STATUS) {report-modifier} | kw(ALL)]
-tractor = kw(TRACTOR) [kw(OFF) | ship-name]
+shields ::= "SHIELDS" ["UP" | "DOWN" | "TRANSFER" [integer]]
+energy ::= "ENERGY" [ship-name integer]
+repair ::= "REPAIR" [integer | "ALL"] ["DAMAGE" {report-modifier}]
+dock ::= "DOCK" ["STATUS" {report-modifier} | "ALL"]
+tractor ::= "TRACTOR" ["OFF" | ship-name]
 ```
 
 SHIELDS prompts for an unrecognized/missing switch. Empty switch continuation
@@ -327,17 +331,17 @@ release follow the [TRACTOR operation contract](commands.md#tractor).
 ## GRAM-8 — Preferences and radio
 
 ```
-set = kw(SET) [setting]
-setting = kw(NAME) name-input
-        | kw(OUTPUT) (kw(SHORT) | kw(MEDIUM) | kw(LONG))
-        | kw(TTYTYPE) terminal-name
-        | kw(PROMPT) (kw(NORMAL) | kw(INFORMATIVE))
-        | kw(SCANS) (kw(SHORT) | kw(LONG))
-        | kw(ICDEF) (kw(ABSOLUTE) | kw(RELATIVE))
-        | kw(OCDEF) (kw(ABSOLUTE) | kw(RELATIVE) | kw(BOTH))
+set ::= "SET" [setting]
+setting ::= "NAME" name-input
+        | "OUTPUT" ("SHORT" | "MEDIUM" | "LONG")
+        | "TTYTYPE" terminal-name
+        | "PROMPT" ("NORMAL" | "INFORMATIVE")
+        | "SCANS" ("SHORT" | "LONG")
+        | "ICDEF" ("ABSOLUTE" | "RELATIVE")
+        | "OCDEF" ("ABSOLUTE" | "RELATIVE" | "BOTH")
         | privileged-setting
-privileged-setting = kw(ROMOPT) | kw(ENDFLG) | kw(BHREMV)
-radio = kw(RADIO) [kw(ON) | kw(OFF) | (kw(GAG) | kw(UNGAG)) ship-name]
+privileged-setting ::= "ROMOPT" | "ENDFLG" | "BHREMV"
+radio ::= "RADIO" ["ON" | "OFF" | ("GAG" | "UNGAG") ship-name]
 ```
 
 SET checks switches in the production's order. Missing/unrecognized switches
@@ -369,16 +373,16 @@ the execution model; QUIT syntax alone does not define their behavior.
 ## GRAM-10 — Reports and type information
 
 ```
-status = kw(STATUS) {status-item}
-status-item = kw(SHIELDS) | kw(LOCATION) | kw(CONDITION) | kw(TORPEDO)
-            | kw(ENERGY) | kw(DAMAGE) | kw(RADIO)
-damages = kw(DAMAGES) {device-token}
-points = kw(POINTS) {points-item}
-points-item = kw(ME) | kw(I) | kw(FEDERATION) | kw(HUMANS) | kw(EMPIRE)
-            | kw(KLINGONS) | kw(ROMULANS) | kw(ALL)
-type = kw(TYPE) [kw(OUTPUT) | kw(OPTION)]
-users = kw(USERS)
-time = kw(TIME)
+status ::= "STATUS" {status-item}
+status-item ::= "SHIELDS" | "LOCATION" | "CONDITION" | "TORPEDO"
+            | "ENERGY" | "DAMAGE" | "RADIO"
+damages ::= "DAMAGES" {device-token}
+points ::= "POINTS" {points-item}
+points-item ::= "ME" | "I" | "FEDERATION" | "HUMANS" | "EMPIRE"
+            | "KLINGONS" | "ROMULANS" | "ALL"
+type ::= "TYPE" ["OUTPUT" | "OPTION"]
+users ::= "USERS"
+time ::= "TIME"
 ```
 
 STATUS without arguments prints stardate, then CONDITION, LOCATION, TORPEDO,
@@ -417,9 +421,9 @@ parse an argument list; do not invent an extra-token syntax error for them.
 ## GRAM-11 — LIST-family grouping
 
 ```
-list-family = (kw(LIST) | kw(SUMMARY) | kw(BASES) | kw(PLANETS) | kw(TARGETS))
+list-family ::= ("LIST" | "SUMMARY" | "BASES" | "PLANETS" | "TARGETS")
               [group] {group-end group}
-group-end = kw(AND) | kw(&)
+group-end ::= "AND" | "&"
 ```
 
 Each group is an ordered series of selectors. AND and `&` terminate a group
@@ -495,11 +499,11 @@ with an unordered filter-object parser.
 ## GRAM-12 — TELL and text-reading utilities
 
 ```
-tell = kw(TELL) [recipient {recipient}] [semicolon message-body]
-recipient = ship-name | group-name | kw(ROMULAN)
-help = kw(HELP) {topic | kw(*)}
-news = kw(NEWS)
-gripe = kw(GRIPE)
+tell ::= "TELL" [recipient {recipient}] [semicolon message-body]
+recipient ::= ship-name | group-name | "ROMULAN"
+help ::= "HELP" {topic | "*"}
+news ::= "NEWS"
+gripe ::= "GRIPE"
 ```
 
 TELL requests recipients when absent, with empty continuation cancelling. Ship
@@ -533,9 +537,9 @@ asset and message-length edge behavior remains in terminal/queue coverage.
 ## GRAM-13 — Starred commands
 
 ```
-password = kw(*PASSWORD) [password-token]
-debug = kw(*DEBUG)
-zap = kw(*ZAP)                  ; pregame only
+password ::= "*PASSWORD" [password-token]
+debug ::= "*DEBUG"
+zap ::= "*ZAP"                  ; pregame only
 ```
 
 Austin *PASSWORD sets privilege only for an exact five-character comparison
