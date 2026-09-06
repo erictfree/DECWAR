@@ -700,6 +700,7 @@ defense phases. Other ships and installations do not alter the stated result.
 | EX-MODEL-608 | ResolveBaseHit after initial absorption; base strength 1%, H = 100 damage units, b = 0; critical-path unit choice 0.5 and destruction choice 1 | Ordinary damage sets strength to zero and credits eligible ordinary damage. The critical path lowers reported strength to -10%; IntegerDraw(10) is still consumed. The base is destroyed, its stored strength becomes zero and the result retains reportedStrength -10%. |
 | EX-MODEL-609 | Displace a docked green ship from (37,37) by step (1,0); candidate (38,37) contains a star and other adjacent sectors are empty | Return Stayed with position, sector contents, docking and condition unchanged. Consume no random event and do not select an alternative sector. |
 | EX-MODEL-610 | Displace a ship at (75,37) by step (1,0) | The candidate is outside the galaxy. Return Stayed without moving, wrapping, damage, scoring or a random choice. |
+| EX-MODEL-611 | Receiver has one unread published message; ReceiveMessage fails to enter the search phase | Return NoMessage with no observation or consumption. The message and its remaining-recipient set are unchanged; the result does not establish an empty unread set. |
 
 EX-MODEL-06 deliberately uses fractional shield strength. Historical loss of
 that fraction is excluded by the numerical normalization policy. The grammar,

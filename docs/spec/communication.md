@@ -104,7 +104,11 @@ ensures after(m.remainingRecipients)
 Its original sender, audience and body are unchanged. No other recipient's
 unread status changes. A message with no remaining recipients ceases to occupy
 capacity. When no message is received, the outcome is `NoMessage` and no message
-is displayed or consumed.
+is displayed or consumed. This includes failure to enter the message-search
+phase. Such a failure leaves published messages and their remaining-recipient
+sets unchanged. NoMessage therefore does not assert that the receiver has no
+unread messages; it reports that this attempt delivered none. It supplies no
+message identity, body or heading and does not repeat an earlier observation.
 
 If m.sender is a ShipId in c.radio.gaggedSenders,
 the outcome is `Suppressed { id: m.id }` and nothing is displayed. Otherwise the outcome

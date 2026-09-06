@@ -752,6 +752,7 @@ following outcomes apply before any effects inside the requested phase:
 | Conditional environment continuation | After ship and saved-sector availability checks, retry entry before reactivation. These retries do not repeat those availability checks. |
 | Radio capacity admission | Return NotPublished before reserving a place, applying capacity loss or copying the body. |
 | Radio publication | Retry entry; the accepted body and reserved place remain pending until publication can proceed. |
+| Radio message search | Return NoMessage without consuming a message or changing its remaining recipients. This does not assert that the unread set is empty. |
 | Radio recipient removal | Retry entry before removing the selected recipient. |
 | Player torpedo planet update | End the burst with PlanetUpdateRefused and the prescribed tube-empty report. Retain shots already consumed, including this shot. No planet damage choice, readiness-deadline update or turn completion follows this refusal. |
 | Romulan torpedo planet update | Skip this planet's damage and hit report, then continue the burst without retargeting. |

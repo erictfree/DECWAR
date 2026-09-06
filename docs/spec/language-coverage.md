@@ -359,7 +359,9 @@ the remaining shared-service/resume paths still need complete review.
 
 
 Session/radio follow-up adds five checked retry/refusal continuations to the
-central table. It also identifies the unresolved GETMSG search-failure path:
-notification indicators are cleared without removing message recipients or
-initializing the returned body. No ordinary delivered message is inferred.
-This is a specific remaining reception contract gap, not a completed radio audit.
+central table. GETMSG search failure clears notification indicators without
+removing message recipients or initializing the returned body. The existing
+normalization maps that attempt to NoMessage; the reception clause now says so
+explicitly and preserves unread membership. The earlier statement that this
+outcome was unresolved was too broad. Failure timing, interruptions and atomic
+selection/removal remain unverified; this is not a completed radio audit.

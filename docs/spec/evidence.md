@@ -341,6 +341,8 @@ receiver's message-count indicator and sender/recipient output indicators;
 REMV. is never reached. The message body storage is not initialized on this
 path. This is not evidence that all unread messages were deleted, nor enough
 to invent a normal delivered-message result from stale body contents. The
-abstract reception failure outcome and the notification-indicator normalization
-remain unresolved. This follow-up therefore does not claim a complete radio
-failure contract or atomic selection-and-removal operation.
+existing normalization maps this no-result attempt to NoMessage, with no
+repeated body and no recipient removal. The earlier follow-up had incorrectly
+left that abstract outcome unresolved; NORMALIZATION.md already selects it.
+Failure timing and interruption conditions remain open. This follow-up does not
+claim a complete radio failure contract or atomic selection-and-removal operation.

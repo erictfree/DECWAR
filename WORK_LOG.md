@@ -3621,3 +3621,17 @@ logs/spec-session-radio-entry-build.log passed 658 scenarios, 100 productions,
 324 fragments, 14 chapters and 546 links. Inspected PDF physical pages 21–22;
 table and continuation text readable. No gameplay/archive changes. Full goal
 remains active, including reception-failure and concurrency semantics.
+
+### Specification: reconcile reception failure with normalization
+
+Found that the prior session/radio audit overstated an open question:
+NORMALIZATION.md already maps GETMSG no-result/stale-body behavior to NoMessage.
+Made that outcome explicit in reception and coordination, preserving unread
+membership and emitting no repeated observation. Corrected evidence/coverage
+claims and added EX-MODEL-611. No new normalization or gameplay change.
+
+Validation: logs/spec-reception-failure-review.log checks the prior policy and
+source failure branch; logs/spec-reception-failure-build.log passed 659 scenarios,
+100 productions, 324 fragments, 14 chapters and 546 links. Inspected PDF physical
+pages 21, 127 and 220: readable rule, table and example. Failure timing and
+interruption conditions remain open. Full goal stays active.
