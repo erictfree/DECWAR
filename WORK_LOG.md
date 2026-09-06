@@ -4195,3 +4195,18 @@ diff. git diff --check passed. Only companion documents and this log changed;
 no PDF rebuild, gameplay or source-archive change. Ordinary check placement and
 propagation are reviewed; interrupted reporting and cross-session timing remain
 outside this bounded result. The full specification goal remains active.
+
+
+## Requirement coverage and preservation refresh — 2026-09-06
+
+Updated the requirement matrix for reviewed special-input domains, Romulan
+selection, explicit lifecycle check sites, multiplayer assessment and command
+presentation. Remaining priorities now distinguish unreviewed contracts from
+already examined undefined domains. No completion claim or reduced goal scope.
+
+npm run audit:check passed: logs/spec-coverage-refresh-audit.log. Separately
+verified Austin's exact 39-file set, byte lengths and SHA-256 hashes against
+legacy/utexas-manifest.json: logs/spec-coverage-refresh-austin-hashes.log. Inspected
+the audit's check mode to distinguish baseline hashes from generated variant
+comparisons. git diff --check passed. Only coverage companion and this log
+changed; no PDF rebuild or gameplay/archive changes. Whole-goal review remains.

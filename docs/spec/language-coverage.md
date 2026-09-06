@@ -19,16 +19,16 @@ correct or complete semantic contract.
 | Concrete plan and scope | PLAN; README scope clauses; book manifest | Present. The scope remains all command families and cross-cutting semantics, not only the latest checkpoints. |
 | Austin authority and separate CompuServe amendments | README pins Austin revision; variants is the sole appendix; NORMALIZATION is outside the manifest | Structure established. Review every amendment against its affected core clause; standings types, ranking, numbering, ordinary writes and report formatting are drafted. Remaining variant obligations include environment origin-code acquisition, damaged records, persistence failures and coordination. |
 | Modern ADTs and ordinary arithmetic | language-model types/notation; operation signatures throughout commands and shared chapters | Drafted. Whole-book property/type references and invariants still need review. No checker currently proves type consistency. |
-| Lexical syntax and interactive grammar | lexical; grammar; grammar checker verifies 100 productions and 12 terminal categories | Reference integrity checked. Complete even-item torpedo forms and count rejection are specified. Absent target components and special empty continuations remain unresolved; this is not parser acceptance verification. |
+| Lexical syntax and interactive grammar | lexical; grammar; grammar checker verifies 100 productions and 12 terminal categories | Reference integrity checked. Complete even-item torpedo forms and count rejection are specified. All original-line torpedo length/count shapes within the input limit have been reviewed. Missing components and special Empty continuations have explicit undefined-value boundaries; this is not full parser or concurrent-input verification. |
 | Every command and pregame entry | commands has all 33 main commands; builder compares main and pregame tables to source coverage | Inventory and drafted contracts established. Source-table agreement alone does not prove each argument, failure and lifecycle path has a complete contract. |
-| Game transitions and scoring | commands, world-rules, turns and autonomous | Substantial source-derived contracts. Terrain report fallthrough has an explicit unresolved suffix boundary. Autonomous target edge domains, fatal-target reports and intermediate concurrent effects still need disposition. |
-| Multiplayer ordering and timing | coordination domains; communication operations; turn and elapsed-wait rules; main-command acquisition | Phase boundaries, nested release and thirteen caller-specific failed-entry continuations specified. Reentrancy, racing claims, interrupted operations and full delivery bindings remain incomplete. |
-| Session/configuration/lifecycle | session-rules admission, preferences, release, history, world end and SavedShipCondition | Drafted with explicit gaps. Saved values do not establish a working continuation; concurrent admission, final-report failure and interrupted lifecycle need resolution. |
+| Game transitions and scoring | commands, world-rules, turns and autonomous | Substantial source-derived contracts. Terrain report fallthrough has an explicit unresolved suffix boundary. Romulan no-target/all-distant outcomes are explicitly outside the defined selection domain. Fatal-target reports and intermediate concurrent effects still need review. |
+| Multiplayer ordering and timing | coordination domains; communication operations; turn and elapsed-wait rules; main-command acquisition | Phase boundaries, nested release, thirteen caller-specific failed-entry continuations and multiplayer-trace assessment criteria are specified. Reentrancy, racing claims, interrupted operations and full delivery bindings remain incomplete. |
+| Session/configuration/lifecycle | session-rules admission, preferences, release, history, world end and SavedShipCondition | Both variants’ five explicit world-end check sites and ordinary non-returning propagation are reviewed; CompuServe’s standings-before-release difference is represented. Saved values do not establish a working continuation; concurrent admission, final-report failure and interrupted lifecycle remain. |
 | Randomness and reproducibility | world-rules RandomEvent, distributions, conditional draws and tournament mapping | Replay validation, retained direct impact draws and finite-source disclosure are specified. Distribution qualification, complete nested draw/context ordering and interrupted replay remain unverified; no universal approximation tolerance is selected. |
-| Observable output | presentation; information; 324 named fragments verified against Austin | Many report recipes and literal fragments reviewed. Terrain, full terminal editing/transport, remaining command responses and resource failures prevent terminal-conformance claims. |
+| Observable output | presentation; information; 324 named fragments verified against Austin | Ordinary resource, weapon, movement, SET and player TELL responses, HELP lists and topic diagnostics are reviewed, with specific CompuServe amendments. Terrain suffixes, complete terminal editing/transport, help/resource failures and interrupted output still prevent a complete terminal claim. |
 | Conformance examples and claims | language-conformance has 671 scenario rows at this checkpoint; README limits claims | Examples present. Builder checks table structure and duplicate IDs, not their expected results. Claim domains and evidence requirements are defined; final scenario coverage and complete domain review are still needed. |
 | Single assembled publication and attribution | manifest metadata; builder; output PDF/Markdown/LaTeX | Build mechanism and credited draft exist; recent changed pages were visually checked. Final whole-document editorial/layout review remains required after substantive edits finish. |
-| Evidence, normalization and runtime preservation | source links; NORMALIZATION; WORK_LOG; source audit | Evidence organization established; recent changes are documentation only. Repeat archive audit and verify final diff at publication; current partial checks are not whole-goal proof. |
+| Evidence, normalization and runtime preservation | source links; NORMALIZATION; WORK_LOG; source audit | Current generated-data audit passes; the complete Austin archive separately matches all 39 manifest entries, lengths and hashes. Recent changes are documentation only. These preservation checks are not semantic proof; verify the final publication diff and remaining review gates. |
 
 The recent source checks closed specific gaps: command acquisition, elapsed
 waiting, inactive prompt availability scanning, saved condition values, POINTS
@@ -37,12 +37,20 @@ close all lifecycle or terminal requirements. Earlier chronological entries
 below remain checkpoint history; this table and the current command matrix
 identify the remaining work.
 
-Next review priorities are (1) finish the remaining special-input and autonomous
-edge domains without inventing behavior, (2) complete the variant amendments,
-(3) finish concurrency/lifecycle dispositions and conformance-profile criteria,
-and (4) conduct whole-book type, source, example and layout review. Source facts
-that cannot define generalized behavior must be identified precisely; they must
-not be replaced by undocumented playable repairs.
+Next review priorities are (1) finish concurrency/lifecycle and environment
+failure dispositions, (2) complete the remaining terminal-control and resource
+response contracts and variant amendments, and (3) conduct whole-book type,
+source, scenario and layout review. The bounded special-input enumeration and
+Romulan selection-domain explanation are recorded below; they must not be
+repeated as if still unexamined. Their unspecified outcomes remain outside the
+defined domain, not invitations to add undocumented playable repairs.
+
+Preservation checkpoint: logs/spec-coverage-refresh-audit.log verifies generated
+source evidence, including 135 baseline file hashes and both variant datasets.
+logs/spec-coverage-refresh-austin-hashes.log separately verifies the complete
+39-file Austin snapshot against its pinned manifest. These are distinct checks;
+the former's variant-data comparison does not alone prove every Austin byte.
+
 
 
 ## Converted command clauses
