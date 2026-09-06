@@ -54,13 +54,14 @@ research while rewriting the normative document around these layers:
    vocabulary. Examples pair command input and initial state with resulting
    state and observations. Historical causes stay in research notes.
 
-The new `language-model.md` and `commands.md` establish that vocabulary and
-command format. The book now includes that new model, lexical/grammar chapters, the first
-converted commands, normalized examples and the initial variant appendix. The
-older operational chapters remain outside the manifest as research. Continue
-converting all remaining command families and world rules; this shorter draft
-is not a claim that the rewrite is complete. Preserve source coverage during
-the transition.
+The book includes the abstract model, lexical and grammar chapters, contracts
+for all 33 main-game commands, shared world rules, turns, autonomous activity,
+communication, sessions, information resources, terminal presentation, semantic
+examples and the initial variant appendix. The older operational chapters remain
+outside the manifest as research. The language coverage record identifies the
+remaining dependencies within these chapters: a drafted command entry does not
+establish complete controls, lifecycle, concurrency, presentation or variant
+conformance. Preserve source coverage as those dependencies are closed.
 
 Use the legacy code to establish actual command forms and game mechanics, then
 express those rules in the abstract model. Representation accidents belong in

@@ -250,7 +250,7 @@ defense phases. Other ships and installations do not alter the stated result.
 | EX-MODEL-237 | Same shields, SHORT output | ShieldValue(DOWN, 40%, none); omit the equivalent-energy field. No preference or resource changes. |
 | EX-MODEL-238 | Warp damage 8, all other devices zero; DAMAGES 1 TR | First argument is not a name token, so report all positively damaged devices: one WARP_ENGINES row at 8. The later TR token does not select a different report. |
 | EX-MODEL-239 | Torpedo-tube damage 10, tractor-beam damage zero, all other devices zero; DAMAGES T T | Four rows: TORPEDO_TUBES 10, TRACTOR_BEAM 0, then those same two rows again. No deduplication. |
-| EX-MODEL-240 | Warp damage 8, all others zero; DAMAGES BOGUS | Rows(empty). Skip the unmatched selector silently; do not fall back to the general report or emit AllDevicesFunctional. |
+| EX-MODEL-240 | Warp damage 8, all others zero; DAMAGES BOGUS | Rows(SELECTED, none, empty). Skip the unmatched selector silently; do not fall back to the general report or emit AllDevicesFunctional. |
 | EX-MODEL-241 | All devices zero, hull damage 100; DAMAGES WA | AllDevicesFunctional. Hull damage does not participate in the device-damage availability test. |
 | EX-MODEL-242 | Selected CRT profile; preferences MEDIUM, NORMAL prompt, LONG scans, input BOTH and output RELATIVE; TYPE OUTPUT | Report those six values in that order, ending with CRT. Reporting input BOTH does not change the relative interpretation of unqualified numeric locations. |
 | EX-MODEL-243 | TYPE O, followed by OP at the switch continuation | Emit the ambiguity diagnostic and prompt, then report version, Romulan option and black-hole option. No preference is changed. |
@@ -538,6 +538,32 @@ defense phases. Other ships and installations do not alter the stated result.
 | EX-MODEL-525 | Farragut has already read the message in `EX-MODEL-524`; Wolf now receives it | Wolf's heading still contains `" F W"`, because it shows the original audience. |
 | EX-MODEL-526 | SYSTEM radio sender, body Hello | Display `"Hello\r\n\r\n"`, with no heading or leading radio separator. |
 | EX-MODEL-527 | A gagged player message is consumed under LONG output | Suppressed produces no heading, body or blank-line request; do not apply the separate combat-reception separator. |
+| EX-MODEL-528 | SHORT full STATUS; stardate 12, undocked GREEN, position (20,30), ten torpedoes, energy 4000, hull damage zero, shields UP at 100%, radio ON | After its initial separator, body is `"SD12 G 20-30 T10 E4000 D0 SH+100 ROn \r\n"`. |
+| EX-MODEL-529 | SHORT STATUS ENERGY with energy 125.9 | Body is `"E125 \r\n"`; the game still has 125.9 energy units. |
+| EX-MODEL-530 | MEDIUM STATUS SHIELDS, DOWN at 40% | Body is `"Shlds   -40.0% 1000.0 units\r\n"`; the reserve is positive despite the lowered-shield sign. |
+| EX-MODEL-531 | LONG STATUS LOCATION, preference RELATIVE, position (20,30) | Body is `"Location\t20-30\r\n"`; keep the tab and forced absolute location without @. |
+| EX-MODEL-532 | MEDIUM STATUS RADIO, device damage exactly 300, radio enabled | Body is `"Radio  damaged\r\n"`; radio.enabled remains true. |
+| EX-MODEL-533 | SHORT STATUS ENERGY BOGUS ENERGY, energy 125.9 throughout | Body is `"E125 %Syntax error\r\nE125 \r\n"`; the invalid selector does not discard later observations. |
+| EX-MODEL-534 | All device damage zero, positive hull damage, DAMAGES BOGUS | Emit `"All devices functional.\r\n"` after the initial separator; no heading or selector diagnostic. |
+| EX-MODEL-535 | Warp-engine damage 8, selected DAMAGES WA, SHORT | Row is `"WA     8\r\n"`; no general-report heading. |
+| EX-MODEL-536 | Same selected damage report, MEDIUM | Row is `"Warp        8.0\r\n"`; its numeric field begins at column 10 before left padding. |
+| EX-MODEL-537 | Same selected damage report, LONG | Row is `"Warp Engines         8.0 units\r\n"`; its numeric field begins at column 19. |
+| EX-MODEL-538 | General LONG damage report, title observes BlackHoleObject while actor retains its ship identity and position | Title is `"Damage Report for Black Hole\r\n\r\n"`; do not substitute the ship name. |
+| EX-MODEL-539 | MEDIUM general damage report passes the positive-damage test; concurrent repair clears all damage before row reads | Emit `"Device    Damage\r\n\r\n"` with no rows; do not replace the already selected report by AllDevicesFunctional. |
+| EX-MODEL-540 | Warp damage 8, shield damage zero, selected DAMAGES SH | Report a zero-valued shield row; the initial test checks all devices, not only selected devices. |
+| EX-MODEL-541 | FormatDuration of 3661999 milliseconds | `"01:01:01"`; no rounding up of seconds or change to the observed duration. |
+| EX-MODEL-542 | FormatDuration of 360000000 milliseconds | `"100:00:00"`; hours expand in ordinary decimal and do not wrap after 24 or 99. |
+| EX-MODEL-543 | Pregame TIME with a valid world origin, game elapsed 1000 ms, session execution 2000 ms, time of day 03:04:05 | Body is `"\r\nGame's elapsed time:  00:00:01\r\nJob's total run time: 00:00:02\r\nCurrent time of day:  03:04:05\r\n"`; omit both commission rows. |
+| EX-MODEL-544 | TYPE OUTPUT, terminal profile CRT | Final line is `"Terminal type:  CRT       \r\n"`; seven spaces pad the name to ten characters. |
+| EX-MODEL-545 | TYPE OUTPUT at SHORT length, selected profile ADM-3A | Retain the full report heading and preference lines; the profile is `"ADM-3A    "`, with uppercase A and four padding spaces. |
+| EX-MODEL-546 | TYPE OPTION after SET BHREMV, with blackHolesSelected still true | Emit `"There are Black holes in this game.\r\n"`; the option observation is not a count of remaining objects. |
+| EX-MODEL-547 | TYPE O followed by a blank switch reply | Emit the ambiguity diagnostic and switch prompt, then cancel with no report body or preference changes. |
+| EX-MODEL-548 | Bounds V=19..21 and H=19..21, LONG scan style, top row entirely empty | Top axis and first row are `"   19  21\r\n21  . . . 21\r\n"`. |
+| EX-MODEL-549 | Same bounds and marks, SHORT scan style | Top axis and first row are `"   20\r\n21 ... 21\r\n"`; all three horizontal sectors remain present. |
+| EX-MODEL-550 | One-sector SHORT scan at (75,75) containing Excalibur | Complete body is `"   76\r\n75 E 75\r\n   76\r\n"`; axis 76 does not create an out-of-galaxy sector. |
+| EX-MODEL-551 | Scan interruption is observed after the first row in `EX-MODEL-548` | That exact prefix is the complete partial grid; omit both later rows and bottom axis, retaining discovery performed before display. |
+| EX-MODEL-552 | Output length LONG, scan style SHORT, SRSCAN with explicit bounds | Use one-character scan marks; neither LONG output length nor SRSCAN overrides scanStyle. |
+| EX-MODEL-553 | RejectedSyntax from SCAN CORNER with only one extent | Emit `"%Syntax error\r\n"` without the scan-grid separator or axes; no discovery occurs. |
 
 EX-MODEL-06 deliberately uses fractional shield strength. Historical loss of
 that fraction is excluded by the numerical normalization policy. The grammar,

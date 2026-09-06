@@ -576,7 +576,8 @@ coordinate and labels every second column; SHORT starts one column after that
 minimum and labels every third. The initial horizontal label is always emitted,
 even when a one-column SHORT scan puts that label beyond the last displayed
 column. The label does not add a sector to the result. Labels omit leading
-zeroes. Terminal line endings and complete interruption delivery remain part of the binding work.
+zeroes. [Scan-grid presentation](presentation.md#scan-grids) defines their complete
+line composition; delivery of interruption controls remains part of the binding work.
 
 The core does not define a player-controlled cloaking operation. Observations
 of sector states outside the declared SectorObject model remain outside this
@@ -647,7 +648,7 @@ the syntax diagnostic, then processing resumes with the next token.
 STATUS observes state without changing it, charging energy or completing a turn.
 The report need not be a simultaneous snapshot of all fields; concurrent changes
 between observations belong to the multiplayer rules. Output labels, numeric
-formatting and line assembly remain part of the presentation work.
+formatting and line assembly follow the [status presentation](presentation.md#status-reports).
 
 **Source basis:** [STATUS](../../legacy/utexas/DECWAR.FOR#L3860).
 
@@ -674,13 +675,18 @@ record DeviceDamageRow:
     device: Device
     damage: Damage
 
-DamageReport = AllDevicesFunctional | Rows(values: Sequence<DeviceDamageRow>)
+enum DamageReportStyle = SELECTED | GENERAL
+
+DamageReport = AllDevicesFunctional
+    | Rows(style: DamageReportStyle, titleObject: Optional<SectorObject>,
+           values: Sequence<DeviceDamageRow>)
 
 operation ReportDamage(actor: ShipId, arguments: Sequence<Token>)
     on GameState -> DamageReport
 ```
 
-Let s be `ship(game, actor)`. The report uses this device order:
+Let s be `ship(game, actor)`. The actor must have a captain and position.
+The report uses this device order:
 
 ```text
 deviceOrder = [SHIELDS, WARP_ENGINES, IMPULSE_ENGINES, LIFE_SUPPORT,
@@ -695,15 +701,20 @@ if no device has positive damage:
     emit AllDevicesFunctional
     return AllDevicesFunctional
 
+titleObject := none
 if the first argument is a name-category token:
+    style := SELECTED
     for each argument until a non-name-category token:
         for each matching DeviceSelector in displayed order:
             emit DeviceDamageRow(device, s.devices[device].damage)
 else:
+    style := GENERAL
+    if captain(game, s.captain).outputLength == LONG:
+        titleObject := sector(game, s.position)
     for each device in displayed order:
         if s.devices[device].damage > 0 damage units:
             emit DeviceDamageRow(device, s.devices[device].damage)
-return Rows(the emitted rows, in order)
+return Rows(style, titleObject, the emitted rows in order)
 ```
 
 An unmatched selector is silently skipped. Explicit matches report zero damage
@@ -711,9 +722,13 @@ as well as positive damage when at least one device is damaged. With no damaged
 devices, the all-functional response takes precedence over all selectors.
 Reports can repeat a device when the supplied selectors match it more than once.
 
+The general LONG title records the object at that position when its heading is observed, before its row values.
+Here none denotes an empty sector; for other report forms titleObject is unused
+and none. The title is not unconditionally the actor's ship. The initial damage
+test, title and rows need not form one simultaneous snapshot.
+
 DAMAGES changes no state, consumes no energy and completes no turn. Labels,
-headings and field widths depend on output verbosity and will be specified in
-the terminal presentation rules.
+headings and field widths follow the [device-damage presentation](presentation.md#device-damage-reports).
 
 **Source basis:** [DAMAGE](../../legacy/utexas/DECWAR.FOR#L783),
 [device identifiers](../../legacy/utexas/DECWAR.FOR#L435).
@@ -2157,9 +2172,9 @@ blackHolesSelected records the galaxy's choice. Removing black holes with
 SET BHREMV does not change that option or this reported value.
 
 TYPE observes the current preferences; it does not change them, consume energy
-or complete a turn. Its preference and option labels are part of the terminal
-presentation. The same reports are available before commissioning, subject to
-the session's current configuration.
+or complete a turn. Its preference and option labels follow the
+[preference presentation](presentation.md#preference-and-option-reports). The same
+reports are available before commissioning, subject to the session's current configuration.
 
 **Open:** Before a terminal profile has been selected, the first five OUTPUT
 observations are defined, but the final profile observation and its presentation
@@ -2217,9 +2232,9 @@ The platform binding must identify the execution-time measure it supplies;
 equating it to elapsed time is not implicit in this command.
 
 Before commissioning, omit the two ship-specific rows. TIME ignores trailing
-arguments and changes no game state. Precision, time-of-day convention and exact
-duration rendering belong to the presentation and environment binding still
-being specified.
+arguments and changes no game state. The [time presentation](presentation.md#time-reports)
+defines duration fields and labels; clock availability and the time-of-day
+convention belong to the environment binding.
 
 Return the sequence of emitted observations. No clock baseline is reset by
 TIME, and it changes no resource, knowledge, deadline or stardate. Before the

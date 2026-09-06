@@ -93,7 +93,7 @@ profile criteria will be defined separately rather than silently relaxing output
 - [Communication](communication.md): radio, combat observations, recipients and delivery.
 - [Sessions and commissions](session-rules.md): activities and release.
 - [Information resources](information.md): help, news and feedback content.
-- [Terminal presentation](presentation.md): numeric fields, coordinates, labels, prompts and composition.
+- [Terminal presentation](presentation.md): fields, prompts, combat/radio bodies and report layouts.
 - [Semantic examples and conformance](language-conformance.md).
 - [CompuServe variant](variants.md).
 

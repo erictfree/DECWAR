@@ -1202,3 +1202,37 @@ The heading preserves the original audience's spaced initials, with full sender
 names only in LONG, and system messages omit the heading. Existing normalization
 still excludes stale-body duplicate delivery and Romulan indexing into an
 unrelated player's gag state. Source: DECWAR.FOR 2599–2621; WARMAC.MAC 2994–3007.
+
+
+## Report presentation values and duration normalization
+
+STATUS now renders its ordered observations, retaining SHORT trailing spaces,
+LONG tab characters, field widths, forced-absolute location and shield reserve
+independent of mode. DAMAGE has explicit SELECTED/GENERAL report style and an
+optional title-sector observation for general LONG output. This records the
+source's actual board-object read before rows instead of inventing a ship-name
+heading or a simultaneous report snapshot. Source: DECWAR.FOR 783–835, 3860–3973.
+
+TIME retains the source's hours/minutes/seconds decomposition and whole-second
+display, with ordinary decimal components padded to at least two digits. Hours
+above 99 expand as decimal text, removing O2D's accidental punctuation and raw
+non-character arithmetic from the generalized presentation. For example, 100
+hours displays 100:00:00 rather than :0:00:00. This is an explicit presentation
+normalization under the forward-looking specification scope, not a change to
+elapsed-time semantics, gameplay timing or the running port. Negative/invalid
+clock observations remain outside the defined binding domain; no rejection or
+zero substitute is invented. Source: WARMAC.MAC 1746–1774; DECWAR.FOR 4066–4085.
+
+TYPE presentation retains complete preference labels at all lengths, ten-character
+right-padded terminal-profile names and the selected-option wording after object
+removal. These are text fields and observations, not packed word strings or new
+configuration syntax. Unselected-profile behavior remains open. Source:
+DECWAR.FOR 480–488, 4540–4594; WARMAC.MAC 1734–1742.
+
+Scan-grid rendering now composes ScanReport marks and bounds directly, preserving
+SHORT/LONG width, two-character axes, unconditional first horizontal label,
+per-row interruption and omitted bottom axis on interruption. One-column SHORT
+scans retain a label beyond the displayed bound, including 76 at horizontal 75;
+this does not add a galaxy coordinate or normalize a visible source choice.
+The source screen-string storage and numeric character-building instructions are
+not part of the abstract model. Source: WARMAC.MAC 1814–1825, 2482–2534.

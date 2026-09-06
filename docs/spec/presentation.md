@@ -438,3 +438,280 @@ A system message with the same body has no heading and displays exactly
 [heading strings](../../legacy/utexas/MSG.MAC#L128),
 [body ending](../../legacy/utexas/WARMAC.MAC#L2994),
 [recipient initials](../../legacy/utexas/DECWAR.FOR#L489).
+
+## Status reports
+
+Present the ordered [StatusObservation](commands.md#meaning-of-report-items)
+values from ReportStatus. Make one conditional blank-line request on entry.
+The numeric field width is Free in SHORT and Exactly(4) otherwise. Counts use
+zero fractional digits; energy, damage and shield readings use the precision
+for the output length.
+
+Each observation starts with the following literal prefix. An empty string
+means no prefix. Tabs remain tab characters in the emitted text; this table
+neither replaces them with spaces nor assumes terminal tab stops.
+
+| Observation | SHORT / MEDIUM / LONG prefixes |
+| --- | --- |
+| StardateValue | `"SD"` / `"SDate  "` / `"Stardate\t"` |
+| ShieldValue | `"SH"` / `"Shlds  "` / `"Shields\t        "` |
+| LocationValue | `""` / `"Loc    "` / `"Location\t"` |
+| ConditionValue | `""` / `"Cond   "` / `"Condition\t"` |
+| TorpedoValue | `"T"` / `"Torps  "` / `"Torpedoes\t"` |
+| EnergyValue | `"E"` / `"Ener   "` / `"Energy left\t"` |
+| HullDamageValue | `"D"` / `"Dam    "` / `"Damage\t\t"` |
+| RadioValue | `"R"` / `"Radio  "` / `"Radio\t\t"` |
+
+After the prefix, render the value as follows:
+
+- StardateValue and TorpedoValue use FormatNumber with zero fractional digits
+  and NEGATIVE_ONLY. EnergyValue and HullDamageValue use the ordinary numeric
+  precision and NEGATIVE_ONLY.
+- ShieldValue uses the signed shield reading. Outside SHORT, append `%`, one
+  space, equivalentEnergy with NEGATIVE_ONLY and the same field width, then
+  `" units"`. In SHORT, omit this additional energy field. A lowered shield's
+  energy equivalent remains positive when its strength is positive; it is not
+  multiplied by the shield-mode sign.
+- LocationValue uses FormatLocation with ABSOLUTE, SHORT and Free fields, even
+  when the surrounding report is LONG or the captain prefers relative output.
+  Consequently this field has no `@` prefix.
+- ConditionValue uses the condition and docking labels already defined.
+- RadioValue is `"damaged"`, `"On"` or `"Off"` for DAMAGED, ON or OFF.
+  The observation has already applied the damage threshold; presentation does
+  not re-read the device or change the radio setting.
+
+Append one space after every ordinary observation in SHORT. In MEDIUM or LONG,
+make a conditional blank-line request after each observation. InvalidStatusItem
+instead emits `"%Syntax error"` followed by one unconditional line ending; it
+has no field prefix or trailing space. Continue with subsequent observations.
+When selector processing reaches its terminating non-name token, make a final
+conditional blank-line request in SHORT. Report completion does not add a
+second ending in MEDIUM or LONG.
+
+The full report begins with StardateValue; a selected report has no implicit
+stardate. Repeated selectors repeat their fields. Rendering follows observation
+order without requiring all values to describe the same instant. DOCK STATUS
+uses the same presentation after the DOCK command has selected the report.
+
+For a SHORT full report of stardate 12, green undocked condition, position
+(20,30), ten torpedoes, 4000 energy units, zero hull damage, raised shields at
+100% and radio ON, the body after its initial separator is:
+
+```text
+"SD12 G 20-30 T10 E4000 D0 SH+100 ROn \r\n"
+```
+
+The space before the final CR/LF is significant. A SHORT request containing
+only ENERGY with value 125.9 displays `"E125 \r\n"`; it does not change the
+125.9 energy units available to subsequent operations.
+
+**Source basis:** [STATUS](../../legacy/utexas/DECWAR.FOR#L3860),
+[status labels](../../legacy/utexas/MSG.MAC#L292),
+[radio labels](../../legacy/utexas/MSG.MAC#L249),
+[DOCK STATUS](../../legacy/utexas/DECWAR.FOR#L935).
+
+## Device-damage reports
+
+Present the [DamageReport](commands.md#selection-and-result) with one initial
+conditional blank-line request. AllDevicesFunctional emits
+`"All devices functional."` and one unconditional line ending, then finishes.
+This response has no heading or device rows, even when selectors were supplied.
+
+Selected rows have no heading. General rows have no heading in SHORT. In LONG,
+a general report first emits `"Damage Report for "`, the object label for its
+recorded title object with no trailing space, and two unconditional line
+endings. This is the observed sector object, which can differ from the actor's
+ship; an empty sector has label `"Empty Space"`.
+
+A general report in MEDIUM or LONG next emits `"Device    "`, nine additional
+spaces only in LONG, then `"Damage"` and two unconditional line endings.
+Thus the headings are `"Device    Damage\r\n\r\n"` in MEDIUM and
+`"Device             Damage\r\n\r\n"` in LONG.
+
+For every selected or general DeviceDamageRow, in its observation order:
+
+1. Emit its device label for the current output length, including that label's
+   trailing space.
+2. In SHORT, emit one more space. In MEDIUM, pad to column 10; in LONG, pad to
+   column 19. Padding follows the earlier column rule and never erases text.
+3. Emit damage with NEGATIVE_ONLY and Exactly(4), at the output length's
+   ordinary precision. Append `" units"` only in LONG.
+4. Make a conditional blank-line request.
+
+For warp-engine damage 8, the row strings are:
+
+```text
+SHORT:  "WA     8\r\n"
+MEDIUM: "Warp        8.0\r\n"
+LONG:   "Warp Engines         8.0 units\r\n"
+```
+
+All three report the same damage. A selected row may show zero or negative
+damage if another device passed the initial positive-damage test. Unmatched
+selectors produce no row and no syntax diagnostic. A general report can have
+a heading but no rows if concurrent repairs remove the damage before the row
+observations. The report itself does not repair anything.
+
+**Source basis:** [DAMAGE](../../legacy/utexas/DECWAR.FOR#L783),
+[damage-report strings](../../legacy/utexas/MSG.MAC#L41),
+[all-functional response](../../legacy/utexas/MSG.MAC#L6),
+[device labels](../../legacy/utexas/WARMAC.MAC#L2054).
+
+## Time reports
+
+```text
+query FormatDuration(value: Duration) -> Text
+    require value >= 0 milliseconds
+```
+
+Let totalSeconds be floor(value / 1000 milliseconds), hours be
+floor(totalSeconds / 3600), minutes be floor(totalSeconds / 60) modulo 60,
+and seconds be totalSeconds modulo 60. Emit hours, minutes and seconds as
+ordinary decimal numbers separated by colons. Each component has at least
+two digits, padding on the left with zero when needed. Hours expand beyond
+two digits; they do not wrap after 24 or 99. Fractions of a second are discarded
+for display, not rounded or deducted from any clock value.
+
+For example, 3,661,999 milliseconds displays `"01:01:01"`, and 360,000,000
+milliseconds displays `"100:00:00"`. TimeOfDay uses its duration since local
+midnight under the environment's time-of-day convention. This presentation
+adds no date, timezone suffix or fractional seconds.
+
+Present each [TimeObservation](commands.md#time) by emitting its prefix followed
+by FormatDuration of its value:
+
+| Observation | Prefix |
+| --- | --- |
+| GameElapsed | `"\r\nGame's elapsed time:  "` |
+| CommissionElapsed | `"\r\nShip's elapsed time:  "` |
+| CommissionExecution | `"\r\nRun time in game:     "` |
+| SessionExecution | `"\r\nJob's total run time: "` |
+| TimeOfDayValue | `"\r\nCurrent time of day:  "` |
+
+There is no separate initial blank-line request or ending between a value and
+the next prefix. After the final value, make one conditional blank-line request.
+All output lengths use these same labels and duration format. Pregame omits
+both commission observations and their prefixes. Elapsed and execution values
+are separate observations; rendering does not substitute one for the other.
+
+**Open:** Invalid or negative environment clock readings have no presentation
+rule here. This domain restriction does not introduce a TIME command rejection
+or silently turn an unavailable clock origin into zero.
+
+**Source basis:** [TIME](../../legacy/utexas/DECWAR.FOR#L4066),
+[time labels](../../legacy/utexas/MSG.MAC#L330),
+[duration decomposition](../../legacy/utexas/WARMAC.MAC#L1746).
+
+## Preference and option reports
+
+TYPE's unresolved-switch prompt is
+`"\r\nDo you wish to see the OUTPUT or OPTION switches? "` with no added ending.
+The ambiguous O switch first emits `"\r\nAmbiguous switch for TYPE."` and one
+unconditional line ending, then requests the switch again. A cancelled reply
+has no report body. The [TYPE grammar](commands.md#type) defines matching and
+continuation; these strings do not introduce other switches.
+
+For OUTPUT, emit `"\r\nCurrent output switch settings:"` and two unconditional
+line endings. Present its TypeObservation values in order using these complete
+lines, each followed by one unconditional line ending except the final profile
+line, which makes a conditional blank-line request:
+
+| Observation | Line composition |
+| --- | --- |
+| OutputLengthValue | `"Short "`, `"Medium "` or `"Long "`, then `"output format."`. |
+| PromptStyleValue | `"Normal "` or `"Informative "`, then `"command prompt."`. |
+| ScanStyleValue | `"Short "` or `"Long "`, then `"SCAN format."`. |
+| InputCoordinatesValue | `"Absolute "`, `"Relative "` or `"Both "`, then `"coordinates are default for input."`. |
+| OutputCoordinatesValue | The same coordinate labels, then `"coordinates are default for output."`. |
+| TerminalProfileValue | `"Terminal type:  "`, then the profile name padded on the right to ten characters. |
+
+Profile names are ACT-IV, ADM-2, ADM-3A, DATAPOINT, ACT-V, SOROC, BEEHIVE and CRT.
+The report prints ADM-3A with uppercase A and retains the name's padding before
+the final line ending. For example, the CRT line is
+`"Terminal type:  CRT       \r\n"`. The report's initial heading and line
+labels are the same at every output length; SHORT describes a preference here,
+not a shorter TYPE report. An unselected terminal profile retains the open
+boundary stated by ReportType; it is not implicitly CRT.
+
+For OPTION, first make a conditional blank-line request. Emit VersionValue.text
+and one unconditional line ending. Emit one Romulan line, then one black-hole
+line, each with one unconditional line ending:
+
+| Observation | True / false lines |
+| --- | --- |
+| RomulanOptionValue | `"There are Romulans in this game."` / `"Romulans are NOT in this game."` |
+| BlackHoleOptionValue | `"There are Black holes in this game."` / `"Black holes are NOT in this game."` |
+
+These are the selected game options. In particular, the black-hole line is not
+computed by counting black holes remaining in the galaxy. A report observes
+preferences and options without changing them or selecting a terminal profile.
+
+**Source basis:** [TYPE](../../legacy/utexas/DECWAR.FOR#L4540),
+[profile spellings](../../legacy/utexas/DECWAR.FOR#L480),
+[profile padding](../../legacy/utexas/WARMAC.MAC#L1734),
+[report strings](../../legacy/utexas/MSG.MAC#L360),
+[option strings](../../legacy/utexas/MSG.MAC#L274).
+
+## Scan grids
+
+Present ScanReport using the captain's ScanStyle. The scan's symbol table is
+specified with [SCAN and SRSCAN](commands.md#knowledge-and-result); those symbols
+are distinct from the object labels used in lists and combat reports. SHORT
+uses one character per sector and LONG uses the two-character pair. Scan style
+is independent of outputLength and of which of the two scan commands was used.
+The report bounds and marks are already determined by Scan; presentation does
+not discover installations or read the sectors again.
+
+Make one conditional blank-line request before the top axis. Every horizontal
+axis line begins with three spaces. Its first label is bounds.minHorizontal
+in LONG and bounds.minHorizontal + 1 in SHORT. Always emit that initial label,
+even when it lies beyond bounds.maxHorizontal. Successive labels increase by
+two in LONG or three in SHORT and are emitted only while they are at most
+bounds.maxHorizontal. Separate successive labels with two spaces in LONG or
+one space in SHORT. Each label is its decimal number in a two-character field,
+with a leading space for values below ten, and no sign, @ or relative offset.
+Finish the axis line with a conditional blank-line request.
+
+For each ScanRow in decreasing vertical order, emit its vertical label using
+the same two-character numeric form, one space, its cell marks in increasing
+horizontal order, one space and the repeated vertical label. There is no
+separator between cell marks beyond the characters already in each mark.
+Make a conditional blank-line request after the row. After all rows of a
+complete scan, emit the bottom axis in the same way as the top axis.
+
+For bounds 19 through 21 on both axes, Excalibur at (20,20) and every other
+sector empty, the bodies after the initial separator are:
+
+```text
+LONG:
+"   19  21\r\n"
+"21  . . . 21\r\n"
+"20  . E . 20\r\n"
+"19  . . . 19\r\n"
+"   19  21\r\n"
+
+SHORT:
+"   20\r\n"
+"21 ... 21\r\n"
+"20 .E. 20\r\n"
+"19 ... 19\r\n"
+"   20\r\n"
+```
+
+Adjacent quoted lines here are concatenated; LONG and SHORT are example labels,
+not emitted text. Both displays contain the same nine sector observations.
+The sparse horizontal labels do not omit sectors or rescale their coordinates.
+In a one-sector SHORT scan at horizontal coordinate 75, the axis label is 76;
+it does not assert that the galaxy contains a sector 76.
+
+For Interrupted(partial), include the top axis and every completed row in
+partial, including the last row's ending. Omit the remaining rows and bottom
+axis. The scan interruption rule consumes the request at a row boundary;
+presentation does not undo discovery already performed. A RejectedSyntax
+instead emits `"%Syntax error"` and one unconditional line ending, with no grid
+or scan-entry separator. Complete delivery of interruption controls remains a
+separate binding requirement.
+
+**Source basis:** [scan display and axes](../../legacy/utexas/WARMAC.MAC#L2482),
+[two-character labels](../../legacy/utexas/WARMAC.MAC#L1814),
+[scan command and rejection](../../legacy/utexas/DECWAR.FOR#L3527).

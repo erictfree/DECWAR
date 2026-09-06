@@ -2859,3 +2859,40 @@ clipping or overflow found. The compiled working draft has 182 pages.
 No runtime/server/archive changes. Remaining work includes command/report
 presentation, controls and lifecycle, concurrency, CompuServe amendments and
 cross-chapter consistency. The specification goal remains active.
+
+## 2026-09-05 — Define STATUS, DAMAGES, TIME, TYPE and scan presentation
+
+Added ordered STATUS field prefixes/values, full versus selected damage-report
+headings and padded rows, TIME duration fields, TYPE preference/option text and
+complete SHORT/LONG scan-grid axes and row composition. DAMAGE now records its
+report style and general LONG title-sector observation in the abstract result;
+it does not assume the actor's ship is necessarily that observed sector object.
+Retained caller distinctions, observation order, significant spaces/tabs and
+scan interruption after a completed row. TYPE keeps ten-character profile-name
+padding and option values independent of remaining galaxy objects.
+
+Duration presentation now uses ordinary decimal hours that expand beyond 99,
+with the source's whole-second precision and no wrap at 24. Documented this
+explicit removal of malformed O2D character arithmetic in NORMALIZATION.md.
+Invalid/negative clock readings and unavailable origins remain open; no new
+TIME rejection or zero substitute was invented. Updated stale plan prose to
+reflect all 33 drafted main-game command contracts and their remaining limits.
+
+Source: Austin DECWAR.FOR DAMAGE 783–835, SCAN 3527–3619, STATUS 3860–3973,
+TIME 4066–4085, TYPE 4540–4594; WARMAC numeric/device/profile/scan renderers;
+MSG literals. Added EX-MODEL-528–553. Literal/composition checks passed:
+logs/spec-report-presentation-review.log (28 literals, 7 examples) and
+logs/spec-type-scan-presentation-review.log (21 literals, profile padding,
+6 examples). These are written-source composition checks, not native parity.
+
+An initial build found a blank line splitting the scenario table; retained in
+logs/spec-report-presentation-build.log. Removed that blank line. Final build
+passes 14 chapters, 403 links, 553 scenario rows and 324 named message fragments:
+logs/spec-report-scan-presentation-build-final.log. Audit passes:
+logs/spec-report-scan-presentation-audit.log. Reviewed new report/scan pages
+142–146, example pages 186–188 and final ADT pages 42–43; no clipping/overflow.
+The assembled working draft is 189 pages. No runtime or archive files changed.
+
+Next work: LIST-family detail/summary/absence presentation, POINTS/USERS and
+remaining command responses; controls/lifecycle/concurrency and CompuServe
+amendments still prevent complete conformance. Goal remains active.
