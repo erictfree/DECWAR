@@ -3260,3 +3260,16 @@ identifies variant, lifecycle/concurrency, profile and whole-book review work.
 `logs/spec-requirements-review-audit.log` verifies immutable sources/generated
 evidence. All coverage-record links resolve locally. This companion-record edit
 does not change the assembled book or gameplay and does not assert goal completion.
+
+### Specification checkpoint: CompuServe standings source selection
+
+Added the service-class distinction and explicit HONORROLL source sequence,
+including empty versus open-failure behavior and source-boundary interruption.
+This is a platform-independent description of SHOSTA 5885 onward, not a disk
+format or new payment action. Record membership, ranking, lifetime and complete
+output remain unfinished. DOCUMENT's continued-literal whitespace remains open.
+
+`logs/spec-comp-standings-selection-source-review.log` records source checks.
+The final build is `logs/spec-comp-standings-selection-build-reviewed.log`;
+physical PDF page 214 was visually inspected after the final wording edit.
+Earlier build output is retained. Runtime and immutable archives unchanged.

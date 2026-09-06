@@ -142,6 +142,47 @@ Standings selection, record lifetime, ranking and complete output are specified
 by the forthcoming persistence amendment; this command does not imply that
 Austin keeps the same records.
 
+
+The environment identifies which service class the session is using. This is
+an existing service distinction, not a fee, purchase or authorization action
+performed by HONORROLL.
+
+```text
+enum CompuServeServiceClass = PAYING | NON_PAYING
+```
+
+Each class has a distinct standings source. For a PAYING session, attempt only
+the PAYING source. For a NON_PAYING session's explicit HONORROLL request, attempt
+the NON_PAYING source first, then the PAYING source under the conditions below.
+Neither source is the current galaxy's score table.
+
+For each attempted source:
+
+1. Attempt to open it for reading. If opening fails, return to the caller
+   without an Honor Roll heading or an invented missing-file diagnostic. Do not
+   proceed to the other source on this path.
+2. Read and close the source. If all four record groups are empty, omit its
+   heading and faction sections. The groups are Federation active records,
+   Federation memorial records, Empire active records and Empire memorial
+   records; their membership and ordering remain to be specified.
+3. Otherwise display the Honor Roll heading and its applicable faction
+   sections. A NON_PAYING source adds the notice
+   `"(**** non-paying users ****)"`. An empty source does not display that notice.
+4. At the source-completion boundary, a pending interrupt is consumed and
+   returns to the caller; no second source is attempted. Without that interrupt,
+   an explicit HONORROLL request in a NON_PAYING session proceeds from the
+   NON_PAYING source to the PAYING source, even if the first source was empty.
+   Return after the PAYING source.
+
+This selection policy does not merge the two sources or interleave their rows.
+An empty first source and a first source that cannot be opened have different
+continuation effects. It makes no new game turn, resource charge or score
+update. Other callers that request a standings display, such as feedback
+recording, do not inherit the explicit HONORROLL request's second-source rule.
+Their caller-specific behavior remains part of the corresponding amendment.
+
+**Source basis:** [standings source selection and continuation](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L5885).
+
 **OPEN QUESTION:** The complete standings ADT, storage-failure behavior and report
 contract remain incomplete. This entry defines command availability and caller
 continuation, not a complete HONORROLL conformance claim.

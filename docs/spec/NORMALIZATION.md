@@ -1531,3 +1531,13 @@ row. TARGETS omits those post-detail requests and has its own positive-total
 boundary. NoObjectAt relative coordinates use the viewer's position at formatting,
 matching PRLOC and the existing detail-coordinate contract; the previous wording
 incorrectly substituted the saved distance-test origin and has been corrected.
+
+### CompuServe standings-source selection
+
+CompuServeServiceClass abstracts SHOSTA's existing frebie distinction and its
+two standings sources without making file names or disk layouts normative.
+The explicit-request continuation preserves the distinction between an empty
+opened source and failure to open that source; only the former can proceed to
+the paying source. The four group-presence checks are stated as record groups,
+not storage offsets. Record contents, ranking, partial-read failures and complete
+output still require their own contracts.
