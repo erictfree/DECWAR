@@ -710,3 +710,17 @@ captain before commissioning. Its later entry-name section and normative
 session/command clauses already restrict assignment to an active commission and
 leave pregame assignment unspecified. This reconciles the decision record with
 the current specification; it is not a new repair or a gameplay change.
+
+### SET prompt and response sequence
+
+Austin DECWAR.FOR 3624–3740 defines no initial output request. Labels 200,
+300, 400, 1100, 1300, 1500 and 1700 emit SET001–007 with zero suffix.
+TTYTYPE label 600 requests CRLF before SET008; no-match requests CRLF before
+label 1000, while ambiguity emits SET009 at label 900. Label 1000 emits
+SET010 with two ending pairs and TTYS00 with one, then retries at 600.
+The eleven MSG.MAC fragments are reproduced in the presentation chapter;
+logs/spec-set-responses-review.log retains their exact extracted text.
+Successful ordinary assignments have no direct confirmation. ROMOPT/BHREMV
+also return without one; ENDFLG calls ENDGAM and retains that separate lifecycle.
+This closes ordinary SET response ordering, not interrupted input/output or
+nonprinting name semantics.

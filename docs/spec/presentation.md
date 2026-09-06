@@ -245,6 +245,53 @@ prevent a claim of complete terminal conformance to this draft.
 [conditional blank line](../../legacy/utexas/WARMAC.MAC#L1696),
 [character output](../../legacy/utexas/WARMAC.MAC#L1309).
 
+## Configuration command responses
+
+SET has no initial conditional blank-line request. When setting selection
+requires another reply, emit SET001 with no appended line ending. NAME uses
+SET002 for its one additional reply. The five presentation preferences use
+SET003 (OUTPUT), SET004 (PROMPT), SET005 (SCANS), SET006 (ICDEF), or SET007
+(OCDEF) when they require a value. Each prompt has no appended line ending;
+its embedded leading CRLF is retained. Input acquisition and cancellation
+follow the [SET contract](commands.md#set). Assignment, an unmatched
+alphanumeric preference value, and ordinary cancellation add no confirmation
+or diagnostic of their own.
+
+For TTYTYPE, each prompt requests a conditional blank line and emits SET008
+without an appended ending. An unknown alphanumeric terminal name requests
+a conditional blank line before the supported-name report. An ambiguous name
+instead emits SET009 without an appended ending before that report. The report
+emits SET010 followed by two CRLF pairs, then TTYS00 followed by one CRLF pair,
+and returns to the terminal-type prompt. Its mixed-case `ADM-3a` is display text;
+the semantic matching names remain those in the command clause. A successful
+selection adds no confirmation.
+
+The following fragments are independent of output length. Adjacent quoted
+strings are concatenated without added characters.
+
+| Fragment | Text |
+| --- | --- |
+| SET001 | `"\r\n"` + `"Name, Output, Ttytype, Prompt, Scans,\r\n"` + `"Input or Output location defaults (ICDEF, OCDEF)? "` |
+| SET002 | `"\r\n"` + `"Desired name:  "` |
+| SET003 | `"\r\n"` + `"Short, Medium, or Long output? "` |
+| SET004 | `"\r\n"` + `"Normal or Informative command prompt? "` |
+| SET005 | `"\r\n"` + `"Short or Long scans? "` |
+| SET006 | `"\r\n"` + `"Absolute or Relative default for location input? "` |
+| SET007 | `"\r\n"` + `"Absolute, Relative, or Both for location output? "` |
+| SET008 | `"Terminal type:  "` |
+| SET009 | `"\r\n"` + `"Ambiguous TTY type.  "` |
+| SET010 | `"Supported TTY types are:"` |
+| TTYS00 | `"ACT-IV     ADM-2      ADM-3a     DATAPOINT\r\n"` + `"ACT-V      SOROC      BEEHIVE    CRT"` |
+
+ROMOPT and BHREMV add no direct success response. ENDFLG invokes world
+termination, whose reports belong to the lifecycle contract; it does not add
+a SET confirmation. Input echo, incoming notices and subsequent command prompts
+are separate from these direct responses.
+
+**Source basis:** [SET](../../legacy/utexas/DECWAR.FOR#L3624),
+[prompt fragments](../../legacy/utexas/MSG.MAC#L259),
+[terminal names](../../legacy/utexas/MSG.MAC#L358).
+
 ## Shield command responses
 
 SHIELDS begins with one conditional blank-line request. Its action and amount

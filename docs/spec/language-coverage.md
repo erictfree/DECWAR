@@ -71,7 +71,7 @@ remaining dependencies below still limit end-to-end conformance claims.
 | TYPE | [TYPE](commands.md#type): ADT operation contract. | Unselected terminal profile, concurrent observations and full terminal controls. |
 | TIME | [TIME](commands.md#time): ADT operation contract. | Environment clock/accounting binding and unavailable origins. |
 | USERS | [USERS](commands.md#users): ADT operation contract. | Session metadata binding and admission interleavings; ordinary terminal rows and headings are specified. |
-| SET | [SET](commands.md#set): ADT operation contract. | Unselected terminal profile, nonprinting name characters, world termination and responses. |
+| SET | [SET](commands.md#set): ADT operation contract. | Unselected terminal profile, nonprinting name characters and world termination; ordinary prompt/response sequencing is specified. |
 | TELL | [TELL](commands.md#tell): ADT operation contract. | Full multiplayer publication/receipt conditions and terminal presentation. |
 | *PASSWORD | [*PASSWORD](commands.md#password): ADT operation contract. | Complete session privilege lifecycle. |
 | *DEBUG | [*DEBUG](commands.md#debug): ADT operation contract. | Instrumentation selection and environment timing binding. |

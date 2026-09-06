@@ -2557,7 +2557,9 @@ Unchanged result. Empty replies that cancel setting or value selection return
 Cancelled, with any effects already made retained. NAME's one additional
 prompt has its own completion rule below. Forced world termination returns
 SessionEnded for this viewer. No ship is required for preference changes in
-pregame; c denotes the session's captain in both phases.
+pregame; c denotes the session's captain in both phases. Direct
+[prompts and responses](presentation.md#configuration-command-responses) are
+defined separately from these state changes.
 
 ### Presentation preferences
 

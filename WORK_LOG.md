@@ -4023,3 +4023,19 @@ a successful build: 100 grammar productions, 671 scenario rows, 14 chapters,
 legible text and code, no clipping or overlap. git diff --check passed. These
 checks do not establish all optional lifetimes, units or concurrent behavior;
 the specification goal remains active.
+
+
+## SET terminal-response specification — 2026-09-06
+
+Added ordinary SET prompts, silent completion and TTYTYPE unknown/ambiguous
+retry sequences from Austin DECWAR.FOR 3624–3740. Defined all eleven relevant
+fragments, including embedded CRLF and supported-name spacing, in the terminal
+presentation chapter. Linked the semantic clause and updated its coverage row;
+no runtime or archive changes.
+
+Validation: logs/spec-set-responses-review.log checks the eleven published
+fragment rows against exact MSG.MAC bytes. logs/spec-set-responses-build.log
+records successful build (100 productions, 671 scenarios, 614 links, 324 source
+fragments). PDF pages 159–160 visually reviewed with no clipping/overlap.
+Interrupted input/output and nonprinting-name domains remain separate work;
+these checks do not establish full terminal conformance.
