@@ -4284,3 +4284,16 @@ logs/spec-line-editor-output-build.log records successful build (100 productions
 671 scenarios, 671 links, 324 fragments). PDF page 159 visually reviewed without
 clipping/overlap; git diff --check passed. No runtime/archive changes. Complete
 variant echo-helper and asynchronous-control review remains outstanding.
+
+## Specification: CompuServe ordinary input echo
+
+Compared INLI/NXCH/DISP against Austin: executable statements match (49/7/20).
+CompuServe ECHON/ECHOFF return before changing echo state; initialization retains
+an echo-enabled reader assumption. Added the appendix qualification without
+claiming physical client echo or changing gameplay. Evidence: Comp WARMAC
+1165, 1313, 1324, 1859–1963; logs/spec-comp-editor-review.log (also records the
+failed first delimiter lookup). Build passed: 100 grammar productions, 671
+scenario rows, 14 chapters, 676 links; logs/spec-comp-editor-build.log. These
+are structural checks, not executed semantic scenarios. Rendered and inspected
+PDF page 254; no clipping or overfull/undefined LaTeX warnings. Whole-book
+semantic and concurrency review remains outstanding.

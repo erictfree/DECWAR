@@ -798,6 +798,27 @@ character rule and must be distinguished by its transport binding.
 [echo action](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L1970),
 [echo-on/off behavior](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L1313).
 
+## Ordinary input echo and output
+
+Amends [ordinary line-editor output](presentation.md#ordinary-line-editor-output).
+CompuServe uses the same retained-character redisplay, line clearing, and
+completion output rules, with the following echo qualification: the reader
+assumes input echo is enabled and does not change the terminal's echo mode.
+Consequently, Ctrl-R, Ctrl-U and ordinary completion do not restore echo that
+has been disabled by the client or its environment. The binding must distinguish
+this reader assumption from actual client echo.
+
+For interactive completion, request CR and append LF unless the delivered
+terminator is LF, vertical tab, form feed, Ctrl-Z or Ctrl-C. Initialization input
+still bypasses the generated LF. ESC repetition and completion at the input limit
+retain the Austin CRLF rule. The preceding Ctrl-G amendment remains applicable:
+Ctrl-G does not request redisplay.
+
+**Source basis:** [initial echo assumption](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L1165),
+[echo operations](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L1313),
+[ordinary completion and editing](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L1859),
+[character classification and redisplay](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L1927).
+
 ## Romulan speech frequency
 
 Amends the two speech tests in [Romulan activation](autonomous.md#activation-and-appearance)

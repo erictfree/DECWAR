@@ -942,3 +942,16 @@ only alter count in the reader. The terminal clause states these requests withou
 inventing physical echo, tab stops or guaranteed delivery after hangup. This is
 Austin evidence; CompuServe's existing Ctrl-G amendment remains applicable and
 complete echo-helper comparison remains a separate review.
+
+### CompuServe ordinary-editor comparison
+
+INLI, NXCH and DISP match Austin's executable statements (49, 7 and 20
+respectively, excluding comments and whitespace). ECHON and ECHOFF instead
+return immediately at their entry labels, before the OPEN and flag writes.
+Initialization sets ECHFLG to zero; the only other named writes are unreachable
+inside those helpers. Thus the ordinary reader retains its echo-enabled
+assumption and does not restore physical echo. The appendix inherits the output
+recipes with this qualification and the existing Ctrl-G exception. Comparison
+and the initial failed delimiter lookup are recorded in
+logs/spec-comp-editor-review.log. This is source comparison, not a native-client
+transcript or proof that a transport actually echoes input.
