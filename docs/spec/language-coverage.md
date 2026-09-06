@@ -28,9 +28,9 @@ remaining dependencies below still limit end-to-end conformance claims.
 | TORPEDOS | [TORPEDOS](commands.md#torpedos): ADT operation contract. | Malformed continuations, concurrent target changes and complete delivery/presentation. |
 | LIST, SUMMARY, BASES, PLANETS, TARGETS | [Galaxy reports](commands.md#list-summary-bases-planets-and-targets) | Mixed selector edge cases, label aggregation, concurrent reporting and terminal presentation. |
 | POINTS | [POINTS](commands.md#points) | Zero-denominator presentation, concurrent counts and terminal formatting. |
-| TYPE | [TYPE](commands.md#type) | Complete preference/session definitions and terminal formatting. |
-| TIME | [TIME](commands.md#time) | Environment clock/accounting binding and duration formatting. |
-| USERS | [USERS](commands.md#users) | Session metadata binding, admission interleavings and terminal formatting. |
+| TYPE | [TYPE](commands.md#type): ADT operation contract. | Unselected terminal profile, concurrent observations and terminal formatting. |
+| TIME | [TIME](commands.md#time): ADT operation contract. | Environment clock/accounting binding and duration formatting. |
+| USERS | [USERS](commands.md#users): ADT operation contract. | Session metadata binding, admission interleavings and terminal formatting. |
 | SET | [SET](commands.md#set) | Unselected terminal profile, nonprinting name characters, world termination and responses. |
 | TELL | [TELL](commands.md#tell) | Full multiplayer publication/receipt conditions and terminal presentation. |
 | *PASSWORD | [*PASSWORD](commands.md#password) | Complete session privilege lifecycle. |
@@ -57,12 +57,13 @@ coverage does not establish lifecycle, concurrency or terminal conformance.
 - Abstract model: game-state ADT and operation-contract notation introduced;
   SHIELDS, RADIO, ENERGY, DOCK, REPAIR, SCAN, SRSCAN, STATUS, DAMAGES,
   TRACTOR, MOVE, IMPULSE, BUILD, CAPTURE,
-  PHASERS, TORPEDOS, HELP, NEWS, GRIPE, QUIT and
+  PHASERS, TORPEDOS, TYPE, TIME, USERS, HELP, NEWS, GRIPE, QUIT and
   message publication/reception use explicit contracts. Mapping/property notation,
   the nine device states and their distinction from hull damage and shield state
   are defined explicitly. Phaser-bank identities and independent deadlines are
   defined separately from shared device damage. Token categories, scan marks/rows,
-  ordered status observations and device-damage report rows are defined. Sector objects, geometric points/vectors, PathResult,
+  ordered status observations, device-damage rows, type/time/user observations,
+  session reporting metadata and commission clock baselines are defined. Sector objects, geometric points/vectors, PathResult,
   symmetric beam membership and fixed base-identity order are defined. Existing
   command pseudocode still needs conversion to that form. Identities, quantities,
   roster, installations, radio, tractor associations, preferences and score

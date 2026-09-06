@@ -540,3 +540,49 @@ Source: Austin DECWAR.FOR SCAN/SRSCAN 3527–3615, STATUS 3860–3974, DAMAGE
 783–830 and device/roster data 435/489; WARMAC.MAC SETSCN 2350–2409,
 MARK 2412–2463, SHWSCN/labl. 2482–2530, ESHP/PSHP 4370–4401 and
 DISP 4403–4438. No runtime or preserved source modifications.
+
+
+## Session and environment report contracts
+
+TYPE now names each preference/option observation and reads explicit Captain
+and World properties. DECVER comes from MSG.MAC's executable ASCIZ text,
+[DECWAR Version 2.3, 20-Nov-81], rather than EXTERN.FOR's stale 2.2 comment.
+BLHOPT is modeled as blackHolesSelected: SET BHREMV removes board objects without
+changing it. It is not recomputed from the current population. An unselected
+TTYTYPE remains an undefined final TYPE OUTPUT observation; the generalized
+model does not read preceding storage or substitute CRT. The first five
+preference observations and their order are independently defined.
+
+Added SessionReporting for advertised speed, connection label and displayed
+session number, keeping these separate from AccountIdentity, ExecutionIdentity
+and TerminalIdentity. Admission records those report values and a CommissionTiming
+with an elapsed-origin marker and execution-time baseline. Name remains the
+Captain displayName, including later active SET NAME changes. USERS reads the
+recorded commission metadata; it does not query the host afresh on each row.
+Removing the active baseline on release is semantic absence, not a requirement
+to erase stored history fields before the source's history/final-report steps.
+
+TIME takes separate execution observations for commission running time and total
+session running time. Do not reuse the first read: report output itself may use
+execution time. The abstract environment queries have explicit Duration and
+TimeOfDay results. The host binding must define its accounting measure, clock
+resolution and discontinuity policy. ETIM specifically compares time-of-day
+readings and adjusts differences outside +/-12 hours by one day; this is not an
+unbounded monotonic elapsed clock. The current ordinary-origin contract does
+not settle extended-session/restart behavior or silently impose a replacement
+clock policy. Before the first galaxy, TIM0's -1 value is outside the model's
+initialized ClockOrigin domain; no invented zero-elapsed report is required.
+
+USERS always emits its faction separator at the roster boundary, even with no
+captains on either side. All six STAT fields remain enabled in every verbosity;
+the shorter field-count branches are commented out. Privileged coordinates use
+PRLOC width two, so a viewer's own zero relative displacement is still emitted.
+ReportedPosition separates absolute and relative observations. Pregame absolute
+output has a defined coordinate result even without a viewer ship; pregame
+relative/BOTH has no valid reference position in the generalized model. The
+latter remains unresolved rather than reproducing WHO=0 adjacent-field reads.
+
+Sources: Austin DECWAR.FOR TYPE 4540–4594, USERS 4600–4631, TIME 4066–4085,
+PRLOC 3078–3099, SET BHREMV 3727–3734; SETUP.FOR galaxy clock 173 and
+JOBSTA/commission clocks 365–376; WARMAC.MAC STAT 2187–2244, DAYTIM/RUNTIM/ETIM
+3329–3371 and USRN.4 3445–3455; MSG.MAC DECVER 44 and USERS5 380.

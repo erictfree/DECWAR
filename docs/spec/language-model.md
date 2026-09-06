@@ -220,6 +220,7 @@ record Rectangle:
     minHorizontal, maxHorizontal: Coordinate
 
 record World:
+    elapsedOrigin: Optional<ClockOrigin>
     ships: collection of Ship
     bases: collection of Base
     baseOrder: Team -> Sequence<BaseId>
@@ -229,6 +230,7 @@ record World:
     actionCount: integer
     teamTurns: Team -> integer
     romulanEnabled: Boolean
+    blackHolesSelected: Boolean
     pacingClass: integer in 1..3
     beams: collection of TractorBeam
     teamScores: Team -> Score

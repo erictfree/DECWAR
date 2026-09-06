@@ -1802,27 +1802,63 @@ diagnostic before prompting again. Other abbreviations use ordinary matching:
 OU selects OUTPUT; OP selects OPTION. Ignore further arguments after selecting
 one of these switches.
 
-### Meaning
+### Operation and observations
 
-TYPE OUTPUT reports these session preferences in order:
+```text
+enum TypeSelection = OUTPUT | OPTION
 
-1. Output length: SHORT, MEDIUM or LONG.
-2. Prompt style: NORMAL or INFORMATIVE.
-3. Scan style: SHORT or LONG.
-4. Input coordinate default.
-5. Output coordinate default.
-6. Terminal profile name.
+TypeObservation = OutputLengthValue(value: OutputLength)
+    | PromptStyleValue(value: PromptStyle) | ScanStyleValue(value: ScanStyle)
+    | InputCoordinatesValue(value: CoordinateMode)
+    | OutputCoordinatesValue(value: CoordinateMode)
+    | TerminalProfileValue(name: Text) | VersionValue(text: Text)
+    | RomulanOptionValue(enabled: Boolean)
+    | BlackHoleOptionValue(selected: Boolean)
 
-TYPE OPTION reports the game version, whether Romulan activity is enabled, and
-whether black holes were selected for this galaxy. The black-hole option is
-distinct from counting black holes that currently remain on the board.
+operation ReportType(viewer: CaptainId, selection: TypeSelection)
+    on GameState -> Reported(values: Sequence<TypeObservation>) | Cancelled
+```
+
+Let c be `captain(game, viewer)` and w be `world(game)`. Selection follows the
+syntax and continuation rules above; cancellation produces no report and changes
+no preference. The signature names the eventual resolved selection.
+
+For OUTPUT, observe c's properties in this order:
+
+1. OutputLengthValue(c.outputLength).
+2. PromptStyleValue(c.promptStyle).
+3. ScanStyleValue(c.scanStyle).
+4. InputCoordinatesValue(c.inputCoordinates).
+5. OutputCoordinatesValue(c.outputCoordinates).
+6. TerminalProfileValue(c.terminalProfile), when that optional property is present.
+
+For OPTION, emit these observations in order:
+
+```text
+VersionValue("[DECWAR Version 2.3, 20-Nov-81]")
+RomulanOptionValue(w.romulanEnabled)
+BlackHoleOptionValue(w.blackHolesSelected)
+```
+
+The version text identifies this Austin source edition; it is distinct from the
+edition of this specification or an implementation's own release number.
+blackHolesSelected records the galaxy's choice. Removing black holes with
+SET BHREMV does not change that option or this reported value.
 
 TYPE observes the current preferences; it does not change them, consume energy
 or complete a turn. Its preference and option labels are part of the terminal
 presentation. The same reports are available before commissioning, subject to
 the session's current configuration.
 
-**Source basis:** [TYPE](../../legacy/utexas/DECWAR.FOR#L4540).
+**Open:** Before a terminal profile has been selected, the first five OUTPUT
+observations are defined, but the final profile observation and its presentation
+remain unspecified. TYPE does not select CRT or invent a profile name on that
+account. A complete report returns Reported(values); concurrent preference
+changes and interrupted output remain subject to the observation/control rules.
+
+**Source basis:** [TYPE](../../legacy/utexas/DECWAR.FOR#L4540),
+[version text](../../legacy/utexas/MSG.MAC#L44),
+[black-hole removal](../../legacy/utexas/DECWAR.FOR#L3727).
 
 ## TIME
 
@@ -1830,13 +1866,37 @@ the session's current configuration.
 TimeCommand ::= "TIME"
 ```
 
-TIME reports the following durations and clock reading, in this order:
+```text
+TimeObservation = GameElapsed(value: Duration)
+    | CommissionElapsed(value: Duration) | CommissionExecution(value: Duration)
+    | SessionExecution(value: Duration) | TimeOfDayValue(value: TimeOfDay)
 
-1. Elapsed time since the galaxy's time origin.
-2. Elapsed time since the acting ship's commission began, if commissioned.
-3. Execution time accrued by the session since that commission began, if commissioned.
-4. Total execution time accrued by the session.
-5. Current time of day.
+operation ReportTime(viewer: CaptainId)
+    on GameState -> Sequence<TimeObservation>
+```
+
+Let c be `captain(game, viewer)`, q be `session(game, viewer)`, and w be
+`world(game)`. ClockOrigin, CommissionTiming and the environment's clock
+observations are defined in [session properties](session-rules.md#session-properties).
+The ordinary report requires w.elapsedOrigin to be present. If c.ship is
+present, q.commissionTiming must also be present; let timing denote that record.
+
+TIME performs and emits these observations in order:
+
+```text
+emit GameElapsed(observeElapsed(w.elapsedOrigin))
+if c.ship is present:
+    emit CommissionElapsed(observeElapsed(timing.elapsedOrigin))
+    emit CommissionExecution(
+        observeExecution(viewer) - timing.executionAtStart)
+emit SessionExecution(observeExecution(viewer))
+emit TimeOfDayValue(observeTimeOfDay())
+```
+
+The two execution observations are separate. Accounting can advance between
+them, including while earlier report output is produced. The second is not
+defined by reusing the first value or by adding the baseline back to a cached
+commission-execution result.
 
 Elapsed time includes waiting. Execution time is the environment's accounting
 of time spent running the session; it is a separate observation, not a turn
@@ -1850,6 +1910,12 @@ arguments and changes no game state. Precision, time-of-day convention and exact
 duration rendering belong to the presentation and environment binding still
 being specified.
 
+Return the sequence of emitted observations. No clock baseline is reset by
+TIME, and it changes no resource, knowledge, deadline or stardate. Before the
+first galaxy origin exists, the first elapsed observation has no defined origin
+in the abstract model; that startup case remains open rather than assigning it
+zero or the current time of day.
+
 **Source basis:** [TIME](../../legacy/utexas/DECWAR.FOR#L4066).
 
 ## USERS
@@ -1857,6 +1923,33 @@ being specified.
 ```text
 UsersCommand ::= "USERS"
 ```
+
+```text
+record ReportedPosition:
+    absolute: Optional<Position>
+    relative: Optional<SectorVector>
+
+record UserRow:
+    ship: ShipId
+    captainName: Text
+    advertisedSpeed: nonnegative integer
+    account: AccountIdentity
+    connectionLabel: Text
+    sessionNumber: integer
+    position: Optional<ReportedPosition>
+
+UserReportEntry = CaptainRow(value: UserRow) | FactionSeparator
+
+operation ReportUsers(viewer: CaptainId)
+    on GameState -> Sequence<UserReportEntry>
+```
+
+Let c be `captain(game, viewer)`. Visit ships in the fixed roster order. At the
+boundary between factions emit FactionSeparator, even if one or both factions
+has no included captain. For each commissioned ship s, its captain association
+must be present. Let owner be that captain and q its Session. Emit CaptainRow
+with s.id, owner.displayName, q.reporting.advertisedSpeed, q.account,
+q.reporting.connectionLabel and q.reporting.sessionNumber, in that order.
 
 USERS lists currently commissioned captains in ship-roster order, with a faction
 separator between Federation and Empire. Every included row contains these
@@ -1877,6 +1970,20 @@ system or memory layout.
 
 When the viewing session has privilege, append the ship's current position in
 the viewer's chosen coordinate-output mode. Without privilege, omit this field.
+In UserRow, omission is position == none. A privileged row's ReportedPosition
+is selected by c.outputCoordinates:
+
+| Mode | absolute | relative |
+| --- | --- | --- |
+| ABSOLUTE | s.position | none |
+| RELATIVE | none | s.position minus the viewer's ship position |
+| BOTH | s.position | s.position minus the viewer's ship position |
+
+Relative components are signed vertical and horizontal displacements in
+sectors. A viewer's own row includes (0,0) when relative output is selected;
+it is not omitted merely for being the same sector. BOTH presents the absolute
+pair before the relative pair. These are observations, not new coordinate
+argument forms.
 USERS does not apply sensor-distance filtering or discover installation locations.
 All output lengths include the six ordinary fields; LONG additionally prints
 the descriptive header, including a location heading when privileged.
@@ -1886,8 +1993,20 @@ a turn. It is available before commissioning as well as during play. A row's
 metadata and position need not be observed atomically with other rows; complete
 session-change interleavings remain part of the multiplayer rules.
 
+Return the entries in their emitted order. No resource, preference, knowledge,
+score or ship state changes. In the terminal binding the faction separator is
+`----`. The normal six fields remain present even in SHORT output.
+
+**Open:** Privileged RELATIVE or BOTH output before the viewer has a ship lacks
+a reference position; this draft does not manufacture an origin from unrelated
+state. Privileged ABSOLUTE output does not require such a reference. Loss of a
+target's commission during row output and complete metadata formatting remain
+part of the session/presentation contract.
+
 **Source basis:** [USERS](../../legacy/utexas/DECWAR.FOR#L4600),
-[user-information fields](../../legacy/utexas/WARMAC.MAC#L2187).
+[user-information fields](../../legacy/utexas/WARMAC.MAC#L2187),
+[position reporting](../../legacy/utexas/DECWAR.FOR#L3078),
+[faction separator](../../legacy/utexas/MSG.MAC#L380).
 
 ## SET
 

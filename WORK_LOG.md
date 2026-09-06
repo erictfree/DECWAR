@@ -2375,3 +2375,46 @@ port/tool attribution remain separate.
 - No runtime/server/archive changes. Goal remains active: remaining command and
   shared-operation contracts, lifecycle, multiplayer, randomness, full terminal
   bindings, variant amendments and complete conformance review still require work.
+
+
+## Specification checkpoint — session and environment reports (2026-09-05)
+
+- Classified the previous turn as progress: scan/report checkpoint c67cab7 was
+  committed and pushed. Inspected the current worktree and retained separation
+  from unrelated experiment, status and prior work-log edits.
+- Converted TYPE, TIME and USERS to explicit operations and typed observations.
+  Added TypeObservation, TimeObservation, UserRow, UserReportEntry and
+  ReportedPosition, including ordered values, omitted fields and read-only effects.
+- Added SessionReporting and CommissionTiming, environment ClockOrigin/TimeOfDay
+  observations, World.elapsedOrigin and World.blackHolesSelected. Admission records
+  report metadata and elapsed/execution baselines; release removes the active
+  baseline without requiring erasure of historical records. Host identities and
+  displayed labels/numbers remain distinct types and meanings.
+- Rechecked Austin TYPE/USERS/TIME/PRLOC, SET BHREMV, admission metadata and
+  clock initialization, STAT, DAYTIM/RUNTIM/ETIM and the executable message text.
+  TYPE OPTION reports MSG.MAC's version 2.3 text, not the stale 2.2 declaration
+  comment. Black-hole removal does not change the selected galaxy option.
+- TIME performs separate execution observations for commission and total time;
+  output can accrue execution time between them. Kept clock rollover, extended
+  sessions, missing first-galaxy origin and restart behavior explicit as remaining
+  binding work. Recorded ETIM's +/-12-hour/day adjustment in normalization research;
+  did not silently replace it with an unbounded monotonic-clock claim.
+- USERS preserves all six ordinary fields at every verbosity and always emits
+  the faction separator at the roster boundary. Privileged own-ship relative
+  coordinates include zero displacement. Pregame absolute coordinates have a
+  defined result; relative/BOTH without a viewer ship remains unresolved rather
+  than deriving a position from unrelated historical storage.
+- Added EX-MODEL-242 through 253 for TYPE preference/option output, ambiguity,
+  preserved black-hole selection, successive timing observations and baselines,
+  pregame omission, ignored arguments, empty user rosters, SHORT metadata and
+  privileged absolute/relative coordinate observations.
+- Validation: source audit passes 135 hashes, 83 declarations, 33 main commands,
+  16 pregame commands, 324 strings and both variant population checks. Spec build
+  passes 13 sections, 284 local links and 253 example rows. These checks establish
+  source/document consistency, not complete executable semantic conformance.
+- Logs: logs/spec-session-reports-build.log and logs/spec-session-reports-audit.log.
+  Reviewed the 116-page PDF's new operation, session-type and example pages using
+  tmp/pdfs/spec-session-reports/ renders. Generated publications remain ignored.
+- No runtime, live-server or immutable source changes. Goal remains active;
+  remaining commands, shared operations, lifecycle/multiplayer, randomness,
+  terminal bindings, variants and full conformance review still require work.

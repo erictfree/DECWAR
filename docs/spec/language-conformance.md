@@ -252,6 +252,18 @@ defense phases. Other ships and installations do not alter the stated result.
 | EX-MODEL-239 | Torpedo-tube damage 10, tractor-beam damage zero, all other devices zero; DAMAGES T T | Four rows: TORPEDO_TUBES 10, TRACTOR_BEAM 0, then those same two rows again. No deduplication. |
 | EX-MODEL-240 | Warp damage 8, all others zero; DAMAGES BOGUS | Rows(empty). Skip the unmatched selector silently; do not fall back to the general report or emit AllDevicesFunctional. |
 | EX-MODEL-241 | All devices zero, hull damage 100; DAMAGES WA | AllDevicesFunctional. Hull damage does not participate in the device-damage availability test. |
+| EX-MODEL-242 | Selected CRT profile; preferences MEDIUM, NORMAL prompt, LONG scans, input BOTH and output RELATIVE; TYPE OUTPUT | Report those six values in that order, ending with CRT. Reporting input BOTH does not change the relative interpretation of unqualified numeric locations. |
+| EX-MODEL-243 | TYPE O, followed by OP at the switch continuation | Emit the ambiguity diagnostic and prompt, then report version, Romulan option and black-hole option. No preference is changed. |
+| EX-MODEL-244 | Galaxy selected black holes; SET BHREMV has removed all of them; TYPE OPTION | BlackHoleOptionValue(true). Report the selected option, not the remaining object count. |
+| EX-MODEL-245 | Active viewer; game elapsed observation 60000 ms, commission elapsed 20000 ms, execution baseline 100 ms; successive execution observations 135 and 140 ms; local time 08:00 | Report GameElapsed(60000), CommissionElapsed(20000), CommissionExecution(35), SessionExecution(140), TimeOfDayValue(08:00), in order. Preserve baselines and game state. |
+| EX-MODEL-246 | Pregame viewer with an initialized galaxy origin, no ship; elapsed observation 60000 ms, execution 140 ms, time 08:00 | Only GameElapsed(60000), SessionExecution(140) and TimeOfDayValue(08:00). Do not manufacture commission rows. |
+| EX-MODEL-247 | New commission recorded executionAtStart 500 ms; later execution observations 550 then 552 ms; TIME | CommissionExecution is 50 ms; SessionExecution is 552 ms. Admission replaces the commission baseline but does not reset total session accounting. |
+| EX-MODEL-248 | TIME BOGUS with otherwise valid clock origins | Produce the ordinary TIME report; ignore the trailing argument. Do not reset a deadline, clock baseline or stardate. |
+| EX-MODEL-249 | No commissioned ships; nonprivileged pregame viewer; USERS | No captain rows; emit FactionSeparator. No admission or other state change. |
+| EX-MODEL-250 | Excalibur and Wolf commissioned; nonprivileged viewer uses SHORT output; USERS | Excalibur row, faction separator, Wolf row. Include all six ordinary metadata fields in both rows; omit positions and descriptive header. |
+| EX-MODEL-251 | Privileged viewer aboard Excalibur at (37,37), output BOTH; USERS includes the viewer | Excalibur's ReportedPosition contains absolute (37,37) and relative (0,0). Do not suppress its zero relative displacement. |
+| EX-MODEL-252 | Privileged viewer at (37,37), output RELATIVE; Wolf at (42,35) | Wolf's ReportedPosition has absolute none and relative (5,-2). No sensor-range or radio-status filter applies. |
+| EX-MODEL-253 | Privileged pregame viewer with ABSOLUTE output; Wolf commissioned at (42,35) | Report Wolf's absolute position without needing a viewer ship position. Do not invent a relative origin. |
 
 
 EX-MODEL-06 deliberately uses fractional shield strength. Historical loss of

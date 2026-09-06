@@ -16,6 +16,17 @@ enum SessionPhase = STARTUP | PREGAME | ADMISSION | ACTIVE | ENDED
 enum InformationActivity = NONE | HELP | FEEDBACK
 
 type AccountIdentity, ExecutionIdentity, TerminalIdentity
+type ClockOrigin
+type TimeOfDay = duration since local midnight
+
+record SessionReporting:
+    advertisedSpeed: nonnegative integer
+    connectionLabel: Text
+    sessionNumber: integer
+
+record CommissionTiming:
+    elapsedOrigin: ClockOrigin
+    executionAtStart: Duration
 
 record Session:
     captain: CaptainId
@@ -23,6 +34,8 @@ record Session:
     account: AccountIdentity
     execution: ExecutionIdentity
     terminal: TerminalIdentity
+    reporting: SessionReporting
+    commissionTiming: Optional<CommissionTiming>
     informationActivity: InformationActivity
 
 query session(game: GameState, captain: CaptainId) -> Session
@@ -32,6 +45,44 @@ Account, execution and terminal identities are supplied by the environment;
 a captain's display name does not define any of them. The environment binding
 must document their equivalence rules. In particular, returning-player matching
 uses account and execution identity together, not display name or terminal alone.
+
+SessionReporting contains the values advertised by the environment for reports.
+For an active commission these values are recorded during admission; USERS does
+not replace them with fresh environment lookups for each row. advertisedSpeed
+is the reported terminal rate, connectionLabel is its displayed label, and
+sessionNumber is the displayed execution/session number. They are distinct from
+the identity types used to match accounts or executions. A binding defines the
+rate's units and these labels; it must use the same advertised rate when other
+rules compare terminal speeds.
+
+ClockOrigin identifies a starting event in the environment's elapsed-time
+clock. It is an abstract marker, not a required timestamp representation.
+The environment supplies these observations:
+
+```text
+observeElapsed(origin: ClockOrigin) -> Duration
+observeExecution(captain: CaptainId) -> Duration
+observeTimeOfDay() -> TimeOfDay
+```
+
+Elapsed duration includes waiting; execution duration is the environment's
+accounting of running time for that session. Each observation occurs when its
+rule calls for it; successive observations need not have the same value.
+The binding specifies clock resolution, local time convention, rollover,
+discontinuities and execution accounting. A game turn is not a substitute
+for either clock, and execution time is not implicitly wall-clock time.
+
+World.elapsedOrigin is present once a galaxy's clock has been initialized.
+A commission records its own elapsedOrigin and executionAtStart; later TIME
+reports subtract the latter from a new execution observation. A new commission
+replaces those baselines. Release removes commissionTiming along with the
+captain's active ship association; it does not reset total session execution
+accounting. The complete restart/resume clock binding remains under review.
+
+**Source basis:** [galaxy clock origin](../../legacy/utexas/SETUP.FOR#L173),
+[commission metadata and clocks](../../legacy/utexas/SETUP.FOR#L365),
+[elapsed and execution observations](../../legacy/utexas/WARMAC.MAC#L3329),
+[report metadata](../../legacy/utexas/WARMAC.MAC#L2187).
 
 A roster ship without an active position has `position == none`. This is a
 semantic absence, not a sector outside the galaxy. Command contracts requiring
@@ -148,8 +199,11 @@ For the selected ship, clear the individual score and establish the new
 commission with the initial resources in the abstract game model: energy 5000,
 ten torpedoes, shields UP at 100%, zero hull and device damage, five life-support
 turns, GREEN condition and stardate zero. Record the captain's environment
-metadata and commission start time. This is initialization, not a repair or a
-turn-completing action. Select the CRT terminal profile.
+metadata in session.reporting. Create a CommissionTiming record whose
+elapsedOrigin marks this commission's start and whose executionAtStart is the
+current execution observation; assign it to session.commissionTiming.
+This is initialization, not a repair or a turn-completing action. Select the CRT
+terminal profile.
 
 Place the ship in an eligible empty sector under the placement rule, then enter
 ACTIVE play. Begin reading the installation's initialization commands through
@@ -201,13 +255,17 @@ Thus star count ranges from 100 to 350 in steps of five; hole count ranges from
 10 to 50. The potential hole count is chosen even if black holes are later declined.
 Initial faction scores, discoveries and cumulative faction commission counts
 are zero; there are no published messages or tractor associations.
+Set world.elapsedOrigin to the new galaxy's clock origin.
 
 Place bases in alternating faction order by base identity: Federation first,
 then Empire for each of the ten identities. Place the twenty planets next,
 then all stars. Finally ask whether black holes are wanted. Empty input or NO
-leaves them absent; YES enables the option and places the chosen number. Other
+leaves them absent and world.blackHolesSelected false; YES sets that property
+true and places the chosen number. Other
 replies repeat that question. This order determines the random choices' uses;
 it does not prescribe a storage representation.
+Later removal of black holes does not change blackHolesSelected; that property
+records the selected galaxy option rather than its current object population.
 
 For each object placement, choose a vertical coordinate and then a horizontal
 coordinate from 1 through 75. If that sector is occupied, choose another pair.
