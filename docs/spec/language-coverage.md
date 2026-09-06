@@ -63,7 +63,7 @@ remaining dependencies below still limit end-to-end conformance claims.
 | TRACTOR | [TRACTOR](commands.md#tractor): ADT operation contract. | Occupied trailing sectors, concurrent acquisition and responses. |
 | MOVE, IMPULSE | [MOVE and IMPULSE](commands.md#move-and-impulse): ADT operation contract. | Zero-item reply after an own-sector target, crowded towing, concurrent relocation, random distributions and responses. |
 | BUILD | [BUILD](commands.md#build): ADT operation contract. | Planet-update availability, conversion/world-end ordering and responses. |
-| CAPTURE | [CAPTURE](commands.md#capture): explicit ADT operation contract. | Surrender-refusal conditions, final lifecycle and responses; former-faction docking ordering is specified. |
+| CAPTURE | [CAPTURE](commands.md#capture): explicit ADT operation contract. | Coordination entry-failure binding, racing targets, final lifecycle and responses; refusal is explicitly tied to failed phase entry. |
 | PHASERS | [PHASERS](commands.md#phasers): ADT operation contract. | Concurrent target changes, random distributions and complete delivery/presentation. |
 | TORPEDOS | [TORPEDOS](commands.md#torpedos): ADT operation contract. | Original-line missing count/incomplete targets, zero-item target continuation, concurrent target changes and complete delivery/presentation. |
 | LIST, SUMMARY, BASES, PLANETS, TARGETS | [Galaxy reports](commands.md#list-summary-bases-planets-and-targets): ADT operation contract. | Exhaustive selector-order coverage, concurrent reporting, interrupted output, terrain presentation; section boundaries and absence-message recipes are specified. |

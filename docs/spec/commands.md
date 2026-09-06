@@ -1158,14 +1158,24 @@ For a resolved target, check the following conditions in order:
 3. The planet does not already belong to the acting ship's faction.
 
 Failure gives the corresponding rejection and diagnostic. The diagnostic for
-`NotAPlanet` distinguishes the kind of object at the target. A valid target can
-also yield `SurrenderRefused`, reported as “The planet's government refuses to
-surrender.” Rejection or cancellation makes no capture changes, incurs no
-capture energy charge and does not complete a turn.
+`NotAPlanet` distinguishes the kind of object at the target. After these checks,
+attempt to enter the [WORLD_CHANGE coordinated phase](language-model.md#coordination-and-overlapping-operations).
+A failed entry gives `SurrenderRefused`, reported as “The planet's government
+refuses to surrender.” CAPTURE does not retry that failed entry. The refusal
+occurs before discovery updates, captured-planet counts, energy payment,
+fortification removal and the defensive attack. Rejection or cancellation makes
+no capture changes, incurs no capture energy charge and does not complete a turn.
 
-**OPEN QUESTION:** The multiplayer conditions under which a valid capture is refused,
-and the resolution of simultaneous changes to the target, still need a complete
-contract. Surrender refusal is not a random chance or a new diplomatic mechanic.
+The adjacency, planet-kind and ownership checks precede phase entry. They are
+not repeated after entry. Thus another actor's intervening update is not handled
+by an invented second AlreadyOwned or NotAPlanet check. The ordinary successful
+contract below concerns the target that remains valid for the prescribed steps.
+
+**OPEN QUESTION:** The coordination binding still needs its complete entry-failure
+and waiting conditions; failure is not assigned a timeout or probability here.
+Outcomes when simultaneous changes invalidate the target between checks and
+updates remain unresolved. Surrender refusal is the failed-entry path, not a
+random chance or a new diplomatic mechanic.
 
 ### Successful state effects
 

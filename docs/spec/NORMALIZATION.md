@@ -1570,3 +1570,12 @@ scores do not participate. Empty-primary score storage has no automatic meaning
 in a list ADT, so that domain is explicitly unresolved rather than normalized
 to zero. Group headings do not create new awards in game state. Source-order
 and update rules remain distinct from terminal row formatting.
+
+### CAPTURE refusal and coordination entry
+
+The command now explicitly binds SurrenderRefused to failed WORLD_CHANGE entry
+at CAPTUR 300, before discovery or payment. It has no retry on that branch.
+Target checks precede entry and are not repeated. This resolves the source
+cause of refusal without specifying missing monitor failure/timeout semantics
+or inventing stale-target revalidation. The successful unchanged-target contract
+and unresolved racing-target domain are distinguished.

@@ -3355,3 +3355,15 @@ non-proof of alias binding, units or optional presence.
 `logs/spec-state-effect-scope-build.log` passes; physical PDF pages 10–11 were
 visually inspected. Stronger type/invariant and behavioral review remain open.
 No runtime or source archive changes.
+
+### Specification checkpoint: CAPTURE surrender refusal
+
+Bound SurrenderRefused to failed WORLD_CHANGE entry after target checks and
+before capture effects, without a retry. Kept stale-target outcomes and full
+entry-failure/wait binding explicit rather than inventing a second validation
+or refusal probability. Added EX-MODEL-593.
+
+`logs/spec-capture-refusal-source-review.log` verifies the ordering and return
+branch. `logs/spec-capture-refusal-build.log` passes; physical PDF pages 56 and
+213 were visually inspected. Coverage now separates the known refusal cause
+from the unresolved coordination binding. Runtime/archive unchanged.
