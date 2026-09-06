@@ -80,7 +80,16 @@ and examples. Define every state property and distinguish scalar quantities,
 entity identities, records and mappings. Prefer explicit paths in semantic
 predicates, such as `s.devices[WARP_ENGINES].damage`, to ambiguous equipment prose.
 The naming and type conventions are language-neutral; they do not mandate a
-TypeScript representation.
+TypeScript representation. The supplied Modern System Specification Guide is an
+additional editorial reference, not a source of DECWAR behavior. Use compact
+`type Name = { ... }` record declarations, tagged alternatives and consistent
+Sequence, Set, Map and Optional notation. Distinguish absence from operation
+failure, local assignment from game-state updates, and emitted observations
+from state effects. Retain explicit units, bounds and nondeterministic choices.
+Review vocabulary and type references, invariant coverage, failure behavior,
+ordering/atomicity and examples together; readable notation alone is not a
+semantic-completeness claim. Formal tooling is warranted only by a specific
+validation need, not by the appearance of rigor.
 
 ## Deliverables
 

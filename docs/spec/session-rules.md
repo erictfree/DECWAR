@@ -19,22 +19,25 @@ type AccountIdentity, ExecutionIdentity, TerminalIdentity
 type ClockOrigin
 type TimeOfDay = duration since local midnight
 
-record SessionReporting:
+type SessionReporting = {
     advertisedSpeed: nonnegative integer
     connectionLabel: Text
     sessionNumber: integer
+}
 
-record CommissionTiming:
+type CommissionTiming = {
     elapsedOrigin: ClockOrigin
     executionAtStart: Duration
+}
 
-record OperationTiming:
+type OperationTiming = {
     name: Text
     completedCalls: nonnegative integer
     totalExecution: Duration
     maximumExecution: Duration
+}
 
-record Session:
+type Session = {
     captain: CaptainId
     phase: SessionPhase
     entryName: Optional<Text>
@@ -44,6 +47,7 @@ record Session:
     reporting: SessionReporting
     commissionTiming: Optional<CommissionTiming>
     informationActivity: InformationActivity
+}
 
 query session(game: GameState, captain: CaptainId) -> Session
 query observeOperationTimings(captain: CaptainId) -> Sequence<OperationTiming>
@@ -237,12 +241,14 @@ do not select a statistics category. It is not a main-game command.
 enum StatisticsArchiveKind = REGULAR | FREE_ACCOUNT
 type StatisticId
 
-record HistoricalStatistics:
+type HistoricalStatistics = {
     serial: integer
     values: Mapping<StatisticId, real>
+}
 
-record AdministrativeState:
+type AdministrativeState = {
     statistics: HistoricalStatistics
+}
 
 query administration(viewer: CaptainId) -> AdministrativeState
 

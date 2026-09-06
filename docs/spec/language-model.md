@@ -62,17 +62,37 @@ clause must supply the contract.
 
 ## Notation
 
-A record names facts about the game. An enum names mutually exclusive values.
-`Set<T>` is an unordered collection with no duplicates; `Sequence<T>` is ordered.
-`Optional<T>` is either a value of T or `none`. These are specification concepts,
-not required programming-language types or storage structures.
+The type notation is inspired by TypeScript and algebraic data types. It is
+specification notation, not executable TypeScript: it does not import JavaScript
+numbers, object identity, inheritance or runtime behavior.
 
-In a declaration, `property: T` gives the property's type. `A -> B` denotes a
-total mapping: every value of A has exactly one associated value of B. For
-example, `devices: Device -> DeviceState` associates each of the nine device
-kinds with its own device state. Square brackets select a mapping entry;
-a dot selects a named property. Neither notation requires an array or object
-representation.
+`type Name = { ... }` defines a record of named fields. `property: T` gives a
+field's type. An enum lists mutually exclusive symbolic values. A union lists
+alternatives separated by `|`; an alternative may carry named values in
+parentheses. The alternative's name is its tag. For example,
+`Captured(planet: PlanetId)` carries a planet identity, while `Cancelled`
+carries no value. These names are not text the player enters.
+
+Collections have one notation throughout the model:
+
+| Type | Meaning |
+| --- | --- |
+| `Sequence<T>` | Ordered values of type T; duplicates are permitted unless a rule excludes them. |
+| `Set<T>` | Unordered values of type T, without duplicates. |
+| `Map<K, V>` | One value of V for every key in K; a total mapping unless explicitly restricted. |
+| `Optional<T>` | A value of T or none. Absence is not an operation failure. |
+
+An operation's result union describes its success, rejection, cancellation or
+other outcomes; it is distinct from Optional. The declared domain determines
+whether counts, quantities or identities are valid. Type aliases such as Energy
+and Damage retain their units even when their notation resembles a scalar.
+
+For example, `devices: Map<Device, DeviceState>` associates every one of the
+nine Device values with its own device state. Square brackets select a mapping
+entry; a dot selects a named field. These are mathematical observations, not
+requirements to use a JavaScript Map, array or mutable object. In query and
+operation signatures, `->` gives the result type; it does not denote a mapping
+field. Type declarations can refer to other named types in the abstract model.
 
 The query `ship(game, actor)` selects the ship identified by actor. A command
 may bind that ship to s and then write `s.energy` or
@@ -90,8 +110,14 @@ else:
     statement
 ```
 
-`:=` changes abstract game state. `==` compares values. `emit` produces an
-observable game event or response; its terminal rendering is specified separately.
+`:=` assigns a value to its named destination. Assigning a local variable changes
+only that local binding. Assigning a game-state property, such as s.energy,
+updates that property. An operation's state-effects clause determines which
+updates occur; a query does not update game state.
+
+`==` compares values in pseudocode, and `=` states mathematical equality in equations and contracts.
+`emit` produces an observable game event or response; it is a separate effect,
+and its terminal rendering is specified separately.
 `reject` ends the current operation with the named diagnostic. Unless a rule
 states otherwise, rejection does not undo effects that have already occurred.
 An operation leaves unmentioned state unchanged. Interactive input, elapsed
@@ -137,17 +163,20 @@ type Stardate   = integer count of game turns
 type Points     = quantity in displayed game points
 type UnitDraw   = real number in [0, 1)
 
-record Position:
+type Position = {
     vertical: Coordinate
     horizontal: Coordinate
+}
 
-record SectorVector:
+type SectorVector = {
     vertical: real number of sectors
     horizontal: real number of sectors
+}
 
-record GridPoint:
+type GridPoint = {
     vertical: real coordinate
     horizontal: real coordinate
+}
 ```
 
 The identities distinguish entities. Names and name-matching order are separate
@@ -187,7 +216,7 @@ sector has a different temporary interaction kind, as defined in
 [session activities](session-rules.md#temporary-information-activities).
 
 ```text
-SectorObject = PlayerShip(id: ShipId) | Starbase(id: BaseId)
+type SectorObject = PlayerShip(id: ShipId) | Starbase(id: BaseId)
              | PlanetObject(id: PlanetId) | RomulanObject
              | StarObject | BlackHoleObject
 ```
@@ -219,33 +248,35 @@ The initial world has twenty planets and ten bases for each faction. Placement
 and initialization are defined in [galaxy creation](session-rules.md#galaxy-creation-and-placement).
 
 ```text
-record Rectangle:
+type Rectangle = {
     minVertical, maxVertical: Coordinate
     minHorizontal, maxHorizontal: Coordinate
+}
 
-record World:
+type World = {
     elapsedOrigin: Optional<ClockOrigin>
     ended: Boolean
     ships: collection of Ship
     bases: collection of Base
-    baseOrder: Team -> Sequence<BaseId>
-    baseCounts: Team -> nonnegative integer
-    capturedPlanetCounts: Team -> nonnegative integer
+    baseOrder: Map<Team, Sequence<BaseId>>
+    baseCounts: Map<Team, nonnegative integer>
+    capturedPlanetCounts: Map<Team, nonnegative integer>
     planets: collection of Planet
-    knowledge: Team -> TeamKnowledge
+    knowledge: Map<Team, TeamKnowledge>
     playerCount: integer
     actionCount: integer
-    teamTurns: Team -> integer
-    teamCommissions: Team -> nonnegative integer
+    teamTurns: Map<Team, integer>
+    teamCommissions: Map<Team, nonnegative integer>
     romulanEnabled: Boolean
     blackHolesSelected: Boolean
     pacingClass: integer in 1..3
     beams: collection of TractorBeam
-    teamScores: Team -> Score
+    teamScores: Map<Team, Score>
     romulan: Optional<Romulan>
     romulanActivity: RomulanActivity
     combatNotices: CombatNoticeService
     radioService: RadioService
+}
 ```
 
 This is the portion of world state used by the converted command families.
@@ -266,14 +297,16 @@ cumulative commission counts and installation counts are separate quantities.
 ## Ships
 
 ```text
-record Shields:
+type Shields = {
     mode: ShieldMode
     strength: Percentage
+}
 
-record DeviceState:
+type DeviceState = {
     damage: Damage
+}
 
-record Ship:
+type Ship = {
     id: ShipId
     name: Text
     team: Team
@@ -283,7 +316,7 @@ record Ship:
     energy: Energy
     hullDamage: Damage
     shields: Shields
-    devices: Device -> DeviceState
+    devices: Map<Device, DeviceState>
     torpedoes: integer
     lifeSupportReserve: integer
     condition: Condition
@@ -292,6 +325,7 @@ record Ship:
     stardate: Stardate
     score: Score
     pendingScore: Score
+}
 ```
 
 A new commission begins with 5000 energy units, ten torpedoes, no hull or device
@@ -357,17 +391,19 @@ resource, not an additional property of either propulsion device.
 ## Installations
 
 ```text
-record Base:
+type Base = {
     id: BaseId
     team: Team
     position: Position
     strength: Percentage
+}
 
-record Planet:
+type Planet = {
     id: PlanetId
     owner: Optional<Team>
     position: Position
     builds: integer
+}
 ```
 
 A base survives while its strength is positive. An owner of `none` denotes a
@@ -386,27 +422,30 @@ defines selection and report numbering, without prescribing a storage location.
 ## Tractor beams and score
 
 ```text
-record TractorBeam:
+type TractorBeam = {
     id: TractorBeamId
     endpoints: Set<ShipId> containing exactly two distinct identities
+}
 
 enum ScoreCategory = ENEMY_DAMAGE | ENEMY_KILLS | BASE_DAMAGE
                   | PLANET_CAPTURE | BASE_CONSTRUCTION
                   | ROMULAN | STAR_DESTRUCTION | PLANET_DESTRUCTION
 
-type Score = mapping from ScoreCategory to Points
+type Score = Map<ScoreCategory, Points>
 
-record Romulan:
+type Romulan = {
     position: Position
     energy: Energy
+}
 
-record RomulanActivity:
+type RomulanActivity = {
     cadence: integer
     turns: Stardate
     appearances: integer
     phaserReady: TimePoint
     torpedoesReady: TimePoint
     score: Score
+}
 ```
 
 A tractor beam associates two ships symmetrically. Either endpoint can act on
@@ -438,15 +477,17 @@ The [autonomous rules](autonomous.md) define later changes.
 ## Information and communication
 
 ```text
-record TeamKnowledge:
+type TeamKnowledge = {
     knownPlanets: Set<PlanetId>
     knownBases: Set<BaseId>
+}
 
-record RadioSettings:
+type RadioSettings = {
     enabled: Boolean
     gaggedSenders: Set<ShipId>
+}
 
-record Captain:
+type Captain = {
     id: CaptainId
     ship: Optional<ShipId>
     displayName: Text
@@ -458,21 +499,24 @@ record Captain:
     outputCoordinates: CoordinateMode
     terminalProfile: Optional<TerminalProfile>
     radio: RadioSettings
-    phaserReady: PhaserBank -> TimePoint
+    phaserReady: Map<PhaserBank, TimePoint>
     torpedoesReady: TimePoint
+}
 
 type MessageSender = ShipId | ROMULAN | SYSTEM
 
-record Message:
+type Message = {
     id: MessageId
     sender: MessageSender
     recipients: Set<ShipId>
     remainingRecipients: Set<ShipId>
     body: Text
+}
 
-record RadioService:
+type RadioService = {
     messages: Sequence<Message>
     publicationsInProgress: Set<PublicationId>
+}
 ```
 
 The recipients name the audience of a message. Message-delivery state is

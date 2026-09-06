@@ -62,14 +62,15 @@ where a generator is stored or how concurrent execution is scheduled.
 A reproducibility record can describe random input with the following values:
 
 ```text
-RandomRequest = UnitRequest | IntegerRequest(positive integer)
+type RandomRequest = UnitRequest | IntegerRequest(positive integer)
               | ChoiceRequest(positive integer)
-RandomValue = UnitValue(UnitDraw) | IndexValue(positive integer)
+type RandomValue = UnitValue(UnitDraw) | IndexValue(positive integer)
 
-record RandomEvent:
+type RandomEvent = {
     captain: CaptainId
     request: RandomRequest
     value: RandomValue
+}
 ```
 
 UnitRequest requires UnitValue. An IntegerRequest(n) or ChoiceRequest(n) requires
@@ -178,14 +179,16 @@ environment work. These gaps do not permit changing the stated game odds.
 ### Operation and result types
 
 ```text
-record PathObstruction:
+type PathObstruction = {
     position: Position
     object: SectorObject
+}
 
-record PathResult:
+type PathResult = {
     lastClear: Position
     step: SectorVector
     obstruction: Optional<PathObstruction>
+}
 
 operation TracePath(start: Position, displacement: SectorVector,
                     steps: integer, deflection: real)
@@ -359,7 +362,7 @@ type DisplacementResult = Stayed | Moved(Position)
 type TargetDefense = ShipDefense(ShieldMode, Percentage)
                    | BaseDefense(Percentage)
 
-record WeaponHit:
+type WeaponHit = {
     target: DamageTarget
     weapon: ImpactWeapon
     damage: Damage
@@ -368,6 +371,7 @@ record WeaponHit:
     defense: TargetDefense
     displacement: DisplacementResult
     destruction: Optional<DestructionCause>
+}
 
 type TorpedoHitOutcome = Applied(WeaponHit) | TargetAlreadyFatal
 
@@ -538,11 +542,12 @@ strength rules above determine whether these hits lower shields.
 ### Base damage
 
 ```text
-record BaseHitResolution:
+type BaseHitResolution = {
     creditedDamage: Damage
     critical: Boolean
     reportedStrength: Percentage
     destroyed: Boolean
+}
 
 operation ResolveBaseHit(source: AttackSource, targetId: BaseId,
                          H: Damage, b: UnitDraw)
@@ -662,11 +667,12 @@ TargetAlreadyFatal does not manufacture a new zero-damage hit notification.
 ## Damage to the Romulan
 
 ```text
-record RomulanHit:
+type RomulanHit = {
     weapon: ImpactWeapon
     damage: Damage
     remainingEnergy: Energy
     destroyed: Boolean
+}
 
 operation RomulanPhaserHit(strength: real, distance: positive integer)
     on GameState -> RomulanHit
@@ -756,19 +762,20 @@ receive nova damage too. Each chain retains its initiating attacker for scoring,
 even if that attacker is destroyed during the chain.
 
 ```text
-NovaSource = PlayerNova(ShipId) | RomulanNova
-NovaTarget = DamageTarget | RomulanBody | PlanetBody(PlanetId)
+type NovaSource = PlayerNova(ShipId) | RomulanNova
+type NovaTarget = DamageTarget | RomulanBody | PlanetBody(PlanetId)
 
-record NovaContext:
+type NovaContext = {
     source: NovaSource
     viewer: CaptainId
+}
 
-NovaDefense = ShipAfterNova(ShieldMode, Percentage)
+type NovaDefense = ShipAfterNova(ShieldMode, Percentage)
             | BaseAfterNova(Percentage)
             | RomulanAfterNova(Energy)
             | PlanetAfterNova(nonnegative integer)
 
-record NovaHit:
+type NovaHit = {
     origin: Position
     target: NovaTarget
     position: Position
@@ -776,10 +783,11 @@ record NovaHit:
     defense: NovaDefense
     displacement: DisplacementResult
     destruction: Optional<DestructionCause>
+}
 
-NovaImpactOutcome = Completed(NovaHit)
+type NovaImpactOutcome = Completed(NovaHit)
                   | PlanetUpdateRefused | GalaxyEnded
-NovaChainOutcome = Completed | GalaxyEnded
+type NovaChainOutcome = Completed | GalaxyEnded
 
 operation NovaImpact(context: NovaContext, origin: Position,
                      target: NovaTarget, step: SectorVector)
@@ -1004,7 +1012,7 @@ make the chain one indivisible action or introduce a random update-failure rate.
 ### Planet removal
 
 ```text
-PlanetRemovalOutcome = Removed | NoPlanet | GalaxyEnded
+type PlanetRemovalOutcome = Removed | NoPlanet | GalaxyEnded
 
 operation RemovePlanet(viewer: CaptainId, target: PlanetId,
                        formerOwner: Optional<Team>)

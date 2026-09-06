@@ -2896,3 +2896,34 @@ The assembled working draft is 189 pages. No runtime or archive files changed.
 Next work: LIST-family detail/summary/absence presentation, POINTS/USERS and
 remaining command responses; controls/lifecycle/concurrency and CompuServe
 amendments still prevent complete conformance. Goal remains active.
+
+## 2026-09-05 — Apply compact modern specification type notation
+
+Read the supplied Modern_System_Specification_Guide.docx as an editorial
+reference within the established language-specification scope. Its notation
+advice supplies no DECWAR mechanics and does not replace archive authority.
+Converted 68 record declarations to type Name = { fields }, made 35 named
+union declarations explicit with type, and expressed ten mapping declarations
+with Map<K, V>. Preserved every record field name, domain and field order;
+comparison evidence: logs/spec-modern-type-conversion.log. The guide file was
+not copied into the repository or used as game-rule evidence.
+
+Expanded the notation chapter to define records, tagged alternatives, collections,
+absence versus outcomes and domain quantities. Map remains total over the declared
+key domain. Corrected the former explanation of :=: local assignment affects a
+local binding; assignment to a state property updates game state. Queries remain
+without game-state effects, and emit is a separate observation effect. Retained
+existing == pseudocode comparisons and mathematical = with explicit meanings.
+No JavaScript numeric/object/class semantics are imported.
+
+Final build passes 14 chapters, 403 links, 553 scenario rows and 324 source
+message fragments: logs/spec-modern-type-build-final.log. Source audit passes:
+logs/spec-modern-type-audit.log. Reviewed representative notation, Ship, token,
+report, impact and session declarations at PDF pages 8–9, 12, 18, 42, 117 and
+123–124. Fixed a dangling comparison operator across the notation page break;
+final pages 8–9 reviewed. The PDF remains 189 pages. This structural review
+preserves declarations; it does not prove all operation contracts or invariants.
+
+The broader guide-alignment review still includes declaration order, consistent
+operation effects, invariants, failure behavior and concurrency. Remaining game
+specification work is unchanged. No game code, servers or archives changed.

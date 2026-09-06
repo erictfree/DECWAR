@@ -198,7 +198,7 @@ operation TransferEnergy(actor: ShipId, target: ShipId,
     on GameState -> Transferred(received: Energy, charged: Energy)
                  | Rejected(reason: EnergyRejection)
 
-EnergyRejection = CannotTransferToSelf | ShipNotInGame
+type EnergyRejection = CannotTransferToSelf | ShipNotInGame
                 | CannotTransferToEnemy | RecipientNotAdjacent
                 | InsufficientEnergy | AmountMustBePositive
 ```
@@ -363,7 +363,7 @@ It produces no report, delay or turn by itself. Both explicit REPAIR and
 ### Explicit repair and completion
 
 ```text
-RepairRequest = Default | All | Amount(value: Damage)
+type RepairRequest = Default | All | Amount(value: Damage)
 
 operation ExplicitRepair(actor: ShipId, request: RepairRequest)
     on GameState -> Repaired(amount: Damage) | NothingToRepair
@@ -430,28 +430,31 @@ extra arguments produce a syntax diagnostic; there is no continuation prompt.
 enum ScanVerb = SCAN | SRSCAN
 enum ScanDirection = UP | DOWN | RIGHT | LEFT | CORNER
 
-record ScanRequest:
+type ScanRequest = {
     verb: ScanVerb
     direction: Optional<ScanDirection>
     extents: Sequence<integer> containing zero to two values
     warning: Boolean
+}
 
-ScanMark = EmptySpace | BlankSpace | ShipMark(ship: ShipId)
+type ScanMark = EmptySpace | BlankSpace | ShipMark(ship: ShipId)
          | BaseMark(team: Team) | RomulanMark
          | PlanetMark(owner: Optional<Team>) | StarMark | WarningMark
 
-record ScanRow:
+type ScanRow = {
     vertical: Coordinate
     cells: Sequence<ScanMark>
+}
 
-record ScanReport:
+type ScanReport = {
     bounds: Rectangle
     rows: Sequence<ScanRow>
+}
 
 operation Scan(actor: ShipId, request: ScanRequest)
     on GameState -> ScanOutcome
 
-ScanOutcome = Reported(report: ScanReport)
+type ScanOutcome = Reported(report: ScanReport)
             | Interrupted(partial: ScanReport) | RejectedSyntax
 ```
 
@@ -610,7 +613,7 @@ apply command-name ambiguity detection to the items.
 ```text
 enum RadioState = DAMAGED | ON | OFF
 
-StatusObservation = StardateValue(value: Stardate)
+type StatusObservation = StardateValue(value: Stardate)
     | ShieldValue(mode: ShieldMode, strength: Percentage,
                   equivalentEnergy: Optional<Energy>)
     | LocationValue(position: Position)
@@ -671,13 +674,14 @@ can match several identifiers: T matches both TO and TR.
 ### Selection and result
 
 ```text
-record DeviceDamageRow:
+type DeviceDamageRow = {
     device: Device
     damage: Damage
+}
 
 enum DamageReportStyle = SELECTED | GENERAL
 
-DamageReport = AllDevicesFunctional
+type DamageReport = AllDevicesFunctional
     | Rows(style: DamageReportStyle, titleObject: Optional<SectorObject>,
            values: Sequence<DeviceDamageRow>)
 
@@ -753,7 +757,7 @@ operation EngageTractor(actor: ShipId, target: ShipId)
     on GameState -> Engaged(beam: TractorBeamId)
                  | Rejected(reason: TractorRejection)
 
-TractorRejection = BeamAlreadyActive | CannotTractorSelf
+type TractorRejection = BeamAlreadyActive | CannotTractorSelf
                  | CannotTractorEnemy | ShipNotInGame
                  | TargetNotAdjacent | TargetAlreadyInBeam
                  | LowerOwnShields | TargetShieldsRaised
@@ -831,12 +835,12 @@ enum Propulsion = WARP | IMPULSE
 operation Move(actor: ShipId, destination: Position, mode: Propulsion)
     on GameState -> MovementOutcome
 
-MovementOutcome = Moved(position: Position)
+type MovementOutcome = Moved(position: Position)
                 | Obstructed(position: Position, at: Position)
                 | Rejected(reason: MovementRejection)
                 | Cancelled | CommissionEnded
 
-MovementRejection = WarpUnavailable | ImpulseUnavailable
+type MovementRejection = WarpUnavailable | ImpulseUnavailable
                   | WarpRangeExceeded | DamagedWarpRangeExceeded
                   | ImpulseRangeExceeded | InvalidLocation
 ```
@@ -978,12 +982,12 @@ Time spent acquiring the location counts toward that deadline.
 operation Build(actor: ShipId, target: Position)
     on GameState -> BuildOutcome
 
-BuildOutcome = StageCompleted(planet: PlanetId, builds: integer)
+type BuildOutcome = StageCompleted(planet: PlanetId, builds: integer)
              | BaseConstructed(base: BaseId)
              | Rejected(reason: BuildRejection)
              | Cancelled | GalaxyEnded
 
-BuildRejection = NotAdjacent | NotAPlanet | NotOwned
+type BuildRejection = NotAdjacent | NotAPlanet | NotOwned
                | BaseLimitReached | ConstructionCrewBusy
                | InvalidLocation
 ```
@@ -1121,11 +1125,11 @@ the ordinary location rules.
 operation Capture(actor: ShipId, target: Position)
     on GameState -> CaptureOutcome
 
-CaptureOutcome = Captured(planet: PlanetId)
+type CaptureOutcome = Captured(planet: PlanetId)
                | Rejected(reason: CaptureRejection)
                | Cancelled
 
-CaptureRejection = NotAdjacent | NotAPlanet
+type CaptureRejection = NotAdjacent | NotAPlanet
                  | AlreadyOwned | SurrenderRefused
 ```
 
@@ -1244,9 +1248,9 @@ resolved forms; the location reader supplies diagnostics for malformed input.
 operation FirePhasers(actor: ShipId, aim: Position, strength: integer = 200)
     on GameState -> PhaserOutcome
 
-PhaserOutcome = Fired(bank: PhaserBank)
+type PhaserOutcome = Fired(bank: PhaserBank)
               | Rejected(reason: PhaserRejection) | Cancelled
-PhaserRejection = PhasersUnavailable | InvalidTarget | OwnSector
+type PhaserRejection = PhasersUnavailable | InvalidTarget | OwnSector
                 | FriendlyTarget | OutOfRange | InvalidStrength
 ```
 
@@ -1387,18 +1391,19 @@ not authorize manufacturing target coordinates from unrelated input state.
 ### Operation and result types
 
 ```text
-record TorpedoRequest:
+type TorpedoRequest = {
     count: integer
     targets: Sequence<Position> containing one to three positions
+}
 
 operation FireTorpedoes(actor: ShipId, request: TorpedoRequest)
     on GameState -> TorpedoOutcome
 
-TorpedoOutcome = Finished(shots: integer, reason: BurstEnd)
+type TorpedoOutcome = Finished(shots: integer, reason: BurstEnd)
                | Rejected(reason: TorpedoRejection) | Cancelled
                | PlanetUpdateRefused(shots: integer) | GalaxyEnded
 enum BurstEnd = REQUEST_FULFILLED | MISFIRE | OWN_SECTOR
-TorpedoRejection = TubesUnavailable | NoAmmunition
+type TorpedoRejection = TubesUnavailable | NoAmmunition
                  | InvalidBurstCount | TargetOutOfRange
 ```
 
@@ -1611,7 +1616,7 @@ type ReportAffiliation = Team | NEUTRAL | ROMULAN
 type ReportRange = SensorRange | SpecifiedRange(positive integer)
                  | WholeGalaxy
 
-record ReportGroup:
+type ReportGroup = {
     kinds: Set<ReportKind>
     affiliations: Set<ReportAffiliation>
     modes: Set<ReportMode>
@@ -1620,12 +1625,14 @@ record ReportGroup:
     namedRomulan: Boolean
     exactPosition: Optional<Position>
     closest: Boolean
+}
 
-record ReportContext:
+type ReportContext = {
     viewer: CaptainId
     verb: ReportVerb
     origin: Optional<Position>
     team: Optional<Team>
+}
 
 type ReportEntity = ShipEntity(ShipId) | BaseEntity(BaseId)
                   | PlanetEntity(PlanetId) | RomulanEntity
@@ -1669,10 +1676,11 @@ type ReportTelemetry = ShipTelemetry(Position, ShieldMode, Percentage)
                      | PlanetTelemetry(Position, integer)
                      | OutOfRange
 
-record ReportDetail:
+type ReportDetail = {
     entity: ReportEntity
     opposingMarker: Boolean
     telemetry: ReportTelemetry
+}
 
 enum TerrainKind = EMPTY | STAR | BLACK_HOLE
 enum ReportScopeLabel = SENSOR_RANGE | SPECIFIED_RANGE | WHOLE_GALAXY
@@ -1680,11 +1688,12 @@ type SummaryClass = RomulanSummary | ShipSummary(Team)
                   | BaseSummary(Team) | PlanetSummary(Optional<Team>)
                   | TargetSummary
 
-record ReportSummary:
+type ReportSummary = {
     category: SummaryClass
     count: positive integer
     scope: ReportScopeLabel
     knownQualifier: Boolean
+}
 
 type GalaxyReportObservation = Detail(ReportDetail)
     | Terrain(TerrainKind) | Summary(ReportSummary)
@@ -1770,10 +1779,11 @@ these range values remains observable through disclosure and summary labels.
 The following operation expresses ordinary filtered admission:
 
 ```text
-record ReportAdmission:
+type ReportAdmission = {
     modes: Set<ReportMode>
     outOfRange: Boolean
     privilegedDisclosure: Boolean
+}
 
 operation AdmitReportEntity(context: ReportContext, group: ReportGroup,
                             entity: ReportEntity)
@@ -2005,9 +2015,10 @@ activity is disabled. If no column remains selected, report invalid input.
 ```text
 type ScoreColumn = ShipScore(ShipId) | TeamScore(Team) | RomulanScore
 
-record ScoreRatio:
+type ScoreRatio = {
     numerator: Points
     denominator: nonnegative integer
+}
 
 type ScoreReportRow = CategoryRow(ScoreCategory, Sequence<Points>)
                    | TotalRow(Sequence<Points>)
@@ -2015,9 +2026,10 @@ type ScoreReportRow = CategoryRow(ScoreCategory, Sequence<Points>)
                    | PerCommissionRow(Sequence<Optional<ScoreRatio>>)
                    | PerTurnRow(Sequence<ScoreRatio>)
 
-record ScoreReport:
+type ScoreReport = {
     columns: Sequence<ScoreColumn>
     rows: Sequence<ScoreReportRow>
+}
 
 operation ReportPoints(viewer: CaptainId, arguments: Sequence<Token>)
     -> Reported(ScoreReport) | Rejected(InvalidScoreSelector)
@@ -2133,7 +2145,7 @@ one of these switches.
 ```text
 enum TypeSelection = OUTPUT | OPTION
 
-TypeObservation = OutputLengthValue(value: OutputLength)
+type TypeObservation = OutputLengthValue(value: OutputLength)
     | PromptStyleValue(value: PromptStyle) | ScanStyleValue(value: ScanStyle)
     | InputCoordinatesValue(value: CoordinateMode)
     | OutputCoordinatesValue(value: CoordinateMode)
@@ -2193,7 +2205,7 @@ TimeCommand ::= "TIME"
 ```
 
 ```text
-TimeObservation = GameElapsed(value: Duration)
+type TimeObservation = GameElapsed(value: Duration)
     | CommissionElapsed(value: Duration) | CommissionExecution(value: Duration)
     | SessionExecution(value: Duration) | TimeOfDayValue(value: TimeOfDay)
 
@@ -2251,11 +2263,12 @@ UsersCommand ::= "USERS"
 ```
 
 ```text
-record ReportedPosition:
+type ReportedPosition = {
     absolute: Optional<Position>
     relative: Optional<SectorVector>
+}
 
-record UserRow:
+type UserRow = {
     ship: ShipId
     captainName: Text
     advertisedSpeed: nonnegative integer
@@ -2263,8 +2276,9 @@ record UserRow:
     connectionLabel: Text
     sessionNumber: integer
     position: Optional<ReportedPosition>
+}
 
-UserReportEntry = CaptainRow(value: UserRow) | FactionSeparator
+type UserReportEntry = CaptainRow(value: UserRow) | FactionSeparator
 
 operation ReportUsers(viewer: CaptainId)
     on GameState -> Sequence<UserReportEntry>

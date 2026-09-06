@@ -58,11 +58,12 @@ order; the resource is not replaced by a summary of its prose.
 ## Feedback records
 
 ```text
-record FeedbackRecord:
+type FeedbackRecord = {
     context: FeedbackContext
     lines: Sequence<Text>
+}
 
-record FeedbackContext:
+type FeedbackContext = {
     version: Text
     dateAndTime: environment date and time
     ship: Optional<ShipId>
@@ -74,6 +75,7 @@ record FeedbackContext:
     gameNumber: integer
     blackHolesSelected: Boolean
     romulanEnabled: Boolean
+}
 
 query feedbackRecords(game: GameState) -> Sequence<FeedbackRecord>
 ```

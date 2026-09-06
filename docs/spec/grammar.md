@@ -61,19 +61,20 @@ numeric-locations = [kw(ABSOLUTE) | kw(RELATIVE)] {integer}
 computed-locations = kw(COMPUTED) [integer] {target-name}
 target-name = ship-name | kw(ROMULAN)
 
-LocationLimit = Exactly(positive integer) | AtMost(positive integer)
+type LocationLimit = Exactly(positive integer) | AtMost(positive integer)
 
-record LocationValues:
+type LocationValues = {
     scalar: Optional<integer>
     positions: Sequence<Position>
+}
 
-LocationError = ComputerUnavailable | WrongItemCount | TooManyItems
+type LocationError = ComputerUnavailable | WrongItemCount | TooManyItems
               | NonNameTarget | UnknownTarget | TargetAbsent
               | NonIntegerCoordinate | VerticalOutsideGalaxy
               | HorizontalOutsideGalaxy
-LocationResult = Empty | Resolved(LocationValues)
+type LocationResult = Empty | Resolved(LocationValues)
                | Rejected(LocationError)
-LocationReadOutcome = LocationResult | Cancelled
+type LocationReadOutcome = LocationResult | Cancelled
 
 operation ResolveLocations(actor: ShipId, arguments: Sequence<Token>,
                            limit: LocationLimit)

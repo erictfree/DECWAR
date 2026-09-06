@@ -74,19 +74,22 @@ that permits spaces or separators inside a token.
 enum TokenCategory = NULL | INTEGER | REAL | ALPHANUMERIC
 type InputPosition = character position within an acquired input
 
-record Token:
+type Token = {
     text: Text
     category: TokenCategory
     numericValue: real
     origin: InputPosition
+}
 
-record AcquiredLine:
+type AcquiredLine = {
     raw: Text
     repeated: Boolean
+}
 
-record CommandInput:
+type CommandInput = {
     line: AcquiredLine
     arguments: Sequence<Token>
+}
 ```
 
 Token is an abstract description of input, not a required lexer object.

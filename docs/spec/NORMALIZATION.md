@@ -1236,3 +1236,16 @@ scans retain a label beyond the displayed bound, including 76 at horizontal 75;
 this does not add a galaxy coordinate or normalize a visible source choice.
 The source screen-string storage and numeric character-building instructions are
 not part of the abstract model. Source: WARMAC.MAC 1814–1825, 2482–2534.
+
+
+## Modern type notation
+
+Record declarations now use type Name = { fields }, named sum types explicitly
+use type, and mapping fields use Map<K, V>. This is specification notation
+inspired by TypeScript/Rust, following the supplied editorial guide. Every
+record field's name, domain and order was preserved. Mappings remain total over
+their declared key domain; no JavaScript Map, numeric representation, inheritance
+or class API is required. Assignment notation now explicitly distinguishes local
+bindings from game-state properties, correcting the former prose that treated
+every := as a state update even in pure formatting and geometry calculations.
+This changes notation and explanatory precision only, not any game rule.

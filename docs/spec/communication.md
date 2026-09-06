@@ -76,13 +76,15 @@ message-loss rate, fairness guarantee or automatic timeout.
 ## Receiving a message
 
 ```text
-record RadioHeading:
+type RadioHeading = {
     sender: ShipId | ROMULAN
     recipients: Sequence<ShipId>
+}
 
-record MessageObservation:
+type MessageObservation = {
     heading: Optional<RadioHeading>
     body: Text
+}
 
 operation ReceiveMessage(receiver: ShipId)
     on GameState -> Displayed(MessageId)
@@ -213,26 +215,30 @@ and informational reports are not thereby turned into queued combat notices.
 
 ```text
 enum StarOutcome = EXPLODED | UNAFFECTED
-record StarObservation:
+type StarObservation = {
     position: Position
     outcome: StarOutcome
+}
 
 enum TorpedoOutcome = MISSED | ABSORBED | NEUTRALIZED
-record TorpedoObservation:
+type TorpedoObservation = {
     shot: positive integer
     position: Position
     outcome: TorpedoOutcome
+}
 
 enum BaseNoticeReason = DISTRESS | DESTROYED
-record BaseObservation:
+type BaseObservation = {
     base: BaseId
     position: Position
     reason: BaseNoticeReason
+}
 
-record EnergyTransferObservation:
+type EnergyTransferObservation = {
     sender: ShipId
     recipient: ShipId
     received: Energy
+}
 
 enum TractorObservation = ACTIVATED | BROKEN
 
@@ -256,7 +262,7 @@ ordered type PublicationOrder
 
 type NoticePriority = integer in 1..40
 
-record CombatNotice:
+type CombatNotice = {
     id: NoticeId
     publisher: ShipId
     priority: NoticePriority
@@ -264,9 +270,11 @@ record CombatNotice:
     observation: CombatObservation
     recipients: Set<ShipId>
     remainingRecipients: Set<ShipId>
+}
 
-record CombatNoticeService:
+type CombatNoticeService = {
     notices: Set<CombatNotice>
+}
 
 query nextNotice(game: GameState, receiver: ShipId)
     -> Optional<CombatNotice>
@@ -315,25 +323,29 @@ result of one weapon or nova effect. These are immutable report values, not
 additional ships or installations in World.
 
 ```text
-record ShipImpactState:
+type ShipImpactState = {
     ship: ShipId
     position: Position
     shields: Shields
+}
 
-record BaseImpactState:
+type BaseImpactState = {
     base: BaseId
     position: Position
     strength: Percentage
+}
 
-record PlanetImpactState:
+type PlanetImpactState = {
     planet: PlanetId
     owner: Optional<Team>
     position: Position
     builds: nonnegative integer
+}
 
-record RomulanImpactState:
+type RomulanImpactState = {
     position: Position
     energy: Energy
+}
 
 type ImpactObject = ShipState(ShipImpactState)
                   | BaseState(BaseImpactState)
@@ -342,7 +354,7 @@ type ImpactObject = ShipState(ShipImpactState)
 type ImpactOrigin = ObjectOrigin(ImpactObject) | StarOrigin(Position)
 enum ImpactKind = PHASER | TORPEDO | NOVA
 
-record ImpactObservation:
+type ImpactObservation = {
     origin: ImpactOrigin
     target: ImpactObject
     kind: ImpactKind
@@ -351,6 +363,7 @@ record ImpactObservation:
     deflected: Boolean
     displacement: DisplacementResult
     destruction: Optional<DestructionCause>
+}
 ```
 
 Shields, Percentage, Energy and the identity types are defined in the abstract

@@ -58,7 +58,9 @@ coverage does not establish lifecycle, concurrency or terminal conformance.
   SHIELDS, RADIO, ENERGY, DOCK, REPAIR, SCAN, SRSCAN, STATUS, DAMAGES,
   TRACTOR, MOVE, IMPULSE, BUILD, CAPTURE,
   PHASERS, TORPEDOS, LIST, SUMMARY, BASES, PLANETS, TARGETS, POINTS, TYPE, TIME, USERS, SET, TELL, *PASSWORD, *DEBUG, HELP, NEWS, GRIPE, QUIT and
-  message publication/reception/discard use explicit contracts. Mapping/property notation,
+  message publication/reception/discard use explicit contracts. Compact type-record
+  declarations, tagged result alternatives, Map/Sequence/Set/Optional and the
+  distinction between local assignment and game-state updates are explicit. Mapping/property notation,
   the nine device states and their distinction from hull damage and shield state
   are defined explicitly. Phaser-bank identities and independent deadlines are
   defined separately from shared device damage. Report groups, admissions, telemetry and summary observations, terminal profiles and world-ended state, token categories, acquired-line/command input values, radio service and message observations, scan marks/rows,

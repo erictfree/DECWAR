@@ -16,17 +16,19 @@ do not freeze a snapshot across interactive or concurrent events.
 ```text
 enum RomulanWeapon = PHASERS | TORPEDOS
 
-record RomulanStepResult:
+type RomulanStepResult = {
     appeared: Boolean
     repositioned: Boolean
     weapon: Optional<RomulanWeapon>
+}
 
-RomulanStepOutcome = Completed(result: RomulanStepResult) | GalaxyEnded
+type RomulanStepOutcome = Completed(result: RomulanStepResult) | GalaxyEnded
 
-record RomulanTarget:
+type RomulanTarget = {
     object: SectorObject restricted to PlayerShip or Starbase
     position: Position
     range: integer
+}
 ```
 
 A result records whether this activation created a Romulan, changed its position,
@@ -236,7 +238,7 @@ faction for the ten-sector audience, as defined in the turn rules.
 operation RomulanTorpedoes(target: RomulanTarget)
     on GameState -> RomulanBurstOutcome
 
-RomulanBurstOutcome = Finished(shots: integer)
+type RomulanBurstOutcome = Finished(shots: integer)
                    | RomulanDestroyed(shots: integer) | GalaxyEnded
 ```
 

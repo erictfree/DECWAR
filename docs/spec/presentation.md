@@ -20,10 +20,11 @@ distinguish characters emitted by the game from characters echoed by the client.
 ## Presentation context
 
 ```text
-record PresentationContext:
+type PresentationContext = {
     outputLength: OutputLength
     coordinates: CoordinateMode
     origin: Optional<Position>
+}
 
 type FieldWidth = Free | Exactly(positive integer)
                 | AtLeast(positive integer)
