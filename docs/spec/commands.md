@@ -2158,7 +2158,7 @@ remain reportable while no Romulan ship is present; destruction does not reset
 them. New-galaxy initialization and later increments are defined by the
 [autonomous activity contract](autonomous.md#activation-and-appearance).
 
-Ratios retain fractions until terminal formatting. The display of a ratio with
+Ratios retain fractions until [terminal formatting](presentation.md#points-reports). The display of a ratio with
 a zero denominator remains unresolved; it is not implicitly zero, and this
 draft does not require a machine arithmetic exception. Faction admission
 increments are defined in the session rules.

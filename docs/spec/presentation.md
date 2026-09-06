@@ -884,3 +884,94 @@ relative origins, remain binding gaps rather than invented labels or positions.
 [identity fields](../../legacy/utexas/WARMAC.MAC#L2187),
 [account field digits and width](../../legacy/utexas/WARMAC.MAC#L1856),
 [position fields](../../legacy/utexas/DECWAR.FOR#L3078).
+
+## POINTS reports
+
+This presentation consumes [ScoreReport](commands.md#points), preserving its
+column and row order. It does not recalculate scores or commit pending points.
+For positive-denominator ratios, format their quotient in displayed game-point
+units. Zero-denominator ratios remain outside the defined numeric presentation;
+no zero, infinity, placeholder or exception text is introduced by this clause.
+
+```text
+query FormatScoreValue(value: real, output: OutputLength): Text
+```
+
+FormatScoreValue uses FormatNumber with NEGATIVE_ONLY, Exactly { count: 11 },
+and zero fractional digits in SHORT or one in MEDIUM and LONG. The fractional
+suffix is additional to those eleven positions. This same rule formats category
+scores, totals and defined per-commission/per-turn ratios. Thus the fields occupy
+eleven characters in SHORT and thirteen otherwise. Formatting discards display
+digits toward zero without changing the score or ratio.
+
+### Heading
+
+Request a conditional blank line. Pad to column 14 in SHORT, 24 in MEDIUM or
+31 in LONG. Emit selected column headings in their ScoreReport order:
+
+- ShipScore: one space, then the full roster name padded on the right to ten
+  characters; outside SHORT append two more spaces.
+- Federation TeamScore: `"Federation"`, then one space; outside SHORT append
+  two more spaces.
+- Empire TeamScore: `"    Empire"`, then one space; outside SHORT append two
+  more spaces. The four leading spaces are part of the heading.
+- RomulanScore: `"  Romulans"`, with its two leading spaces and no added suffix.
+
+Then request a conditional blank line. The heading padding is prescribed
+independently of the numeric widths; do not realign it by measuring labels.
+
+### Category rows
+
+For each included CategoryRow, emit its label from the table. SHORT uses the
+short label; MEDIUM and LONG use the other label. In LONG only, perform the
+listed continuation after that label. Then concatenate the selected score
+fields and request a conditional blank line.
+
+| Category | SHORT / MEDIUM and LONG labels | LONG continuation |
+| --- | --- | --- |
+| Enemy damage | `"Dam E's  "` / `"Damage to enemies "` | Pad to column 26. |
+| Enemy kills | `"E's dest "` / `"Enemies destroyed "` | `" ( 500)"` |
+| Base damage and destruction | `"Dam B's  "` / `"Damage to bases   "` | Pad to column 26. |
+| Planet capture | `"@'s capt "` / `"Planets captured  "` | `" ( 100)"` |
+| Base construction | `"B's built"` / `"Bases built       "` | `" (1000)"` |
+| Romulan damage and destruction | `"Dam ??'s "` / `"Damage to Romulans"` | `" ( 500)"` |
+| Star destruction | `"*'s dest "` / `"Stars destroyed   "` | `" ( -50)"` |
+| Planet destruction | `"@'s dest "` / `"Planets destroyed "` | `" (-100)"` |
+
+The parenthesized text is a fixed part of the LONG label, not another score
+calculation or a claim that every event in that category has that value.
+An omitted CategoryRow emits neither label nor line ending.
+
+### Totals and accounting rows
+
+Each label below begins with one unconditional line ending, including when the
+preceding row has already made a conditional blank-line request. Emit the SHORT
+label in SHORT and the other label in MEDIUM or LONG. LONG then pads to the
+stated column before any numeric fields.
+
+| Row | SHORT / MEDIUM and LONG labels after the initial line ending | LONG padding |
+| --- | --- | --- |
+| TotalRow | `"Tot Pts  "` / `"Total points:     "` | Column 26. |
+| CommissionRow | `"# of shps"` / `"Number of ships:"` | Column 24. |
+| PerCommissionRow | `"Pts / Pl "` / `"Pts. / player:    "` | Column 26. |
+| PerTurnRow | `"Pts / SD "` / `"Pts. / stardate:  "` | Column 26. |
+
+TotalRow emits every selected total with FormatScoreValue, then requests a
+conditional blank line. CommissionRow formats each present count with zero
+fractional digits, NEGATIVE_ONLY and Exactly { count: 11 } in SHORT or
+Exactly { count: 13 } otherwise. An absent ship cell emits that many spaces.
+It makes no additional line-ending request: the next label supplies its initial
+unconditional line ending.
+
+PerCommissionRow uses FormatScoreValue for each present quotient, with eleven
+spaces in SHORT or thirteen otherwise for an absent ship cell. It likewise
+makes no additional line-ending request. PerTurnRow formats every quotient and
+then requests a conditional blank line. Rows absent from ScoreReport emit
+nothing; in particular a ship-only report has no commission rows or their
+leading line endings.
+
+**Source basis:** [heading and category output](../../legacy/utexas/DECWAR.FOR#L2935),
+[totals and accounting output](../../legacy/utexas/DECWAR.FOR#L3002),
+[score labels](../../legacy/utexas/MSG.MAC#L209),
+[fixed-point display](../../legacy/utexas/WARMAC.MAC#L1942),
+[roster names](../../legacy/utexas/DECWAR.FOR#L489).

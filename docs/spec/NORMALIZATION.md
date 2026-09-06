@@ -1499,3 +1499,13 @@ its restored-versus-refreshed reporting distinction. It does not infer a working
 continuation from the comments: TRAP sets `who = 0` before `call rstart(who)`.
 The source supplied here does not establish recovery of that identity. No new
 RESUME command, fallback placement or automatic reconnect is specified.
+
+### POINTS presentation
+
+The POINTS recipe preserves explicit heading columns, score-label fragments,
+LONG annotations, eleven-position integer portions, fractional suffixes and
+separate literal-versus-conditional line endings. It consumes ordinary score
+values and ratios from ScoreReport; it does not restore scaled-integer division
+or arithmetic exceptions. Division by zero remains explicitly unresolved, with
+no invented display text or zero substitute. Fixed LONG annotations are label
+text rather than a new scoring rule.

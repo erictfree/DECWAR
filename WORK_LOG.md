@@ -3201,3 +3201,20 @@ records the continuation limitation. `logs/spec-saved-condition-build.log`
 passes the book checks; physical PDF pages 141–142 were visually inspected.
 Runtime and immutable archives were not changed. Remaining work includes
 admission/concurrent lifecycle, final reporting and overall conformance review.
+
+### Specification checkpoint: POINTS terminal presentation
+
+Added ScoreReport presentation: heading columns and padded names, short/long
+category labels and fixed LONG annotations, numeric precision/field widths,
+blank ship cells in accounting rows, and literal versus conditional line endings.
+The semantic command links this recipe. Zero denominators and concurrent count
+observations remain explicit gaps; no historical arithmetic exception or invented
+zero display is imposed. Source: DECWAR.FOR POINTS, MSG.MAC score fragments and
+WARMAC.MAC numeric/string output.
+
+`logs/spec-points-presentation-source-review.log` verifies source layout choices.
+`logs/spec-points-presentation-build.log` passes with 100 grammar productions,
+616 scenario rows, 501 links and 324 named message fragments. Visually reviewed
+physical PDF pages 160–162, including both formatting tables. Runtime/archive
+files unchanged. Other terminal recipes and the full lifecycle/concurrency review
+remain on the active specification goal.
