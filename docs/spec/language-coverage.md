@@ -302,3 +302,19 @@ Original TORPEDOS input now distinguishes fully determined even-item forms
 Location resolution precedes first-item count interpretation and count rejection.
 The source is not replaced by an odd-item-only parser. EX-MODEL-596–598 cover
 selected targets, count-error precedence and the narrower unresolved boundary.
+
+## Modern-notation and field-meaning checkpoint
+
+Reviewed the included-book vocabulary against the supplied Modern System
+Specification Guide. Searches for machine vocabulary were inspected in context:
+source-link filenames, quoted Honor Roll wording, account-label octal digits,
+lexical line-capacity errors and explicit normalization scope are not hidden
+memory-layout requirements. This is a scoped editorial review, not a claim that
+every semantic operation has passed a type checker.
+
+Clarified lifeSupportReserve as a signed reserve count, with decrement conditions,
+zero/negative distinction and links to CompleteTurn/DOCK. Replaced the misleading
+initial-state phrase “five life-support turns.” CompuServeStatistics now appears
+before RecordCommission first refers to that type. Whole-book forward references,
+optional-value presence, aliases, unit consistency and operation contracts remain
+to be audited; this checkpoint does not treat a name inventory as that proof.

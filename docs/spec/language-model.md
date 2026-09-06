@@ -423,7 +423,7 @@ type Ship = {
 ```
 
 A new commission begins with 5000 energy units, ten torpedoes, no hull or device
-damage, five life-support turns, shields up at 100%, and green condition.
+damage, a life-support reserve of 5, shields up at 100%, and green condition.
 `commissioned` is the ship's active-participation flag used by the stated
 presence and targeting checks. A recognized combat destruction sets it false,
 but leaves the captain association until ReleaseCommission. That association
@@ -432,6 +432,25 @@ Other resource changes can leave commissioned true at zero energy or fatal
 hull damage until a rule explicitly deactivates or releases the ship. Neither
 a fatal numerical threshold alone nor commissioned false means release has
 already completed or that another captain may take the ship.
+
+### Life-support reserve
+
+`s.lifeSupportReserve` is a signed integer reserve count. It is a separate
+property from `s.devices[LIFE_SUPPORT].damage`, from the ship's stardate and
+from elapsed time. It begins at 5. A qualifying undocked turn decreases it by
+one when life-support damage is at least 300 damage units at that turn's
+life-support check. Docking prevents that decrement; automatic repair occurs
+before the check and can make it inapplicable. These conditions are defined by
+[CompleteTurn](turns.md#turn-accounting).
+
+The value can reach zero without exhausting life support. At that check, a
+negative value sets hull damage to 2500 damage units. Consequently the field is
+not constrained to nonnegative integers, and its initial value is not a fixed
+five-turn or elapsed-time survival promise. A [successful docking](commands.md#dock)
+restores the reserve to 5. Skipping its decrement does not itself replenish it.
+
+**Source basis:** [initial reserve](../../legacy/utexas/SETUP.FOR#L395),
+[turn check and exhaustion](../../legacy/utexas/DECWAR.FOR#L241).
 
 ### Damage and device state
 

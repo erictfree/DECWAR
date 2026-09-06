@@ -506,6 +506,13 @@ an explicit environment dependency.
 ### Commission numbering
 
 ```text
+type CompuServeStatistics = {
+    gameNumber: nonnegative integer;
+    missions: Map<ShipId, nonnegative integer>;
+    reportedLosses: Map<ShipId, nonnegative integer>;
+    standings: CompuServeStandings;
+};
+
 type CommissionNumbers = {
     gameNumber: nonnegative integer;
     missionNumber: nonnegative integer;
@@ -575,13 +582,6 @@ Roll record merely by incrementing a mission counter.
 ### Preparing a standings update
 
 ```text
-type CompuServeStatistics = {
-    gameNumber: nonnegative integer;
-    missions: Map<ShipId, nonnegative integer>;
-    reportedLosses: Map<ShipId, nonnegative integer>;
-    standings: CompuServeStandings;
-};
-
 type StandingUpdate = {
     statistics: CompuServeStatistics;
     placement: StandingsPlacement;

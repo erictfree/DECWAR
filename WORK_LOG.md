@@ -3514,3 +3514,20 @@ logs/spec-austin-torpedo-even-build.log passed: 646 scenario rows, 100 productio
 324 source fragments, 14 chapters and 542 links. Inspected physical PDF pages
 61–62 and 214–215, with readable contract tables and examples. Remaining
 missing-component, interruption and cross-chapter review keeps the goal active.
+
+### Specification: modern notation and field meaning review
+
+Reviewed included-book machine vocabulary and the supplied Modern System
+Specification Guide. Clarified Ship.lifeSupportReserve as a signed count and
+replaced the misleading “five life-support turns” initialization wording. Linked
+its decrement/zero/negative/docking behavior to established contracts and source.
+Moved CompuServeStatistics before its first RecordCommission use. Recorded the
+limited review scope and outstanding full type/optional/unit audit in coverage.
+
+Validation: logs/spec-field-meaning-review.log passed focused source-order and
+declaration-order checks. Initial build caught a guessed CompleteTurn anchor
+(logs/spec-field-meaning-build.log); corrected it to turn-accounting. Final
+logs/spec-field-meaning-build-reviewed.log passed: 646 scenarios, 100 productions,
+324 fragments, 14 chapters and 546 links. Inspected physical PDF pages 15 and
+228–229: readable field explanation and type/operation order. No gameplay,
+archive or normalization-rule changes. Full goal remains active.
