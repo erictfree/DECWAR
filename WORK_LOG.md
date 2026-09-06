@@ -3394,3 +3394,20 @@ normal-conversion examples.
 `logs/spec-build-boundary-examples-build.log` passes. Physical PDF page 213
 was visually inspected. These are specification scenarios, not native runtime
 tests. No game or source archive changes; full goal remains active.
+
+### Specification: CompuServe departure markers
+
+Reviewed DECWAR.FOR 132–169, 333–350 and WARMAC.MAC initialization/fatal entry
+1155/6106, plus STAZAP reset 6213. Documented common departure's false missing
+marker for confirmed QUIT, hangup-at-QUIT and immediate movement death absent
+an environment failure; fatal environment departure selects true. Kept this
+distinct from GETCMD fatal checks and did not invent a new gameplay hazard.
+Added EX-COMP-32–34 and updated normalization/coverage notes. No gameplay edits.
+
+Validation: logs/spec-comp-departure-source-review.log records focused branch
+and order assertions plus source review; not native execution. Full build in
+logs/spec-comp-departure-build.log passed: 629 scenario rows, 100 productions,
+324 source fragments, 14 chapters and 521 links. Archive audit passed in
+logs/spec-comp-departure-audit.log. Inspected rendered physical pages 217 and
+222: legible prose/table, no clipping. Remaining standings counters, persistence
+and failure-continuation work stays open; full goal remains active.

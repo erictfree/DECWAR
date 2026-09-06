@@ -260,6 +260,19 @@ submit true for both factions instead. This chooses a standings marker; it does
 not add a new victory announcement, destroy the ship, or award score. A viewer
 without an acting ship submits no standings record on this world-end path.
 
+The common departure path used by confirmed QUIT submits markedMissing = false
+unless an environment failure is being handled. QUIT after a detected hangup
+uses that same departure path without asking for confirmation. An intercepted
+fatal environment failure submits true. Such a failure is an environment event,
+not an additional random hazard or a new player command; its fictional fatal
+report does not establish another combat rule.
+
+Death detected immediately after IMPULSE or MOVE also uses the common departure
+path. In the absence of an environment failure it therefore submits false,
+even though the ship is no longer alive. This differs from the fatal checks at
+main-command acquisition. Preserve the caller's marker selection; do not infer
+markedMissing from hull damage, energy, or a general notion of death.
+
 These callers observe elapsed time before the final POINTS report, then use
 that report's committed ship total for the submitted score. The standings
 update precedes commission release. Reporting or update failures can therefore
@@ -267,10 +280,13 @@ prevent the caller from reaching release; no rollback or guaranteed cleanup is
 implied by the ordinary successful sequence.
 
 **Source basis:** [fatal acquisition reporting](../../legacy/compuserve/fortran%201978/GETCMD.FOR#L105),
-[world-end record status and ordering](../../legacy/compuserve/fortran%201978/ENDGAM.FOR#L54).
+[world-end record status and ordering](../../legacy/compuserve/fortran%201978/ENDGAM.FOR#L54),
+[QUIT and immediate movement-death departures](../../legacy/compuserve/fortran%201978/DECWAR.FOR#L132),
+[common departure record](../../legacy/compuserve/fortran%201978/DECWAR.FOR#L333),
+[fatal environment event](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L6106).
 
-**OPEN QUESTION:** The full update operation still needs the remaining exit-path
-missing status, mission/destruction counters, source initialization, date binding,
+**OPEN QUESTION:** The full update operation still needs mission/destruction counters,
+source initialization, date binding,
 write failures and concurrent access. The placement rule does not promise a
 durable write or define the treatment of malformed preexisting records. It does
 not reclassify a losing commission as a destroyed physical ship.

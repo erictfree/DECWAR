@@ -1560,7 +1560,7 @@ base-count comparison, with Federation on ties and a total-destruction override.
 This record attribute does not stand for a universal physical-destruction event.
 The marker is described independently of packed status flags. These callers read
 elapsed time before final POINTS, then update standings before FREE; failure
-continuations and the separate ordinary/fatal-exit caller remain unfinished.
+continuations remain unfinished; the common departure caller is reviewed below.
 
 ### Honor Roll group ordering
 
@@ -1589,3 +1589,14 @@ world-end check precedes replacement of base position/strength and sector
 installation. The book now distinguishes those established partial effects from
 unresolved intermediate sector observations; it does not invent a rollback or
 normalize the conversion into an atomic transaction.
+
+### CompuServe common departure marker
+
+The standings marker is a caller-selected observation, not a derived ship-life
+property. Confirmed QUIT, hangup at QUIT, and immediate IMPULSE/MOVE death checks
+share a false marker unless an intercepted environment failure is active;
+main-command fatal checks select true independently. Describe the environment
+failure abstractly. Its fictional report does not add a random combat hazard.
+The source evidence is DECWAR.FOR 132–169 and 333–350, WARMAC.MAC initialization
+at 1155 and fatal entry at 6106; STAZAP's temporary diagnostic flag is cleared
+before ordinary return at 6213. No runtime code or legacy bytes change.

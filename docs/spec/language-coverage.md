@@ -257,3 +257,9 @@ the fifth stage (EX-MODEL-594) and last-planet conversion terminating before bas
 installation (EX-MODEL-595). These complement the existing no-free-identity,
 discovery-transfer and maintained-count examples rather than treating all
 conversion failures as rollback. Intermediate sector observation remains open.
+
+CompuServe departure-marker review now covers confirmed QUIT, hangup at QUIT,
+immediate movement death and intercepted fatal environment failure. Examples
+EX-COMP-32–34 distinguish these from fatal command-acquisition checks. The
+marker is not a ship-life invariant. Full standings persistence, counters and
+environment-failure continuation still require review.
