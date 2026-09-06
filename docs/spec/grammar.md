@@ -1,9 +1,9 @@
 # Command grammar and interpretation
 
 Status: dispatch and the productions below have been reviewed against Austin
-source. This is not yet a complete grammar: the coverage table explicitly marks
-commands whose arguments still need review. A convenient command synopsis is
-not a substitute for the ordered parsing rules.
+source. All main-game commands have drafted clauses; the coverage table records
+remaining acceptance and semantic dependencies. This is not yet a complete
+grammar. A command synopsis does not replace the ordered parsing rules.
 
 ## GRAM-1 — Notation
 
@@ -106,10 +106,12 @@ a valid target or successful completion.
 ## GRAM-5 — Phasers and torpedoes
 
 ```
-phasers = kw(PHASERS) [locations-producing-two-or-three-items]
+phasers = kw(PHASERS) [phaser-target]
+phaser-target = [kw(ABSOLUTE) | kw(RELATIVE)] [integer] pair
+              | kw(COMPUTED) [integer] target-name
 torpedoes-normal-form = kw(TORPEDOS) [count-and-targets]
 count-and-targets = [kw(ABSOLUTE) | kw(RELATIVE)] integer [pair [pair [pair]]]
-                  | kw(COMPUTED) integer [target-name {target-name}]
+                  | kw(COMPUTED) integer [target-name [target-name [target-name]]]
 pair = integer integer
 ```
 
@@ -125,6 +127,11 @@ last supplied pair for later torpedoes. The source does not implement a uniforml
 strict odd-item-count check on the original command line: malformed even counts
 and empty target continuations need separate boundary analysis. The production
 above describes normal forms, not the entire accepted/error language.
+
+Extra supplied pairs beyond the burst count are checked by the location reader,
+then ignored when selecting the burst's aims. Own-sector and ten-sector checks
+visit those selected aims in order and stop on their first failure. The distinct
+outcomes and state effects are defined by [FireTorpedoes](commands.md#torpedos).
 
 **Evidence:** [PHACON](../../legacy/utexas/DECWAR.FOR#L2647),
 [TORP](../../legacy/utexas/DECWAR.FOR#L4228). **Open:** malformed torpedo forms are
@@ -182,8 +189,8 @@ first argument. Other arguments are not a universal syntax failure. DOCK only
 tests STATUS at its first argument before invoking its report parser.
 
 TRACTOR with no argument while a beam is active attempts release. Otherwise it
-prompts for OFF or a ship name; empty continuation cancels. The complete
-release semantics remain under review.
+prompts for OFF or a ship name; empty continuation cancels. Engagement and
+release follow the [TRACTOR operation contract](commands.md#tractor).
 
 **Evidence:** [SHIELD](../../legacy/utexas/DECWAR.FOR#L3739),
 [ENERGY](../../legacy/utexas/DECWAR.FOR#L1009),

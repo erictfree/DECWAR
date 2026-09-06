@@ -24,8 +24,8 @@ remaining dependencies below still limit end-to-end conformance claims.
 | MOVE, IMPULSE | [MOVE and IMPULSE](commands.md#move-and-impulse): ADT operation contract. | Crowded towing, concurrent relocation, random distributions and responses. |
 | BUILD | [BUILD](commands.md#build): ADT operation contract. | Planet-update availability, conversion/world-end ordering and responses. |
 | CAPTURE | [CAPTURE](commands.md#capture): explicit ADT operation contract. | Surrender-refusal conditions, final lifecycle and responses; former-faction docking ordering is specified. |
-| PHASERS | [PHASERS](commands.md#phasers) | Concurrent target changes, random distributions and complete delivery/presentation. |
-| TORPEDOS | [TORPEDOS](commands.md#torpedos) | Malformed continuations, concurrent target changes and complete delivery/presentation. |
+| PHASERS | [PHASERS](commands.md#phasers): ADT operation contract. | Concurrent target changes, random distributions and complete delivery/presentation. |
+| TORPEDOS | [TORPEDOS](commands.md#torpedos): ADT operation contract. | Malformed continuations, concurrent target changes and complete delivery/presentation. |
 | LIST, SUMMARY, BASES, PLANETS, TARGETS | [Galaxy reports](commands.md#list-summary-bases-planets-and-targets) | Mixed selector edge cases, label aggregation, concurrent reporting and terminal presentation. |
 | POINTS | [POINTS](commands.md#points) | Zero-denominator presentation, concurrent counts and terminal formatting. |
 | TYPE | [TYPE](commands.md#type) | Complete preference/session definitions and terminal formatting. |
@@ -56,10 +56,11 @@ coverage does not establish lifecycle, concurrency or terminal conformance.
 
 - Abstract model: game-state ADT and operation-contract notation introduced;
   SHIELDS, RADIO, ENERGY, DOCK, REPAIR, TRACTOR, MOVE, IMPULSE, BUILD, CAPTURE,
-  HELP, NEWS, GRIPE, QUIT and
+  PHASERS, TORPEDOS, HELP, NEWS, GRIPE, QUIT and
   message publication/reception use explicit contracts. Mapping/property notation,
   the nine device states and their distinction from hull damage and shield state
-  are defined explicitly. Sector objects, geometric points/vectors, PathResult,
+  are defined explicitly. Phaser-bank identities and independent deadlines are
+  defined separately from shared device damage. Sector objects, geometric points/vectors, PathResult,
   symmetric beam membership and fixed base-identity order are defined. Existing
   command pseudocode still needs conversion to that form. Identities, quantities,
   roster, installations, radio, tractor associations, preferences and score

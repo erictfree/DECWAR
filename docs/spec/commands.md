@@ -1039,45 +1039,81 @@ need their final shared-rule contracts.
 
 ## PHASERS
 
-### Syntax and target validation
+### Syntax
 
 ```text
 PhasersCommand ::= "PHASERS" [PhaserTarget]
-PhaserTarget   ::= Location | StrengthAndLocation
+PhaserTarget   ::= NumericPhaserTarget | ComputedPhaserTarget
+NumericPhaserTarget ::= ["ABSOLUTE" | "RELATIVE"]
+                        [integer] integer integer
+ComputedPhaserTarget ::= "COMPUTED" [integer] TargetName
+TargetName ::= ship-name | "ROMULAN"
 ```
 
-Location uses the coordinate grammar and contributes two coordinate items.
-StrengthAndLocation contributes an integer strength followed by those two items;
-the coordinate grammar also permits its computed-target form. Default strength
-is 200. A lone strength without a target is invalid. Missing arguments prompt
-for a target; an empty continuation cancels.
+The final pair denotes a location; the optional preceding integer is strength.
+A computed target supplies the pair from its current position. Coordinate
+interpretation and keyword matching follow the ordinary location rules. Default
+strength is 200. A lone strength without a target is invalid. Missing arguments
+prompt for a target; an empty continuation cancels. These productions describe
+resolved forms; the location reader supplies diagnostics for malformed input.
 
-Phaser-device damage must be below 300 damage units before acquiring a target.
-Choose the phaser bank with the earlier readiness deadline; on a tie choose the
-first bank. Identify the target before waiting for that bank. It must be a ship,
-base, planet or Romulan. Reject an uncommissioned ship, the acting ship's own
-sector, a friendly ship/base/planet, and a target more than ten sectors away,
-in that order after identifying a valid target kind. A neutral planet is allowed.
+### Operation and ordered validation
 
-Wait until the chosen bank is ready. Only then validate an explicitly supplied
-strength as 50 through 500 inclusive. An invalid strength can therefore produce
-a diagnostic after a wait, without a shot, energy charge or turn completion.
+```text
+operation FirePhasers(actor: ShipId, aim: Position, strength: integer = 200)
+    on GameState -> PhaserOutcome
+
+PhaserOutcome = Fired(bank: PhaserBank)
+              | Rejected(reason: PhaserRejection) | Cancelled
+PhaserRejection = PhasersUnavailable | InvalidTarget | OwnSector
+                | FriendlyTarget | OutOfRange | InvalidStrength
+```
+
+Let s be `ship(game, actor)`, c its captain, and w be `world(game)`.
+The signature names the resolved arguments; the command acquires them at the
+point specified below. Input failure and cancellation have no firing effects
+and complete no turn. Ordered validation is part of the operation's meaning:
+
+1. Before reading coordinates, require
+   `s.devices[PHASERS].damage < 300 damage units`; otherwise PhasersUnavailable.
+2. Acquire aim and strength using the grammar and continuations above.
+3. Select bank: SECOND if `c.phaserReady[SECOND] < c.phaserReady[FIRST]`,
+   otherwise FIRST. Let ready be that bank's selected deadline.
+4. Identify `sector(game, aim)`. It must contain PlayerShip, Starbase,
+   PlanetObject or RomulanObject. A PlayerShip must be commissioned.
+   Otherwise reject with InvalidTarget.
+5. If aim equals s.position, reject with OwnSector. If the identified ship,
+   base or planet belongs to s.team, reject with FriendlyTarget. If its
+   Chebyshev distance from s.position exceeds ten, reject with OutOfRange.
+6. Wait until ready. Then require `50 <= strength <= 500`;
+   otherwise reject with InvalidStrength.
+
+An aim at a neutral planet passes the faction check. Let target denote the
+identified entity and distance the range calculated during validation. The bank
+is selected once; the command does not alternate banks independently of their
+deadlines. Rejection leaves both deadlines unchanged, costs no firing energy
+and completes no turn. InvalidStrength may nevertheless follow a wait.
+
+**Open:** Target movement, disappearance or replacement during the wait and
+interrupting that wait require the multiplayer/control contract. This clause
+does not introduce automatic retargeting or a second device-availability check.
 
 ### Firing and heat
 
-With shields raised, firing costs an additional 200 energy units for shield
-control. The shield mode stays up. The command does not require enough energy
-to pay this or the later firing cost.
+With s.shields.mode UP, firing costs an additional 200 energy units for shield
+control. The shield mode stays up. The command does not require sufficient
+s.energy for this charge or for the later firing charge.
 
 ```text
-if ship.shields.mode == UP:
-    ship.energy -= 200 energy units
-    emit the shield-control notice when output is not SHORT
+if s.shields.mode == UP:
+    if c.outputLength != SHORT:
+        emit the shield-control notice
+    s.energy -= 200 energy units
 
 if IntegerDraw(100) * strength > 18900:
-    addedDamage := 75 + 0.0075 * IntegerDraw(100) * strength
-    ship.devices[PHASERS].damage += addedDamage damage units
     emit PhasersOverheated
+    addedDamage := 75 + 0.0075 * IntegerDraw(100) * strength
+    s.devices[PHASERS].damage += addedDamage damage units
 ```
 
 Overheating does not abort the shot. The new damage participates in this shot's
@@ -1087,9 +1123,9 @@ damage calculation and in the bank's next readiness deadline.
 
 | Target | Effect |
 | --- | --- |
-| Ship or base | Apply the shared phaser-damage rule, including shields, critical hits and score. |
-| Romulan | Apply the Romulan phaser-damage and score rule. |
-| Neutral or opposing planet | If `IntegerDraw(100)*strength/(25*distance) > 150`, reduce its builds by one, with a floor of zero. Otherwise leave builds unchanged. |
+| PlayerShip or Starbase | Apply the [shared phaser-damage rule](world-rules.md#phaser-impact), including shields, critical hits and pending score for actor. |
+| RomulanObject | Apply the [Romulan phaser-damage and score rule](world-rules.md#damage-to-the-romulan). |
+| Neutral or opposing PlanetObject | If `IntegerDraw(100)*strength/(25*distance) > 150`, set `target.builds := max(0, target.builds - 1)`. Otherwise leave target.builds unchanged. |
 
 Phasers do not destroy a planet when its build count reaches zero. They do not
 perform path traversal through intervening sectors. A phaser hit on a ship does
@@ -1106,18 +1142,21 @@ rules remain separate.
 ### Completion
 
 ```text
-ship.energy -= strength energy units
-ship.condition := RED
-captain.phaserReady[chosenBank] := now
-    + (world.pacingClass + 1) * 1500 milliseconds
-    + ship.devices[PHASERS].damage * 10 milliseconds per damage unit
-CompleteTurn(ship, automaticRepair = false)
+s.energy -= strength energy units
+s.condition := RED
+c.phaserReady[bank] := now
+    + (w.pacingClass + 1) * 1500 milliseconds
+    + s.devices[PHASERS].damage * 10 milliseconds per damage unit
+CompleteTurn(s, automaticRepair = false)
 ```
 
-The readiness delay starts after the hit, rather than at command entry. The
-other bank's deadline is unchanged. Successful firing completes a turn without
-automatic device repair. Energy exhaustion after firing is handled by the
-subsequent lifecycle rules, without undoing the shot.
+The readiness delay starts after the hit and its notifications, rather than
+at command entry. The other bank's deadline is unchanged. The result is
+Fired(bank) when the normal completion path returns. Successful firing completes
+one turn without automatic device repair. The command consumes no torpedoes and
+does not change c.torpedoesReady. Energy exhaustion after firing is handled by
+the subsequent lifecycle rules, without undoing the shot. World termination
+or an interruption takes precedence under the session rules.
 
 **Source basis:** [PHACON](../../legacy/utexas/DECWAR.FOR#L2647),
 [damage](../../legacy/utexas/DECWAR.FOR#L4089),
@@ -1132,8 +1171,10 @@ apply, including ABSOLUTE, RELATIVE and COMPUTED forms.
 
 ```text
 TorpedoCommand ::= "TORPEDOS" [CountAndTargets]
-CountAndTargets ::= locations producing an integer count
-                    followed by zero to three coordinate pairs
+CountAndTargets ::= ["ABSOLUTE" | "RELATIVE"] integer
+                    [Pair [Pair [Pair]]]
+                  | "COMPUTED" integer [TargetName [TargetName [TargetName]]]
+Pair ::= integer integer
 ```
 
 The count is a scalar; it is not offset in relative mode. A burst requests one
@@ -1141,6 +1182,9 @@ to three torpedoes. Supply at least one target pair, either with the count or
 in a following coordinates continuation. If fewer pairs than torpedoes are
 supplied, reuse the last pair for the remaining shots. Targets denote directions;
 they need not contain an enemy, and a torpedo may travel beyond a target.
+If more target pairs than the requested count are supplied, use only the first
+count pairs for the burst. The location reader still validates every supplied
+pair as a location before this selection, including its galaxy bounds.
 
 With no initial items, prompt for the burst and repeat until the reply has a
 positive odd number of location items, or input is cancelled. A count alone
@@ -1153,46 +1197,91 @@ and an empty coordinates continuation follow inconsistent historical paths.
 Their language-level acceptance and diagnostics remain under review. They do
 not authorize manufacturing target coordinates from unrelated input state.
 
+### Operation and result types
+
+```text
+record TorpedoRequest:
+    count: integer
+    targets: Sequence<Position> containing one to three positions
+
+operation FireTorpedoes(actor: ShipId, request: TorpedoRequest)
+    on GameState -> TorpedoOutcome
+
+TorpedoOutcome = Finished(shots: integer, reason: BurstEnd)
+               | Rejected(reason: TorpedoRejection) | Cancelled
+               | PlanetUpdateRefused(shots: integer) | GalaxyEnded
+enum BurstEnd = REQUEST_FULFILLED | MISFIRE | OWN_SECTOR
+TorpedoRejection = TubesUnavailable | NoAmmunition
+                 | InvalidBurstCount | TargetOutOfRange
+```
+
+Let s be `ship(game, actor)`, c its captain, and w be `world(game)`. The request
+contains the targets supplied by a successfully resolved command or continuation.
+Its signature does not change the order of input and validation below. A result's
+shots is the number actually launched, not the requested count or ammunition
+consumed: a misfired shot counts, and a docked ship launches without consuming
+ammunition. These names are semantic outcomes, not new commands or message text.
+
 ### Entry checks and target validation
 
-Torpedo-tube damage of at least 300 units rejects the command before input is
-read. Inventory must be positive, even while docked. The requested count cannot
-exceed either three or the current inventory. Validate all stored targets before
-launching the first shot: each must be within ten sectors of the acting ship.
-An out-of-range target rejects the burst without a turn.
+Check the following in order:
+
+1. Before input, require `s.devices[TORPEDO_TUBES].damage < 300 damage units`;
+   otherwise TubesUnavailable.
+2. Require `s.torpedoes > 0`; otherwise NoAmmunition, even when s.docked is true.
+3. Acquire count and targets using the syntax/continuation rules. A nonpositive
+   count gives Cancelled. A count exceeding s.torpedoes first emits the inventory
+   limitation. A count exceeding either s.torpedoes or three then gives
+   InvalidBurstCount and the inventory report.
+4. Make the sequence aims of exactly count positions: take the first count
+   supplied targets, or repeat the last target until count positions are present.
+5. Visit aims in order. For each aim, check for s.position first; otherwise
+   require its Chebyshev distance from s.position to be at most ten. The first
+   failed check determines the outcome; later aims are not validated.
+
+TargetOutOfRange rejects without launching, consuming ammunition, changing the
+reload deadline or completing a turn. The other rejection and cancellation
+outcomes likewise have no firing effects. Input diagnostics are supplied by the
+location reader before target selection; they are not successful burst outcomes.
 
 An own-sector target takes a different path: report the invalid target, set the
-tubes' readiness deadline to now, and complete one turn without automatic repair.
+tubes' readiness deadline c.torpedoesReady to now, and complete one turn without
+automatic repair, giving Finished(0, OWN_SECTOR).
 No torpedo is launched or consumed. This early path does not set red condition.
 It can be reached before the previous readiness delay has expired.
 
-Otherwise wait until `captain.torpedoesReady`, then set condition red and begin
-the burst. Shots in one burst do not wait separately for the tubes to reload.
+Otherwise wait until c.torpedoesReady, set s.condition to RED, and begin the
+burst with zero accumulated reload delay and zero launched shots. Shots in one
+burst do not wait separately for the tubes to reload.
 
 ### Launch and misfire
 
-For each shot, use the ship's current position and state. If a previous shot
-misfired, stop the burst. Compute deflection as follows; each U is a separate
+Visit aims in order, using the ship's current position and state for each shot.
+If a previous shot misfired, stop with reason MISFIRE. Entry inventory and device
+checks are not repeated between shots. Compute deflection as follows; each U is a separate
 `UnitDraw()`:
 
 ```text
 deflection := (U1 - 0.5)/5
-if torpedo tubes or computer have positive damage:
+if s.devices[TORPEDO_TUBES].damage > 0 damage units
+   or s.devices[COMPUTER].damage > 0 damage units:
     deflection += (U2 - 0.5)/10
-if ship.shields.mode == UP:
-    deflection += (ship.shields.strength / 1%) * (U3 - 0.5)/1000
+if s.shields.mode == UP:
+    deflection += (s.shields.strength / 1%) * (U3 - 0.5)/1000
 ```
 
 If this shot's target has become the ship's own sector, report the error and
-finish the burst normally with the delays already accumulated. Otherwise consume
-one torpedo when undocked; docking prevents this consumption but does not waive
-the entry inventory checks. There is no engine-energy firing cost.
+finish with reason OWN_SECTOR and the delays already accumulated. Otherwise
+launch the shot. If s.docked is false, set `s.torpedoes := s.torpedoes - 1`;
+if true, leave s.torpedoes unchanged. Docking does not waive the entry inventory
+checks. There is no s.energy firing charge, although a resulting explosion can
+damage the firing ship.
 
 `IntegerDraw(100) > 96` is a misfire. Report its shot number and add
 `(UnitDraw()-0.5)/5` to deflection. No subsequent shot in this burst launches,
 but the misfired shot still travels and can hit normally. On a misfire,
-`IntegerDraw(5) == 5` also adds `50 + IntegerDraw(3000)/10` damage units to the
-tubes and reports that damage.
+`IntegerDraw(5) == 5` also adds `50 + IntegerDraw(3000)/10` damage units to
+s.devices[TORPEDO_TUBES].damage and reports that damage.
 
 Choose the shot's maximum path length using a new U:
 
@@ -1203,11 +1292,21 @@ Choose the shot's maximum path length using a new U:
 | `5/8 <= U < 7/8` | 9 |
 | `7/8 <= U < 1` | 10 |
 
-Add `(world.pacingClass+1)*1000 milliseconds` plus ten milliseconds per current
-torpedo-tube damage unit to the accumulated reload delay. This includes tube
-damage caused by this shot's misfire. Trace from the current ship position toward
+Add this shot's reload delay to the accumulated delay:
+
+```text
+shotDelay := (w.pacingClass + 1) * 1000 milliseconds
+    + s.devices[TORPEDO_TUBES].damage * 10 milliseconds per damage unit
+accumulatedReloadDelay += shotDelay
+```
+
+This includes tube damage caused by this shot's misfire. Trace from the current ship position toward
 the stored target using this length and deflection, and resolve the first
-obstruction. The shared path rule determines sector order and displacement step.
+obstruction. Specifically invoke
+`TracePath(s.position, aim - s.position, length, deflection)`;
+its PathResult determines the final clear position, obstruction and displacement
+step. The aim is fixed by the stored sequence; it is not recomputed from a named
+target that later moves.
 
 ### Impact
 
@@ -1225,29 +1324,47 @@ A full-strength enemy base makes its faction-wide distress call before damage.
 A destroyed base makes its faction-wide destruction call after the hit notice.
 These two calls address captains of the base's faction whose radios are on.
 
-A planet hit first requires a shared planet update. If unavailable, output
+A planet hit first requires an accepted planet update. If refused, output
 “Sorry, Captain, but the torpedo tubes are empty!” and stop without updating the
-readiness deadline or completing a turn. Prior shots, consumption and score
+readiness deadline or completing a turn, giving PlanetUpdateRefused(shots).
+The refused shot is included in shots. Prior shots, consumption and score
 changes remain in effect. This diagnostic does not mean the inventory was
 actually reduced to zero.
 
-With the update available, `IntegerDraw(4) == 4` removes one build; other results
-leave builds unchanged. A negative build count destroys the planet and invokes
+For an accepted hit let p be the impacted planet. `IntegerDraw(4) == 4` sets
+`p.builds := p.builds - 1`; other results leave p.builds unchanged.
+A negative build count destroys the planet and invokes
 planet removal and world-end rules. Subtract 100 points from the pending
-PLANET_DESTRUCTION score. Exactly zero builds survives. Release the update and notify
-captains within ten sectors of the impact.
+PLANET_DESTRUCTION score. Exactly zero builds survives. Notify captains within
+ten sectors of the impact if the galaxy continues. GalaxyEnded exits immediately
+when planet removal terminates the galaxy; it does not continue the burst or
+perform the ordinary completion below. Each impact has its own destruction
+result; an earlier destroyed object does not make a later surviving planet die.
 
 ### Completion
 
 ```text
-captain.torpedoesReady := now + accumulatedReloadDelay
-CompleteTurn(ship, automaticRepair = false)
+c.torpedoesReady := now + accumulatedReloadDelay
+CompleteTurn(s, automaticRepair = false)
 ```
 
 This happens once for a normally completed burst, including a burst cut short
 by a misfire. It does not happen after the explicitly identified early returns.
 The reload deadline starts at burst completion; it gates the next burst rather
 than adding a wait between this burst's shots.
+
+Give Finished(shots, reason), with REQUEST_FULFILLED after all requested shots,
+MISFIRE when a misfire prevents a remaining shot, or OWN_SECTOR for the described
+aim failure. A misfire on the last requested shot still fulfills the request.
+Leave both c.phaserReady deadlines unchanged. Pending damage/kill points accrue
+through the impact rules; normal turn completion commits them under the turn
+contract. A refused update or terminating galaxy does not add that commitment.
+
+**Open:** The complete conditions for refusing a planet update, interruptions
+during reloading/publication, and firing after the actor loses its position or
+commission during a burst belong to the multiplayer/lifecycle contract. They
+do not imply a new random miss probability, automatic cancellation on tube
+damage, or rollback of earlier shots.
 
 **Source basis:** [TORP](../../legacy/utexas/DECWAR.FOR#L4228),
 [TORDAM](../../legacy/utexas/DECWAR.FOR#L4089),

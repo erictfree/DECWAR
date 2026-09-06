@@ -2286,3 +2286,45 @@ port/tool attribution remain separate.
   docs/status.md and unrelated WORK_LOG additions remain outside this checkpoint.
   The goal remains active: remaining command contracts, lifecycle/multiplayer,
   randomness, presentation bindings, variants and full conformance review remain.
+
+
+## Specification checkpoint — player weapon contracts (2026-09-05)
+
+- Classified the previous goal turn as progress: autonomous checkpoint dde3fe2
+  was committed and pushed. Inspected current worktree; separate experiments,
+  status changes and existing unrelated work-log additions remain outside this work.
+- Converted PHASERS and TORPEDOS to explicit ADT operation contracts with typed
+  inputs, named rejection/cancellation/completion outcomes and ordered checks.
+  Added PhaserBank FIRST/SECOND and Captain.phaserReady as a total mapping;
+  both banks share the ship's one PHASERS DeviceState damage value.
+- Rechecked PHACON, TORP, LOCATE/RELOC, PHADAM/TORDAM and their main-loop callers
+  in legacy/utexas/DECWAR.FOR. Preserved target checks before the phaser wait,
+  strength validation afterward, heat-notification ordering, firing despite
+  insufficient energy, post-notification deadline timing and no-repair completion.
+- Defined torpedo request targets, reuse/truncation, ordered own-sector/range
+  checks, docked ammunition behavior, misfire/tube damage, per-shot reload delay,
+  partial planet-update refusal and world-end early return. Extra pairs still
+  undergo location validation but not the selected burst's ten-sector checks.
+- Replaced vague weapon grammar placeholders with normal-form productions;
+  updated the grammar chapter's status and stale tractor-release cross-reference.
+  Incomplete torpedo forms, concurrent target/actor changes and control interruptions
+  remain explicit dependencies rather than invented acceptance or repair rules.
+- Documented per-impact planet destruction in excluded NORMALIZATION.md: a prior
+  hit's stored destruction flag does not destroy a subsequent surviving planet
+  in the generalized model. No game code or preserved source bytes were changed.
+- Added EX-MODEL-209 through 225 for bank ties, validation/wait ordering,
+  overheating and deadline arithmetic, energy exhaustion, tube/inventory precedence,
+  own-sector versus out-of-range outcomes, unused aims, docked bursts, misfire
+  damage at the threshold, update refusal and independent impact results.
+- Validation: source audit passes 135 hashes, 83 declarations, 33 main-game and
+  16 pregame commands, 324 messages and variant population checks. Final spec
+  build passes 13 sections, 272 local links and 225 example rows. These checks
+  verify documents/source evidence, not complete executable semantic conformance.
+- Logs: logs/spec-player-weapons-build.log records initial PDF overflow rejection;
+  logs/spec-player-weapons-final.log passes after moving long field/deadline
+  expressions into displayed pseudocode. logs/spec-player-weapons-audit.log passes.
+  Reviewed the 107-page PDF's model, weapon and new example pages, with renders in
+  tmp/pdfs/spec-player-weapons/. Generated publication files remain ignored.
+- Goal remains active. Remaining commands, shared combat contracts, lifecycle,
+  multiplayer, random distributions, terminal bindings, variant amendments and
+  complete conformance review still require work. No runtime/server changes.

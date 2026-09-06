@@ -446,3 +446,49 @@ heat or device penalty. Both weapon paths credit its persistent score directly.
 [TELL](../../legacy/utexas/DECWAR.FOR#L3977),
 [BASPHA](../../legacy/utexas/DECWAR.FOR#L375),
 [PLNATK](../../legacy/utexas/DECWAR.FOR#L2800).
+
+
+## Player-weapon operation contracts
+
+PHACON selects one of the captain's two PHBANK deadlines after location input,
+choosing bank 1 on equality. The model now names these PhaserBank FIRST and
+SECOND with a total deadline mapping, rather than an unspecified pair. Both
+share one phaser-device damage value. Validation order is observable: target
+kind/commission, own sector, faction and range precede the bank wait; strength
+50..500 is checked afterward. No energy-sufficiency predicate or automatic
+alternation is introduced. Heat notification precedes its damage increment;
+new damage affects the shot and subsequent reload deadline. The completion
+clock is read after hit notifications, and the other bank remains unchanged.
+
+TORP copies only the requested number of aims, repeating the last available
+pair. Extra supplied pairs are checked by LOCATE for coordinate validity but
+are not part of TORP's subsequent own-sector/range loop. Own-sector failure
+in that loop is a normal return with TPAUS zero: it resets the reload deadline
+to now and takes the caller's no-repair turn path. Range failure is an alternate
+return with no turn or deadline change. In an active burst, accumulated TPAUS
+instead survives an own-sector failure. These distinctions remain explicit
+semantic outcomes rather than one generic invalid-input result.
+
+Each misfired torpedo still travels, including when its own misfire raises tube
+damage to or above the entry threshold. TORP does not recheck that threshold
+between shots. A last-requested-shot misfire does not suppress any remaining
+shot; the request is fulfilled even though its misfire is reported. Reload delay
+uses current tube damage for each launched shot. Docking suppresses consumption,
+not the initial positive-inventory or count checks. An update refusal follows
+consumption and tracing but skips the new deadline and normal turn; the literal
+empty-tubes diagnostic does not alter inventory to match its wording.
+
+The planet branch uses KLFLG without initializing it for each impact. Consistent
+with the generalized hit model, destruction is an outcome of that impact's own
+state changes; a retained result of an unrelated previous hit is not a planet
+rule. The new example makes this normalization explicit. Empty/incomplete target
+forms that read retained VALLST data remain outside the resolved normal grammar;
+this checkpoint does not invent a repair or a definitive rejection for them.
+No source buffer, common-block storage, scaled damage word or lock address is
+required by the book's ADTs. Concurrent replacement, loss of actor position and
+control interruption still need the broader multiplayer/lifecycle contract.
+
+Source: Austin DECWAR.FOR PHACON 2647–2760, TORP 4228–4425, LOCATE/RELOC
+1404–1535, PHADAM/TORDAM 4089–4224; main command dispatch 120–124 and 196–201
+with completion 230–253. The original PHACON planet hit has no LOCK call;
+this contract does not add a refusal outcome to that weapon's planet branch.

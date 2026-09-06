@@ -121,6 +121,7 @@ enum CoordinateMode = ABSOLUTE | RELATIVE | BOTH
 enum Device     = SHIELDS | WARP_ENGINES | IMPULSE_ENGINES
                 | LIFE_SUPPORT | TORPEDO_TUBES | PHASERS
                 | COMPUTER | RADIO | TRACTOR_BEAM
+enum PhaserBank = FIRST | SECOND
 
 type Coordinate = integer in 1..75
 type Energy     = quantity in energy units
@@ -433,7 +434,7 @@ record Captain:
     outputCoordinates: CoordinateMode
     terminalProfile: Optional<Text>
     radio: RadioSettings
-    phaserReady: pair of TimePoint
+    phaserReady: PhaserBank -> TimePoint
     torpedoesReady: TimePoint
 
 record Message:
@@ -448,6 +449,18 @@ The recipients name the audience of a message. Message-delivery state is
 specified separately from that original audience. Turning a radio off and
 gagging a sender are distinct actions. The delivery rules determine which
 messages can be received and when.
+
+Each captain has two independent phaser readiness deadlines. For a captain c:
+
+```text
+c.phaserReady[FIRST]     first bank's deadline
+c.phaserReady[SECOND]    second bank's deadline
+```
+
+The PHASERS command selects the earlier deadline, choosing FIRST on equality.
+Both banks use the same `s.devices[PHASERS].damage` value on that captain's ship;
+there are not two independent phaser-device damage values. The torpedo tubes
+have one deadline, `c.torpedoesReady`, shared by successive bursts.
 
 Faction knowledge records discovery of an installation's identity. It does not
 store a frozen copy of its coordinates, owner, builds or strength. Report rules
