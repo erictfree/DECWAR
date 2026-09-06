@@ -574,6 +574,13 @@ defense phases. Other ships and installations do not alter the stated result.
 | EX-MODEL-561 | SHORT summary of one Federation ship, any scope | Line is `"  1 Federation ship\r\n"`; singular form, no range suffix. |
 | EX-MODEL-562 | MEDIUM RomulanSummary count two from repeated qualifying groups, sensor-range scope | Line is `"  2 Romulans in range\r\n"`; preserve report multiplicity without creating another Romulan. |
 | EX-MODEL-563 | Planet detail with zero builds | Omit both the build-count field and suffix; coordinates remain present. |
+| EX-MODEL-564 | Relative input preference; MOVE ABSOLUTE with no coordinates; reply `1 0`; actor at (37,37) | Initial Empty prompts. Resolve the new line using the relative preference, obtaining (38,37); ABSOLUTE on the earlier line does not carry over. |
+| EX-MODEL-565 | Operational warp engines; initial MOVE coordinate prompting; replies ABSOLUTE, RELATIVE, then a zero-token line | The two mode-only replies repeat the coordinates prompt. The zero-token line cancels. Retain one early potential-damage draw and the original deadline; no movement or turn completion. |
+| EX-MODEL-566 | Operational tubes, available ammunition; bare TORPEDOS; burst reply ABSOLUTE | Empty repeats the complete burst prompt, including the number-in-burst prefix. No count is accepted and no target is selected. |
+| EX-MODEL-567 | Same bare TORPEDOS; burst reply ABSOLUTE 2 3, both coordinates inside the galaxy | The resolved result has two items and no scalar. Repeat the burst prompt; do not treat its first coordinate as count at this prompt. |
+| EX-MODEL-568 | Relative preference; TORPEDOS ABSOLUTE 1; target continuation `1 0`; actor at (37,37) | Count one is accepted without a target. The target line uses the relative preference and resolves (38,37). The earlier absolute keyword does not carry over. |
+| EX-MODEL-569 | TORPEDOS count two accepted without targets; target continuation is a single integer 1 | A resolved odd item count repeats the coordinates prompt, without the burst prefix. No target has been selected and no firing effects occur. |
+| EX-MODEL-570 | TORPEDOS count one accepted without targets; target continuation has zero tokens | Cancel before target validation, reload waiting, ammunition use or turn completion. Do not confuse this with a mode-only Empty result. |
 
 EX-MODEL-06 deliberately uses fractional shield strength. Historical loss of
 that fraction is excluded by the numerical normalization policy. The grammar,

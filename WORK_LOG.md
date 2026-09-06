@@ -3086,3 +3086,23 @@ archive changes; no original-execution, concurrent or full-conformance claim.
 Answered the user's draft-status question while continuing this review. The
 next difficult review remains publication wait/error and lifecycle ordering,
 for which high was recommended. The full specification goal remains active.
+
+
+## Specification checkpoint: Austin command acquisition sites
+
+Specified initial MOVE/IMPULSE coordinate prompting separately from the retry
+after an own-sector target, and separated TORPEDOS initial, burst and target
+input policies. Blank input cancels; mode-only Empty can repeat at the documented
+sites. Fresh continuations resolve their own coordinate mode. Retained one early
+movement damage draw and deadline across prompts. Narrowed the unresolved cases
+to specific missing-value paths instead of broadly treating blank input as
+ambiguous. Added seven semantic examples; no invented rejection/destination.
+
+`logs/spec-austin-input-sites-build-final.log` passes 100 grammar productions,
+12 terminal categories, 594 scenario rows, 449 links and 324 message fragments.
+Initial build correctly caught a blank separator breaking the new example rows;
+removed it and retained the failed build log. Reviewed PDF physical pages 48,
+57, 58 and 196. Source-structure checks passed in
+`logs/spec-austin-input-sites-source-review.log`; audit passed in
+`logs/spec-austin-input-sites-audit.log`. No runtime/archive changes and no claim
+of exhaustive input or original-execution parity. Goal remains active.

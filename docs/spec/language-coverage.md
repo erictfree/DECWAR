@@ -21,11 +21,11 @@ remaining dependencies below still limit end-to-end conformance claims.
 | STATUS | [STATUS](commands.md#status): ADT operation contract and ordered field presentation. | Full terminal controls and multiplayer observations. |
 | DAMAGES | [DAMAGES](commands.md#damages): ADT operation contract, title observation and row presentation. | Full terminal controls and multiplayer observations. |
 | TRACTOR | [TRACTOR](commands.md#tractor): ADT operation contract. | Occupied trailing sectors, concurrent acquisition and responses. |
-| MOVE, IMPULSE | [MOVE and IMPULSE](commands.md#move-and-impulse): ADT operation contract. | Crowded towing, concurrent relocation, random distributions and responses. |
+| MOVE, IMPULSE | [MOVE and IMPULSE](commands.md#move-and-impulse): ADT operation contract. | Zero-item reply after an own-sector target, crowded towing, concurrent relocation, random distributions and responses. |
 | BUILD | [BUILD](commands.md#build): ADT operation contract. | Planet-update availability, conversion/world-end ordering and responses. |
 | CAPTURE | [CAPTURE](commands.md#capture): explicit ADT operation contract. | Surrender-refusal conditions, final lifecycle and responses; former-faction docking ordering is specified. |
 | PHASERS | [PHASERS](commands.md#phasers): ADT operation contract. | Concurrent target changes, random distributions and complete delivery/presentation. |
-| TORPEDOS | [TORPEDOS](commands.md#torpedos): ADT operation contract. | Malformed continuations, concurrent target changes and complete delivery/presentation. |
+| TORPEDOS | [TORPEDOS](commands.md#torpedos): ADT operation contract. | Original-line missing count/incomplete targets, zero-item target continuation, concurrent target changes and complete delivery/presentation. |
 | LIST, SUMMARY, BASES, PLANETS, TARGETS | [Galaxy reports](commands.md#list-summary-bases-planets-and-targets): ADT operation contract. | Exhaustive selector-order coverage, concurrent reporting, interrupted output, grouped separators and terrain/absence presentation. |
 | POINTS | [POINTS](commands.md#points): ADT operation contract. | Zero-denominator presentation, concurrent counts and terminal formatting. |
 | TYPE | [TYPE](commands.md#type): ADT operation contract. | Unselected terminal profile, concurrent observations and full terminal controls. |

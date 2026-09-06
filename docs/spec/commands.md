@@ -818,10 +818,31 @@ ImpulseCommand ::= "IMPULSE" [Location]
 ```
 
 Location uses the absolute, relative or computed forms in the coordinate grammar,
-with exactly two resulting coordinate items. Missing coordinates prompt for them;
-empty continuation cancels and invalid coordinates reject. A location equal to
-the current sector reports the zero-displacement diagnostic and asks again.
-The propulsion check below precedes coordinate acquisition.
+with exactly two resulting coordinate items. The propulsion check below precedes
+coordinate acquisition. Resolve the original arguments with Exactly { count: 2 }.
+An Empty result enters coordinate prompting: call ReadLocations with that same
+limit until it returns a resolved position, a rejection or Cancelled. In this
+initial acquisition, a mode-only reply such as ABSOLUTE gives Empty and repeats
+the coordinates prompt; a genuinely zero-token reply gives Cancelled.
+
+A resolved location equal to the current sector emits fragment(error2) for SHORT
+or MEDIUM output, or fragment(error1) for LONG output, then requests coordinates
+again. A resolved replacement is checked for zero displacement again. A rejected
+resolution or Cancelled ends the command without movement. The original pacing
+deadline and potential overheating-damage draw are retained throughout coordinate
+prompting; prompting does not restart the deadline or repeat that draw.
+
+Each continuation resolves its own mode, using the captain's input-coordinate
+preference when it has no mode keyword. A mode written on an earlier line is
+not retained as a temporary preference. Thus MOVE ABSOLUTE followed by a numeric
+continuation can use relative coordinates when that is the captain's preference.
+The mode keyword itself does not change that preference.
+
+**OPEN QUESTION:** A mode-only, zero-item result at the special prompt after an
+own-sector target is distinct from Empty during initial acquisition. That path's
+next destination is not established by a LocationValues value. It remains
+unspecified here; it neither authorizes a fabricated destination nor establishes
+ordinary rejection or another prompt. A zero-token reply at either site cancels.
 
 ### Operation and initial precondition
 
@@ -1372,16 +1393,37 @@ If more target pairs than the requested count are supplied, use only the first
 count pairs for the burst. The location reader still validates every supplied
 pair as a location before this selection, including its galaxy bounds.
 
-With no initial items, prompt for the burst and repeat until the reply has a
-positive odd number of location items, or input is cancelled. A count alone
-requests up to twice that count in coordinate items; an odd-sized reply requests
-coordinates again. A nonpositive count cancels without firing. An excessive count
-is rejected; a count above the available inventory also reports that limitation.
+Input acquisition distinguishes three sites. Each use of ReadLocations emits
+fragment(coord1), the coordinates prompt. At the burst prompt, first emit
+fragment(torp02), producing `Number in burst (1-3) and Coordinates: `.
 
-**OPEN QUESTION — acceptance cases:** incomplete pairs supplied on the original command line
-and an empty coordinates continuation follow inconsistent historical paths.
-Their language-level acceptance and diagnostics remain under review. They do
-not authorize manufacturing target coordinates from unrelated input state.
+| Acquisition site | Resolved result or Empty | Continuation |
+| --- | --- | --- |
+| Original command arguments, AtMost { count: 7 } | Empty | Enter the burst prompt. |
+| Burst prompt, AtMost { count: 7 } | Empty or a resolved even item count | Repeat the burst prompt. Do not interpret a count or select targets yet. |
+| Burst prompt | Resolved odd item count | Interpret the scalar as count, then apply the count checks below. |
+| Target prompt after an accepted count alone, AtMost { count: 2*count } | Resolved odd item count | Repeat the coordinates prompt without the burst prefix. |
+| Target prompt | Resolved positive even item count | Use its positions as targets, then proceed to burst validation. |
+
+At any prompt a genuinely zero-token reply gives Cancelled and aborts the burst.
+A location-reader rejection also aborts; it does not trigger the parity-based
+reprompt rules. The original command line does not perform the burst prompt's
+odd-item check. For ordinary count-and-target input it proceeds directly to count
+validation. A nonpositive count cancels without firing. An excessive count is
+rejected; a count above available inventory also reports that limitation.
+An accepted count alone enters the target prompt.
+
+Each continuation resolves its own mode from its keyword or the captain's input
+preference. Neither ABSOLUTE nor COMPUTED on the count line forces that mode on
+the later target line. No preference changes. A computed-mode delay or a
+location diagnostic occurs before the caller applies these item-count rules.
+
+**OPEN QUESTION — acceptance cases:** a missing count or incomplete pair on the
+original command line can leave the command without a complete count-and-target
+value, and a mode-only reply at the target prompt can return Empty. Those
+paths remain outside the completed acceptance contract; they do not authorize
+manufacturing coordinates or silently substituting a new rejection rule. This
+exception concerns zero resulting items, not the zero-token reply that cancels.
 
 ### Operation and result types
 

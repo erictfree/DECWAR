@@ -1390,3 +1390,22 @@ completion, interruption, and actor/Romulan changes during the wait are likewise
 not supplied by assumption. Accidental recipient-encoding effects stay outside
 the modern game model. No runtime or archive changes.
 Source: CompuServe TELL.FOR 54–174; WARMAC.MAC 6242–6401 and MAKMSG 3536–3621.
+
+
+## Austin coordinate-acquisition sites
+
+Distinguished a genuinely blank continuation (Cancelled) from a nonempty
+mode-only line (Empty). Documented initial MOVE prompting, its own-sector retry,
+and TORPEDOS initial/burst/target acquisition separately. Preserved caller parity
+checks only where present: no global odd-count guard was added to TORPEDOS.
+Every new line resolves its own mode; a previous line's mode keyword does not
+change the captain preference or survive as a temporary mode. Preserved the
+movement deadline and one early damage draw across retries.
+
+The remaining undefined input-value paths are the own-sector MOVE retry with
+Empty, original-line torpedo count/target incompleteness, and Empty at the
+post-count torpedo target prompt. Removed an overly broad statement that an
+empty coordinates continuation follows an inconsistent path: a zero-token
+continuation unambiguously cancels. No fabricated coordinates, generic new
+rejection rule or stale-storage model was supplied for the separate Empty cases.
+Source: Austin DECWAR.FOR LOCATE/RELOC 1404–1520, MOVE 2141–2180, TORP 4228–4286.
