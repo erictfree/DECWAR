@@ -27,6 +27,10 @@ An operation leaves unmentioned state unchanged. Interactive input, elapsed
 time and simultaneous actions have explicit rules; pseudocode alone does not
 make a whole command atomic.
 
+`+=` and `-=` add to or subtract from a named value. `floor(x)` is the greatest
+integer no greater than x. Lists in pseudocode use positions starting at one;
+this is a notation convention, not a required indexing scheme.
+
 A local name bound to a ship or another state record denotes that same game
 entity. Updating a field through that name changes the entity's state.
 
@@ -49,7 +53,10 @@ type Energy     = quantity in energy units
 type Damage     = quantity in damage units
 type Percentage = quantity in percentage points
 type Duration   = quantity in milliseconds
+type TimePoint  = elapsed-time instant
 type Stardate   = integer count of game turns
+type Points     = quantity in displayed game points
+type UnitDraw   = real number in [0, 1)
 
 record Position:
     vertical: Coordinate
@@ -113,6 +120,9 @@ record World:
     teamTurns: Team -> integer
     romulanEnabled: Boolean
     pacingClass: integer in 1..3
+    beams: collection of TractorBeam
+    teamScores: Team -> Score
+    romulan: Optional<Romulan>
 ```
 
 This is the portion of world state used by the converted command families.
@@ -150,6 +160,8 @@ record Ship:
     docked: Boolean
     tractorBeam: Optional<TractorBeamId>
     stardate: Stardate
+    score: Score
+    pendingScore: Score
 ```
 
 A commissioned ship begins with 5000 energy units, ten torpedoes, no hull or
@@ -186,12 +198,43 @@ fractional resource. Destruction and conversion remove an installation from
 the world's collection of that kind. Enumeration order, where observable, is
 specified separately from identity.
 
+## Tractor beams and score
+
+```text
+record TractorBeam:
+    id: TractorBeamId
+    endpoints: pair of ShipId
+
+enum ScoreCategory = ENEMY_DAMAGE | ENEMY_KILLS | BASE_DAMAGE
+                  | PLANET_CAPTURE | BASE_CONSTRUCTION
+                  | ROMULAN | STAR_DESTRUCTION | PLANET_DESTRUCTION
+
+type Score = mapping from ScoreCategory to Points
+
+record Romulan:
+    position: Position
+    energy: Energy
+    score: Score
+```
+
+A tractor beam associates two ships symmetrically. Either endpoint can act on
+that association under the tractor rules; it is not an ownership relationship.
+Each ship can participate in at most one beam.
+
+Score is expressed in the units shown by the POINTS command. Category values
+can be negative, and totals are their sum. A ship's pending score changes are
+distinct from its accumulated score until turn accounting commits them.
+Scoring rates and destruction bonuses are defined with the corresponding actions.
+
+**Source basis:** [tractor association](../../legacy/utexas/DECWAR.FOR#L4432),
+[score categories and display](../../legacy/utexas/DECWAR.FOR#L2893).
+
 ## Information and communication
 
 ```text
 record TeamKnowledge:
     knownPlanets: Set<PlanetId>
-    knownEnemyBases: Set<BaseId>
+    knownBases: Set<BaseId>
 
 record RadioSettings:
     enabled: Boolean
@@ -201,6 +244,8 @@ record Captain:
     id: CaptainId
     ship: ShipId
     radio: RadioSettings
+    phaserReady: pair of TimePoint
+    torpedoesReady: TimePoint
 
 record Message:
     sender: ShipId | ROMULAN

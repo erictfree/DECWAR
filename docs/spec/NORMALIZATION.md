@@ -51,10 +51,22 @@ artifact, record the question separately instead of inventing a preferred result
 | Repair delays and damage amounts use scaled integers. | Repair uses damage units and elapsed milliseconds: 80 milliseconds per unit underway, 40 while docked. These quantities use ordinary arithmetic. |
 | Decimal input resets a character-deposit allowance and can overwrite earlier argument values. | Each argument has an independent numeric value interpreted from its own spelling. |
 | A packed representation encodes which captains receive a message. | The message has a set of recipient identities; game-level group membership is stated directly. |
+| Path proximity rounds a fractional coordinate to hundredths before testing distance from a half-sector. | Test the mathematical fractional coordinate directly: its distance from 0.5 must be less than 0.1. Whole-sector candidate selection remains explicit. |
+| Towing can compute one sector for occupancy and another for the partner's position because integer conversion occurs on opposite sides of subtraction. | Use the committed position formula, rounding the moving endpoint minus its step to whole sectors, and give that position one consistent galaxy presence. Crowded/out-of-bounds following remains unresolved, without an invented collision rule. |
+| The tractor command omits a formal argument used by its release entry. | The existing OFF action uses the acting endpoint's beam and the source-defined release operation; no invalid argument access is required. |
+| Score fields are displayed through the same divide-by-ten formatter as other fixed-point quantities. | Define Points in displayed units: capture 100, ship destruction 500, completed base construction 1000. Preserve rates and bonuses without scaled storage. |
 
 **Source basis:** [SHIELD](../../legacy/utexas/DECWAR.FOR#L3739),
 [token input](../../legacy/utexas/WARMAC.MAC#L1377),
 [message acquisition/publication](../../legacy/utexas/WARMAC.MAC#L2963).
+
+The additional path, towing, release and score derivations are in
+[CHECK/CHKPNT](../../legacy/utexas/DECWAR.FOR#L699),
+[MOVE](../../legacy/utexas/DECWAR.FOR#L2227),
+[TRACTR/TRCOFF](../../legacy/utexas/DECWAR.FOR#L4432) and
+[POINTS](../../legacy/utexas/DECWAR.FOR#L2893). Integer random choices still denote
+finite choices named by the game rule; their generator is not a PDP-10 algorithm
+requirement. Subsequent arithmetic does not truncate their fractional results.
 
 The earlier operational chapters are retained as research outside the book
 manifest. Command families and world rules are being converted into the abstract

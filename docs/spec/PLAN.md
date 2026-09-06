@@ -80,6 +80,7 @@ consequences without prescribing how a new implementation realizes them.
 | lexical.md | Characters, folding, tokens, numbers, abbreviations, separators and editing. |
 | grammar.md | Command productions, matching order and interactive continuations. |
 | commands.md | Each command's syntax, preconditions, state changes, outputs and completion. |
+| world-rules.md | Shared paths, towing, damage, scoring and installation transitions. |
 | turns.md | Time, automatic repair, action accounting and command completion. |
 | language-conformance.md | Initial conditions, inputs and expected abstract state changes. |
 | variants.md | CompuServe amendments expressed in the same abstract vocabulary. |

@@ -1,9 +1,8 @@
 # Commands and their meaning
 
 This chapter uses the quantities and pseudocode notation of [the abstract
-model](language-model.md). The resource, radio and scan/report commands below
-are the first converted families;
-the remaining command families are still being rewritten from the source analysis.
+model](language-model.md) and the [shared world rules](world-rules.md).
+The remaining command families are still being rewritten from the source analysis.
 
 ## SHIELDS
 
@@ -43,8 +42,7 @@ RaiseShields(ship):
         emit NoEnergyRemaining(ship)
 ```
 
-`ReleaseTractorBeam` denotes the game operation that ends towing; its complete
-state changes and notifications will be defined in the tractor-beam rules.
+`ReleaseTractorBeam` is defined in the shared tractor-association rules.
 This command does not advance the ship's stardate or trigger ordinary turn
 accounting. Shield strength is unchanged.
 
@@ -395,8 +393,8 @@ AcquireScanKnowledge(ship, world):
         knowledge.knownPlanets :=
             knowledge.knownPlanets union {planet.id}
     for each surviving enemy base within distance 10:
-        knowledge.knownEnemyBases :=
-            knowledge.knownEnemyBases union {base.id}
+        knowledge.knownBases :=
+            knowledge.knownBases union {base.id}
 ```
 
 With WARNING, enemy planets considered by that discovery step mark a square
@@ -492,3 +490,360 @@ the terminal presentation rules.
 
 **Source basis:** [DAMAGE](../../legacy/utexas/DECWAR.FOR#L783),
 [device identifiers](../../legacy/utexas/DECWAR.FOR#L435).
+
+## TRACTOR
+
+### Syntax and continuations
+
+```text
+TractorCommand ::= "TRACTOR" ["OFF" | ShipName]
+```
+
+With no arguments and an active beam, release that beam. Otherwise a missing
+name-category argument prompts for OFF or a ship name; an empty continuation
+cancels. OFF takes precedence over ship-name matching. OFF without an active
+beam reports that no beam is in use. Unused trailing arguments are ignored.
+
+### Acquisition
+
+For a named target, first reject an existing beam on the acting ship, then resolve
+the first matching ship name in roster order. An unknown name rejects the command.
+Apply the remaining checks in this order:
+
+```text
+EngageTractor(ship, target):
+    if target.id == ship.id:
+        reject CannotTractorSelf
+    if target.team != ship.team:
+        reject CannotTractorEnemy
+    if not target.commissioned:
+        reject ShipNotInGame
+    if distance(ship.position, target.position) > 1:
+        reject TargetNotAdjacent
+    if target.tractorBeam != none:
+        reject TargetAlreadyInBeam
+    if ship.shields.mode == UP:
+        reject LowerOwnShields
+    if target.shields.mode == UP:
+        reject TargetShieldsRaised
+
+    beam := new association between ship.id and target.id
+    add beam to world.beams
+    ship.tractorBeam := beam.id
+    target.tractorBeam := beam.id
+    notify both endpoints of TractorEngaged
+```
+
+Acquisition does not move either ship, charge energy, change condition or complete
+a turn. Tractor-device damage is not an acquisition precondition. The association
+and release operation are defined in [tractor associations](world-rules.md#tractor-associations).
+
+**Source basis:** [TRACTR and TRCOFF](../../legacy/utexas/DECWAR.FOR#L4432).
+
+## MOVE and IMPULSE
+
+### Syntax and initial validation
+
+```text
+MoveCommand    ::= "MOVE" [Location]
+ImpulseCommand ::= "IMPULSE" [Location]
+```
+
+Location uses the absolute, relative or computed forms in the coordinate grammar,
+with exactly two resulting coordinate items. Missing coordinates prompt for them;
+empty continuation cancels and invalid coordinates reject. A location equal to
+the current sector reports the zero-displacement diagnostic and asks again.
+
+Before reading coordinates, MOVE requires warp-engine damage below 300 damage
+units; IMPULSE requires impulse-engine damage below 300. On passing that check,
+set a deadline to `now + (world.pacingClass + 1)*1000 milliseconds`, and select
+the potential speed damage as `IntegerDraw(4000)/10` damage units. Its value is
+used only if a later overheating check succeeds.
+
+### Range and speed
+
+After accepting a nonzero displacement, set condition green and clear docking.
+Let d be the Chebyshev distance to the intended destination. If computer damage
+is at least 300 units, set path deflection to `(UnitDraw()-0.5)/2`; otherwise use
+zero deflection. Then validate range:
+
+```text
+if command == IMPULSE:
+    if d != 1:
+        reject ImpulseRangeExceeded
+else:
+    if d > 6:
+        reject WarpRangeExceeded
+    if ship.devices[WARP_ENGINES].damage > 0 and d > 3:
+        reject DamagedWarpRangeExceeded
+```
+
+A range rejection retains the already-applied green condition and undocking.
+It does not charge movement energy or complete a turn. Coordinate rejection
+before the nonzero-displacement step does not apply those state changes.
+
+MOVE at distance 5 or 6 emits the speed-risk warning and selects `IntegerDraw(100)`.
+A result above 90 at distance 5 or above 80 at distance 6 causes overheating.
+Add the previously selected speed damage to warp-engine damage and report it.
+Overheating does not cancel the movement. Short output omits the estimated
+repair-time explanation; exact response wording belongs to presentation.
+
+### Movement and energy
+
+Trace the intended displacement for d steps using the shared path rule. Charge
+energy according to intended distance, even when an obstruction prevents reaching
+the destination:
+
+```text
+cost := 4 * d^2 energy units
+if ship.shields.mode == UP:
+    cost := 2 * cost
+if ship.tractorBeam != none:
+    cost := 3 * cost
+ship.energy := ship.energy - cost
+
+if trace.lastClear != ship.position:
+    ship.position := trace.lastClear
+    move the ship's presence to that sector
+    if ship.tractorBeam != none:
+        move its partner under the tractor-following rule
+
+if trace has an obstruction:
+    emit MovementObstructed
+record remaining delay until the entry deadline
+```
+
+The factors multiply: raised shields and a beam make the cost six times the
+unmodified cost. Movement has no precondition requiring sufficient energy to
+pay this charge. Exhausted energy is handled by the subsequent lifecycle rules.
+
+Normal movement completes a turn with automatic repair. If the commission has
+ended before that completion is selected, proceed to session exit instead.
+The moving ship's relocation precedes its partner's; they are not required to
+be observed as a simultaneous relocation. Full concurrent obstruction and
+occupied-trailing-sector cases remain part of the world-rule review.
+
+**Source basis:** [MOVE/IMPULS](../../legacy/utexas/DECWAR.FOR#L2141),
+[path](../../legacy/utexas/DECWAR.FOR#L699),
+[completion selection](../../legacy/utexas/DECWAR.FOR#L99).
+
+## BUILD
+
+### Syntax and prerequisites
+
+```text
+BuildCommand ::= "BUILD" [Location]
+```
+
+Location supplies exactly two coordinate items. Missing input prompts for
+coordinates; empty continuation cancels. The target must be within one sector,
+must be a planet, and must already belong to the acting team. Test these
+conditions in that order. If it has four completed builds and the team already
+has ten active bases, reject before changing the planet.
+
+At command entry, set the deadline to
+`now + world.pacingClass*1000 milliseconds + 4000 milliseconds`.
+
+### Construction stages
+
+```text
+BuildStage(ship, planet):
+    planet.builds := planet.builds + 1
+    if planet.builds != 5:
+        emit ConstructionStageCompleted(planet.builds)
+    ship.pendingScore[BASE_CONSTRUCTION] += 50 * planet.builds points
+
+    if planet.builds == 5:
+        attempt to begin the shared planet-update operation
+        if that operation is unavailable:
+            reject ConstructionCrewBusy
+        if no base capacity remains for this team:
+            planet.builds := planet.builds - 1
+            end the planet-update operation
+            reject BaseLimitReached
+
+        ship.pendingScore[BASE_CONSTRUCTION] += 250 points
+        convert the planet into a friendly base at the same position
+        transfer discovery of the planet to discovery of the base
+        set base strength to 100%
+        end the planet-update operation
+        emit BaseConstructed(base)
+
+    record remaining delay until the entry deadline
+    CompleteTurn(ship, automaticRepair = true)
+```
+
+The first four stages retain the planet and its ownership. The fifth removes
+the planet and creates a base, using the first available base identity in the
+team's ordering. The new base begins at full strength. Conversion invokes the
+installation-removal and world-end rules.
+
+The fifth-stage availability and capacity checks occur after the stage increment
+and its pending score. A busy-crew rejection retains both. A later capacity
+rejection reverses the stage increment but retains that pending score. Neither
+rejection completes a turn, so the pending score has not yet been committed to
+ship and team totals. This differs from the earlier four-build/ten-base
+precondition, which changes nothing.
+
+There is no direct engine-energy charge. Successful construction completes one
+turn with automatic device repair. A full five-stage construction contributes
+1000 points in total when all stages complete normally.
+
+**Open:** The shared planet-update operation serializes installation changes;
+the complete availability and interleaving rules are still being specified.
+World termination during conversion also needs its final lifecycle ordering.
+
+**Source basis:** [BUILD](../../legacy/utexas/DECWAR.FOR#L523),
+[planet removal](../../legacy/utexas/DECWAR.FOR#L2864).
+
+## CAPTURE
+
+### Syntax and prerequisites
+
+```text
+CaptureCommand ::= "CAPTURE" [Location]
+```
+
+Location supplies exactly two coordinate items. Missing input prompts for
+coordinates; an empty continuation cancels. The target must be within one
+sector, must be a planet, and must not already belong to the acting team.
+Invalid targets produce the relevant target/range/ownership diagnostic.
+
+At entry set the deadline to `now + 5000 milliseconds`. Attempt the shared
+planet-update operation before changing ownership. If unavailable, report that
+the government refuses to surrender and make no capture changes or turn.
+
+### Ownership, fortification and defense
+
+Save the former owner and number of builds, b. Re-evaluate the former faction's
+docking before changing ownership; update the factions' captured-planet counts.
+The former owner may be neutral, in which case there is no former-faction count
+or score update.
+
+```text
+CapturePlanet(ship, planet, formerOwner, b):
+    deadline := deadline + b * 1000 milliseconds
+    ship.energy := ship.energy - 50 * b energy units
+    planet.builds := 0
+    planet.owner := ship.team
+    end the planet-update operation
+
+    attack := phaser attack from the formerly owned planet
+    attack.strength := 50 + 30 * b
+    attack.distance := distance(planet.position, ship.position)
+    result := apply that attack to ship under the shared phaser rule
+    if formerOwner != none:
+        add result.reportedDamage to formerOwner's ENEMY_DAMAGE score
+        if result.destroyed:
+            add 500 points to formerOwner's ENEMY_KILLS score
+
+    emit PlanetCaptured(planet, formerOwner, ship.team)
+    notify the capture/defensive-hit audience
+    ship.pendingScore[PLANET_CAPTURE] += 100 points
+    record remaining delay until deadline
+    CompleteTurn(ship, automaticRepair = true)
+```
+
+The capture succeeds before the defensive attack. A fortified planet costs 50
+engine-energy units and adds one second to the deadline per build, in addition
+to the resulting defensive phaser damage. Resetting construction does not weaken
+that attack: it uses the saved b. Even an unfortified neutral planet attacks
+with strength 50. The shot uses the former ownership for its attribution.
+
+The defensive hit can destroy the capturing ship. Ownership and capture credit
+are not rolled back; the command emits its faction-specific death report and
+still follows normal turn completion before subsequent lifecycle handling.
+
+The final hit notification is available to the acting faction within distance
+10 of the ship, and to captains of either faction within distance 4. Complete
+notification rendering and concurrent audience changes remain under review.
+
+**Source basis:** [CAPTUR](../../legacy/utexas/DECWAR.FOR#L600),
+[phaser damage](../../legacy/utexas/DECWAR.FOR#L4166),
+[turn completion](../../legacy/utexas/DECWAR.FOR#L73).
+
+## PHASERS
+
+### Syntax and target validation
+
+```text
+PhasersCommand ::= "PHASERS" [PhaserTarget]
+PhaserTarget   ::= Location | StrengthAndLocation
+```
+
+Location uses the coordinate grammar and contributes two coordinate items.
+StrengthAndLocation contributes an integer strength followed by those two items;
+the coordinate grammar also permits its computed-target form. Default strength
+is 200. A lone strength without a target is invalid. Missing arguments prompt
+for a target; an empty continuation cancels.
+
+Phaser-device damage must be below 300 damage units before acquiring a target.
+Choose the phaser bank with the earlier readiness deadline; on a tie choose the
+first bank. Identify the target before waiting for that bank. It must be a ship,
+base, planet or Romulan. Reject an uncommissioned ship, the acting ship's own
+sector, a friendly ship/base/planet, and a target more than ten sectors away,
+in that order after identifying a valid target kind. A neutral planet is allowed.
+
+Wait until the chosen bank is ready. Only then validate an explicitly supplied
+strength as 50 through 500 inclusive. An invalid strength can therefore produce
+a diagnostic after a wait, without a shot, energy charge or turn completion.
+
+### Firing and heat
+
+With shields raised, firing costs an additional 200 energy units for shield
+control. The shield mode stays up. The command does not require enough energy
+to pay this or the later firing cost.
+
+```text
+if ship.shields.mode == UP:
+    ship.energy -= 200 energy units
+    emit the shield-control notice when output is not SHORT
+
+if IntegerDraw(100) * strength > 18900:
+    addedDamage := 75 + 0.0075 * IntegerDraw(100) * strength
+    ship.devices[PHASERS].damage += addedDamage damage units
+    emit PhasersOverheated
+```
+
+Overheating does not abort the shot. The new damage participates in this shot's
+damage calculation and in the bank's next readiness deadline.
+
+### Target effect
+
+| Target | Effect |
+| --- | --- |
+| Ship or base | Apply the shared phaser-damage rule, including shields, critical hits and score. |
+| Romulan | Apply the Romulan phaser-damage and score rule. |
+| Neutral or opposing planet | If `IntegerDraw(100)*strength/(25*distance) > 150`, reduce its builds by one, with a floor of zero. Otherwise leave builds unchanged. |
+
+Phasers do not destroy a planet when its build count reaches zero. They do not
+perform path traversal through intervening sectors. A phaser hit on a ship does
+not itself invoke tractor release.
+
+An enemy base at exactly 100% strength makes a distress call before the hit.
+If destroyed, it makes a destruction call after the hit notification. Those
+calls address its faction's captains whose radios are on. For ship/base hit
+notifications, the target's faction within ten sectors, either faction within
+four sectors, and the shooter form the audience. Planet and Romulan hits notify
+captains within ten sectors of the target. Complete delivery and rendering
+rules remain separate.
+
+### Completion
+
+```text
+ship.energy -= strength energy units
+ship.condition := RED
+captain.phaserReady[chosenBank] := now
+    + (world.pacingClass + 1) * 1500 milliseconds
+    + ship.devices[PHASERS].damage * 10 milliseconds per damage unit
+CompleteTurn(ship, automaticRepair = false)
+```
+
+The readiness delay starts after the hit, rather than at command entry. The
+other bank's deadline is unchanged. Successful firing completes a turn without
+automatic device repair. Energy exhaustion after firing is handled by the
+subsequent lifecycle rules, without undoing the shot.
+
+**Source basis:** [PHACON](../../legacy/utexas/DECWAR.FOR#L2647),
+[damage](../../legacy/utexas/DECWAR.FOR#L4089),
+[Romulan hit](../../legacy/utexas/DECWAR.FOR#L3382).

@@ -1844,3 +1844,55 @@ port/tool attribution remain separate.
   passed. Logs: logs/spec-generalized-typecheck-final.log and
   logs/spec-generalized-audit.log. No game code, archived source, listener or
   active galaxy was changed. Generated PDFs and build products remain ignored.
+
+## 2026-09-05 — Movement, construction, capture and phaser semantics
+
+- Previous goal turn was progress: commit 3bb3494 published the generalized
+  model and nine rewritten command clauses. Revalidated a clean main worktree
+  before continuing. The full specification goal remains active.
+- Added six command entries: TRACTOR, MOVE, IMPULSE, BUILD, CAPTURE and PHASERS.
+  The book now has clauses for 15 of 33 main-game commands; 18 remain. Expanded
+  language-coverage.md with the new clauses and their specific unfinished
+  dependencies rather than claiming complete end-to-end command conformance.
+- Read the Austin routines directly. Added shared path geometry, tractor
+  associations, phaser damage and critical hits, Romulan weapon damage, score
+  units, installation removal and world-end conditions in world-rules.md.
+  Added beam/score/Romulan records and weapon readiness to the abstract model.
+  Renamed knowledge's base set to knownBases so construction can transfer
+  discovery for either faction without an incorrectly enemy-only type.
+- Verified that POINTS renders stored scores through OFLT. The generalized unit
+  is the displayed point: capture 100, ship destruction 500, full five-stage base
+  construction 1000. Shared phaser damage uses the same numerical quantity in
+  damage units and damage-score points. This is unit conversion, not a rebalance.
+- Preserved gameplay consequences: movement charges intended distance despite
+  obstructions; range failures after coordinate acceptance retain green/undocked
+  state; overheating continues the action; the fifth build's late availability
+  failures retain already-added pending score; capture precedes the defensive
+  shot and is not rolled back by the captor's death; phaser target validation
+  precedes the bank wait, while explicit strength validation follows it.
+- Recorded numerical/representation normalization explicitly. Path proximity
+  uses the mathematical fractional coordinate instead of rounding it to
+  hundredths first. Towing uses one consistent position based on the committed
+  coordinate formula; occupied/out-of-bounds trailing sectors remain unresolved.
+  Existing TRACTOR OFF uses the acting endpoint and the source release operation,
+  without requiring an invalid omitted-argument access. The book contains no
+  packed beam/board representation or native generator algorithm.
+- Random choices are explicit semantic inputs. Full probability/reproducibility
+  requirements, crowded towing, shared planet-update availability, complete
+  concurrency, lifecycle, notification rendering, and remaining commands/world
+  rules are still unfinished. No permission was inferred to add new syntax,
+  weapons or collision repairs.
+- Added 15 examples, for 43 total. Independently compared normalized phaser,
+  shield/base reduction, Romulan and scoring formulas with exact rational forms
+  of the source expressions: 677 checks passed. This excludes the deliberately
+  removed machine truncation, and is not native execution or probability testing.
+  Record: logs/spec-movement-numeric-review.json.
+- Final book build passed: nine included sections, 139 local links, 43 scenario
+  rows and 324 unchanged source fragments. The PDF has 47 pages. Reviewed rendered
+  construction, capture, path, base-damage and conformance pages, with no clipping
+  or split algorithms; final TeX layout/reference checks passed. Logs:
+  logs/spec-movement-combat-build.log and logs/spec-movement-combat-final.log.
+  Review images: tmp/pdfs/spec-movement-combat/. git diff --check passed.
+- This was documentation-only: no game code, transport, archived source or live
+  server changed. The previous source audit/typecheck remains applicable because
+  neither audited data nor build code changed in this round.

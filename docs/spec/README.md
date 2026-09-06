@@ -7,9 +7,9 @@ The University of Texas at Austin
 Department of Arts and Entertainment Technologies
 
 **Draft in progress.** This edition is being rewritten around grammar, abstract
-game types and command semantics in readable pseudocode. Nine commands are
-converted: SHIELDS, RADIO, ENERGY, DOCK, REPAIR, SCAN, SRSCAN, STATUS and DAMAGES,
-with shared turn accounting.
+game types and command semantics in readable pseudocode. Fifteen commands are
+converted, including resources, reports, tractor beams, movement, construction,
+capture and phasers, with shared path, damage and turn rules.
 Other command families, world evolution, sessions,
 complete responses and variant amendments remain in progress. The earlier
 source analysis is retained as companion research outside this book.
@@ -86,6 +86,7 @@ profile criteria will be defined separately rather than silently relaxing output
 - [Abstract game model](language-model.md): identities, quantities and state.
 - [Lexical rules](lexical.md) and [command grammar](grammar.md).
 - [Commands and their meaning](commands.md): state transitions in pseudocode.
+- [Shared world rules](world-rules.md): paths, tractor associations, damage and installations.
 - [Turns and elapsed time](turns.md): repair, action accounting and pacing.
 - [Semantic examples and conformance](language-conformance.md).
 - [CompuServe variant](variants.md).
