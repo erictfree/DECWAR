@@ -206,6 +206,14 @@ Let s be `ship(game, actor)` and r be `ship(game, target)`. Check, in order:
 5. `requested < s.energy`; otherwise InsufficientEnergy.
 6. `requested > 0 energy units`; otherwise AmountMustBePositive.
 
+At the adjacency step, s.position and r.position must be present; distance
+uses their contained Position values. This requirement belongs to that step,
+not to the earlier identity, commission or faction checks. An earlier rejection
+therefore does not require a recipient position. If either position is absent
+when adjacency is reached, this contract defines no continuation; it does not
+substitute an outside-galaxy coordinate or a new rejection. The checks do not
+promise protection against concurrent release of a commission.
+
 A failed check gives Rejected with the corresponding diagnostic and no transfer
 effects. Validation compares the requested amount with the sender's energy
 before applying the recipient's capacity limit.
@@ -778,6 +786,14 @@ the remaining conditions are checked in order:
 5. `r.tractorBeam == none`; otherwise TargetAlreadyInBeam.
 6. `s.shields.mode == DOWN`; otherwise LowerOwnShields.
 7. `r.shields.mode == DOWN`; otherwise TargetShieldsRaised.
+
+At the adjacency step, both optional positions must be present, and distance
+uses their contained Position values. Earlier self, faction and commission
+rejections do not read the target's position. If either position is absent when
+adjacency is reached, no continuation is defined here; TargetNotAdjacent is the
+result of a failed distance test, not an invented missing-position diagnostic.
+Concurrent removal between checking commission and using position is not made
+atomic by these requirements.
 
 A failed condition gives Rejected with its corresponding diagnostic and no
 engagement effects. Neither ship's `devices[TRACTOR_BEAM].damage` is an

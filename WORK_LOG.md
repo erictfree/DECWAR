@@ -3858,3 +3858,16 @@ Evidence: logs/spec-named-type-review.log and logs/spec-command-field-review.log
 Archive audit passed in logs/spec-types-archive-audit.log: 135 hashes, 83
 declarations, 33 main and 16 pregame commands, 324 strings. No normative book,
 gameplay or archive change; no PDF rebuild required. Full goal remains active.
+
+### Specification: adjacency optional-position domains
+
+Made ENERGY and TRACTOR's contained Position requirements explicit at their
+adjacency steps, preserving earlier rejection order and permitting earlier
+rejections without reading absent target positions. No fabricated coordinate,
+missing-position diagnostic or atomic check/use guarantee was introduced.
+
+Validation: logs/spec-adjacency-optionals-review.log checks the distinct source
+orders; logs/spec-adjacency-optionals-build.log records successful publication
+checks. Inspected PDF physical pages 43 and 53: clauses and contracts readable.
+No gameplay/archive changes. Other optional values, concurrent invalidation and
+the broader type review remain open; full goal active.

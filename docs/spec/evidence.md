@@ -559,3 +559,14 @@ value before reading; 5629–5630 increments the selected ship counter. The sour
 roster is the appendix's existing ten-ship roster. This clarification adds no
 identity or missing-record repair. Property references and non-mapping type
 relationships still require their separate whole-book review.
+
+### ENERGY and TRACTOR optional-position domains
+
+Both command contracts now state the Position-presence domain at the distance
+step, preserving earlier rejection precedence. ENERGY checks self, ALIVE, team,
+then LDIS (Austin DECWAR.FOR 1033–1049); TRACTR checks self, team, ALIVE, then
+LDIS (4464–4478). Neither source inserts a separate missing-position diagnostic.
+The abstract position can be absent during lifecycle; the specification does
+not turn that absence into a coordinate or silently return NotAdjacent. The
+new prose applies the existing Optional and Position domains locally and leaves
+concurrent check/use invalidation unresolved. No new guard or gameplay repair.
