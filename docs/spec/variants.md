@@ -62,6 +62,17 @@ autonomous speech retains its own diagnostic suppression.
 [body refusal](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L3589),
 [line-ending definition](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L51).
 
+
+CompuServe also appends one CRLF to the [token-overflow diagnostic](lexical.md#lex-7--capacity-and-recovery)
+and to each of [GRIPE's input prompt and line-limit notices](commands.md#input-and-observations).
+Their wording is unchanged: `Too many words -- line ignored`,
+`Enter gripe, end with ^Z`, `[Only 2 more message lines allowed]`, and
+`[Too many lines -- end of gripe]`. Austin appends no ending to those texts.
+This amendment concerns terminal output, not line endings in stored feedback.
+
+**Source basis:** [token overflow](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L1715),
+[feedback prompt and limits](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L4733).
+
 Amending [movement relocation](commands.md#traversal-resource-cost-and-relocation),
 CompuServe Move can additionally return RelocationRefused. This is a semantic
 outcome, not command syntax or a new terminal message. When a required relocation

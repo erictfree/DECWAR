@@ -3004,6 +3004,11 @@ After the twentieth, report `[Too many lines -- end of gripe]` and finish input
 without another line prompt. Complete lines have line endings in the feedback
 record. A nonempty final line terminated by Ctrl-Z also receives a line ending.
 
+The terminal prompt and both line-limit notices above have no leading or
+appended line ending in Austin. Their text is emitted at the current output
+position. Line endings recorded in the feedback body are separate from these
+terminal notices; input-reader echo remains governed by the line editor.
+
 An immediate Ctrl-Z with no characters or preceding lines cancels an empty
 submission. Earlier complete blank lines still count as submitted lines; they
 do not turn a later Ctrl-Z into the immediate-empty case. Completing input counts

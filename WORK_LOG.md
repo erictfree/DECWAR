@@ -4133,3 +4133,18 @@ bodies. logs/spec-comp-tell-build-2.log records the final successful build after
 clarifying wording to include body cancellation (100 productions, 671 scenarios,
 629 links, 324 fragments). PDF page 238 visually checked with no clipping or
 overlap. git diff --check passed. Full variant/interruption review remains.
+
+
+## Shared text-macro follow-up — 2026-09-06
+
+Audited direct ASCIL uses after the TELL variant finding. Austin LEX-7 already
+has the correct no-suffix overflow rule. Made GRIPE prompt/line-limit notices'
+no-ending behavior explicit, and amended CompuServe's four shared overflow/GRIPE
+texts to append CRLF. Feedback-record and input-echo endings remain separate.
+Recorded remaining HELP/environment macro sites without claiming them complete.
+
+logs/spec-ascil-followup-review.log checks shared literals and inventories the
+Austin call sites. logs/spec-ascil-followup-build.log records successful build:
+100 productions, 671 scenarios, 633 links, 324 fragments. PDF pages 91 and 239
+visually checked with no clipping/overlap; git diff --check passed. No runtime
+or source-archive edits. Full specification review continues.

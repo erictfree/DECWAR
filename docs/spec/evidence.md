@@ -825,3 +825,14 @@ from the same call spelling. Final TELL CRLF remains conditional in both.
 Existing direct-Romulan and autonomous-suppression amendments continue to govern
 those different paths. logs/spec-comp-tell-review.log records exact fragment
 comparison and both macro bodies. No new interruption schedule is prescribed.
+
+### ASCIL call-site follow-up
+
+Audited all direct ASCIL uses in Austin WARMAC.MAC. LEX-7 already correctly
+specifies no appended ending for token overflow. GRIPE's prompt and two line
+limit notices use the same macro (3877,3901,3903), so their lack of a terminal
+ending is now explicit; feedback-record endings are separate output. CompuServe
+uses the identical four texts at 1715,4733,4759,4761 with its CRLF-bearing macro,
+now amended explicitly. HELP's command header/ambiguity list, environment removal
+notice and the WARN/FATAL macro expansions remain separate presentation review
+sites; no assumption of blanket same output is justified by macro names.
