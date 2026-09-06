@@ -2418,3 +2418,42 @@ port/tool attribution remain separate.
 - No runtime, live-server or immutable source changes. Goal remains active;
   remaining commands, shared operations, lifecycle/multiplayer, randomness,
   terminal bindings, variants and full conformance review still require work.
+
+
+## 2026-09-05 — Explicit POINTS observations and accounting ADTs
+
+Continued the specification's explicit-property/ADT conversion. POINTS now
+uses ScoreColumn, ScoreRatio, ScoreReportRow and ScoreReport through
+ReportPoints. Defined the exact source of every score/count observation:
+Ship.score/stardate, World.teamScores/teamTurns/teamCommissions, and persistent
+RomulanActivity. Added World.teamCommissions to the model and named its
+initialization and faction-acceptance increment in session rules. Kept current
+participants distinct from cumulative commissions, and absent self commission
+cells distinct from zero-valued or undefined ratios. No game code changed.
+
+Source review: Austin DECWAR.FOR POINTS 2893–3048, player turn accounting
+238–239 and Romulan activation 3244; SETUP.FOR faction acceptance 296/323.
+Retained selector ordering, nonalphanumeric termination versus invalid-name
+rejection, disabled Romulan removal, committed-only scoring, category/column
+order, negative values and post-destruction Romulan totals. Added scenarios
+EX-MODEL-254 through EX-MODEL-264. Zero-denominator presentation and concurrent
+score/count changes during a report remain explicitly unresolved; no new
+syntax, numeric repair or atomic-snapshot promise was introduced.
+
+Validation: npm run audit:check passed (135 hashes, 83 declarations, 33 main
+and 16 pregame commands, 324 strings). Spec build checked 13 chapters, 284 links,
+264 scenario rows and 324 source message fragments. Initial PDF build rejected
+three long unbreakable expressions; moved counter paths to displayed notation
+and shortened one example's constructor wording. The rebuilt 119-page PDF
+passed layout/reference checks. Visually inspected physical pages 15, 56–57,
+91, 93 and 117 covering counter declarations, score contracts, admission and
+new scenarios. Logs: logs/spec-points-adt-audit.log,
+logs/spec-points-adt-build.log (retained failure), and
+logs/spec-points-adt-build-2.log (pass). Renders: tmp/pdfs/spec-points-adt/.
+
+The checks validate source preservation and document construction, not complete
+semantic coverage or executable conformance. Remaining work includes the other
+command-family ADT conversions, lifecycle/interleavings, terminal/environment
+bindings, CompuServe amendments and a whole-spec consistency review. Unrelated
+experiments, docs/status.md and concurrent work-log additions remain outside
+this specification checkpoint.

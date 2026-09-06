@@ -57,12 +57,12 @@ coverage does not establish lifecycle, concurrency or terminal conformance.
 - Abstract model: game-state ADT and operation-contract notation introduced;
   SHIELDS, RADIO, ENERGY, DOCK, REPAIR, SCAN, SRSCAN, STATUS, DAMAGES,
   TRACTOR, MOVE, IMPULSE, BUILD, CAPTURE,
-  PHASERS, TORPEDOS, TYPE, TIME, USERS, HELP, NEWS, GRIPE, QUIT and
+  PHASERS, TORPEDOS, POINTS, TYPE, TIME, USERS, HELP, NEWS, GRIPE, QUIT and
   message publication/reception use explicit contracts. Mapping/property notation,
   the nine device states and their distinction from hull damage and shield state
   are defined explicitly. Phaser-bank identities and independent deadlines are
   defined separately from shared device damage. Token categories, scan marks/rows,
-  ordered status observations, device-damage rows, type/time/user observations,
+  ordered status observations, device-damage rows, type/time/user observations, typed score columns/rows and ratio operands,
   session reporting metadata and commission clock baselines are defined. Sector objects, geometric points/vectors, PathResult,
   symmetric beam membership and fixed base-identity order are defined. Existing
   command pseudocode still needs conversion to that form. Identities, quantities,

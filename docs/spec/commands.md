@@ -1735,7 +1735,65 @@ already recognized still apply and subsequent tokens are ignored. An unknown
 alphanumeric selector rejects the command. Remove a Romulan column when Romulan
 activity is disabled. If no column remains selected, report invalid input.
 
-### Score report
+### Operation and observations
+
+```text
+type ScoreColumn = ShipScore(ShipId) | TeamScore(Team) | RomulanScore
+
+record ScoreRatio:
+    numerator: Points
+    denominator: nonnegative integer
+
+type ScoreReportRow = CategoryRow(ScoreCategory, Sequence<Points>)
+                   | TotalRow(Sequence<Points>)
+                   | CommissionRow(Sequence<Optional<integer>>)
+                   | PerCommissionRow(Sequence<Optional<ScoreRatio>>)
+                   | PerTurnRow(Sequence<ScoreRatio>)
+
+record ScoreReport:
+    columns: Sequence<ScoreColumn>
+    rows: Sequence<ScoreReportRow>
+
+operation ReportPoints(viewer: CaptainId, arguments: Sequence<Token>)
+    -> Reported(ScoreReport) | Rejected(InvalidScoreSelector)
+```
+
+Each row's sequence has one value for each report column, in the same order.
+An absent commission or per-commission cell means that row does not apply to
+the ship column; it does not mean a zero count or zero score. ScoreRatio records
+the two quantities whose quotient is requested. For a positive denominator,
+its value is numerator divided by denominator. A zero denominator has no
+defined quotient in this draft; its terminal treatment remains open. This
+record does not introduce a new textual ratio notation into POINTS output.
+
+Let c be captain(game, viewer) and w be world(game). Resolve arguments using
+the syntax and selection rules above. Select ShipScore(c.ship) only when
+c.ship is present. FEDERATION and HUMANS select TeamScore(FEDERATION);
+EMPIRE and KLINGONS select TeamScore(EMPIRE). ROMULANS selects RomulanScore.
+Invalid selectors reject before any report rows. No arguments and a
+nonalphanumeric first argument are distinct: the former applies the defaults,
+whereas the latter ends an explicitly supplied selection with no columns.
+
+The following observation functions specify the state read for each column.
+Their names are local to ReportPoints; they do not add stored state.
+
+```text
+scoreFor(ShipScore(id)) = ship(game, id).score
+scoreFor(TeamScore(t)) = w.teamScores[t]
+scoreFor(RomulanScore) = w.romulanActivity.score
+
+turnsFor(ShipScore(id)) = ship(game, id).stardate
+turnsFor(TeamScore(t)) = w.teamTurns[t]
+turnsFor(RomulanScore) = w.romulanActivity.turns
+
+commissionsFor(TeamScore(t)) = w.teamCommissions[t]
+commissionsFor(RomulanScore) = w.romulanActivity.appearances
+```
+
+There is no commissionsFor operation on ShipScore. Commission rows leave
+that column absent rather than assigning it an invented commission count.
+
+### Report construction
 
 Present selected columns in the order: acting ship, Federation, Empire, Romulan.
 Use committed scores; do not commit pending command score merely to answer POINTS.
@@ -1750,30 +1808,30 @@ Within those columns, visit categories in this order:
 7. Star destruction.
 8. Planet destruction.
 
-Omit a category only if every selected column is zero for it. For a category
-that is shown, include each selected column's value, including zero. Negative
-scores remain negative. Follow category rows with each column's total.
+For category k, the column value is scoreFor(column)[k]. Omit CategoryRow(k)
+only if every selected column has zero for that category. Otherwise include
+each selected column's value, including zero. Negative scores remain negative.
+Follow the category rows with TotalRow, summing each column's eight category
+values. An all-zero score report still has its TotalRow and applicable
+accounting rows; it simply has no CategoryRow.
 
 When faction or Romulan columns are selected, also report their cumulative
 number of commissions and total score per commission. These are historical
 commission counts for this galaxy, not the current simultaneous player count.
 Faction acceptance during admission increments its count even if ship selection
 is subsequently cancelled; see the admission contract.
-Do not place a per-commission value in the acting-ship column. Finally report
-score per turn: the ship's own completed turns for its column, and accumulated
-turns for each faction or the Romulan for theirs.
+Emit CommissionRow followed by PerCommissionRow when any selected column is
+a team or the Romulan. For these columns, the count is commissionsFor(column)
+and the ratio has that column's total as numerator and the count as denominator.
+Both rows have an absent cell in the ship column. Finally emit PerTurnRow for
+all selected columns, with the total as numerator and turnsFor(column) as
+denominator. When only the ship is selected, omit both commission rows entirely.
 
 The Romulan column reads world(game).romulanActivity: score for its category
 values, appearances for commissions, and turns for its turn count. These values
 remain reportable while no Romulan ship is present; destruction does not reset
 them. New-galaxy initialization and later increments are defined by the
 [autonomous activity contract](autonomous.md#activation-and-appearance).
-
-```text
-total(score) := sum of its eight category values
-pointsPerCommission := total / cumulativeCommissions
-pointsPerTurn := total / completedTurns
-```
 
 Ratios retain fractions until terminal formatting. The display of a ratio with
 a zero denominator remains unresolved; it is not implicitly zero, and this
@@ -1783,6 +1841,9 @@ increments are defined in the session rules.
 POINTS changes no score, resource, knowledge or stardate. A report does not
 recompute damage or turn credits and does not reconcile team totals to the sum
 of currently commissioned ships: some events credit a team directly.
+These equations describe observations while the relevant state is stable.
+They do not require an atomic snapshot of the entire report. Interleavings
+with score or count changes during output remain to be specified.
 
 **Source basis:** [POINTS](../../legacy/utexas/DECWAR.FOR#L2893),
 [commission counts](../../legacy/utexas/SETUP.FOR#L296),

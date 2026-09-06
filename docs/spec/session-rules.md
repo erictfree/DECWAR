@@ -181,8 +181,14 @@ ask `Do you wish to choose another ship? `; YES proceeds to ship choice in the
 former faction, and any other reply cancels. If the former ship is available,
 select it without another ship-choice dialogue.
 
-Accepting a faction adds one to its participant count and one to its cumulative
-commission count. These are distinct quantities. Cancellation after this event
+Accepting faction t adds one to its participant count and updates its
+cumulative commission count as follows:
+
+```text
+world(game).teamCommissions[t] += 1
+```
+
+These are distinct quantities. Cancellation after this event
 removes the participant place and faction participant count, but does not undo
 the cumulative commission increment used by POINTS. An earlier cancellation
 removes only the overall participant reservation.
@@ -255,6 +261,7 @@ Thus star count ranges from 100 to 350 in steps of five; hole count ranges from
 10 to 50. The potential hole count is chosen even if black holes are later declined.
 Initial faction scores, discoveries and cumulative faction commission counts
 are zero; there are no published messages or tractor associations.
+In particular, world.teamCommissions maps each Team to zero.
 Set world.elapsedOrigin to the new galaxy's clock origin.
 
 Place bases in alternating faction order by base identity: Federation first,

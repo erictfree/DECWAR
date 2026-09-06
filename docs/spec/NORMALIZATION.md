@@ -586,3 +586,32 @@ Sources: Austin DECWAR.FOR TYPE 4540–4594, USERS 4600–4631, TIME 4066–4085
 PRLOC 3078–3099, SET BHREMV 3727–3734; SETUP.FOR galaxy clock 173 and
 JOBSTA/commission clocks 365–376; WARMAC.MAC STAT 2187–2244, DAYTIM/RUNTIM/ETIM
 3329–3371 and USRN.4 3445–3455; MSG.MAC DECVER 44 and USERS5 380.
+
+
+## Typed score observations
+
+POINTS now declares ScoreColumn, ScoreRatio, ScoreReportRow and ScoreReport,
+with an explicit ReportPoints operation. Every selected value is traced through
+Ship.score/stardate, World.teamScores/teamTurns/teamCommissions, or
+World.romulanActivity.score/turns/appearances. The historical commission counter
+is named World.teamCommissions and initialized/incremented in the admission
+chapter; it is not derived from currently commissioned ships. There is no
+invented per-ship commission count. Absent ship cells in commission rows differ
+from numeric zero and from an undefined ratio.
+
+ScoreRatio preserves numerator and denominator as mathematical quantities.
+Positive denominators use ordinary division; zero denominators remain open,
+with no imposed numeric value, new display syntax or required arithmetic trap.
+Pending score is not committed by a report. Column order, category suppression,
+negative values and omission of both commission rows for self-only output are
+retained. Sequential source reads do not justify a whole-report atomic snapshot;
+concurrent score/count changes remain outside the stable-state report contract.
+
+Selector termination at a nonalphanumeric token retains prior selections, but
+an unknown alphanumeric selector rejects before output. An explicit initial
+number is not the bare-command default. Pregame ME/I does not match self and
+ultimately rejects. Disabled Romulan selection is removed before validating
+that at least one column remains.
+
+Sources: Austin DECWAR.FOR POINTS 2893–3048; SETUP.FOR faction counts 296 and
+323; DECWAR.FOR player turn counters 238–239 and Romulan activation 3244.

@@ -264,6 +264,17 @@ defense phases. Other ships and installations do not alter the stated result.
 | EX-MODEL-251 | Privileged viewer aboard Excalibur at (37,37), output BOTH; USERS includes the viewer | Excalibur's ReportedPosition contains absolute (37,37) and relative (0,0). Do not suppress its zero relative displacement. |
 | EX-MODEL-252 | Privileged viewer at (37,37), output RELATIVE; Wolf at (42,35) | Wolf's ReportedPosition has absolute none and relative (5,-2). No sensor-range or radio-status filter applies. |
 | EX-MODEL-253 | Privileged pregame viewer with ABSOLUTE output; Wolf commissioned at (42,35) | Report Wolf's absolute position without needing a viewer ship position. Do not invent a relative origin. |
+| EX-MODEL-254 | Commissioned viewer, stardate 4; committed ENEMY_DAMAGE 12 and pending PLANET_CAPTURE 100; bare POINTS | Select only ShipScore(viewer's ship). CategoryRow(ENEMY_DAMAGE) contains 12, TotalRow contains 12, PerTurnRow has ratio 12/4. No commission rows; pending score remains 100 and is not reported. |
+| EX-MODEL-255 | Commissioned viewer; POINTS EMPIRE ME FEDERATION EMPIRE; all selected counts positive | Columns are ship, Federation, Empire, once each. Category and accounting cells follow that order. CommissionRow and PerCommissionRow have absent ship cells, not zeros. |
+| EX-MODEL-256 | Pregame viewer; POINTS ME FEDERATION | Reject InvalidScoreSelector before any report rows; ME requires a ship. Do not continue to the valid Federation selector. |
+| EX-MODEL-257 | Commissioned viewer; POINTS 7 FEDERATION | Reject InvalidScoreSelector: the explicit selection stops at 7 with no selected columns. Do not apply the bare-command self default. |
+| EX-MODEL-258 | POINTS FEDERATION 7 BOGUS; Federation counts positive | Select only TeamScore(FEDERATION). Stop at 7 and ignore BOGUS. |
+| EX-MODEL-259 | POINTS FEDERATION BOGUS | Reject InvalidScoreSelector before reporting, even though Federation was already selected. |
+| EX-MODEL-260 | Romulan activity disabled; POINTS ROMULANS | Removing the disabled Romulan column leaves none; reject InvalidScoreSelector. Do not substitute a team column. |
+| EX-MODEL-261 | Pregame viewer; Romulan disabled; both teams have zero scores, positive commission and turn counts; bare POINTS | Select Federation and Empire. No CategoryRow. TotalRow is (0,0), followed by CommissionRow, PerCommissionRow and PerTurnRow; both ratio rows evaluate to zero. |
+| EX-MODEL-262 | Federation has only STAR_DESTRUCTION score -50, two commissions and four turns; POINTS FEDERATION | The star-destruction CategoryRow and TotalRow each contain -50. PerCommissionRow is -50/2 and PerTurnRow is -50/4. Preserve negative and fractional results. |
+| EX-MODEL-263 | Federation has 120 committed points, three cumulative faction acceptances, one current ship and six turns; POINTS FEDERATION | CommissionRow contains 3, PerCommissionRow evaluates to 40 and PerTurnRow to 20. Current roster occupancy does not replace the historical commission count. |
+| EX-MODEL-264 | Romulan enabled but absent; its activity has 90 points, three appearances and six turns; POINTS ROMULANS | Report the persistent Romulan score, three commissions, 30 points per commission and 15 points per turn. Do not require a present Romulan or reset its activity. |
 
 
 EX-MODEL-06 deliberately uses fractional shield strength. Historical loss of

@@ -229,6 +229,7 @@ record World:
     playerCount: integer
     actionCount: integer
     teamTurns: Team -> integer
+    teamCommissions: Team -> nonnegative integer
     romulanEnabled: Boolean
     blackHolesSelected: Boolean
     pacingClass: integer in 1..3
@@ -470,10 +471,19 @@ specify which current properties of a known remote installation are disclosed.
 Counting an object in a whole-game summary need not reveal its location or add
 it to knowledge. A detailed installation report can perform that discovery update.
 
-Score reports also use cumulative commission counts for Federation, Empire and
-the Romulan, and their accumulated turn counts. These historical counters are
-distinct from the number of players currently commissioned. The lifecycle rules
-define their initial values and increments; POINTS only observes them.
+Score reports use the following counters, where w is world(game):
+
+```text
+w.teamCommissions[team]          faction commission count
+w.teamTurns[team]                faction turn count
+w.romulanActivity.appearances    Romulan commission count
+w.romulanActivity.turns          Romulan turn count
+```
+
+A ship's turn count is Ship.stardate. These
+historical counters are distinct from World.playerCount and from the number of
+currently commissioned ships. The lifecycle rules define their initial values
+and increments; POINTS only observes them.
 
 These declarations introduce the vocabulary for rewritten commands. They are
 not yet a complete world, combat or session model.
