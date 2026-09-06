@@ -3744,3 +3744,18 @@ passed 662 scenarios, 100 productions, 324 fragments, 14 chapters and 546 links.
 Inspected PDF physical pages 44 and 222; readable clause and examples. No
 gameplay/archive changes. Concurrent ownership and supply scans remain open;
 full goal stays active.
+
+### Specification: resolve inactive-base placement rule
+
+Closed the destroyed-base-position placement question for valid retained
+records: PLACE checks all opposing base positions when the maintained count
+is positive, without strength/presence filters; zero count skips exclusion.
+Non-player placement bypasses it. Reviewed BASKIL's distinct count guards and
+confirmed its existing contract. No new safe-spawn policy or normalization.
+
+Validation: logs/spec-placement-base-records-review.log checks source branch
+and filter behavior. logs/spec-placement-base-records-build.log passed 662
+scenarios, 100 productions, 324 fragments, 14 chapters and 546 links. Inspected
+PDF physical page 146: readable resolved rule and remaining limits. No gameplay
+or archive changes. Reinitialization phase, exhaustion and concurrent placement
+remain open; full goal stays active.

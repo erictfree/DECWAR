@@ -431,3 +431,22 @@ not energy, after supply-share selection; this does not guarantee that a caller
 will reach DOCK before a separate fatal-state check.
 Concurrent ownership/sector changes still require their complete interaction
 contract; this correction does not make a supply scan atomic.
+
+
+## Placement and docking-maintenance count review
+
+PLACE (DECWAR.FOR 2776–2781) guards the opposing-base loop with NBASE but does
+not check record strength or sector presence inside it. Since base destruction
+retains coordinates and BUILD reuses the record, later player placement excludes
+all recorded opposing base positions while that maintained count is positive.
+The current ADT can state this without introducing an address alias or undefined
+coordinate. The previous destroyed-base-position open question is resolved for
+this valid-record domain. A zero count skips the entire exclusion. Non-player
+objects bypass the player exclusion block at 2774.
+
+BASKIL (349–366) already agrees with ReevaluateDocking: a positive maintained
+base count enables its positive-strength scan; a nonpositive captured-planet
+count preserves docking when that base search did not preserve it. No change
+to that contract was needed. These guards differ from DOCK and DIST and must
+not be replaced by one shared eligibility predicate. Concurrent invalidation
+and exhausted placement domains remain outside this review's completed scope.

@@ -406,3 +406,11 @@ DOCK supply review adds the omitted maintained captured-planet-count guard and
 explicitly preserves the absence of a base-count guard. EX-MODEL-613–614 cover
 the distinction with unchanged replenishment amounts. Concurrent ownership and
 sector observations remain unverified; this is not whole-command conformance.
+
+
+Placement count review resolves the destroyed-base-position question for valid
+retained records: positive opposing base count enables distance-four exclusion
+around every recorded opposing base position; zero skips it. The existing
+ReevaluateDocking count/strength guards also agree with BASKIL. Shared eligibility
+must not be inferred across PLACE, DOCK, DIST and docking maintenance. Exhausted
+domains, concurrent changes and galaxy-reinitialization phase remain open.

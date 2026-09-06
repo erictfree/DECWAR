@@ -450,14 +450,24 @@ records the selected galaxy option rather than its current object population.
 
 For each object placement, choose a vertical coordinate and then a horizontal
 coordinate from 1 through 75. If that sector is occupied, choose another pair.
-A placed player ship must also avoid sectors within distance four of opposing
-base positions considered by the placement rule. No corresponding planet
-exclusion is established by this reconstruction's placement behavior.
+For a placed player ship, if the opposing faction's maintained base count is
+positive, reject a candidate within distance four of any recorded opposing base
+position. Check every base identity in that faction's fixed roster, including
+inactive bases; current strength and sector presence do not filter this test.
+If the opposing maintained base count is zero, skip the base-position exclusion.
+A rejected candidate causes both coordinates to be drawn again. No corresponding
+planet exclusion is established by this reconstruction's placement behavior.
+These player-ship exclusions do not apply to placing installations, stars,
+black holes or the Romulan.
 
-**OPEN QUESTION:** The treatment of destroyed-base positions in later ship placement
-and action-cycle phase when an expired galaxy is reinitialized require
-normalization review. Initial placement has no destroyed bases. Exact
-admission interruption during creation and exhausted eligible-placement
+An inactive base can therefore exclude nearby initial ship positions while its
+faction still has a positive maintained base count. Reusing that base identity
+changes its recorded position and hence the location used by later placement.
+This rule uses retained base records; it does not create another installation or
+change the four-sector distance.
+
+**OPEN QUESTION:** Action-cycle phase when an expired galaxy is reinitialized
+requires normalization review. Exact admission interruption during creation and exhausted eligible-placement
 domains remain to be specified. Random distributions and tournament-key
 reproducibility follow the [random-choice contract](world-rules.md#random-choices-in-semantic-rules).
 No arbitrary retry limit or extra safe-spawn radius is introduced.
