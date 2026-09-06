@@ -3429,3 +3429,20 @@ reviewed PDF physical pages 217, 224–225: readable ADTs, prose and examples wi
 no clipped content. Prior archive audit remains applicable; no archive or
 runtime edits. Admission counters, full output and interrupted storage access
 remain review items. Goal remains active.
+
+### Specification: CompuServe commission numbering
+
+Added RecordCommission and CommissionNumbers; distinguished shared galaxy
+number from stored statistics numbers. Reviewed WARMAC.MAC 5589–5667 and SETUP
+444–449. Defined PAYING/NON_PAYING successful-access sequences, final-write
+opening failure, and mission numbering before reservation. Intermediate
+NON_PAYING access failures remain explicitly outside that normal contract.
+Added EX-COMP-39–41; updated normalization and coverage. No game-code changes.
+
+Validation: logs/spec-comp-numbering-source-review.log passed focused source
+branch/order assertions. logs/spec-comp-numbering-build.log passed: 636 scenario
+rows, 100 grammar productions, 324 source fragments, 14 chapters and 529 links.
+Inspected PDF physical pages 217 and 224–225: readable contract, types and
+examples with no clipping. No archive edits; the existing archive audit remains
+applicable. Remaining work includes full terminal output and environment failure
+bindings, and the full cross-chapter audit. Goal remains active.

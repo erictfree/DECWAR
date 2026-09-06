@@ -285,8 +285,8 @@ implied by the ordinary successful sequence.
 [common departure record](../../legacy/compuserve/fortran%201978/DECWAR.FOR#L333),
 [fatal environment event](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L6106).
 
-**OPEN QUESTION:** The commissioning-counter update, date binding,
-complete output and concurrent failure behavior still require review. The placement rule does not promise a
+**OPEN QUESTION:** Date binding, complete output and concurrent failure
+behavior still require review. The placement rule does not promise a
 durable write or define the treatment of malformed preexisting records. It does
 not reclassify a losing commission as a destroyed physical ship.
 
@@ -350,6 +350,75 @@ memorial score instead. Complete interruption placement, damaged source records,
 heading whitespace and row formatting also remain under review.
 
 **Source basis:** [faction comparison and group display](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L5922).
+
+### Commission numbering
+
+```text
+type CommissionNumbers = {
+    gameNumber: nonnegative integer;
+    missionNumber: nonnegative integer;
+};
+
+query compuServeGameNumber(game: GameState): nonnegative integer
+
+operation RecordCommission(ship: ShipId,
+                           service: CompuServeServiceClass): CommissionNumbers
+```
+
+compuServeGameNumber is the current galaxy's shared game number. It is distinct
+from gameNumber in either stored CompuServeStatistics value. RecordCommission
+is an admission action, not a player command. The admission caller invokes it
+after releasing admission coordination and before clearing the selected ship's
+score and marking the ship reserved. The operation does not itself reserve the
+ship or establish that later admission will finish.
+
+The following contract covers ordinary completion with valid statistics and
+returning access operations. Attempt statistics access and retry failed entry,
+as for the departure update. Then:
+
+1. Begin with empty PAYING statistics and attempt to read that source. If the
+   opening fails, retain the empty value and continue. Otherwise read the
+   available contents and close the source.
+2. If the galaxy's current shared game number is zero, increase the selected
+   PAYING statistics' gameNumber by one. Otherwise retain that stored number.
+   In either case, assign the resulting stored number to the galaxy's shared
+   game number. A previously nonzero galaxy number is therefore not a promise
+   that it will remain unchanged by this operation.
+3. For PAYING, use those statistics for the remaining steps. For NON_PAYING,
+   first submit those PAYING statistics to the PAYING destination. Then begin
+   with empty NON_PAYING statistics, read the NON_PAYING source and close it,
+   and replace its gameNumber with the galaxy's just-assigned shared number.
+4. Increase missions[ship] by one in the selected service's statistics. Retain
+   every other mission counter, all reported-loss counters and all record lists.
+5. Attempt to write the selected statistics to that service's destination.
+   Failure to open this final destination skips the write and continues to
+   release. Otherwise submit the statistics and close the destination. Release
+   statistics access, report the game and mission numbers with the ship's
+   display name, and return those numbers.
+
+The NON_PAYING intermediate PAYING write and subsequent NON_PAYING read in
+step 3 do not have the final destination's skip-on-opening-failure behavior.
+Their failure continuations depend on the environment and are not defined by
+this ordinary-completion contract. Do not assume that such a failure simply
+leaves empty NON_PAYING statistics and continues with a successful admission.
+Partial contents, interrupted access and non-returning output failures remain
+outside this contract as well.
+
+missions[ship] is a count of increments at this admission stage, not a count of
+completed games or a guarantee of an active captain. The game and mission
+announcements can follow failure to open the final write destination. The
+returned numbers describe the operation's computed values; they do not certify
+persistence. There is no elapsed-time threshold here: the departure update's
+1000-millisecond test does not undo or suppress this earlier mission increment.
+
+For a NON_PAYING admission, successful completion can write both statistics
+sources. Only the NON_PAYING mission count is increased. For a PAYING admission,
+only PAYING is selected for the final write. Neither case creates a new Honor
+Roll record merely by incrementing a mission counter.
+
+**Source basis:** [shared game number](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L457),
+[admission ordering](../../legacy/compuserve/fortran%201978/SETUP.FOR#L444),
+[numbering, access and reports](../../legacy/compuserve/fortran%201978/WARMAC.MAC#L5589).
 
 ### Preparing a standings update
 

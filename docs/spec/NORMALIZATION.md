@@ -1613,3 +1613,16 @@ The book states normal-return access/write paths and explicitly leaves partial
 reads, non-returning errors and durable storage to unresolved environment
 bindings. WARMAC.MAC UPDSTA 5694–5883 supplies this behavior; UPDCAP's admission
 counter update is a separate operation still to be reviewed.
+
+### CompuServe commission numbering
+
+RecordCommission separates shared galaxy numbering from the number in each
+statistics source. UPDCAP copies the PAYING stored number into the galaxy even
+when the old galaxy number is nonzero; zero first increments the selected
+stored value. NON_PAYING ordinary completion writes PAYING numbering before
+reading and incrementing NON_PAYING missions. Its intermediate opening-failure
+paths proceed into IO and are not generalized into the final write's safe skip
+branch; those failure continuations remain environment-dependent. Mission
+numbering precedes ship reservation (SETUP 444–449) and has no elapsed threshold.
+The specification defines observed numbers without guaranteeing storage or
+completed admission. Source: WARMAC.MAC 5589–5667.

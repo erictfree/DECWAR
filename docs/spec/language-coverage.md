@@ -270,3 +270,10 @@ the access contract preserves PAYING-first selection, empty initial values,
 own-class writes and normal-return opening failures. Admission counter changes,
 partial reads, durable storage, interrupted access and full row output remain
 separate review items.
+
+RecordCommission now connects CompuServe statistics to admission: shared versus
+stored game number, service-specific mission increments, two-source NON_PAYING
+sequence, pre-reservation ordering and final write-opening failure. The two
+intermediate NON_PAYING failure continuations remain explicitly outside the
+ordinary-completion contract; no successful reservation is inferred from a
+mission count. Examples EX-COMP-39–41 cover this distinction.
