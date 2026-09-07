@@ -29,6 +29,12 @@ still live under test/fixtures and remain required runtime files.
 
 ## Experimental automated player
 
+The reusable player-library quickstart is available at
+[`experimental/player-library/QUICKSTART.md`](../experimental/player-library/QUICKSTART.md).
+It documents the current Austin runner facade, public strategy contract,
+observation reports, and validated action builders. The facade is transitional;
+transport and runner extraction remain in progress.
+
 [experimental/automated-player](../experimental/automated-player/README.md) contains
 an external Austin captain that parses scans/reports, routes around obstacles,
 patrols, uses phasers against observed enemy ships, selects resupply refuges,
