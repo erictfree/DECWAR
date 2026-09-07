@@ -322,3 +322,12 @@ entered actual source TOURNAMENT mode with seed 1729 in both faction assignments
 both completed, faction leads split 1–1, and torpedoes led both short samples.
 Those samples validate the harness rather than rank the policies. Evidence:
 `logs/automated-player-weapon-tournament-v8-seeded-smoke-2026-09-07/summary.json`.
+
+Captain-v9 then restricted direct torpedoes to range eight or closer after the
+range analysis above. A fresh seeded 90-second, ten-ship battle completed 325
+decisions and 221 moves with no deaths, stalls, reconnects or execution errors.
+It made 16 torpedo attempts: 10 hits, three misses, one deflection, one misfire
+and one nova. One ship encountered the real stale-MOVE `Coordinates:` retry and
+recovered with Ctrl-C while the fleet continued. This is a functional
+robustness and outcome checkpoint; it is not a controlled weapon ranking.
+Evidence: `logs/automated-player-fleet-v9-range-2026-09-07/fleet/summary.json`.

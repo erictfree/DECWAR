@@ -73,6 +73,9 @@ direct-torpedo A/B test split 2–2 and was dominated by faction; a subsequent
 paired-seed smoke test verified actual TOURNAMENT startup but is too short to
 rank the policies. The Telnet client also recovers the verified Austin
 `Coordinates:` retry with source-documented Ctrl-C.
+Captain-v9 also gates direct torpedoes to range eight or closer based on
+observed long-range miss rates; a fresh ten-ship run completed with one live
+coordinate-retry recovery and no bot failures.
 An experimental shared Telnet I/O capture runner now preserves initial modes,
 records raw bytes and emits exact or explicitly echo-adjusted comparisons.
 TypeScript checks cover 61 mode steps and 58 interactive dialogue steps;

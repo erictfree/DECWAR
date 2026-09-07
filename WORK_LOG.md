@@ -5588,3 +5588,25 @@ experimental-player regression passed 65/65 in
 audit passed in `captain-v8-seeded-typecheck.log` and
 `captain-v8-seeded-audit.log`. `git diff --check` passed. No legacy source,
 game runtime, existing galaxy or interactive server was changed.
+
+## 2026-09-07 — Captain-v9 close-range torpedo gate
+
+Measured the preserved v8 weapon transcripts by firing distance. In the
+four-match 90-second series, range 9-10 produced 10 misses in 17 attempts,
+versus three misses in 38 attempts at range 3-8. The seeded 30-second smoke run
+also had eight misses at range 9-10 and none at shorter range. Added a policy
+gate requiring distance eight or less before a weakened-target torpedo; distant
+targets continue through phaser/approach logic. This is an experimental policy,
+not a game-rule change.
+
+Focused captain tests passed 17/17 and the full automated-player regression
+passed 66/66 in `logs/automated-player-objectives/captain-v9-range-regression.log`;
+experimental typecheck passed. A fresh seeded 90-second, ten-ship Austin battle
+then completed 325 decisions and 221 moves with no deaths, stalls, reconnects or
+execution errors. It made 16 torpedo attempts: 10 hits, three misses, one
+deflection, one misfire and one nova. Lancer encountered a real stale-MOVE
+`Coordinates:` retry and emitted `sent-interrupt`; the fleet continued normally.
+Evidence is retained at
+`logs/automated-player-fleet-v9-range-2026-09-07/fleet/summary.json` and the
+per-ship JSONL transcripts. The run demonstrates robust execution and a better
+short sample, not causal competitive superiority.

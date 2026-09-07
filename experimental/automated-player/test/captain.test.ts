@@ -142,6 +142,14 @@ test('Captain uses one torpedo only when TARGETS agrees and shields are weakened
   assert.equal(new Captain('FEDERATION', 'patrol', false, false).choose(o, 1000).command, 'PHASERS ABSOLUTE 180 10 12');
 });
 
+test('Captain keeps weakened targets at torpedo range or closer before firing', () => {
+  const o = observation(); cell(o, { v: 10, h: 19 }, ' W');
+  const wolf = { name: 'Wolf', kind: 'ship' as const, faction: 'EMPIRE' as const, observedAt: 1000, position: { v: 10, h: 19 }, shieldPercent: 40 };
+  o.objects = [wolf]; o.targets = [wolf];
+  const decision = new Captain('FEDERATION').choose(o, 1000);
+  assert.doesNotMatch(decision.command!, /^TORPEDOES/);
+});
+
 test('Nova tactic requires a fully observed star cluster clear of friendlies and planets', () => {
   const o = observation(); cell(o, { v: 10, h: 13 }, ' *'); cell(o, { v: 10, h: 14 }, ' W');
   const wolf = { name: 'Wolf', kind: 'ship' as const, faction: 'EMPIRE' as const, observedAt: 1000, position: { v: 10, h: 14 }, shieldPercent: 100 };

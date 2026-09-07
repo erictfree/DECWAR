@@ -136,7 +136,10 @@ export class Captain {
       // The supplied Austin help advises weakening 85-100% shields with
       // phasers before using torpedoes. One-torpedo bursts preserve ammunition
       // and reduce the time before another burst. TARGETS and SCAN must agree.
-      if (this.torpedoesEnabled && detail && detail.shieldPercent !== undefined && detail.shieldPercent < 85 && s.torpedoes > 4 && d.torpedoes < 300 && d.computer < 300
+      // Recent ten-ship logs show range 9-10 torpedoes missing far more often
+      // than closer shots (10 misses/17 attempts versus 3/38 at <=8). Keep
+      // long-range attacks on phasers, then use a torpedo after closing.
+      if (this.torpedoesEnabled && distance(s.position, target) <= 8 && detail && detail.shieldPercent !== undefined && detail.shieldPercent < 85 && s.torpedoes > 4 && d.torpedoes < 300 && d.computer < 300
           && now - this.lastTorpedo >= 3000) {
         this.lastTorpedo = now;
         return this.act(`TORPEDOES ABSOLUTE 1 ${target.v} ${target.h}`, `Use one torpedo against fresh TARGETS/SCAN agreement on weakened ${detail.name} shields.`, 'ship', undefined, 'torpedoes');
