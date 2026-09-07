@@ -6001,3 +6001,13 @@ including one enemy destroyed. The run confirms that patrol can sustain
 aggressive contact and recover; no tactical change was made from this single
 faction-asymmetric result. Evidence is at
 `logs/automated-player-fresh-fleet-v16-combat-pressure-2026-09-07/fleet/summary.json`.
+
+## 2026-09-07 — command coverage inventory checkpoint
+
+Regenerated the Austin command inventory from `commands.ts`; it reports all 31
+public commands in source order: 18 automatic, five supported, seven planned
+(ENERGY, PLANETS, RADIO, SRSCAN, SUMMARY, TELL, TRACTOR) and one manual (GRIPE).
+The JSON evidence is at
+`logs/automated-player-command-coverage-2026-09-07.json`. An initial ad hoc
+summary script incorrectly treated the object wrapper as an array and failed;
+the corrected summary reported the counts above. No player code was changed.
