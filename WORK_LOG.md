@@ -5937,3 +5937,15 @@ working planets, while patrol produces immediate ship shots. This does not
 justify a startup-policy change because the prior 90–120 second comparisons
 and ten-minute endurance run favored objective. Evidence is at
 `logs/automated-player-combat-tournament-v16-expanded-2026-09-07/summary.json`.
+
+## 2026-09-07 — focused player regression checkpoint
+
+The first focused test invocation was denied localhost listeners by the sandbox
+(24 `EPERM` failures); the 47 parser/policy tests that do not bind sockets
+passed. Reran the identical `node --test experimental/automated-player/test/*.test.ts`
+suite with local-network permission and all 71 tests passed, including Telnet
+framing, login/reentry, reconnects, live combat, fleet launch/shutdown,
+capture/build, target authorization and command coverage. TypeScript player
+checking also passed. Output is retained at
+`logs/automated-player-focused-tests-2026-09-07.txt`; the initial denied run
+remains diagnostic evidence in the terminal output.
