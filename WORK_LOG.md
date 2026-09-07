@@ -5949,3 +5949,43 @@ capture/build, target authorization and command coverage. TypeScript player
 checking also passed. Output is retained at
 `logs/automated-player-focused-tests-2026-09-07.txt`; the initial denied run
 remains diagnostic evidence in the terminal output.
+
+## 2026-09-07 — complete command-vocabulary grammar draft
+
+Expanded Specification 1.0 Section 4 to cover all 31 ordinary commands,
+shared operand forms, prompted continuations, and the distinct pre-game and
+privileged vocabularies. Updated lexical cross-references and recorded the
+source inventory in `docs/spec1.0/evidence/04-command-inventory.md`.
+Evidence includes DECWAR.FOR's dispatch table (437–470), report reader
+(1519–1747), settings (3624 onward), and command-specific operand readers;
+SETUP.FOR and WARMAC.MAC establish entry and text-input forms.
+
+Preserved context-dependent prefix lookup in the draft, including ship-first
+report/recipient resolution, multi-device damage selectors, and ordered SET
+setting lookup. C-010 records incomplete historical acceptance/recovery and
+mixed-report constraints; C-011 records unresolved presentation/admin scope.
+This is complete command-vocabulary coverage, not completed command semantics
+or an exhaustive acceptance audit. No running-game code or archived sources
+were changed.
+
+Checks: 89 EBNF productions have no undefined references or duplicate
+definitions, and all 31 ordinary dispatch entries have grammar forms
+(`logs/spec1.0-all-grammar/grammar-check.log`). `npm run audit:check` and
+`git diff --check` passed (`audit.log`, `diff-check.log` in that directory).
+Rebuilt the 29-page PDF, inspected the expanded grammar pages, and retained
+build/info/render output there. The structural check does not prove behavioral
+equivalence. Next review: command-specific report combinations, malformed
+operands and prompt recovery, then corresponding command semantics.
+
+## 2026-09-07 — v16 three-minute horizon comparison
+
+Ran four paired 180-second, ten-ship Austin tournament matches across seeds
+1768–1769, alternating objective and patrol assignments. All matches reached
+their limits with zero execution errors or deaths. The strategies split leads
+2–2; patrol averaged 5,789 points versus objective's 5,061.2. Objective still
+confirmed seven captures and 24 builds, while patrol confirmed none. Match
+traces show the score gap comes from immediate combat pressure versus objective
+work rather than stalls or parser failures. No policy change was made; the
+objective default remains appropriate when captures/builds matter, while
+patrol remains available for short-horizon combat tests. Evidence is at
+`logs/automated-player-combat-tournament-v16-longer-2026-09-07/summary.json`.
