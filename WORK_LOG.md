@@ -5679,3 +5679,16 @@ ten-ship disposable Austin smoke completed 220 decisions and 164 moves with
 34 shots, 22 torpedo attempts (11 hits, four misses), one confirmed capture,
 and no deaths, stalls or reconnects. Evidence is at
 `logs/automated-player-fresh-fleet-v11-smoke-2026-09-07/`.
+
+## 2026-09-07 — Captain-v12 bounded objective memory
+
+The v11 transcript showed that distant planet rows could disappear from LIST
+before the captain reached orbit. Extended the objective waypoint memory to a
+60-second navigation-only expiry. Current SCAN/LIST evidence remains mandatory
+for CAPTURE and BUILD, so stale coordinates cannot become action authorization.
+TypeScript checking and the focused captain suite passed (18/18); the full
+experimental-player regression remains green at 29/29. A post-change,
+ten-ship, 120-second disposable Austin run completed 404 decisions and 344
+moves, confirmed two captures and one build, and had zero deaths, stalls or
+reconnects. Evidence is at
+`logs/automated-player-fresh-fleet-v12-smoke-2026-09-07/`.
