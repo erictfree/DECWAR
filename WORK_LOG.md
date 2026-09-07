@@ -5806,3 +5806,9 @@ novas). It confirmed six planet captures and 20 builds, with no stalls or
 reconnects. One death occurred in patrol-role Archer; the objective captains
 survived. Evidence is at
 `logs/automated-player-fresh-fleet-v16-long-confirmation-2026-09-07/`.
+
+Ran the repository-wide `npm run check` checkpoint after the player policy
+changes. Archive/generated audit, TypeScript checking and the complete root
+test suite passed, including live TELL/RADIO exchange, tractor release,
+PHASERS/TORPEDO combat, SCAN/USERS/LIST, and CAPTURE/BUILD/DOCK/POINTS
+scenarios. No legacy archive or runtime source was changed by the player work.
