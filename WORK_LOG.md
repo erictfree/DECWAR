@@ -5697,3 +5697,14 @@ Added a focused expiry regression test: after 60 seconds without a refreshed
 objective row, the captain no longer describes or acts on the old planet
 coordinate. The focused captain suite now passes 19/19 and TypeScript checking
 passes after the v12 refinement.
+
+## 2026-09-07 — Captain-v12 objective versus patrol matchup
+
+Ran a fresh ten-ship, 180-second seeded Austin matchup with Federation
+objective captains against Empire patrol captains (seed 1740). The run
+completed 765 decisions and 453 moves with 104 shots and 30 torpedo attempts
+(20 hits, three misses), and no deaths, stalls or reconnects. Final observed
+team points were Federation 3,531.1 and Empire 3,452.6, a narrow Federation
+lead. No captures or builds occurred in this sample, so it is evidence of
+stability and a small matchup signal rather than a superiority claim. Evidence
+is at `logs/automated-player-fresh-fleet-v12-objective-vs-patrol-2026-09-07/`.
