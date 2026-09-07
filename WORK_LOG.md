@@ -5667,3 +5667,15 @@ prevailed before orbit was reached: zero captures, builds or base conversions
 were confirmed. This points to objective scheduling and persistence as the next
 policy gap, while the combat/coordination path remained stable. Evidence is at
 `logs/automated-player-fresh-fleet-v10-long-2026-09-07/`.
+
+## 2026-09-07 — Captain-v11 persistent objective waypoint
+
+Objective captains now retain a selected planet waypoint through ordinary
+combat and resupply detours. The remembered position is used only for routing;
+the captain still requires a fresh planet LIST row, current SCAN symbol and
+safe reserves before issuing CAPTURE or BUILD. TypeScript checking and the full
+experimental-player regression passed (29 tests). A post-change 60-second,
+ten-ship disposable Austin smoke completed 220 decisions and 164 moves with
+34 shots, 22 torpedo attempts (11 hits, four misses), one confirmed capture,
+and no deaths, stalls or reconnects. Evidence is at
+`logs/automated-player-fresh-fleet-v11-smoke-2026-09-07/`.

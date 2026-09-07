@@ -44,6 +44,10 @@ export class Captain {
   readonly map = new ObservedMap();
   private previousMove: { from: Position; to: Position } | undefined;
   private goal: Position | undefined;
+  // Objective captains retain a selected planet across ordinary resupply and
+  // combat detours. The position is only a navigation objective; capture or
+  // build still requires a fresh LIST row and matching SCAN symbol below.
+  private objectiveTarget: { position: Position; kind: 'planet' } | undefined;
   private resupplying = false;
   private patrolIndex = 0;
   private lastFire = -Infinity;
@@ -207,19 +211,24 @@ export class Captain {
         .filter(o => scan.cells.some(c => distance(c, o.position!) === 0 && c.symbol === planetSymbol(o.faction)))
         .sort((a, b) => distance(s.position, a.position!) - distance(s.position, b.position!));
       const planet = candidates[0];
-      if (planet?.position) {
-        if (distance(s.position, planet.position) <= 1) {
+      if (planet?.position) this.objectiveTarget = { position: { ...planet.position }, kind: 'planet' };
+      const remembered = this.objectiveTarget && objects.some(o => o.kind === 'planet' && o.position?.v === this.objectiveTarget.position.v && o.position.h === this.objectiveTarget.position.h)
+        ? this.objectiveTarget : undefined;
+      const targetPosition = planet?.position ?? remembered?.position;
+      if (targetPosition) {
+        if (planet?.position && distance(s.position, planet.position) <= 1) {
           if (planet.faction === this.team) return this.act(`BUILD ABSOLUTE ${planet.position.v} ${planet.position.h}`, `Develop the freshly observed captured planet (${planet.builds ?? 0}/5 builds).`, undefined, 'build');
           return this.act(`CAPTURE ABSOLUTE ${planet.position.v} ${planet.position.h}`, `Capture the freshly observed ${planet.faction === 'NEUTRAL' ? 'neutral' : 'unfortified enemy'} planet from orbit.`, undefined, 'capture');
         }
-        const step = route(this.map, s.position, planet.position, this.team, now, true, true, 1);
-        if (step) return this.move(step, s, d, `Approach the known ${planet.faction === this.team ? 'captured planet for development' : 'planet for capture'}.`);
+        const step = route(this.map, s.position, targetPosition, this.team, now, true, true, 1);
+        if (step) return this.move(step, s, d, `Approach the known ${planet?.faction === this.team ? 'captured planet for development' : 'planet for capture'}.`);
       }
       // LIST can guide travel, but capture/build still requires a current SCAN.
       const known = objects.filter(o => o.kind === 'planet' && o.position)
         .filter(actionable)
         .sort((a, b) => distance(s.position, a.position!) - distance(s.position, b.position!))[0];
       if (known?.position) {
+        this.objectiveTarget = { position: { ...known.position }, kind: 'planet' };
         const step = route(this.map, s.position, known.position, this.team, now, true, true, 1);
         if (step) return this.move(step, s, d, 'Seek the planet reported by LIST; confirm ownership with SCAN before acting.');
       }
