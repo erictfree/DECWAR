@@ -202,6 +202,18 @@ test('Empire objective captain uses the same capture and construction path', () 
   assert.equal(new Captain('EMPIRE', 'objective').choose(o, 1000).command, 'BUILD ABSOLUTE 10 11');
 });
 
+test('Objective waypoint expires without turning stale coordinates into actions', () => {
+  const o = observation();
+  o.objects = [{ name: 'Neu planet', kind: 'planet', faction: 'NEUTRAL', position: { v: 10, h: 18 }, builds: 0, observedAt: 1000 }];
+  cell(o, { v: 10, h: 18 }, ' @');
+  const captain = new Captain('FEDERATION', 'objective');
+  assert.match(captain.choose(o, 1000).reason, /planet for capture/);
+  o.objects = [];
+  o.status.observedAt = 62001; o.scan.observedAt = 62001;
+  const expired = captain.choose(o, 62001);
+  assert.doesNotMatch(expired.reason, /planet for capture|captured planet/);
+});
+
 test('Defense captain guards developed planets and prioritizes ships threatening friendly assets', () => {
   const travel = observation();
   travel.objects = [

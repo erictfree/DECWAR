@@ -5692,3 +5692,8 @@ ten-ship, 120-second disposable Austin run completed 404 decisions and 344
 moves, confirmed two captures and one build, and had zero deaths, stalls or
 reconnects. Evidence is at
 `logs/automated-player-fresh-fleet-v12-smoke-2026-09-07/`.
+
+Added a focused expiry regression test: after 60 seconds without a refreshed
+objective row, the captain no longer describes or acts on the old planet
+coordinate. The focused captain suite now passes 19/19 and TypeScript checking
+passes after the v12 refinement.
