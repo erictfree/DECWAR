@@ -171,7 +171,7 @@ export class Captain {
     if (maxDamage > 0 && !enemies.length) return this.act('REPAIR 30', 'Repair devices between encounters.');
     // Teammate sightings provide a pursuit waypoint only. The local SCAN and
     // TARGETS checks above remain mandatory before any weapon command.
-    if (!enemies.length && sharedEnemies.length && !threat && s.energy >= 2800 && s.shieldPercent >= 75) {
+    if (this.mode !== 'objective' && !enemies.length && sharedEnemies.length && !threat && s.energy >= 2800 && s.shieldPercent >= 75) {
       const sighting = [...sharedEnemies].sort((a, b) => distance(s.position, a.position!) - distance(s.position, b.position!))[0];
       if (distance(s.position, sighting.position!) > 8) {
         const step = route(this.map, s.position, sighting.position!, this.team, now, true, true, 8);

@@ -5741,3 +5741,14 @@ four builds; patrol confirmed none. This is stronger evidence that bounded
 planet pursuit improves strategic output, though the sample remains small.
 Evidence is at
 `logs/automated-player-combat-tournament-v14-2026-09-07/summary.json`.
+
+## 2026-09-07 — Captain-v15 objective priority over shared intel
+
+The v14b counter-tournament showed objective captains were diverted by shared
+teammate sightings before their planet branch ran. Restricted teammate-sighting
+pursuit to non-objective roles and added a regression proving objective captains
+keep planet priority. Focused captain tests pass 20/20 and TypeScript checking
+passes. A paired two-match, 90-second, ten-ship smoke (seed 1749) split leads
+1–1, but objective averaged 3,379.7 points versus patrol's 2,599.7, confirmed
+one capture and four builds, and had no deaths or execution errors. Evidence is
+at `logs/automated-player-combat-tournament-v15-smoke-2026-09-07/summary.json`.

@@ -158,6 +158,14 @@ test('Captain pursues a fresh teammate sighting without treating it as a firing 
   assert.match(decision.reason, /Pursue teammate sighting/);
 });
 
+test('Objective captain keeps planet priority over teammate pursuit waypoints', () => {
+  const o = observation();
+  o.objects = [{ name: 'Neu planet', kind: 'planet', faction: 'NEUTRAL', position: { v: 10, h: 11 }, builds: 0, observedAt: 1000 }];
+  o.intel = [{ name: 'Wolf', kind: 'ship', faction: 'EMPIRE', observedAt: 1000, position: { v: 20, h: 20 } }];
+  cell(o, { v: 10, h: 11 }, ' @');
+  assert.equal(new Captain('FEDERATION', 'objective').choose(o, 1000).command, 'CAPTURE ABSOLUTE 10 11');
+});
+
 test('Nova tactic requires a fully observed star cluster clear of friendlies and planets', () => {
   const o = observation(); cell(o, { v: 10, h: 13 }, ' *'); cell(o, { v: 10, h: 14 }, ' W');
   const wolf = { name: 'Wolf', kind: 'ship' as const, faction: 'EMPIRE' as const, observedAt: 1000, position: { v: 10, h: 14 }, shieldPercent: 100 };
