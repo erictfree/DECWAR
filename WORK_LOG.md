@@ -5825,3 +5825,15 @@ the phaser control made 59 ship shots. The result supports retaining torpedoes
 as the primary weapon, but this small sample is not a claim of universal parity
 or completed-game victory. Evidence is at
 `logs/automated-player-weapon-tournament-v16-2026-09-07/summary.json`.
+
+## 2026-09-07 — v16 balanced-strategy comparison
+
+Compared the `balanced` fleet assignment (objective captain plus dedicated
+ defender) with the current `objective` assignment in four paired 120-second,
+ten-ship Austin tournament matches (base seeds 1758–1759). All matches reached
+their limits with zero execution errors. The strategies split leads 2–2, but
+objective averaged 3,453.7 points versus balanced's 2,720.3 (average margin
++733.5 for objective). Objective recorded zero deaths, three captures and
+eight builds; balanced recorded two deaths, two captures and eight builds. The
+current objective default remains the stronger observed policy. Evidence is at
+`logs/automated-player-strategy-tournament-v16-balanced-2026-09-07/summary.json`.
