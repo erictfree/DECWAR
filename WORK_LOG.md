@@ -5989,3 +5989,15 @@ work rather than stalls or parser failures. No policy change was made; the
 objective default remains appropriate when captures/builds matter, while
 patrol remains available for short-horizon combat tests. Evidence is at
 `logs/automated-player-combat-tournament-v16-longer-2026-09-07/summary.json`.
+
+## 2026-09-07 — v16 patrol combat-pressure run
+
+Ran ten patrol captains with torpedoes for 300 seconds on a fresh Austin
+ tournament world (seed 1770) to stress sustained ship combat. The fleet
+completed 646 decisions and 108 shots (104 ship, four base), including 32
+torpedo attempts and 18 hits. It recorded one death, with zero stalls or
+reconnects. Federation finished at 8,447 points versus Empire's 1,273.4,
+including one enemy destroyed. The run confirms that patrol can sustain
+aggressive contact and recover; no tactical change was made from this single
+faction-asymmetric result. Evidence is at
+`logs/automated-player-fresh-fleet-v16-combat-pressure-2026-09-07/fleet/summary.json`.
