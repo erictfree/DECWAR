@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { ClientTelnet, commandBytes } from '../telnet.ts';
 import { parseFriendlyBases, parseStatus, type ShipStatus } from '../observations.ts';
 import { decide } from '../policy.ts';
+import { FleetIntel } from '../player.ts';
 
 const report = '\r\nStardate\t1\r\nCondition\tDocked+Green\r\nLocation\t10-20\r\nTorpedoes\t10\r\nEnergy left\t5000.0\r\nDamage\t\t0.0\r\nShields\t        +100.0% 2500.0 units\r\nSub-Space Radio On\r\nCommand: ';
 const ship: ShipStatus = parseStatus(report, 1000);
@@ -71,4 +72,12 @@ test('Baseline refuses stale, dangerous, unlocated or repeatedly blocked decisio
   assert.equal(decide(ship, [], { failedMoves: 0 }, 1000).command, undefined);
   assert.equal(decide(ship, bases, { failedMoves: 2 }, 1000).command, undefined);
   assert.equal(decide(ship, bases, { failedMoves: 2 }, 1000).kind, 'blocked');
+});
+
+test('Fleet intel shares only recent public enemy sightings and expires them', () => {
+  const intel = new FleetIntel();
+  intel.publish('FEDERATION', [{ name: 'Wolf', kind: 'ship', faction: 'EMPIRE', observedAt: 1000, position: { v: 20, h: 20 } }]);
+  assert.equal(intel.snapshot('FEDERATION', Date.now()).length, 1);
+  assert.equal(intel.snapshot('EMPIRE', Date.now()).length, 0);
+  assert.equal(intel.snapshot('FEDERATION', Date.now() + 5001).length, 0);
 });

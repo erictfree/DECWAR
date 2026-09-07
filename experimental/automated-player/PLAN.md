@@ -188,8 +188,9 @@ command explicit. TARGETS now cross-checks SCAN before ship fire, and conservati
 one-round torpedoes are implemented in captain-v8. A guarded nova selector is
 retained for controlled experiments but disabled by default after an off-target
 nova damaged a friendly in a ten-ship run. The
-next tactical slice is TELL/RADIO coordination and ENERGY/TRACTOR
-support. HELP, NEWS, TIME, TYPE and USERS remain available for verification;
+shared-intel pursuit is now implemented over a fleet-local channel while
+preserving local SCAN/TARGETS authorization. The next protocol slice is
+TELL/RADIO coordination and ENERGY/TRACTOR support. HELP, NEWS, TIME, TYPE and USERS remain available for verification;
 GRIPE remains manual and is never an unattended tactic.
 
 The second captain implementation closes the original obstruction/idle gap:

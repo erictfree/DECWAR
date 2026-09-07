@@ -331,3 +331,13 @@ and one nova. One ship encountered the real stale-MOVE `Coordinates:` retry and
 recovered with Ctrl-C while the fleet continued. This is a functional
 robustness and outcome checkpoint; it is not a controlled weapon ranking.
 Evidence: `logs/automated-player-fleet-v9-range-2026-09-07/fleet/summary.json`.
+
+Captain-v10 adds expiring fleet-local sharing of public enemy `TARGETS`
+sightings. A fresh seeded 90-second, ten-ship battle generated 81 teammate
+pursuit decisions; each still required a local SCAN and TARGETS report before
+weapon use. The fleet completed 332 decisions and 243 moves with no deaths,
+stalls, reconnects or execution errors. It made 13 torpedo attempts: seven hits,
+three misses, two deflections and one misfire, with no nova. This validates
+coordination behavior and transport stability; it does not establish a score
+advantage. Evidence:
+`logs/automated-player-fleet-v10-intel-2026-09-07/fleet/summary.json`.

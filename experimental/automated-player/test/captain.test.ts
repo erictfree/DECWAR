@@ -150,6 +150,14 @@ test('Captain keeps weakened targets at torpedo range or closer before firing', 
   assert.doesNotMatch(decision.command!, /^TORPEDOES/);
 });
 
+test('Captain pursues a fresh teammate sighting without treating it as a firing solution', () => {
+  const o = observation();
+  o.intel = [{ name: 'Wolf', kind: 'ship', faction: 'EMPIRE', observedAt: 1000, position: { v: 10, h: 20 } }];
+  const decision = new Captain('FEDERATION').choose(o, 1000);
+  assert.match(decision.command!, /^MOVE/);
+  assert.match(decision.reason, /Pursue teammate sighting/);
+});
+
 test('Nova tactic requires a fully observed star cluster clear of friendlies and planets', () => {
   const o = observation(); cell(o, { v: 10, h: 13 }, ' *'); cell(o, { v: 10, h: 14 }, ' W');
   const wolf = { name: 'Wolf', kind: 'ship' as const, faction: 'EMPIRE' as const, observedAt: 1000, position: { v: 10, h: 14 }, shieldPercent: 100 };

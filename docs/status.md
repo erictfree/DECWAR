@@ -68,7 +68,9 @@ explicit future tactical roles, and GRIPE remains manual. TARGETS now confirms
 SCAN ship locations before firing; captain-v8 adds conservative one-round
 torpedoes. Deliberate star novas are disabled after a bounded battle demonstrated
 off-target friendly nova damage despite a safe intended blast area. Radio
-coordination and teammate support are the next tactical slice. A four-match
+coordination now includes expiring fleet-local pursuit of teammate `TARGETS`
+sightings, while local SCAN/TARGETS checks remain mandatory before firing.
+TELL/RADIO message coordination and ENERGY/TRACTOR support are the next tactical slice. A four-match
 direct-torpedo A/B test split 2–2 and was dominated by faction; a subsequent
 paired-seed smoke test verified actual TOURNAMENT startup but is too short to
 rank the policies. The Telnet client also recovers the verified Austin

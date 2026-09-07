@@ -3,6 +3,7 @@ import { join, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 import { setTimeout as delay } from 'node:timers/promises';
 import { supervise } from './supervisor.ts';
+import { FleetIntel } from './player.ts';
 import type { Team } from './client.ts';
 import type { TeamPoints } from './observations.ts';
 
@@ -43,6 +44,7 @@ const directory = resolve(values['log-dir'] ?? `logs/automated-player-fleet-${Da
 mkdirSync(directory, { recursive: true });
 writeFileSync(join(directory, 'configuration.json'), JSON.stringify({ ...values, strategies, weapons, policy: 'captain-v8', startedAt: new Date().toISOString() }, null, 2), { flag: 'wx' });
 const controller = new AbortController(), started = Date.now();
+const sharedIntel = new FleetIntel();
 const stop = () => controller.abort();
 process.on('SIGINT', stop); process.on('SIGTERM', stop);
 const end = setTimeout(stop, seconds * 1000);
@@ -100,7 +102,7 @@ try {
     let ready!: () => void;
     const joined = new Promise<void>(resolve => { ready = resolve; });
     const s = stats[bot.name];
-    tasks.push(supervise({ ...bot, torpedoes: weapons[bot.team] === 'torpedoes', tournamentSeed, host: values.host, port, rounds, lives, retries, intervalMs: 500, signal: controller.signal,
+    tasks.push(supervise({ ...bot, torpedoes: weapons[bot.team] === 'torpedoes', tournamentSeed, sharedIntel, host: values.host, port, rounds, lives, retries, intervalMs: 500, signal: controller.signal,
       record(event) {
         appendFileSync(join(directory, `${bot.name}.jsonl`), JSON.stringify({ time: new Date().toISOString(), ...event }) + '\n');
         if (event.event === 'joined' || event.event === 'rejoined') { s.state = 'playing'; s.lastProgress = Date.now(); ready(); }

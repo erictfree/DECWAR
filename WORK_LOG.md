@@ -12,8 +12,11 @@ for DECWAR behavior.
 
 - Complete source-faithful TypeScript DECWAR, including original commands,
   terminal bytes and Telnet; a running development harness alone is not parity.
-- Prefer Astra medium; explicitly tell the user if high is warranted. No current
-  recommendation to raise effort. Do not claim the actual app setting was changed.
+- Prefer Luna medium for routine implementation, tests, tournament runs,
+  documentation, commits and pushes. Stop and ask the user to switch to Astra
+  when source ambiguity, PDP-10 numeric behavior, random draw ordering or hard
+  concurrency debugging requires it. Do not claim the actual app setting was
+  changed.
 - Continue through checkpoints without pausing merely to report completion.
   Provide detailed progress while working.
 - Keep this log updated and retain command/test output under `logs/`.
@@ -5610,3 +5613,21 @@ Evidence is retained at
 `logs/automated-player-fleet-v9-range-2026-09-07/fleet/summary.json` and the
 per-ship JSONL transcripts. The run demonstrates robust execution and a better
 short sample, not causal competitive superiority.
+## 2026-09-07 — Captain-v10 shared-intel pursuit
+
+Added a fleet-local `FleetIntel` channel populated only from public TARGETS
+reports. Sightings are keyed by observing team and ship name, refreshed when a
+teammate sees the ship and expired after five seconds. Captain-v10 uses a recent
+teammate position only as a movement waypoint; weapon decisions still require
+the acting captain's fresh SCAN/TARGETS agreement, so shared data cannot become
+an unverified firing solution.
+
+The focused captain suite and full automated-player regression passed after the
+change (68 tests). A fresh seeded 90-second, ten-ship battle generated 81
+teammate-pursuit decisions and completed 332 decisions and 243 moves with no
+deaths, stalls, reconnects or execution errors. It made 13 torpedo attempts:
+seven hits, three misses, two deflections and one misfire, with no nova. Evidence
+is retained at
+`logs/automated-player-fleet-v10-intel-2026-09-07/fleet/summary.json` and the
+per-ship transcripts. This establishes live pursuit and stability, not a
+competitive score claim.

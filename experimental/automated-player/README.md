@@ -122,6 +122,17 @@ The first arrival chooses a regular galaxy without the Romulan or black holes.
 inherit existing options. Enemy ship combat is the tested scope; Romulan tactics
 are not implemented. Select an available ship explicitly.
 
+Tournament runs can select the source game mode explicitly:
+
+```sh
+node experimental/automated-player/fleet.ts --port 2423 --tournament-seed 1729 --seconds 3600
+```
+
+Only the first arrival sends `TOURNAMENT <seed>`; later arrivals inherit that
+galaxy. The strategy and weapon tournament launchers pair adjacent faction swaps
+with the same seed. Different actions can still consume later random draws in a
+different order.
+
 | Option | Behavior |
 | --- | --- |
 | `--mode patrol` | Default: explore, fight observed enemy ships, resupply and continue. |
@@ -143,7 +154,7 @@ are not implemented. Select an available ship explicitly.
 | client.ts | Austin regular/tournament login and reentry, output preferences, one outstanding command, framed text, verified coordinate-retry interruption, timeouts and quit. |
 | observations.ts | STATUS, DAMAGES, POINTS, friendly BASES, default LIST objects and fixed-width long scans, preserving unknown reports, blank black-hole cells and warning markers. |
 | navigation.ts | Observed map, expiring mobile sightings, failed-step memory and A* routes. Executes only a freshly scanned first step. |
-| captain.ts | Patrol, objective work, local asset defense, resupply, shields, device repair, conservative phaser combat and refuge selection. |
+| captain.ts | Patrol, objective work, local asset defense, resupply, shields, device repair, conservative phaser/torpedo combat, teammate-sighting pursuit and refuge selection. |
 | policy.ts | Frozen original resupply baseline and shared decision type; retained for comparison. |
 | player.ts / run.ts | Observation/action loop, bounded lives, CLI and evidence records. |
 | supervisor.ts / fleet.ts | Bounded reconnection, shared per-bot budgets across attempts, two-sided startup, health reports and timed shutdown. |

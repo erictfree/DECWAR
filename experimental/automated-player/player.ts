@@ -1,6 +1,6 @@
 import { setTimeout as delay } from 'node:timers/promises';
 import { PlayerClient, ReentryRequired, type RecordEvent, type Team } from './client.ts';
-import { classifyTorpedoOutcome, parseDevices, parseFriendlyBases, parseList, parseScan, parseStatus, parseTargets, parseTeamPoints } from './observations.ts';
+import { classifyTorpedoOutcome, parseDevices, parseFriendlyBases, parseList, parseScan, parseStatus, parseTargets, parseTeamPoints, type ListedObject } from './observations.ts';
 import { Captain, type Observation } from './captain.ts';
 
 export type PlayerOptions = {
@@ -12,7 +12,30 @@ export type PlayerOptions = {
   mode?: 'patrol' | 'resupply' | 'objective' | 'defense';
   torpedoes?: boolean;
   lives?: number;
+  sharedIntel?: SharedIntel;
 };
+
+export interface SharedIntel {
+  publish(team: Team, targets: ListedObject[]): void;
+  snapshot(team: Team, now: number): ListedObject[];
+}
+
+// Fleet-local coordination memory. It contains only public TARGETS sightings
+// and expires them after five seconds; it never exposes runtime state.
+export class FleetIntel implements SharedIntel {
+  private readonly sightings = new Map<string, ListedObject>();
+  publish(team: Team, targets: ListedObject[]): void {
+    const now = Date.now();
+    for (const target of targets) if (target.kind === 'ship' && target.position) {
+      this.sightings.set(`${team}:${target.name}`, { ...target, observedAt: now });
+    }
+  }
+  snapshot(team: Team, now: number): ListedObject[] {
+    const opposing = team === 'FEDERATION' ? 'EMPIRE' : 'FEDERATION';
+    for (const [key, target] of this.sightings) if (now - target.observedAt > 5000) this.sightings.delete(key);
+    return [...this.sightings.values()].filter(target => target.faction === opposing && now - target.observedAt <= 5000);
+  }
+}
 
 export async function observe(client: PlayerClient, team: Team): Promise<Observation> {
   const bases = parseFriendlyBases(await client.command('BASES'), team);
@@ -55,6 +78,10 @@ export async function play(options: PlayerOptions): Promise<{ rounds: number; de
       try {
         // STATUS comes last so the ship observation is fresh after reports.
         const observation = await observe(client, options.team);
+        if (options.sharedIntel) {
+          options.sharedIntel.publish(options.team, observation.targets ?? []);
+          observation.intel = options.sharedIntel.snapshot(options.team, Date.now());
+        }
         if (previousObjects && pendingObjective) {
           const confirmation = objectiveConfirmation(previousObjects, observation.objects ?? [], options.team, pendingObjective);
           if (confirmation) options.record(confirmation);

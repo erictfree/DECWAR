@@ -3,7 +3,7 @@ import { distance, fleetSymbols, positionKey, type Cell, type Devices, type List
 import { neighbors, ObservedMap, route } from './navigation.ts';
 import type { Decision } from './policy.ts';
 
-export type Observation = { status: ShipStatus; devices: Devices; scan: Scan; bases: Position[]; objects?: ListedObject[]; targets?: ListedObject[] };
+export type Observation = { status: ShipStatus; devices: Devices; scan: Scan; bases: Position[]; objects?: ListedObject[]; targets?: ListedObject[]; intel?: ListedObject[] };
 
 // SNOVA recursively visits orthogonally and diagonally adjacent stars. A
 // candidate is usable only when the whole observed star component and its
@@ -67,6 +67,7 @@ export class Captain {
     const objects = (observation.objects ?? []).filter(o => now - o.observedAt <= 5000);
     const targets = (observation.targets ?? []).filter(o => now - o.observedAt <= 5000);
     const opposing = this.team === 'FEDERATION' ? 'EMPIRE' : 'FEDERATION';
+    const sharedEnemies = (observation.intel ?? []).filter(o => o.kind === 'ship' && o.faction === opposing && o.position && now - o.observedAt <= 5000);
     const friendlyAssets = objects.filter(o => o.faction === this.team && o.position && (o.kind === 'base' || o.kind === 'planet'));
     const enemies = this.map.enemies(scan, this.team).sort((a, b) => {
       // LIST's shield reading ranks only the same fresh SCAN ship/position.
@@ -162,6 +163,15 @@ export class Captain {
       return this.act('STATUS', 'Observe while the weapon bank recovers.');
     }
     if (maxDamage > 0 && !enemies.length) return this.act('REPAIR 30', 'Repair devices between encounters.');
+    // Teammate sightings provide a pursuit waypoint only. The local SCAN and
+    // TARGETS checks above remain mandatory before any weapon command.
+    if (!enemies.length && sharedEnemies.length && !threat && s.energy >= 2800 && s.shieldPercent >= 75) {
+      const sighting = [...sharedEnemies].sort((a, b) => distance(s.position, a.position!) - distance(s.position, b.position!))[0];
+      if (distance(s.position, sighting.position!) > 8) {
+        const step = route(this.map, s.position, sighting.position!, this.team, now, true, true, 8);
+        if (step && this.map.danger(step, this.team, now) === 0) return this.move(step, s, d, `Pursue teammate sighting of ${sighting.name}; confirm locally before firing.`);
+      }
+    }
     // A defense captain stays close enough to a known friendly installation
     // to scan approaching ships. Developed planets are guarded before bases;
     // this is a team policy over public LIST data, not hidden threat knowledge.
