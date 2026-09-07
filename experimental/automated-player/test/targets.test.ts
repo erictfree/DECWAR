@@ -48,12 +48,19 @@ test('SCAN and LIST identify enemy base; captain damages it from outside the def
   await client.quit();
 });
 
-test('TARGETS and SCAN agreement authorizes one torpedo against a weakened ship', { timeout: 20000 }, async t => {
+test('Torpedo authorization avoids a friendly base behind the target and fires after the corridor clears', { timeout: 20000 }, async t => {
   const { client, opponent, f, K } = await scenario(t, true);
   f.high.write('shpcon', 400n, 18, K.KSSHPC);
   const o = await observe(client, 'FEDERATION');
   assert.ok(o.targets!.some(x => x.name === 'Wolf' && x.position?.v === 20 && x.position.h === 23));
-  const decision = new Captain('FEDERATION').choose(o);
+  assert.equal(new Captain('FEDERATION', 'patrol', false, true, true).choose(o).command, 'PHASERS ABSOLUTE 180 20 23');
+  // The fixture's friendly base at 20-26 lies behind Wolf at 20-23.
+  // Move the base in this isolated test world, then obtain new public reports.
+  f.views.high.board.setdsp(20, 26, 0);
+  f.high.write('base', 10n, 1, 1, 1);
+  f.high.write('base', 10n, 1, 2, 1);
+  f.views.high.board.setdsp(10, 10, 301);
+  const decision = new Captain('FEDERATION', 'patrol', false, true, true).choose(await observe(client, 'FEDERATION'));
   assert.equal(decision.command, 'TORPEDOES ABSOLUTE 1 20 23');
   await client.command(decision.command!);
   const after = await observe(client, 'FEDERATION');

@@ -12,6 +12,12 @@ after replenishment. This is a functional experimental opponent. Short
 faction-swapped evaluations now measure named strategies, but the samples are
 too small for a general competitiveness claim. See [the development plan](PLAN.md) and
 [the first tactical training results](TRAINING.md).
+With `--torpedo-corridor`, direct ship torpedoes require a freshly observed corridor clear of stars,
+friendly objects, planets, black holes and unknown cells. The corridor includes
+possible drift and travel beyond the target; rejected shots fall back to the
+existing phaser/approach policy. This conservative tactical filter cannot predict
+hidden random draws or changes after observation. See [the corridor review](TORPEDO-CORRIDOR.md).
+
 The complete source-ordered [31-command coverage matrix](COMMANDS.md) records
 what the player uses, tests, plans, or intentionally leaves manual.
 

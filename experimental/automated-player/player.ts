@@ -11,6 +11,7 @@ export type PlayerOptions = {
   signal?: AbortSignal;
   mode?: 'patrol' | 'resupply' | 'objective' | 'defense';
   torpedoes?: boolean;
+  torpedoCorridor?: boolean;
   lives?: number;
   sharedIntel?: SharedIntel;
 };
@@ -62,7 +63,7 @@ export function objectiveConfirmation(previous: NonNullable<Observation['objects
 
 export async function play(options: PlayerOptions): Promise<{ rounds: number; deaths: number; outcome: 'complete' | 'blocked' | 'limit' | 'interrupted' | 'dead'; reason: string }> {
   const client = new PlayerClient(options);
-  let captain = new Captain(options.team, options.mode ?? 'patrol', false, options.torpedoes ?? true);
+  let captain = new Captain(options.team, options.mode ?? 'patrol', false, options.torpedoes ?? true, options.torpedoCorridor ?? false);
   let rounds = 0, deaths = 0, reason = 'Configured round limit reached.';
   let outcome: 'complete' | 'blocked' | 'limit' | 'interrupted' | 'dead' = 'limit';
   let previousObjects: Observation['objects'];
@@ -109,7 +110,7 @@ export async function play(options: PlayerOptions): Promise<{ rounds: number; de
         if (deaths >= (options.lives ?? 3)) { outcome = 'dead'; reason = 'Configured life limit reached.'; break; }
         if (options.signal?.aborted) break;
         await client.join(options);
-        captain = new Captain(options.team, options.mode ?? 'patrol', false, options.torpedoes ?? true);
+        captain = new Captain(options.team, options.mode ?? 'patrol', false, options.torpedoes ?? true, options.torpedoCorridor ?? false);
         options.record({ event: 'rejoined', deaths, ship: options.ship });
       }
     }

@@ -6011,3 +6011,62 @@ The JSON evidence is at
 `logs/automated-player-command-coverage-2026-09-07.json`. An initial ad hoc
 summary script incorrectly treated the object wrapper as an array and failed;
 the corrected summary reported the counts above. No player code was changed.
+
+## 2026-09-07 — v17 opt-in torpedo corridor experiment
+
+Resumed after the requested model switch. Runnable milestone: a public-SCAN
+path-risk filter available through `--torpedo-corridor` in the individual,
+fleet and isolated-fleet launchers. Reviewed Austin DECWAR.FOR:699–772 and
+4289–4307. Random launch drift and travel beyond the requested target prevent
+exact shot prediction from Telnet. Implemented an integer corridor with a
+quarter-sector drift allowance per step and one-cell selection margin; it
+checks all ten possible major-axis steps, including beyond the target. Stars,
+friendly objects, all planets, black holes and unseen/stale cells veto direct
+ship torpedoes, preserving existing phaser/approach fallback. No production
+runtime imports or game-rule changes. Deliberate nova mode remains disabled.
+
+The first unit test exposed an incorrect symmetry assumption in the test:
+CHECK's tie branch fixes its major axis for diagonals. Corrected the test rather
+than changing the source-aligned axis selection. The first full test run found
+that the live torpedo fixture contains a friendly base behind the target. The
+new fallback was correct; expanded the scenario to test withholding the shot,
+then moving the base in the isolated fixture and observing again before firing.
+The full rerun passed 76/76. An additional source-derived CHECK test covers all
+legal direction vectors and five drift samples, using rational arithmetic;
+this is not original-executable parity or exhaustive machine-rounding proof.
+
+The 90-second ten-ship smoke (1771) completed 352 decisions and 35 shots with
+zero torpedo attempts, deaths, stalls or reconnects. This does not demonstrate
+competitive improvement. Kept the guard opt-in rather than promoting a
+potentially over-conservative default. Future comparisons must measure rejected
+opportunities and performance against the previous policy. The initial smoke
+used the guard enabled directly before the final opt-in switch was added.
+
+Evidence: logs/automated-player-v17-corridor-unit.txt (initial test failure),
+logs/automated-player-v17-corridor-unit-rerun.txt,
+logs/automated-player-v17-corridor-source-tests.txt,
+logs/automated-player-v17-full-tests.txt (initial live fixture failure),
+logs/automated-player-v17-full-tests-rerun.txt (76 passed),
+logs/automated-player-v17-corridor-smoke/,
+logs/automated-player-v17-opt-in-unit.txt (26 passed),
+logs/automated-player-v17-corridor-final-unit.txt,
+logs/automated-player-v17-typecheck-opt-in.txt and
+logs/automated-player-v17-audit.txt. Typecheck and archive audit passed. The
+intermediate typecheck rejected an erasable-syntax-incompatible parameter
+property; replaced it with an explicit field (diagnostic in
+logs/automated-player-v17-typecheck-final.txt).
+
+Corrections to previous conclusions: the expanded eight-match summary records
+one OBJECTIVE death and zero patrol deaths, contrary to its log prose. The
+three-minute comparison had Empire ahead in all four matches, irrespective of
+strategy; it does not establish a causal horizon tradeoff. The ten-minute run
+used the same strategy on both sides and cannot rank objective against patrol.
+Routine test success and fixed-time point totals do not establish that the
+player is formidable. No such completion claim is made here.
+
+Final opt-in validation: 26 captain/corridor tests and eight live target tests
+passed. The 30-second four-ship CLI smoke reached its duration, recorded
+`torpedo-corridor: true` in the fleet configuration and shut down all four
+captains with no errors. Evidence: logs/automated-player-v17-opt-in-live.txt
+and logs/automated-player-v17-opt-in-cli-smoke/. The unguarded default is
+explicitly covered by the final corridor unit test.

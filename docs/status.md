@@ -66,7 +66,10 @@ Its source-ordered command matrix covers all 31 Austin public commands. Eighteen
 are used automatically, five are verification/information commands, seven have
 explicit future tactical roles, and GRIPE remains manual. TARGETS now confirms
 SCAN ship locations before firing; captain-v8 adds conservative one-round
-torpedoes. Deliberate star novas are disabled after a bounded battle demonstrated
+torpedoes. The opt-in v17 corridor guard (`--torpedo-corridor`) checks drift and travel beyond the target
+against fresh SCAN cells, withholding torpedoes near collateral hazards or
+unobserved space. It is a conservative tactical filter, not exact random-path
+prediction. Deliberate star novas are disabled after a bounded battle demonstrated
 off-target friendly nova damage despite a safe intended blast area. Radio
 coordination now includes expiring fleet-local pursuit of teammate `TARGETS`
 sightings, while local SCAN/TARGETS checks remain mandatory before firing.

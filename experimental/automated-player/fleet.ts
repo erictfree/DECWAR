@@ -20,9 +20,10 @@ const { values } = parseArgs({ options: {
   'federation-weapons': { type: 'string', default: 'torpedoes' },
   'empire-weapons': { type: 'string', default: 'torpedoes' },
   'tournament-seed': { type: 'string' },
+  'torpedo-corridor': { type: 'boolean', default: false },
 } });
 if (values.help) {
-  console.log('Usage: node experimental/automated-player/fleet.ts [--port 2423] [--ships 4|6|8|10] [--seconds 3600] [--federation-strategy objective|patrol|balanced] [--empire-strategy objective|patrol|balanced] [--federation-weapons torpedoes|phasers] [--empire-weapons torpedoes|phasers] [--tournament-seed N] [--rounds 10000] [--lives 10] [--retries 20] [--log-dir path]\nConnects equal teams to an existing Austin host. The seed selects source TOURNAMENT mode only for a new galaxy. Stops at duration, Ctrl-C, or budgets. Writes health.json, events.jsonl and summary.json.');
+  console.log('Usage: node experimental/automated-player/fleet.ts [--port 2423] [--ships 4|6|8|10] [--seconds 3600] [--federation-strategy objective|patrol|balanced] [--empire-strategy objective|patrol|balanced] [--federation-weapons torpedoes|phasers] [--empire-weapons torpedoes|phasers] [--tournament-seed N] [--torpedo-corridor] [--rounds 10000] [--lives 10] [--retries 20] [--log-dir path]\nConnects equal teams to an existing Austin host. The seed selects source TOURNAMENT mode only for a new galaxy. Stops at duration, Ctrl-C, or budgets. Writes health.json, events.jsonl and summary.json.');
   process.exit(0);
 }
 function integer(value: string, min: number, max: number) {
@@ -102,7 +103,7 @@ try {
     let ready!: () => void;
     const joined = new Promise<void>(resolve => { ready = resolve; });
     const s = stats[bot.name];
-    tasks.push(supervise({ ...bot, torpedoes: weapons[bot.team] === 'torpedoes', tournamentSeed, sharedIntel, host: values.host, port, rounds, lives, retries, intervalMs: 500, signal: controller.signal,
+    tasks.push(supervise({ ...bot, torpedoCorridor: values['torpedo-corridor'], torpedoes: weapons[bot.team] === 'torpedoes', tournamentSeed, sharedIntel, host: values.host, port, rounds, lives, retries, intervalMs: 500, signal: controller.signal,
       record(event) {
         appendFileSync(join(directory, `${bot.name}.jsonl`), JSON.stringify({ time: new Date().toISOString(), ...event }) + '\n');
         if (event.event === 'joined' || event.event === 'rejoined') { s.state = 'playing'; s.lastProgress = Date.now(); ready(); }

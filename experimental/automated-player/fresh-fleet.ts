@@ -16,9 +16,10 @@ const { values } = parseArgs({ options: {
   'federation-weapons': { type: 'string', default: 'torpedoes' },
   'empire-weapons': { type: 'string', default: 'torpedoes' },
   'tournament-seed': { type: 'string' },
+  'torpedo-corridor': { type: 'boolean', default: false },
 } });
 if (values.help) {
-  console.log('Usage: node experimental/automated-player/fresh-fleet.ts [--seconds 600] [--ships 4|6|8|10] [--federation-strategy objective|patrol|balanced] [--empire-strategy objective|patrol|balanced] [--federation-weapons torpedoes|phasers] [--empire-weapons torpedoes|phasers] [--tournament-seed N] [--log-dir path]\nStarts a fresh temporary Austin playable host, runs the fleet, stops the host and removes the temporary galaxy.');
+  console.log('Usage: node experimental/automated-player/fresh-fleet.ts [--seconds 600] [--ships 4|6|8|10] [--federation-strategy objective|patrol|balanced] [--empire-strategy objective|patrol|balanced] [--federation-weapons torpedoes|phasers] [--empire-weapons torpedoes|phasers] [--tournament-seed N] [--torpedo-corridor] [--log-dir path]\nStarts a fresh temporary Austin playable host, runs the fleet, stops the host and removes the temporary galaxy.');
   process.exit(0);
 }
 const integer = (value: string, min: number, max: number) => {
@@ -33,7 +34,7 @@ for (const value of [values['federation-weapons'], values['empire-weapons']]) if
 const root = fileURLToPath(new URL('../../', import.meta.url));
 const directory = resolve(values['log-dir'] ?? join(root, 'logs', `automated-player-fresh-fleet-${Date.now()}`));
 mkdirSync(directory, { recursive: true });
-writeFileSync(join(directory, 'launcher.json'), JSON.stringify({ policy: 'captain-v8', variant: 'austin', profile: 'playable', seconds, ships, tournamentSeed, federationStrategy: values['federation-strategy'], empireStrategy: values['empire-strategy'], federationWeapons: values['federation-weapons'], empireWeapons: values['empire-weapons'], startedAt: new Date().toISOString() }, null, 2) + '\n', { flag: 'wx' });
+writeFileSync(join(directory, 'launcher.json'), JSON.stringify({ policy: 'captain-v8', torpedoCorridor: values['torpedo-corridor'], variant: 'austin', profile: 'playable', seconds, ships, tournamentSeed, federationStrategy: values['federation-strategy'], empireStrategy: values['empire-strategy'], federationWeapons: values['federation-weapons'], empireWeapons: values['empire-weapons'], startedAt: new Date().toISOString() }, null, 2) + '\n', { flag: 'wx' });
 const data = mkdtempSync(join(tmpdir(), 'decwar-objective-fleet-'));
 const host = spawn(process.execPath, ['tools/run-telnet.ts', '--port', '0', '--variant', 'austin', '--data', data, '--log', join(directory, 'host.jsonl')], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] });
 let fleet: ReturnType<typeof spawn> | undefined;
@@ -57,6 +58,7 @@ try {
   });
   writeFileSync(join(directory, 'endpoint.json'), JSON.stringify({ host: '127.0.0.1', port }, null, 2) + '\n', { flag: 'wx' });
   const fleetArgs = ['experimental/automated-player/fleet.ts', '--port', String(port), '--seconds', String(seconds), '--ships', String(ships), '--federation-strategy', values['federation-strategy'], '--empire-strategy', values['empire-strategy'], '--federation-weapons', values['federation-weapons'], '--empire-weapons', values['empire-weapons'], '--log-dir', join(directory, 'fleet')];
+  if (values['torpedo-corridor']) fleetArgs.push('--torpedo-corridor');
   if (tournamentSeed !== undefined) fleetArgs.push('--tournament-seed', String(tournamentSeed));
   fleet = spawn(process.execPath, fleetArgs, { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] });
   fleet.stdout?.on('data', bytes => appendFileSync(join(directory, 'fleet.stdout.log'), bytes));

@@ -2,6 +2,7 @@ import type { Team } from './client.ts';
 import { distance, fleetSymbols, positionKey, type Cell, type Devices, type ListedObject, type Position, type Scan, type ShipStatus } from './observations.ts';
 import { neighbors, ObservedMap, route } from './navigation.ts';
 import type { Decision } from './policy.ts';
+import { clearTorpedoCorridor } from './torpedo-corridor.ts';
 
 const OBJECTIVE_WAYPOINT_TTL_MS = 30_000;
 
@@ -60,8 +61,9 @@ export class Captain {
   readonly mode: 'patrol' | 'resupply' | 'objective' | 'defense';
   readonly experimentalNovas: boolean;
   readonly torpedoesEnabled: boolean;
-  constructor(team: Team, mode: 'patrol' | 'resupply' | 'objective' | 'defense' = 'patrol', experimentalNovas = false, torpedoesEnabled = true) {
-    this.team = team; this.mode = mode; this.experimentalNovas = experimentalNovas; this.torpedoesEnabled = torpedoesEnabled;
+  readonly torpedoCorridorEnabled: boolean;
+  constructor(team: Team, mode: 'patrol' | 'resupply' | 'objective' | 'defense' = 'patrol', experimentalNovas = false, torpedoesEnabled = true, torpedoCorridorEnabled = false) {
+    this.team = team; this.mode = mode; this.experimentalNovas = experimentalNovas; this.torpedoesEnabled = torpedoesEnabled; this.torpedoCorridorEnabled = torpedoCorridorEnabled;
   }
 
   choose(observation: Observation, now = Date.now()): Decision {
@@ -147,7 +149,7 @@ export class Captain {
       // than closer shots (10 misses/17 attempts versus 3/38 at <=8). Keep
       // long-range attacks on phasers, then use a torpedo after closing.
       if (this.torpedoesEnabled && distance(s.position, target) <= 8 && detail && detail.shieldPercent !== undefined && detail.shieldPercent < 85 && s.torpedoes > 4 && d.torpedoes < 300 && d.computer < 300
-          && now - this.lastTorpedo >= 3000) {
+          && now - this.lastTorpedo >= 3000 && (!this.torpedoCorridorEnabled || clearTorpedoCorridor(scan, s.position, target, this.team, now))) {
         this.lastTorpedo = now;
         return this.act(`TORPEDOES ABSOLUTE 1 ${target.v} ${target.h}`, `Use one torpedo against fresh TARGETS/SCAN agreement on weakened ${detail.name} shields.`, 'ship', undefined, 'torpedoes');
       }
