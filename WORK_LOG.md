@@ -5654,3 +5654,16 @@ decisions. There were no deaths, stalls, reconnects or execution errors. The
 run confirmed one planet capture but no builds or base conversions, so the next
 policy work should improve objective follow-through after capture. Evidence is
 retained at `logs/automated-player-fresh-fleet-v10-battle-2026-09-07/`.
+
+## 2026-09-07 — Captain-v10 300-second objective follow-through run
+
+Ran a longer ten-ship seeded Austin tournament (seed 1736) on a disposable
+host. All 1,150 decisions completed without deaths, stalls, reconnects or
+execution errors. The fleet made 730 moves and 163 shots, including 60
+torpedo attempts (29 hits, eight misses, 11 deflections, seven misfires and
+five novas); 174 decisions used teammate sighting pursuit. Both objective
+captains observed and approached planets, but combat and resupply priorities
+prevailed before orbit was reached: zero captures, builds or base conversions
+were confirmed. This points to objective scheduling and persistence as the next
+policy gap, while the combat/coordination path remained stable. Evidence is at
+`logs/automated-player-fresh-fleet-v10-long-2026-09-07/`.
