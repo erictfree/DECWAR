@@ -5837,3 +5837,16 @@ objective averaged 3,453.7 points versus balanced's 2,720.3 (average margin
 eight builds; balanced recorded two deaths, two captures and eight builds. The
 current objective default remains the stronger observed policy. Evidence is at
 `logs/automated-player-strategy-tournament-v16-balanced-2026-09-07/summary.json`.
+
+## 2026-09-07 — v16 ten-minute endurance run
+
+Ran ten objective-configured captains with torpedoes for 600 seconds on a fresh
+Austin tournament world (seed 1760). The run completed normally with 2,251
+decisions, 1,274 moves, 343 shots, 220 docks and one repair. It made 95
+torpedo attempts (47 hits, 17 misses, 12 deflections, five misfires and 14
+novas), confirmed five captures and 20 builds, and recorded zero deaths,
+stalls, reconnects or execution errors. Final observed score was Empire
+12,276.2 to Federation 11,205.4. The run supports the current survivability and
+objective behavior; it is endurance evidence, not a completed-game parity
+claim. Evidence is at
+`logs/automated-player-fresh-fleet-v16-endurance-2026-09-07/fleet/summary.json`.
