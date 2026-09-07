@@ -208,8 +208,14 @@ export class Captain {
       const actionable = (o: ListedObject) => o.faction === this.team
         ? (o.builds ?? 0) < 4 || (o.builds ?? 0) === 4 && bases.length < 10
         : (o.builds ?? 0) === 0;
+      // Enemy bases defend through four sectors (BASPHA). Do not send an
+      // objective captain to a planet inside a known base's defense radius;
+      // this prevents a fresh LIST target from turning into a predictable
+      // approach through an installation kill zone.
+      const safePlanet = (o: ListedObject) => !objects.some(enemy => enemy.kind === 'base' && enemy.faction === opposing && enemy.position && o.position && distance(enemy.position, o.position) <= 4);
       const candidates = objects.filter(o => o.kind === 'planet' && o.position)
         .filter(actionable)
+        .filter(safePlanet)
         .filter(o => scan.cells.some(c => distance(c, o.position!) === 0 && c.symbol === planetSymbol(o.faction)))
         .sort((a, b) => distance(s.position, a.position!) - distance(s.position, b.position!));
       const planet = candidates[0];
@@ -232,6 +238,7 @@ export class Captain {
       // LIST can guide travel, but capture/build still requires a current SCAN.
       const known = objects.filter(o => o.kind === 'planet' && o.position)
         .filter(actionable)
+        .filter(safePlanet)
         .sort((a, b) => distance(s.position, a.position!) - distance(s.position, b.position!))[0];
       if (known?.position) {
         this.objectiveTarget = { position: { ...known.position }, kind: 'planet', selectedAt: now };

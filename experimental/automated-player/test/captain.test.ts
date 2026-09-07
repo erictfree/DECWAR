@@ -222,6 +222,16 @@ test('Objective waypoint expires without turning stale coordinates into actions'
   assert.doesNotMatch(expired.reason, /planet for capture|captured planet/);
 });
 
+test('Objective captain rejects planets inside a known enemy base defense zone', () => {
+  const o = observation();
+  o.objects = [
+    { name: 'Neu planet', kind: 'planet', faction: 'NEUTRAL', position: { v: 10, h: 11 }, builds: 0, observedAt: 1000 },
+    { name: 'Emp Base', kind: 'base', faction: 'EMPIRE', position: { v: 10, h: 15 }, shieldPercent: 100, observedAt: 1000 },
+  ];
+  cell(o, { v: 10, h: 11 }, ' @');
+  assert.doesNotMatch(new Captain('FEDERATION', 'objective').choose(o, 1000).command!, /^CAPTURE/);
+});
+
 test('Defense captain guards developed planets and prioritizes ships threatening friendly assets', () => {
   const travel = observation();
   travel.objects = [

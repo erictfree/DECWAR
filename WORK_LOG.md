@@ -5764,3 +5764,15 @@ builds, while patrol confirmed none. Objective had one death and patrol none,
 so the strategic gain is clear in this sample but safety still needs monitoring.
 Evidence is at
 `logs/automated-player-combat-tournament-v15-2026-09-07/summary.json`.
+
+## 2026-09-07 — Captain-v16 enemy-installation safety filter
+
+The v15 death trace showed an objective captain pursuing a neutral planet inside
+a known enemy base's four-sector defense radius. Objective planet candidates
+now exclude planets within that known radius; fresh SCAN/LIST and reserve
+checks remain required. Focused captain tests pass 21/21 and TypeScript
+checking passes. A post-change 120-second, ten-ship Austin smoke completed 417
+decisions and 262 moves, confirmed three captures and seven builds, and made 20
+torpedo attempts (13 hits, one miss, one deflection, one misfire and four
+novas), with zero deaths, stalls or reconnects. Evidence is at
+`logs/automated-player-fresh-fleet-v16-safety-2026-09-07/`.
