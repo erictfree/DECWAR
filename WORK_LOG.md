@@ -5786,3 +5786,13 @@ averaged 1,808.9 points versus patrol's 1,829.8, while objective confirmed two
 captures and eight builds and patrol none. The one recorded death was patrol
 role Lancer rather than an objective captain. Evidence is at
 `logs/automated-player-combat-tournament-v16-2026-09-07/summary.json`.
+
+## 2026-09-07 — Torpedo-path review
+
+Reviewed Austin TORP/CHECK source behavior after repeated runs showed
+occasional accidental novas. The source computes the path through CHECK and
+uses a random branch when a star is reached; the player currently cannot infer
+that exact path safely from a coarse SCAN without reproducing source geometry
+and arithmetic. No speculative star-avoidance rule was added. This remains a
+candidate for Astra-level source-semantic work; ordinary Luna-medium testing
+continues with the verified conservative weapon policy.
