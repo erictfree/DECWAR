@@ -5900,3 +5900,40 @@ would therefore guess at hidden need or interfere with a teammate. No
 speculative commands were added; these remain planned pending observable
 coordination evidence. The current player continues to use public SCAN/LIST/
 TARGETS, docking, repair, combat and objective actions.
+
+## 2026-09-07 — Specification lexical and grammar increment
+
+Added Sections 3 and 4 in docs/spec1.0/03-lexical-structure.md and
+04-command-grammar.md. Defined EBNF notation, word/integer/decimal forms,
+ordinary separators, command/comment/line boundaries, contextual name
+resolution, MOVE and destination productions, and prompted responses.
+Reduced duplicated introductory syntax in MOVE to use those shared definitions.
+Updated the reading guide and PDF build inputs.
+
+Source evidence is in docs/spec1.0/evidence/03-04-language.md, based on Austin
+WARMAC tokenization/character classes/EQUAL and DECWAR LOCATE/RELOC/GETCMD/SET.
+C-008 and C-009 explicitly retain open decisions on five-character truncation,
+capacity limits, empty token cases, and inconsistent prompt recovery. Full
+chaining/dialogue execution, free-text fields, and input editing remain later
+increments; no complete parser or historical parity is claimed.
+
+Archive/generated audit and whitespace checks passed; logs are
+logs/spec1.0-language/audit.log and diff-check.log. PDF build passed without
+warnings in pdf-build.log; pdf-info.log records the 22-page artifact. Visually
+reviewed the title/contents, both new chapters, and the revised MOVE pages.
+Lexical structure begins on printed page 13, grammar on 15, and MOVE on 18.
+This change is specification-only and does not alter running-game behavior.
+
+## 2026-09-07 — v16 expanded short-horizon tournament
+
+Ran eight paired 60-second, ten-ship Austin tournament matches across four
+fresh seeds (1764–1767), alternating objective and patrol assignments. Every
+match reached its limit with zero execution errors. Patrol led six matches and
+objective two; patrol averaged 1,797.1 points versus objective's 1,338.6, with
+one patrol death and none for objective. Objective nevertheless confirmed six
+captures and 24 builds while patrol confirmed none. The traces show a
+short-horizon tradeoff: objective captains spend early turns reaching and
+working planets, while patrol produces immediate ship shots. This does not
+justify a startup-policy change because the prior 90–120 second comparisons
+and ten-minute endurance run favored objective. Evidence is at
+`logs/automated-player-combat-tournament-v16-expanded-2026-09-07/summary.json`.
