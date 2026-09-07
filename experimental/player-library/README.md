@@ -1,8 +1,11 @@
 # Experimental player library
 
-The reusable library is currently in design. See [the reviewed design and
-migration plan](DESIGN.md) for interfaces, test gates and implementation order.
+M0–M1 are in progress. The public strategy seam and captain compatibility
+adapter are implemented; extraction of transport, observations and runner is
+still pending. See [the reviewed design and migration plan](DESIGN.md) for
+interfaces, test gates and implementation order.
 
 The [existing automated player](../automated-player/README.md) remains the
-runnable implementation. The first library milestone will preserve that
-captain's behavior while accepting independently authored strategies.
+runnable implementation. Its default captain preserves current behavior while
+accepting independently authored strategies through `PlayerOptions.strategy`.
+The smallest example is `examples/status-strategy.ts`.

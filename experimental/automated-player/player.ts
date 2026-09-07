@@ -1,7 +1,9 @@
 import { setTimeout as delay } from 'node:timers/promises';
 import { PlayerClient, ReentryRequired, type RecordEvent, type Team } from './client.ts';
 import { classifyTorpedoOutcome, parseDevices, parseFriendlyBases, parseList, parseScan, parseStatus, parseTargets, parseTeamPoints, type ListedObject } from './observations.ts';
-import { Captain, type Observation } from './captain.ts';
+import type { Observation } from './captain.ts';
+import type { StrategyDefinition } from '../player-library/types.ts';
+import { createCaptainStrategy } from '../player-library/strategies/captain.ts';
 
 export type PlayerOptions = {
   host: string; port: number; name: string; team: Team; ship: string;
@@ -14,6 +16,7 @@ export type PlayerOptions = {
   torpedoCorridor?: boolean;
   lives?: number;
   sharedIntel?: SharedIntel;
+  strategy?: StrategyDefinition;
 };
 
 export interface SharedIntel {
@@ -63,7 +66,8 @@ export function objectiveConfirmation(previous: NonNullable<Observation['objects
 
 export async function play(options: PlayerOptions): Promise<{ rounds: number; deaths: number; outcome: 'complete' | 'blocked' | 'limit' | 'interrupted' | 'dead'; reason: string }> {
   const client = new PlayerClient(options);
-  let captain = new Captain(options.team, options.mode ?? 'patrol', false, options.torpedoes ?? true, options.torpedoCorridor ?? false);
+  const strategyDefinition = options.strategy ?? createCaptainStrategy({ mode: options.mode, torpedoes: options.torpedoes, torpedoCorridor: options.torpedoCorridor });
+  let strategy = strategyDefinition.create({ team: options.team, ship: options.ship });
   let rounds = 0, deaths = 0, reason = 'Configured round limit reached.';
   let outcome: 'complete' | 'blocked' | 'limit' | 'interrupted' | 'dead' = 'limit';
   let previousObjects: Observation['objects'];
@@ -89,7 +93,7 @@ export async function play(options: PlayerOptions): Promise<{ rounds: number; de
           pendingObjective = undefined;
         }
         previousObjects = observation.objects;
-        const decision = captain.choose(observation);
+        const decision = strategy.decide({ observation, now: Date.now() });
         // Raw terminal frames already preserve the full scan without a second
         // copy of hundreds of parsed cells in long-running decision logs.
         const { scan, ...reports } = observation;
@@ -110,7 +114,7 @@ export async function play(options: PlayerOptions): Promise<{ rounds: number; de
         if (deaths >= (options.lives ?? 3)) { outcome = 'dead'; reason = 'Configured life limit reached.'; break; }
         if (options.signal?.aborted) break;
         await client.join(options);
-        captain = new Captain(options.team, options.mode ?? 'patrol', false, options.torpedoes ?? true, options.torpedoCorridor ?? false);
+        strategy = strategyDefinition.create({ team: options.team, ship: options.ship });
         options.record({ event: 'rejoined', deaths, ship: options.ship });
       }
     }
