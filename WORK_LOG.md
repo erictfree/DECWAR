@@ -5887,3 +5887,16 @@ builds, and recorded zero deaths. Patrol confirmed no captures or builds and
 recorded one death. Objective made 58 torpedo attempts with 36 hits; patrol
 made 41 with 25 hits. Evidence is at
 `logs/automated-player-combat-tournament-v16-generalization-2026-09-07/summary.json`.
+
+## 2026-09-07 — ENERGY/TRACTOR support boundary review
+
+Reviewed Austin source routines `ENERGY` (DECWAR.FOR:1007–1070) and
+`TRACTOR` (DECWAR.FOR:4435–4503) against the public observations available to
+the external player. ENERGY requires an adjacent friendly recipient and a
+useful transfer amount, but default LIST provides no recipient energy level;
+TRACTOR requires both ships to be adjacent with both shields down, and the
+external protocol provides no consent or towing request signal. Automatic use
+would therefore guess at hidden need or interfere with a teammate. No
+speculative commands were added; these remain planned pending observable
+coordination evidence. The current player continues to use public SCAN/LIST/
+TARGETS, docking, repair, combat and objective actions.
