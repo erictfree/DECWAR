@@ -11,8 +11,8 @@ Local operating state and bulk research downloads stay outside Git.
 | legacy/compuserve and legacy/utexas, manifests and notices | Yes | Immutable game-logic authorities and their provenance. |
 | legacy/utexas-reference/f78f2ec | Yes | The canonical Austin reference build, under 600 KB: MAP, SYM, EXE, INI, raw export tape, hashes, commands, launch scripts and selected build/session evidence. MAP and INI are inputs to the source audit. |
 | README, docs and WORK_LOG.md | Yes | Operation, source analysis, decisions and a durable implementation record. Work-log paths to local logs are historical references, not promised repository files. |
-| docs/spec and tools/spec | Yes | Canonical specification chapters, ordered manifest, coverage record, styles and single-document builder. |
-| output/spec and output/pdf | No | Rebuilt Markdown/LaTeX/HTML/PDF editions and typesetting diagnostics; regenerate with npm run spec:build. |
+| docs/spec1.0 | Yes | The active, incremental game-language specification. Its local AGENTS.md defines its purity and character rules. |
+| tools/spec and output/spec | No | Obsolete build machinery and generated editions from the externally archived attempt. They are not inputs to specification 1.0. |
 | logs | No | Routine test/build output, live server diagnostics, probes and local temporary-directory records. Preserve locally; record meaningful outcomes in WORK_LOG.md. |
 | data | No | Saved standings, GRIPE records, variant metadata and process locks belong to a particular running host. |
 | tmp | No | Experiments, downloaded CPU/compiler manuals, extracted text and page images. Cite authorized references in docs/platform-manuals.md instead of redistributing the downloads. |

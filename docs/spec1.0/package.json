@@ -1,0 +1,12 @@
+{
+  "name": "decwar-game-language",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "pdf": "sh build-pdf.sh",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "node --test test/*.test.ts",
+    "check": "npm run typecheck && npm test"
+  }
+}

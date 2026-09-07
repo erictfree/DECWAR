@@ -14,10 +14,7 @@
     "audit:check": "node tools/audit.ts --check",
     "test": "node --test test/*.test.ts",
     "typecheck": "tsc --noEmit",
-    "check": "npm run audit:check && npm run typecheck && npm test",
-    "spec:check": "node tools/spec/build.ts --check",
-    "spec:build": "node tools/spec/build.ts",
-    "spec:html": "node tools/spec/build.ts --html-only"
+    "check": "npm run audit:check && npm run typecheck && npm test"
   },
   "devDependencies": {
     "@types/node": "^26.4.1",

@@ -2039,6 +2039,181 @@ port/tool attribution remain separate.
     passed. No gameplay tests required for this documentation-only checkpoint.
     No game code, source archive, server or running galaxy changed.
 
+- 2026-09-05 — Started an isolated automated-player experiment.
+  - New request authorizes planning and implementation under a separate
+    experimental folder. Added experimental/automated-player with PLAN.md,
+    operating instructions, a client-side Telnet codec, bounded Austin login
+    and command dialogue, strict STATUS/friendly BASES parsers, a pure resupply
+    policy, CLI, JSONL transcripts and isolated tests. Updated docs/status.md.
+    No production runtime, archive, generated catalog or root build/test
+    configuration changed. Existing running galaxies were not contacted.
+  - Runnable milestone: an external captain can join a fresh or existing Austin
+    experimental galaxy, read ordinary reports, approach a friendly base one
+    sector at a time, decide to dock when adjacent, and quit on completion,
+    unsupported danger, repeated movement failure or a configured action limit.
+    It receives no game-memory access. Live docking success remains unverified;
+    its selection is unit tested. This is a baseline, not a competitive player.
+  - Source boundaries: Austin DECWAR.FOR STATUS:3860–3991,
+    PRLOC/PROMPT:3078–3131, LSTOBJ:2083–2140, MOVE:2141 onward and DOCK:893
+    onward; MSG.MAC:292–306, SETMSG.MAC:17–43, WARMAC.MAC ODISP:1959–2032.
+    Telnet negotiation is a modern client boundary. Parsed numbers are displayed
+    player quantities; no PDP-10 arithmetic implementation was replaced.
+  - Incorporated the subsequent direction to develop tactics like skills but
+    internalize them in code for frequent play. The plan defines prerequisites,
+    observations/memory, action/reason and complete/blocked outcomes as capability
+    contracts. AI assists transcript analysis and tactic development; the runner
+    makes no model calls. Next: parse scans/warnings and device damage, add
+    obstacle/threat-aware routing, then validate replenishment before combat.
+  - Initial typecheck caught the Node socket event's string-or-buffer type;
+    added a byte-input guard. Retained logs/automated-player-typecheck-initial.log.
+    Initial tests passed all 9 pure tests but localhost binds were sandbox denied
+    (logs/automated-player-tests-initial.log). Reran with localhost permission;
+    all 13 experiment tests passed (logs/automated-player-tests-live-1.log).
+    The first live baseline made four moves and stopped on red condition.
+    Its terminal evidence is logs/automated-player-live-1788654956738/.
+  - Final tests also exercise occupied-ship timeout without disrupting its
+    owner, both factions, ship reuse and the real command-line entry point.
+    node --test experimental/automated-player/test/*.test.ts
+    test/austin-telnet.test.ts test/telnet.test.ts passed 20/20, including the
+    existing eighteen-captain regression. Output:
+    logs/automated-player-tests-final.log. Final live transcripts and separate
+    host/CLI logs: logs/automated-player-live-1788655094318/.
+    That resupply run made twelve moves, encountered red condition and recorded
+    outcome=blocked, then quit normally. A separate one-action CLI run passed.
+    Both temporary test hosts were shut down and their temporary data removed.
+  - node_modules/.bin/tsc --noEmit -p
+    experimental/automated-player/tsconfig.json and npm run typecheck passed:
+    logs/automated-player-typecheck-final.log and
+    logs/automated-player-root-typecheck.log. npm run audit:check passed:
+    logs/automated-player-audit.log (135 hashes, 83 declarations, 33 main and
+    16 pregame commands, 324 strings; both variant inventories preserved).
+    Documentation/link and whitespace checks are recorded in
+    logs/automated-player-documentation-check.log.
+  - Limits: source-text prompt framing with a quiet interval is not a structured
+    or adversarially robust protocol; unexpected continuations/death stop the
+    connection. Scans are recorded but not interpreted; no hazard avoidance,
+    device model, combat, team coordination or competitive evaluation exists
+    yet. These are connected port tests, not native differential verification
+    or a complete historical transcript. No parity claim is made.
+
+- 2026-09-05 — Started a visible experimental run after the launch request.
+  - Verified that the existing hosts were on 2323 and 2324 and that no host
+    listened on 2423. Started the Austin playable host on localhost 2423 with
+    data/automated-player-experiment and logs/automated-player-live-host.log.
+    Left both existing hosts unchanged. The experimental host remains running.
+  - Started the actual CLI as Scout/Federation/Yorktown, limited to 12 actions,
+    with a 5000 ms pause between actions. Its terminal/decision transcript is
+    logs/automated-player-live-scout.jsonl. Confirmed login and its first decision:
+    move from observed 16-50 to 17-51 toward reported friendly base 25-55.
+    The bot encountered red condition with shields reduced to 84% after that
+    move, recorded outcome=blocked, and quit normally. The host stays up.
+    This is a local run record, not permanent port/process documentation or
+    evidence of competitive strength. No code or game rules changed.
+
+- 2026-09-05 — Keep the experimental captain visible after its tactic stops.
+  - Added opt-in --stay-connected: after the bounded resupply policy completes,
+    is blocked, or reaches its action limit, the captain stays logged in and
+    reads STATUS at intervals of at least five seconds. It does not resume
+    unsafe movement or gain any protection from damage/death. SIGINT/SIGTERM
+    requests normal QUIT/YES after the current dialogue; protocol failures
+    retain fail-closed behavior. CLI now prints login, decisions and holding
+    state. README, plan and status distinguish this from active tactics.
+  - Extended the black-box live CLI test: after a one-action limit, a second
+    captain's USERS report includes Pilot; SIGTERM completes normal quit and
+    removes Pilot from that report. All 13 experiment tests passed in
+    logs/automated-player-hold-tests.log. The same run also completed a resupply
+    journey (three moves and DOCK, followed by parsed full supplies), closing
+    the earlier single-journey live docking evidence gap. Transcripts:
+    logs/automated-player-live-1788655639898/. This is not reliable-navigation
+    or competitive-strength evidence.
+  - Experiment typecheck and archive audit passed:
+    logs/automated-player-hold-typecheck.log and
+    logs/automated-player-hold-audit.log. No production game code changed.
+  - Joined Scout in Nimitz to the existing interactive server on 2423 using
+    --rounds 12 --interval-ms 2000 --stay-connected. It encountered two
+    obstructed moves, then held at observed 6-71 with green condition.
+    Evidence: logs/automated-player-present-scout.jsonl and
+    logs/automated-player-live-host.log. The user confirmed seeing the bot in
+    their game. Left that bot and host running; other games were untouched.
+
+- 2026-09-05 — Functional experimental patrol captain (captain-v2).
+  - Continued the requested work beyond the earlier idle baseline. Added strict
+    fixed-width warning-scan and device-damage parsers, an observation-only map,
+    expiring mobile sightings, temporary failed-step exclusions and A* routing.
+    The next step must be freshly observed traversable space. Blank black-hole
+    cells remain obstacles. Routes and refuge selection weigh source-visible
+    installation/enemy risk; costs are bot policy, not recovered game formulas.
+  - Added active patrol, resupply hysteresis, full replenishment, shield raising
+    and conservative transfers, bounded device repairs and IMPULSE fallback.
+    Freshly scanned enemy ships can be attacked with strength-180 phasers;
+    shots retain a reserve and use conservative spacing while the server owns
+    bank timing. No torpedo or planet-objective policy is claimed. Frozen v1
+    policy remains available for comparison, while --mode patrol is the CLI
+    default and --mode resupply finishes once restored.
+  - Implemented exact-dialogue death recognition and reentry, including Austin's
+    automatic reuse of the previous vessel. The player loop has a configurable
+    life limit (default 3). Ctrl-C during active play records interruption.
+    --stay-connected still means observation after the bounded run, not more
+    tactical actions. Lost connections remain failures. Terminal text is now
+    logged in consumed frames rather than individual network fragments; the
+    full scan frame is retained without duplicating its parsed cells in every
+    decision record. Updated README, PLAN.md and docs/status.md.
+  - Source boundaries: Austin DECWAR.FOR STATUS:3860–3991, DAMAGE:783–836,
+    PRLOC/PROMPT:3078–3131, LSTOBJ:2083–2140, MOVE:2141 onward, DOCK:893 onward,
+    SHIELD:3739–3805 and PHACON:2647 onward; SETUP.FOR PREGAM/SETUP and automatic
+    ship reuse; WARMAC.MAC ODISP and SETSCN/OBJTBL/SHWSCN:2350–2543. Source
+    statements establish syntax, limits, displayed units and side effects.
+    JavaScript arithmetic is only observation/policy arithmetic; all actual
+    game commands use the existing runtime. No game implementation changed.
+  - Added controlled, isolated Telnet scenarios. Only test code stages the map
+    and ship conditions; the captain sees ordinary terminal observations. Tests
+    verify a wall/gap detour and full docking restoration, actual phaser shield
+    damage and the 380 displayed-energy charge, selection of a farther safer
+    refuge with movement away from an enemy, critical repair then movement,
+    source death/reentry and the player loop resuming after a lost ship.
+  - Retained initial failures: unsupported TypeScript parameter properties
+    (logs/automated-player-v2-typecheck-initial.log and -unit-initial.log), then
+    a scan-row regex that consumed the padding on a single-digit row label
+    (logs/automated-player-v2-unit-2.log). Explicit fields and exact two-character
+    row labels resolved those issues; -unit-3.log and -unit-4.log passed.
+  - Initial connected navigation/resupply passed in
+    logs/automated-player-v2-live-1.log, with eleven actions ending in full
+    restoration. Initial three scenarios passed in
+    logs/automated-player-v2-scenarios-1.log. The stronger withdrawal/reentry
+    checks exposed a closer base behind the opponent and automatic vessel reuse
+    (logs/automated-player-v2-scenarios-2.log). Refuge scoring and the dialogue
+    path were corrected; both regressions passed in
+    logs/automated-player-v2-regressions-3.log.
+  - Added soak.ts, which creates and later removes its own public-host process
+    and temporary data, with two TCP-only captains. A 24-decision patrol each
+    completed with no deaths or protocol errors; each captain visited 24 distinct
+    positions. No combat occurred in that fresh-world run; combat evidence is
+    from the controlled scenarios. Summary/transcripts:
+    logs/automated-player-soak-1788656222705/ and
+    logs/automated-player-v2-soak-1.log. This is an activity/robustness smoke test,
+    not a benchmark against human players or a win-rate result.
+  - Final suite: node --test experimental/automated-player/test/*.test.ts
+    test/austin-telnet.test.ts test/telnet.test.ts passed 33/33, including the
+    eighteen-captain transport regression and full player-loop death recovery.
+    Output: logs/automated-player-v2-final-tests.log. Experiment and root strict
+    typechecking passed: logs/automated-player-v2-final-typecheck.log and
+    logs/automated-player-v2-root-typecheck.log. Archive/generated audit passed:
+    logs/automated-player-v2-final-audit.log. Help/documentation/whitespace checks:
+    logs/automated-player-v2-help.log and -documentation-check.log.
+  - After verification, stopped only the old idle Scout client (normal quit),
+    then joined captain-v2 as Scout/Nimitz on the existing 2423 host using
+    --mode patrol --rounds 10000 --lives 3 --interval-ms 500 --stay-connected.
+    The host and the user's Vulcan connection were not restarted. Confirmed a
+    new active decision from observed 29-55 to 28-54. Live evidence is
+    logs/automated-player-patrol-scout-v2.jsonl and
+    logs/automated-player-live-host.log. Left the upgraded bot running.
+  - Remaining limits: competitive benchmarking, long adversarial matches,
+    torpedoes, planet objectives, teamwork, stale-sighting pursuit and richer
+    action search. A heuristic retreat is not a guaranteed escape. Prompt-like
+    hostile chat/extreme latency remain unverified. No native-executable parity
+    or complete historical transcript claim is made. Existing source/spec edits
+    outside the experiment were left untouched.
+
 
 - 2026-09-05 — Information-command contracts and commission release.
   - Added ADT operation contracts for HELP, NEWS, GRIPE and QUIT. Every one of
@@ -2097,7 +2272,7 @@ port/tool attribution remain separate.
     logs/spec-information-source-audit.log (135 hashes, 83 declarations,
     33 main-game/16 pregame slots, 324 strings, both variant inventories).
     git diff --check passed. No game code, legacy data, server or galaxy changed.
-  - Unrelated automated-player work is present concurrently in experiments/,
+  - Unrelated automated-player work is present concurrently in experimental/,
     docs/status.md and another WORK_LOG.md entry. This checkpoint stages only
     specification files and this log entry, preserving that work separately.
 
@@ -2282,7 +2457,7 @@ port/tool attribution remain separate.
   model, autonomous chapter and new example pages in tmp/pdfs/spec-autonomous/.
   Rerendered example pages at higher resolution to verify full identifier display.
   Generated PDF/HTML/LaTeX/Markdown outputs remain ignored.
-- No runtime, live-server or immutable archive changes. Separate experiments/,
+- No runtime, live-server or immutable archive changes. Separate experimental/,
   docs/status.md and unrelated WORK_LOG additions remain outside this checkpoint.
   The goal remains active: remaining command contracts, lifecycle/multiplayer,
   randomness, presentation bindings, variants and full conformance review remain.
@@ -2628,12 +2803,105 @@ logs/spec-entry-administration-build-final.log. The rebuilt PDF has 137 pages;
 reviewed rendered pages 87, 102–104 and 135 in tmp/pdfs/spec-startup-turn-review/.
 These are documentation/source checks, not execution of a complete conformance
 suite or original-executable parity. No game code, servers, archives or source
-data changed. Unrelated experiments/, docs/status.md and other WORK_LOG additions
+data changed. Unrelated experimental/, docs/status.md and other WORK_LOG additions
 are preserved and excluded from this checkpoint.
 
 Remaining goal work includes complete shared combat/turn operation contracts,
 lifecycle/concurrency/control and terminal bindings, malformed grammar cases,
 randomness and the CompuServe appendix; this checkpoint does not complete the goal.
+
+## 2026-09-05 — Automated-player tactical training and two-versus-two play
+
+Runnable milestone: compare the experimental captain with its preserved prior
+policy, fix observed combat decisions, and run two ordinary Telnet bots per
+faction. Reviewed docs/documentation-standard.md and the experiment's current
+README/PLAN before implementation. All game runtime, archives, generated source
+and concurrent specification edits remain unchanged by this work.
+
+Preserved the v2 captain policy in experimental/automated-player/test/captain-v2.ts.
+Extracted the existing controlled fixture to test/scenario-fixture.ts and added
+test/training.ts. Privileged state is confined to fixture setup. Both evaluated
+captains and the stationary phaser sentry get observations/targets through
+Telnet; source arithmetic, random draws, command costs and waits remain active.
+The runner saves individual transcripts and summaries, alternates version order
+on repeats, and reports fixed decision budgets, elapsed time, resource use,
+damage, recovery and errors. Opponent actions are sequenced by the runner;
+these are not simultaneous matches or paired-random competitive benchmarks.
+
+V3 closes the 2400–2799 energy gap: with visible enemies, the ship enters
+resupply below the same 2800 threshold used to admit firing. Its existing
+resupply state persists after losing enemy contact. A healthy ship (energy >=
+3200, shields >=75%) can approach one freshly scanned enemy toward range four
+through observed safe space. Multiple enemies, weaker shields, or a dangerous
+next step retain the firing position. Values are bot heuristics, not changed
+game rules. Source: Austin DECWAR.FOR PHADAM:4167–4195 distance attenuation;
+PHACON:2647 onward still controls actual damage/costs/heat/readiness. Updated
+CLI policy label, focused unit cases, README/PLAN, docs/status.md and TRAINING.md.
+
+Initial probes: logs/automated-player-training-baseline.log and
+logs/automated-player-training-1788662091567/summary.json. The first withdrawal
+layout coincidentally placed the base along the old patrol route; final matched
+comparisons moved the refuge away from that patrol direction and required zero
+hull damage for completed recovery. These initial probes are retained separately.
+
+Final comparison commands:
+- node experimental/automated-player/test/training.ts --policy both --rounds 12 --repeats 2
+- node experimental/automated-player/test/training.ts --policy both --set held-out --rounds 12 --repeats 2
+
+All 16 trials completed without detected deaths or protocol errors. Logs:
+logs/automated-player-training-development.log and
+logs/automated-player-training-held-out.log; complete summaries:
+logs/automated-player-training-1788662159741/summary.json and
+logs/automated-player-training-1788662173787/summary.json. Four v3 withdrawal
+trials fully recovered within budget; zero of four v2 trials did. Against
+passive targets, v3 spent 760 shot energy versus 1140 and produced comparable
+or greater shield loss, but took 18–22 seconds versus about 10 and caused less
+hull damage in the swapped-side comparison. Tiny unpaired samples establish
+neither statistical significance nor match strength. Candidate tactics were
+not adjusted after held-out results. TRAINING.md retains the full means and
+limitations; next work is moving opponents, equal-time budgets, approach under
+return fire and the value of remaining at a friendly base.
+
+Validation:
+- Experiment TypeScript check passed: logs/automated-player-training-typecheck.log
+  (initial scaffold check: logs/automated-player-training-typecheck-initial.log).
+- Focused captain unit checks 10/10: logs/automated-player-training-unit.log.
+- node --test experimental/automated-player/test/*.test.ts test/austin-telnet.test.ts test/telnet.test.ts
+  passed 34 cases and failed only the CLI assertion still expecting the v2
+  label: logs/automated-player-training-regressions.log. Updated the expected
+  metadata; targeted external CLI rerun passed 1/1 in
+  logs/automated-player-training-live-final.log. All 35 distinct cases passed
+  across these runs. Retained the failed run as evidence.
+- npm run audit:check passed 135 hashes, 83 declarations, 33 main/16 pregame
+  commands, 324 strings and both variant inventories:
+  logs/automated-player-training-audit.log.
+
+Live operation: the earlier 2423 host and Scout process were no longer running.
+Confirmed no listener and no PID 96762, the owner recorded in the stale lock.
+The failed startup is in logs/automated-player-training-host.log. Archived the
+verified stale lock as logs/automated-player-training-stale-host-lock.json;
+started Austin playable on 2423 using data/automated-player-experiment. Servers
+on 2323/2324 were not touched. The restarted host is exec session 13556.
+
+Launched Federation Scout/Nimitz and Wing/Excalibur, Empire Raven/Wolf and
+Shade/Demon. All four exchanged shots on v2; a saved checkpoint records 68
+phaser decisions, docking and no deaths/errors:
+logs/automated-player-training-live-v2-summary.json. After validation, quit and
+rejoined each bot individually with v3 while leaving the host running. Current
+exec sessions: Scout 17010, Wing 83171, Raven 29635, Shade 73599. Each has 10000
+decision cycles, 10 lives and --stay-connected; no recurring automation was
+created. Individual transcripts use logs/automated-player-training-NAME-v3.jsonl.
+Post-update checkpoint logs/automated-player-training-live-v3-summary.json shows
+all four actively deciding; Wing/Shade fired and Scout/Raven exercised approach
+moves, with no deaths or protocol errors. Vulcan was not assigned to a bot.
+These live counts are activity evidence, not a controlled policy comparison.
+
+Final experiment typecheck passed in
+logs/automated-player-training-typecheck-final.log. Documentation check resolved
+seven local links and confirmed no game-runtime imports in player modules:
+logs/automated-player-training-documentation-check.log. git diff --check passed.
+Both comparison processes exited 0. Final live check showed all four v3 bots
+continuing at rounds 44–55, with no recorded deaths or protocol failures.
 
 
 ## 2026-09-05 — Shared combat, turn completion and installation-count ADTs
@@ -2681,7 +2949,7 @@ intermediate build spec-shared-combat-turn-adt-build-final.log is also retained.
 Checks validate documentation structure, source integrity and the stated
 arithmetic examples, not a complete executable conformance suite or native parity.
 No gameplay, server, archive or generated source-data changes. Other work in
-WORK_LOG.md, docs/status.md and experiments/ is preserved and excluded.
+WORK_LOG.md, docs/status.md and experimental/ is preserved and excluded.
 
 The goal remains active: nova/removal operation closure, grammar boundary cases,
 multiplayer/control/lifecycle and terminal bindings, probability/reproducibility,
@@ -2718,7 +2986,7 @@ without detected overflow. No game tests warranted for these documentation edits
 Remaining work: full lexical/grammar edge forms, lifecycle and control contracts,
 multiplayer interleavings, terminal binding, random distributions and CompuServe
 amendments. The book remains a working draft, not complete conformance. Preserve
-concurrent experiments/, docs/status.md and unrelated WORK_LOG.md changes.
+concurrent experimental/, docs/status.md and unrelated WORK_LOG.md changes.
 
 
 ## 2026-09-05 — Typed coordinate parsing and continuation specification
@@ -2832,6 +3100,36 @@ WORK_LOG/status/experiments work.
 - Clarified commissioned as the existing active-participation predicate, distinct from retained captain association and completed release, resolving inconsistent prose around a just-destroyed recipient. No gameplay or source change.
 - Added EX-MODEL-478–498. Validation: logs/spec-impact-observation-build-final-2.log passes 13 chapters, 346 links, 498 scenario rows and 324 source fragments. logs/spec-observation-values-audit.log passes the archive/generated audit. The 172-page PDF's new definitions, semantics, examples and changed release/model pages were visually reviewed at 144 dpi. Earlier successful build logs retained for editorial iterations; an intermediate review command correctly stopped while its build was still running. git diff --check passes. Scenario checks validate the document, not execution of those cases or native parity.
 - Remaining work includes full terminal composition, control/resume and concurrent lifecycle boundaries, malformed caller cases and CompuServe amendments. Work remains documentation-only.
+
+## 2026-09-05 — Live bot monitoring finds and repairs BEL-prefixed prompts
+
+Status inspection at 03:30 UTC found Scout, Raven and Shade actively issuing
+commands after more than 1100 decisions each. Wing had stopped at round 243,
+02:51 UTC, with a timeout despite a complete normal prompt. Preserved transcript:
+logs/automated-player-training-wing-v3.jsonl. Its terminal tail contained four
+BEL bytes directly before Command:, after combat notifications. The strict
+line-start prompt regex rejected that source-valid byte prefix. No autonomous
+learning occurred between assistant turns; this observation prompted a code fix.
+
+Updated both login/normal and command/reentry prompt recognition in the
+experimental client to allow leading BEL bytes, retaining the original bytes
+in terminal logs. Source: Austin DECWAR.FOR CLRBUF:774–778 and yellow-alert
+output:1208; PROMPT:3102–3131. This changes client framing only, not game output,
+command timing or policies. Updated README framing coverage. A fragmented fake
+server regression preserves an old prompt plus unsolicited combat text and
+checks both BEL-prefixed normal and informative prompts. It fails before the
+fix: logs/automated-player-alarm-reproduction.log. All 13 focused client/codec/
+observation/baseline cases pass afterward: logs/automated-player-alarm-tests.log.
+Experiment typecheck passes: logs/automated-player-alarm-typecheck.log.
+Archive/generated evidence audit passes: logs/automated-player-alarm-audit.log.
+
+Restarted the failed Wing, then quit/rejoined each of the other three bots with
+the corrected client. The existing 2423 host and user sessions stayed running.
+All four rejoined and issued movement commands. New exec sessions: Wing 87130,
+Scout 73716, Raven 51491, Shade 96903. Logs:
+logs/automated-player-training-NAME-alarm-fix.jsonl. Their captain policy remains
+v3; the change is transport framing. Each still has 10000 decision cycles,
+10 lives and --stay-connected. No scheduled monitoring was created.
 
 ## 2026-09-05 — Specify terminal presentation of typed combat and radio observations
 
@@ -2948,6 +3246,27 @@ logs/spec-galaxy-report-line-build.log. Audit passes:
 logs/spec-galaxy-report-line-audit.log. Reviewed PDF pages 60, 148–149 and 191;
 no clipping or overflow. The working draft is 192 pages. Source-derived example
 review is not runtime or native parity. No game/server/archive changes.
+
+## 2026-09-05 — Resume four captains after simultaneous timeouts
+
+At the 04:11 UTC status check, all four alarm-fixed clients had stopped at
+03:52:58.165 UTC with the same command-wait timeout and a lone CR in their
+response buffers. Final decision counts were Raven 644, Scout 452, Shade 559,
+Wing 570. Their existing logs under logs/automated-player-training-NAME-alarm-fix.jsonl
+preserve the failures; the host records all four session endings immediately
+afterward. This is different from the earlier BEL-prefix framing bug. The cause
+of the simultaneous delay remains unresolved; no sleep, network, or server
+cause is asserted from these logs alone.
+
+Verified port 2423 still belonged to the existing Node host (PID 11940), then
+rejoined the four captains without restarting the host or touching user
+sessions. New sessions: Wing 70706, Scout 62430, Raven 57915, Shade 12834.
+Same v3 policy and corrected client, 10000 rounds, 10 lives, --stay-connected.
+New logs: logs/automated-player-training-NAME-resumed.jsonl. Allowed more than
+the 15-second client timeout and verified continued completed actions:
+logs/automated-player-resumed-check.json. No code or game-rule changes; no tests
+rerun for this process restart. Automatic reconnection and scheduled monitoring
+remain unimplemented; this restart does not resolve the underlying delay.
 
 
 ## 2026-09-05 — Align specification with updated C-family editorial guide
@@ -4387,10 +4706,7 @@ the existing domains and changes no movement, coordinate input or gameplay rule.
 Named the existing `max(abs(dv), abs(dh))` sector-distance definition as
 Chebyshev distance, with maximum-metric and L-infinity terminology. Clarified
 that both diagonal and orthogonal neighbors have distance one and that the
-formula remains normative. Build passed 100 productions, 671 scenario rows,
-14 units and 686 links in logs/spec-distance-name-build.log. Inspected PDF page
-12; no clipping or overfull/undefined warnings. No formula, coordinate domain
-or gameplay changed.
+formula remains normative. No formula, coordinate domain or gameplay changed.
 
 Follow-up editorial pass removed the maximum-metric/L-infinity aliases, the
 library-conformance aside, an unused subtraction rule and repeated descriptions
@@ -4477,3 +4793,798 @@ book-local links. Logs are retained in
 `logs/spec-total-editorial-build.log`. Rendered and inspected all 258 PDF pages;
 the final LaTeX pass reports no overfull boxes, missing characters or undefined
 references.
+
+## Specification: practiced-reader pass over chapters 1 and 2
+
+Tightened Scope and conformance and Abstract game model for an experienced
+technical reader who need not know TypeScript. The notation section now defines
+only the specification's extensions and nonstandard conventions. Removed
+explanations of ordinary field access, conditionals, assignment and local
+bindings, along with repetitive device-property tables and implementation
+asides. Consolidated repeated identity, arithmetic, notice and world-membership
+prose while preserving units, domains, thresholds, ordering, rejection effects
+and coordination rules. No command syntax or game behavior changed.
+
+`npm run spec:check` passes 65 compiled TypeScript blocks, 324 message
+fragments, 100 EBNF productions, 671 scenario rows, 515 source-index links, 14
+chapters and 171 book-local links. The publication build is retained in
+`logs/spec-practiced-reader-build.log`, and the separate check in
+`logs/spec-practiced-reader-check.log`. Inspected compiled chapters 1 and 2
+(PDF pages 5–23); no clipping or layout regression was found. The rebuilt book
+has 256 pages.
+
+## New specification 1.0 foundation
+
+Started a clean, incremental game-language specification in `docs/spec1.0`.
+Its local `AGENTS.md` defines the purity boundary: TypeScript for abstract data
+and transition algorithms, EBNF for player input, an ordered output language,
+and first-class autonomous game processes. Historical machine, runtime, port,
+transport and persistence architecture are excluded from normative semantics.
+
+Added the initial transition-system shape, foundational galaxy/entity records,
+fixed eighteen-ship roster, active faction bases, score categories, sector
+geometry, and a character-decision ledger. The ledger leaves the life-support
+zero crossing, temporary black-hole interaction state and faction vocabulary
+open for discussion rather than silently normalizing them. No existing
+specification or game runtime behavior changed.
+
+`npm run check` in `docs/spec1.0` passes strict TypeScript checking and four
+focused tests. Output is retained in `logs/spec1-initial-check.log`.
+
+After the prior specification was archived outside the repository, removed its
+in-project `docs/spec` copy and renamed the clean start from `docs/spec2.0` to
+`docs/spec1.0`. Updated the documentation index, repository-artifact inventory,
+port contract and package scripts so no live command or guide treats the prior
+book as authoritative. The local specification contract now explicitly forbids
+consulting or reviving that archived book. Obsolete `tools/spec` sources remain
+dormant and have no package command.
+
+The source/generated-data audit still passes (135 hashes, both variant bundles,
+and extracted command/message checks), and the root TypeScript check passes.
+Evidence is retained in `logs/spec1-archive-audit.log` and
+`logs/spec1-archive-typecheck.log`.
+
+## Specification 1.0: abstract data types draft
+
+Added the agreed ten-part outline and drafted the first chapter in
+`docs/spec1.0/01-abstract-data-types.md`, backed by compiling declarations in
+`src/model.ts`. The model covers ordinary game quantities, sector geometry,
+the fixed eighteen-ship roster, commission lifecycle, devices and damage,
+bases, planets, stars, black holes, the Romulan, tractor relationships,
+score categories, and the shared galaxy. Corrected the seed model's overly
+specific `dockedAt` relation to the game's actual ship-level `docked` state.
+
+Updated the local specification contract with a concise, practitioner-facing
+voice: normative present tense, no TypeScript tutorials or redundant prose,
+limited formalism, and examples reserved for boundaries. Added separate primary
+evidence notes under `docs/spec1.0/evidence`; the archived specification was not
+consulted. `npm run check` passes the specification typecheck and four focused
+tests; output is retained in `logs/spec1-adt-check.log`.
+
+Resolved character question C-001 by retaining original life-support semantics.
+The ADT now states that the reserve is signed and zero is not exhaustion;
+`CHARACTER.md` records the initial/reset value of 5 and the later fatal crossing
+below zero. Primary references are Austin `SETUP.FOR:392-397` and
+`DECWAR.FOR:223-247,923-934`. Detailed transition ordering remains assigned to
+world mechanics. The specification checks continue to pass.
+
+Rewrote the abstract-data-types chapter to be self-contained after review found
+that referring readers to `src/model.ts` left the normative document incomplete.
+The chapter now includes every declaration it uses, quantity domains, the full
+roster, all ship fields and meanings, initial commission values, life-support
+state, base and planet records, Romulan and tractor relationships, the full
+Galaxy shape, occupancy rules, and invariants. It names Chebyshev distance and
+gives both its equation and executable definition. Renamed supporting entity
+interfaces to the direct nouns `Ship`, `Base`, `Planet`, and `Romulan`, and made
+`Galaxy` the state consumed by the transition layer.
+
+All TypeScript blocks extracted from the chapter compile together under strict
+checking. The companion package typecheck and four tests also pass; refreshed
+output is retained in `logs/spec1-adt-check.log`.
+
+ADT review removed tractor beams as first-class entities. Each `Ship` carries a
+nullable `tractorLink`; valid links are reciprocal, irreflexive, same-team, and
+join commissioned ships. The chapter and character ledger state that a beam has
+no identity or state apart from its endpoints. Extracted chapter TypeScript and
+package checks pass.
+
+Added `docs/spec1.0/TITLE.md` as the canonical future title page with the
+requested Austin Core title, Eric Freeman and Noah Smith attribution, University
+and department, September 6, 2026 date, and draft-in-progress scope statement.
+The outline now records it as the publication front matter.
+
+ADT review removed faction-local base numbers from the abstract model. Austin
+uses the number as an internal slot, but `ODISP` renders bases only as `Fed Base`
+or `Emp Base` (and their short symbols), while commands locate them by sector.
+`Base` now consists only of faction, position, and strength; destruction removes
+the base rather than preserving or releasing an identity. The planets-and-bases
+overview now refers explicitly to the later `CAPTURE` and `BUILD` command
+semantics. Evidence notes and the character ledger record the distinction.
+Specification typecheck and all four tests pass; refreshed output is retained
+in `logs/spec1-adt-check.log`.
+
+Repaired malformed Markdown in the 1.0 ADT chapter: a stray `c` and unmatched
+fence had replaced the `Galaxy` heading and declaration after Faction state.
+Restored the complete structure and its introduction. All 26 fences are paired,
+the TypeScript extracted from the chapter passes strict checking in
+`logs/spec1-adt-embedded-typescript.log`, the specification package passes its
+four tests and typecheck in `logs/spec1-adt-check.log`, and `git diff --check`
+passes.
+
+Completed a precision and clarity audit of the full 1.0 ADT chapter. Property
+rules now name their containing types where context was ambiguous; prose that
+merely repeated declarations was removed or made semantic. Replaced ship-name
+maps with the ordered `Ship[]` roster and derived faction membership through
+tested `teamOf`; moved tractor linkage onto `Ship`; removed the unused tagged
+sector-object union; and made black-hole and Romulan enablement distinct from
+temporary absence. Recipient and gag collections now use TypeScript `Set`
+because their order is immaterial, while message order remains significant.
+Expanded and grouped the provisional Galaxy invariants. Added unresolved
+character question C-004 for the potentially observable base enumeration order
+instead of importing slot identity into the model.
+
+The chapter has 24 paired Markdown fences. Its extracted TypeScript passes
+strict checking in `logs/spec1-adt-embedded-typescript.log`; the companion
+typecheck and four tests pass in `logs/spec1-adt-check.log`; `git diff --check`
+passes.
+
+Reworked the Ships portion of the 1.0 ADT chapter after editorial review found
+that a single declaration block introduced too many concepts without explaining
+them. Quantities, commission lifecycle, alert and shield condition, devices and
+damage, and radio state are now introduced and explained separately before the
+composite `Ship` interface. The local specification contract now requires this
+concept-first organization for heterogeneous declarations.
+
+Added a reproducible LaTeX/Pandoc publication build for the 1.0 specification.
+The current ADT chapter now compiles with a dedicated title page, table of
+contents, academic typography, running headers, page numbers, highlighted
+TypeScript, typeset mathematics, and formatted tables. The final letter-size
+PDF is `output/pdf/decwar-specification-austin-core.pdf`; all eleven rendered
+pages were visually reviewed. The successful build output is retained in
+`logs/spec1-pdf-build.log`.
+
+Designated Eric Freeman and Noah Smith as the current editors on the canonical
+and typeset title pages. The title-page structure can later add a distinct,
+automatically flowing contributor list without changing the editorial role.
+
+Revised the editor credit to follow standards-report title-page convention:
+both names form one small-cap phrase joined by “and,” followed by the shared
+italic role “(Editors).” This removes the visual ambiguity that the role applied
+only to the second name.
+
+Added Section 1, Introduction, to establish Austin Core's scope, semantic model,
+notation, normative status, and organization before presenting any ADTs.
+Renumbered Abstract Data Types as Section 2, moved general specification and
+game-model explanations into the introduction, updated the outline and reading
+order, and extended the PDF build to compile both sections.
+
+Changed the publication title to the requested plural, `DECWAR Specifications`,
+across the canonical title, typeset title page, running header, and PDF
+metadata. Only the initial `S` in `Specifications` is capitalized on the title
+page.
+
+Made the Introduction's implementation boundary precise: it now distinguishes
+the specification from the organization, representation, and execution
+environment of the PDP-10 implementation rather than an unspecified “existing
+program.”
+
+Replaced the compressed phrase “ordered output language observed by captains”
+in the Introduction and project overview with the direct formulation “the text
+presented to captains, including its wording, layout, and order.”
+
+Changed that scope item from “captains” to “players.” The more general term is
+clearer when describing the specification's audience-facing output; “captain”
+remains available for the participant's in-game role.
+
+Recorded the agreed command-reference format in `docs/spec1.0/AGENTS.md` for
+future command sections: numbered command heading, displayed command forms,
+distinct Syntax and Semantics paragraphs, and compact input-to-result examples.
+The guidance also requires semantics to cover validation, transition timing,
+and ordered output.
+
+## 2026-09-06 — Fleet recovery, shared-timeout diagnosis and monitored hour
+
+Runnable milestone: a single command starts two bots per side, recovers from
+selected transport failures and produces a bounded match report. Reviewed the
+current root contract and documentation standard before implementation. The
+new specification and concurrent edits remain untouched; no game runtime,
+source archive or generated game data was changed.
+
+Power-management evidence now explains the common timeout much better than
+the old terminal logs alone: macOS entered Maintenance Sleep at local
+2026-09-05 22:52:39 and DarkWake at 22:52:58. All four clients' 15-second waits
+failed at 03:52:58.165 UTC, the same wake second. See
+logs/automated-player-timeout-power-evidence.log and the previously preserved
+alarm-fixed client logs. This strongly supports expired timers during sleep;
+it is not a reconstruction of every scheduler operation. Current effort was
+sufficient; no difficult source/concurrency ambiguity required escalation.
+
+Client changes: typed connection/unavailable-vessel errors; distinguish a silent
+timeout from an unrecognized nonempty dialogue; give a timer more than one
+second late exactly one extra timeout interval to process pending socket input.
+Record deadline-grace lateness. Make completion idempotent. Original terminal
+bytes and game timing remain intact. Unexpected reports/dialogue still fail.
+
+Added supervisor.ts, retaining finite decision/life/retry budgets across
+connections, with exponential retry delays capped at 30 seconds. It retries
+socket failure, silent timeout and unavailable requested vessel, resets memory
+through a new play instance, and never replays an uncertain command. Joining
+again is a new commission, not recovered ship state. Single-player run.ts keeps
+its prior stop-on-disconnect policy. Fleet mode uses the supervisor.
+
+Added fleet.ts: four named captains across both factions, first-login gating,
+existing-host connection only, per-bot transcripts, five-second health.json,
+events.jsonl, atomic health-file replacement, stall and scheduling-pause
+counters, and final summary.json. Time/round/life/retry budgets are configurable.
+SIGINT/SIGTERM or the duration requests ordinary quit. It never restarts a host.
+Counts are attempted commands; logs retain actual responses. Unexpected fatal
+errors set a failed bot state and nonzero exit status. Updated README/PLAN and
+docs/status.md to distinguish delivered recovery from remaining limitations.
+
+Checks:
+- logs/automated-player-recovery-tests.log: 8/8 targeted tests pass, including
+  late-timer grace, budget preservation, bounded unavailable-ship retries,
+  cancellation and a real TCP proxy drop followed by fresh login/actions.
+- logs/automated-player-fleet-regressions.log: all 41 bot/Telnet tests pass,
+  including new 12-second four-bot startup/health/shutdown integration.
+- logs/automated-player-fleet-typecheck.log: experiment TypeScript check passes.
+- logs/automated-player-fleet-audit.log: source/generated audit passes 135
+  hashes, 83 declarations, 33 main/16 pregame commands, 324 strings and both
+  variant inventories. Initial typecheck: logs/automated-player-recovery-typecheck.log.
+
+One-hour run STARTED, not yet completed at this checkpoint. Port 2423 had no
+listener and its lock owner PID 11940 was absent. Archived that verified stale
+lock to logs/automated-player-fleet-stale-lock.json, started the Austin playable
+host with the existing experimental data directory (exec 18966), and ran:
+
+caffeinate -i node experimental/automated-player/fleet.ts --port 2423 --seconds 3600 --log-dir logs/automated-player-hour-2026-09-06
+
+Fleet exec session 48325 started at 2026-09-06T22:02:29Z (17:02 local), expected
+to finish near 18:02 local plus bounded command/quit completion. All four were
+verified playing in health.json. Idle sleep is prevented only while this fleet
+runs; lid closure can still suspend it. Host log:
+logs/automated-player-fleet-host.log. Reports and transcripts:
+logs/automated-player-hour-2026-09-06/.
+
+Created a thread heartbeat, review-decwar-one-hour-fleet-run, every 15 minutes
+to inspect this run, remain quiet while healthy, notify meaningful failure or
+completion, record the final evidence, and pause itself after terminal results.
+The first creation attempt lacked destination=thread and was rejected without
+creation; the corrected call succeeded. This is a follow-up for this single
+run, not authorization for indefinite matches. No completed-hour or competitive
+strength claim is made until its summary is reviewed.
+
+## 2026-09-06 — One-hour fleet completed and reviewed
+
+Reviewed the final health/summary at the scheduled follow-up. The fleet reached
+3,600 planned seconds and finished normal quits after 3,601.567 seconds at
+2026-09-06T23:02:30.584Z (18:02 local). durationReached=true. All four bots are
+marked interrupted because the duration abort uses the normal stop path, not
+because of a failure. The shared host log confirms session completion for jobs
+1–4; a separate session was admitted during the run, so this is not presented
+as a controlled four-bot competitive tournament.
+
+Totals: 5,510 decisions, 4,085 movement commands, 346 phaser commands and 310
+dock commands. Zero recorded deaths, reconnects, deadline graces, stalls,
+scheduling pauses or fatal errors; zero explicit REPAIR commands. These are
+attempted command counts, not verified hits/movement outcomes. The hour did not
+exercise recovery paths; their evidence remains the focused TCP-drop and
+late-deadline tests. Sustained operation is established for this one run,
+not competitive strength or original-executable fidelity.
+
+Evidence: logs/automated-player-hour-2026-09-06/{summary.json,health.json,events.jsonl}
+and per-bot transcripts; logs/automated-player-fleet-host.log. Saved aggregate
+assertion/check output in logs/automated-player-hour-2026-09-06/review.json and
+recorded the result in experimental/automated-player/TRAINING.md. No game code,
+source archive, other specification work or shared host state was changed.
+No new match launched. Pause the single-run heartbeat
+review-decwar-one-hour-fleet-run after recording these terminal results.
+
+## 2026-09-06 — Ten bots, SCAN/LIST targets and installation combat
+
+The user clarified the requested increase as ten automated ships total, five
+per side, rather than multiple matches. Runnable milestone: ten balanced bots
+on the interactive host, using ordinary SCAN and default LIST observations to
+select ships and installations. Reviewed the documentation standard and Austin
+executable LSTSCN/LSTUPD/LSTOBJ/PHACON/BASPHA/PLNATK boundaries. No game rules,
+archives or unrelated specification files changed.
+
+While preparing the update the user reported no server. Verified no 2423
+listener and absent lock-owner PID 30277. Archived its stale lock to
+logs/automated-player-ten-stale-lock.json and restored Austin playable using
+data/automated-player-experiment. Host exec 36670; log
+logs/automated-player-ten-host.log. User confirmed connection; retained that
+session during bot launch.
+
+Preserved prior policy in test/captain-v3.ts. Added typed default LIST records:
+ship faction/name, optional location and shields, base/planet faction/location,
+planet builds, timestamps. Enemy out-of-range ships remain unlocated. Known
+remote bases may lack shields. Sources: DECWAR.FOR LSTSCN:1519 onward,
+LSTUPD:1922 onward, LSTOBJ:2084–2140; WARMAC.MAC object/ship output labels.
+Player observations request BASES, DAMAGES, LIST, SCAN 10 WARNING, STATUS.
+
+V4 uses fresh LIST shields only when name/position match a current SCAN ship;
+known remote installations guide navigation but cannot authorize a shot.
+Ships take priority. Enemy base shots seek range five outside BASPHA's radius
+four; built enemy planets seek range three outside PLNATK's radius two. Source
+PHACON's build reduction threshold prevents strength-180 shots beyond range
+four from reducing builds. Neutral/friendly and zero-build enemy planets are
+excluded. Navigation gained a stopping range with unchanged existing defaults.
+No capture/build or torpedo tactic was added. Decision metadata labels ship/
+base/planet shot intent for health reports; these are attempts, not hit counts.
+
+Fleet --ships 4|6|8|10 supports equal sides. Added Lancer/Farragut,
+Ranger/Intrepid, Archer/Lexington; Fang/Cobra, Wraith/Goblin, Talon/Hawk to the
+original four. Vulcan remains unassigned to bots. Added SCAN/LIST counters and
+ship/base/planet phaser counts. Corrected stall recovery logging so a stopped
+bot is not called progress-resumed. Updated CLI policy label and metadata test.
+
+Validation: logs/automated-player-target-tests.log passes 14 focused cases.
+Full bot/Telnet suite passes 47/47 in logs/automated-player-ten-regressions.log,
+including real base shield damage, planet selection and neutral/unbuilt
+exclusion, fresh LIST/SCAN target matching, and four/ten-ship fleet shutdown.
+Typecheck: logs/automated-player-ten-typecheck.log. npm run audit:check:
+logs/automated-player-ten-audit.log passes 135 archive hashes, 83 declarations,
+33 main/16 pregame commands, 324 strings and both variant inventories.
+Initial LIST typecheck: logs/automated-player-list-typecheck.log. All old evidence
+is retained; no failed test runs in this round.
+
+Started one ten-ship hour, not a series of matches:
+caffeinate -i node experimental/automated-player/fleet.ts --port 2423 --ships 10 --seconds 3600 --log-dir logs/automated-player-ten-2026-09-06
+
+Exec session 98258; start 2026-09-07T00:37:37.263Z, expected stop about 20:37 local
+September 6. All ten reported playing, each using SCAN/LIST, with initial base
+phaser attempts and no startup errors. New reports:
+logs/automated-player-ten-2026-09-06/{configuration.json,health.json,events.jsonl}
+and per-bot transcripts. The run is not completed at this checkpoint.
+
+Reused the paused single-run heartbeat review-decwar-one-hour-fleet-run,
+renamed Review DECWAR ten-ship battle, pointed it at the new directory and
+reactivated its 15-minute cadence. It will report meaningful issues or completion,
+review target-category evidence and representative combat outcomes, record
+findings and pause. It will not restart the shared host or launch another match.
+
+## 2026-09-06 — Shared Telnet comparison and tournament plan
+
+Added the requested tournament mode to experimental/automated-player/PLAN.md alongside a shared TypeScript/PDP-10 response-comparison runner. Planned fixed-policy, faction-swapped repeated matches on isolated galaxies, explicit unfinished/failure outcomes, raw transcript evidence, and uncertainty reporting. Random streams and initial states are not assumed equivalent; competitive outcomes cannot establish semantic parity. Reference provenance and TOPS-10 startup requirements checked against legacy/utexas-reference/f78f2ec/README.md; preserved reference used native SIMH, and Docker/shared-client operation remains unverified. No executable or live-server changes. Documentation checks: logs/automated-player-tournament-plan-check.log. Next milestone: shared startup/capture smoke test before deterministic comparisons and tournament scheduling.
+
+## 2026-09-06 — Input/output parity coverage plan
+
+Prioritized all input/output modes in experimental/automated-player/PLAN.md ahead of tournaments. Reviewed Austin DECWAR.FOR:3652–3718 and MSG.MAC terminal/prompt definitions, plus the current client setup. Matrix covers OUTPUT, PROMPT, SCANS, ICDEF, OCDEF, every source TTYTYPE, interactive input and invalid/abbreviated choices, raw control bytes, defaults and mode interactions. Existing client forces four settings; future comparison setup must bypass them. Coverage remains planned, not native differential verification. No executable changes. Check: logs/automated-player-io-plan-check.log (git diff --check).
+
+
+## 2026-09-06 ten-captain hour review
+
+The scheduled hour ended at 01:37:37 UTC September 7 (20:37 Central September 6),
+after 3,600,012 ms. Ten captains made 13,509 decisions, 7,271 movement attempts,
+1,827 phaser attempts (1,635 ship / 192 base / 0 planet), 13,516 SCAN and 13,517
+LIST calls, 1,673 DOCK attempts and two explicit repairs. Three deaths were
+followed by continued play. No stalls were recorded; one scheduling pause
+recorded 2,735 ms lag.
+
+All ten connections ended at 01:37:03.573 UTC, about 34 seconds before the
+scheduled finish. Each supervisor made six retry attempts; later attempts were
+refused. The summary's 60 reconnects mean attempts, not successful recoveries.
+The host log contains no shutdown explanation. This is a completed observation
+window with a late host outage, not a clean uninterrupted hour. No host restart
+was performed during review.
+
+Representative Raven base shots show shield percentages falling from 86.4 to
+74.5 to 63.4 to 53.4. Of 1,827 phaser responses, 432 contain a displayed 0.0 unit
+hit; such a response can still accompany shield depletion, so zero text alone
+is not a failed-shot measure. High docking frequency (notably Fang and Archer)
+merits measuring time under enemy fire and progress between resupply cycles.
+Next tactical checks: distinguish shield depletion from hull damage, verify
+objective destruction, and stage an enemy built planet because no planet attack
+was exercised here. These shared-galaxy observations do not establish win rate.
+
+Evidence: logs/automated-player-ten-2026-09-06/{summary.json,review.json,events.jsonl}
+and per-captain transcripts. Input/output parity work follows this review;
+tournaments remain deferred.
+
+
+## 2026-09-06/07 — Shared I/O capture milestone
+
+Added compare-io.ts and diff-io.ts under experimental/automated-player. PlayerClient
+now records base64 raw receive/send bytes (including negotiation), supports
+explicit TOPS-10 startup and expected interactive response exchanges, and can
+preserve initial modes instead of applying captain preferences. Normal captain
+behavior retains its prior defaults. Reference login errors now stop explicitly
+rather than silently reusing an unknown logged-in session.
+
+An isolated TypeScript host completed 61 cases, covering 20 mode selections across
+OUTPUT/PROMPT/SCANS/ICDEF/OCDEF and all eight source terminal types. Each selected
+value was confirmed in TYPE OUTPUT. The live native SIMH reference completed a
+four-case prefix: initial TYPE OUTPUT, SET OUTPUT SHORT, TYPE OUTPUT, STATUS.
+First three responses match the TypeScript text exactly after removing one
+explicit leading command echo; short STATUS differs only in coordinates
+(45-9 versus 43-23). Worlds are not aligned. Raw comparisons retain those
+transport and state differences; this is not full parity verification.
+
+Reference startup initially exceeded 20 seconds; failed raw evidence is retained
+in pdp10.jsonl. The 120-second-per-response retry resumed the account opened by
+that failed attempt (monitor said Please KJOB or DETACH), entered DECWAR and
+captured four cases. This prompted the subsequent fail-closed login guard;
+future reference sessions require a clean login. Source/reference archives,
+working disks and shared host were not modified by the tooling. The pre-existing
+reference emulator runs natively, not in Docker. No Docker compatibility claim.
+
+Evidence directory: logs/automated-player-io-first. Captures: typescript.jsonl,
+pdp10.jsonl (failed), pdp10-retry.jsonl; comparison-initial.json preserves exact
+response differences, review.json records explicit echo handling, and
+typescript-settings-check.json verifies reported selections. Fifteen focused
+client/codec tests passed; ordinary captain live test passed; typecheck and
+archive audit passed. Outputs: client-tests-final.log, live-tests.log,
+typecheck-final.log, audit-final.log, diff-check.log. Tests do not establish
+original-executable parity. Source setting choices: legacy/utexas/DECWAR.FOR:
+3652–3718; terminal names: MSG.MAC:358–359. No game semantics changed.
+
+Remaining: 57 reference sweep cases, controlled coordinate-input effects,
+interactions, invalid/abbreviated input, editing and reentry. Tournament work
+remains deferred. The full matrix is deliberately not described as verified.
+
+I/O checkpoint cleanup: reference test captain confirmed QUIT/YES and returned to TOPS-10 at 02:02:37 UTC; reference emulator left running. Isolated TypeScript comparison host PID 45274 received SIGTERM after captures. Fleet review heartbeat paused after results and initial shared comparison milestone.
+
+## 2026-09-07 — Captain v5 objective capture and construction
+
+Advanced the runnable strategic-play milestone with an objective role. Scout
+and Raven are objective captains in the fleet; Wing, Shade and later ships keep
+patrol roles. The captain uses fresh matching LIST and SCAN observations to seek
+neutral or unfortified enemy planets, enters an adjacent sector with at least
+3,500 displayed energy and 75% shields, issues CAPTURE, then builds a friendly
+planet through the fifth-build base conversion. Fortified enemy planets remain
+under the existing phaser policy. At Austin's ten-base limit, a four-build
+planet is skipped to avoid repeating the source rejection. Source:
+legacy/utexas/DECWAR.FOR:523–665 and PARAM.FOR:6.
+
+Objective commands carry capture/build metadata separately from phaser target
+categories. Player observation deltas record confirmed capture, visible build
+increments and planet-to-base conversion; fleet schema 2 reports attempts and
+confirmations. The CLI accepts `--mode objective`; policy label is captain-v5.
+
+Connected verification used an isolated four-ship Austin game: Yorktown,
+Excalibur, Wolf and Demon. Yorktown captured neutral planet 20-21, took source
+planet defense (shields 100% to 94.5%), executed five BUILD commands and created
+a second Federation base. LIST confirmed one capture, four build increments and
+one base creation. Evidence: logs/automated-player-objectives/objective-tests-final.log
+and logs/automated-player-scenario-1788770888369-839fc7ebf36d48.jsonl. The full
+bot/Telnet regression then passed 55/55 in 52.5 seconds; log:
+logs/automated-player-objectives/full-regression.log. This staged check does not
+measure discovery frequency, defense, team coordination or competitive strength.
+The final focused captain check passed 13/13, including symmetric Federation and
+Empire objective decisions; log: logs/automated-player-objectives/captain-tests-final.log.
+
+
+## 2026-09-07 — Evidence-driven I/O and recovery improvements
+
+Runnable milestone: repeatable, assertion-bearing external mode/dialogue suites
+with faithful comparison reports and accurate fleet recovery metrics.
+
+Learned from the first shared captures: native command echo explains three of
+four response differences; the fourth is a coordinate change in unaligned worlds.
+Implemented io-comparison.ts and updated diff-io.ts: stable case IDs, duplicate
+rejection, explicit missing/failed cases, capture configuration/errors, optional
+one-exact-leading-command echo removal with original responses retained. No
+numeric, whitespace or control-byte masking. The old four-case capture now
+reports three echo-only matches, one needs-review and 57 missing cases.
+
+Implemented io-scenarios.ts and expanded compare-io.ts: 61 mode steps and 58
+interactive dialogue steps; checks reported settings; missing SET arguments,
+blank and invalid values, ambiguous terminal names, switch prompt and abbreviation.
+Case limits respect complete dialogue groups. Source: Austin DECWAR.FOR:3627–3718
+and MSG.MAC:259–279. Both suites completed successfully on a new isolated public
+TypeScript host; actual captures are modes.jsonl and dialogs.jsonl below. No
+server state inspection or game semantics change.
+
+Learned from native cleanup: returning to TOPS-10 leaves the account logged in.
+The client now refuses an inherited monitor before sending commands, and
+quitReference logs out only a client-established account after QUIT/YES using
+K/F. Evidence: preserved build-console.txt:106–111,276–281. Synthetic session
+checks cover logout and refusal; this updated native cleanup is not live-verified.
+No new reference coverage or Docker verification is claimed; the earlier four
+cases remain the only native mode checkpoint.
+
+Learned from the battle outage: the old reconnect count increments when a
+backoff is scheduled, even if the deadline prevents the attempt. Fleet schema 2
+separates retrySchedules, retryAttempts and successful reconnects. Supervisor
+emits retry-started only upon an actual next attempt and reconnected only after
+joining again following an earlier join. Tests cover cancellation during backoff
+and real TCP loss/recovery. Historical logs are unchanged; README explains the
+old counter semantics. Tactical policy was not changed on ambiguous zero-hit
+text or uncontrolled battle outcomes.
+
+Checks/evidence: logs/automated-player-io-v2. tests.log: 20 focused client/codec/
+comparison checks passed; recovery-tests.log: five supervisor/fleet checks passed,
+including real TCP loss and 4/10-ship bounded runs. modes.jsonl: 61 completed
+steps; dialogs.jsonl: 58 completed steps. previous-captures-review.json preserves
+comparison evidence. typecheck-final.log, audit.log and diff-check.log passed.
+Docs: README/PLAN and docs/status updated. No game source/archive changes.
+
+Next: remaining 57 native mode steps and the new dialogue suite on a clean
+reference terminal, then controlled coordinate-input effects and terminal editing.
+Broader mode interactions and reentry remain open. No unattended new battle or
+reference process was launched. Isolated host PID 46736 was selected for cleanup;
+test captains already completed normal QUIT.
+
+## 2026-09-07 — Fresh objective run, reporting correction in progress
+
+Started a bounded 600-second four-ship captain-v5 evaluation on a disposable
+Austin host through `fresh-fleet.ts`; evidence directory:
+`logs/automated-player-objective-fresh-2026-09-07`. The first health snapshot
+showed a real Scout capture and build attempt, but Wing's counters also credited
+the teammate's observed ownership/build changes. Attempts and raw transcripts
+remain valid; aggregate confirmation counters from this run are known inflated.
+
+Changed player confirmation tracking to associate the next LIST transition only
+with that captain's pending successful CAPTURE or BUILD command and exact
+coordinates. Teammates that merely observe the transition no longer receive
+credit. The active child process loaded the earlier code, so its counters will
+remain diagnostic-only; verification and a clean follow-up run are required.
+
+## 2026-09-07 — Fresh objective run and corrected evidence
+
+The disposable 600-second Austin evaluation completed after 604,435 ms. Scout
+issued seven CAPTURE and 24 BUILD commands; Raven issued four CAPTURE and 19
+BUILD commands. Wing and Shade remained patrol captains. All four reached the
+deadline without a death, stall, retry or reconnect. This verifies autonomous
+planet discovery and objective command use. The run's observer-wide
+confirmation counters are invalid as documented during the run; its attempt
+counts and command transcripts remain valid. Review:
+logs/automated-player-objective-fresh-2026-09-07/review.json.
+
+Completed the reporting repair by associating a confirmation with only that
+captain's pending successful CAPTURE or BUILD at the exact coordinates. A fresh
+90-second four-ship run then recorded Scout's one confirmed capture and four
+confirmed build increments. Wing and Shade recorded zero objective attempts and
+zero confirmations. Raven attempted a capture on its last round; it correctly
+remained unconfirmed because shutdown preceded the next LIST. All four again
+had zero deaths, stalls, retries and reconnects. Evidence:
+logs/automated-player-objective-attribution-check-2026-09-07/review.json.
+
+Normal fleet clients no longer record raw Telnet packet events unless requested;
+compare-io keeps them enabled for parity evidence. This reduced the complete
+90-second evidence directory to about 1.2 MiB, compared with about 241 MiB for
+the longer diagnostic run. Focused objective/reporting checks passed 18/18 in
+logs/automated-player-objectives/objective-tests-attribution.log; focused raw
+capture/client checks passed 9/9 in capture-reporting-tests.log. Typecheck and
+archive/generated audit passed in typecheck-final.log and audit-final.log.
+These evaluations establish functional objective play and honest reporting,
+not win rate, competitive strength or original-executable parity. No further
+unattended run was launched.
+
+Final experimental-player regression passed 51/51 in 41.2 seconds; complete TAP
+output: logs/automated-player-objectives/full-regression-current.log. An earlier
+attempt invoked the repository-wide suite because npm resolved the root package;
+localhost-dependent cases failed with sandbox EPERM. That invocation is recorded
+in accidental-root-suite-sandbox-failure.log and was replaced by the correctly
+scoped permitted run. Final JSON validation and `git diff --check` passed.
+The post-review archive/generated audit also passed; log:
+logs/automated-player-objectives/audit-after-review.log.
+
+## 2026-09-07 — Tournament harness and captain-v6 defense experiment
+
+Advanced the runnable competitive-evaluation milestone with
+`combat-tournament.ts`, `tournament-report.ts` and `rebuild-tournament.ts`.
+The runner creates one disposable Austin playable galaxy per match, uses only
+external Telnet captains, alternates named strategies across factions and
+checkpoints after each match. Surviving captains request `POINTS FED EMPIRE` at
+shutdown; `observations.ts` parses displayed team totals and score categories.
+Reports retain every concurrent shutdown sample, select the latest per side,
+record action/death/objective evidence, classify elapsed matches as time limits,
+and include average margins and 95% Wilson lead-rate intervals. Fresh worlds
+are independent starts with no verified shared seed or random stream.
+
+Added side-specific `objective`, `patrol` and `balanced` fleet strategies.
+Objective remains the default. Balanced assigns one objective captain, one
+defender and remaining patrol captains. The defender uses public LIST/SCAN data,
+guards developed planets before bases and prioritizes visible ships nearest
+friendly assets. This is bot policy; source POINTS formatting and mechanical
+boundaries come from Austin DECWAR.FOR:2893–3056 and MSG.MAC:212.
+
+The initial two-match objective-versus-patrol check split fixed-time leads 1–1.
+The first four-match balanced check split 2–2 and trailed objective by 374.8
+points per match. Transcript review showed defenders holding for 35 and 43
+decisions without firing. Captain-v6 limits each watch to two observations,
+then makes a 30-second combat sortie before returning. In the repeated
+four-match design, guard holds fell to 2–4 and defenders made 15–19 movement
+decisions. Balanced led 1/4 and averaged 642.7 fewer points than objective;
+its 95% lead-rate interval is 0.046–0.699. All four matches completed with zero
+deaths, stalls, retries and execution errors. This rejects the current balanced
+policy as the default but does not establish a general win rate.
+
+Evidence:
+logs/automated-player-tournament-objective-vs-patrol-2026-09-07/summary.json,
+logs/automated-player-tournament-balanced-vs-objective-2026-09-07/summary.json,
+and logs/automated-player-tournament-balanced-v6-vs-objective-2026-09-07/summary.json.
+The 30-second final-POINTS smoke run is retained at
+logs/automated-player-tournament-smoke-2026-09-07. No existing galaxy or game
+runtime was changed.
+
+The first final regression invocation passed 54/55; the only failure was the
+external CLI test's expected configuration label `captain-v5` after the runner
+correctly emitted `captain-v6`. Full output is retained in
+logs/automated-player-objectives/tournament-regression.log. Updated that version
+contract before rerunning; no behavioral assertion was relaxed.
+
+The corrected full experimental-player regression passed 55/55; complete TAP
+output: logs/automated-player-objectives/tournament-regression-final.log.
+Typecheck and archive/generated audit passed in tournament-typecheck.log and
+tournament-audit.log. The structured evaluation conclusion is retained in
+logs/automated-player-tournament-balanced-v6-vs-objective-2026-09-07/review.json.
+Post-documentation typecheck and audit also passed in
+logs/automated-player-objectives/tournament-typecheck-final.log and
+tournament-audit-final.log; final JSON validation and `git diff --check` passed.
+
+## 2026-09-07 — Experimental directory rename
+
+Renamed the top-level `experiments/` directory to `experimental/` at the user's
+request. Updated automated-player CLI usage text, child-process launch paths,
+tests, README commands, status links and WORK_LOG path references. Preserved
+all experiment contents and historical runtime logs; no legacy archive, game
+runtime or existing galaxy changed.
+
+Verified every launcher help path from `experimental/`. The renamed full suite
+passed 55/55 in logs/automated-player-objectives/experimental-rename-regression.log;
+typecheck and archive/generated audit passed in experimental-rename-typecheck.log
+and experimental-rename-audit.log. A stale-reference scan found only this
+historical rename statement. `git diff --check` passed and the old directory no
+longer exists.
+
+## 2026-09-07 — Automated-player command inventory
+
+Verified the user's 31-command reminder against the Austin source command table
+at legacy/utexas/DECWAR.FOR:437–471. Added a typed source-ordered catalog,
+printable coverage CLI, public COMMANDS.md matrix and focused completeness tests.
+Every command is classified as automatic, supported for verification, planned
+for a concrete tactical role, or deliberately manual. The two subsequent source
+entries, *DEBUG and *PASSWORD, are privileged host commands and are excluded
+from the player catalog.
+
+The next implementation order is TORPEDOES/TARGETS, TELL/RADIO coordination,
+then ENERGY/TRACTOR support. PLANETS, SUMMARY and SRSCAN remain explicit but
+will replace broader reports only if measured output or decision latency
+justifies them. GRIPE remains human-only because it writes implementor feedback
+and is not a game tactic. No game runtime, source archive or galaxy changed.
+
+Validation: the full renamed automated-player suite passed 57/57 in
+logs/automated-player-objectives/command-inventory-regression.log. Typecheck,
+archive/generated audit and the generated 31-entry JSON inventory passed in
+command-inventory-typecheck.log, command-inventory-audit.log and
+command-coverage.json. The generated disposition counts are 16 automatic,
+five supported, nine planned and one manual. `git diff --check` passed.
+
+## 2026-09-07 — Captain-v7 TARGETS, torpedoes and guarded novas
+
+Advanced the competitive-combat milestone with source-derived TARGETS and
+TORPEDOES support. The external observation cycle now parses TARGETS through
+the same Austin LSTOBJ row format as LIST, including the actual empty response
+"Captain, there are no enemy forces in range." Ship fire requires a fresh
+TARGETS coordinate to agree with SCAN. Captain-v7 fires one-torpedo bursts only
+at LIST-reported shields below 85%, retains four rounds, rejects critical tube
+or computer damage, and falls back to phasers during its conservative torpedo
+readiness interval. The explicit syntax was corrected through Telnet evidence
+to `TORPEDOES ABSOLUTE 1 v h`.
+
+Added result classification for hits, deflections, misses, misfires, black-hole
+losses, friendly neutralization, unaffected stars and novas. Unrecognized or
+delayed terminal output remains `unknown`; it is never counted as a miss. Fleet
+health now records TARGETS requests, torpedo attempts and outcomes, and the
+last displayed ammunition count.
+
+Verified the supplied help's nova tactic against executable TORP, SNOVA and
+NOVA statements at legacy/utexas/DECWAR.FOR:2256–2391 and 3804–4424. A torpedo
+intersection triggers the first star on 80 of 100 draws; adjacent stars can
+chain, adjacent objects take nova damage, and each destroyed star costs the
+firing side 500 points. The bot will target a star only beside a confirmed
+enemy ship/base, within six sectors, with high shields and eight or more rounds.
+It traverses the complete adjacent-star component and rejects any cluster on
+the scan edge or any blast rim containing the firing ship, a friendly, a
+planet, or a black hole. This is policy logic over public observations; it does
+not modify game mechanics or claim the random trade is favorable.
+
+The first focused run found two policy-test expectations plus sandboxed local
+listen failures and is retained at
+logs/automated-player-objectives/torpedo-targets-initial-failures.log. The first
+permitted scenario run then exposed the two real protocol corrections and is
+retained in torpedo-targets-scenarios.log history through the scenario JSONL
+files. The corrected TARGETS/torpedo scenarios passed, including ammunition
+10 to 9. The final full experimental-player regression passed 62/62 in
+logs/automated-player-objectives/captain-v7-regression.log. Typecheck and
+archive/generated audit passed in captain-v7-typecheck.log and
+captain-v7-audit.log. The updated 31-command JSON inventory is
+command-coverage-v7.json: 18 automatic, five supported, seven planned and one
+manual. `git diff --check` passed. No legacy archive, game runtime or existing
+galaxy changed. Captain-v7 has not yet been ranked against v6 in a tournament.
+
+## 2026-09-07 — Ten-ship torpedo battle checks and captain-v8
+
+Ran two fresh, disposable, ten-ship Austin games for 180 seconds each through
+ordinary external Telnet sessions. The captain-v7 run completed 722 decisions,
+467 moves and 99 weapon decisions with no deaths, stalls, retries, scheduling
+pauses or execution errors. Its 44 torpedo attempts yielded 14 classified hits,
+13 misses, five deflections, four misfires and eight novas. The initial summary
+left the 13 source messages `torpedo 1 lost @...` as unknown; source output and
+the transcript identify these as misses, and the classifier now handles them.
+
+Six novas followed deliberate star targets and two happened while aiming at
+ships. A deliberate Fang nova damaged and displaced an enemy Federation base,
+and other shots damaged enemy ships, demonstrating the tactic. A Wraith shot
+aimed at a selected safe star was deflected to a different star cluster and the
+resulting nova damaged the friendly Goblin twice. This invalidates the claim
+that checking only the intended connected cluster can make a deliberate nova
+safe. The evidence is retained in
+logs/automated-player-fleet-v7-battle-2026-09-07/.
+
+Captain-v8 therefore disables deliberate nova decisions by default while
+retaining the source-derived selector for controlled experiments. Direct
+torpedoes remain enabled and may still cause accidental novas. The follow-up
+ten-ship run completed 728 decisions, 392 moves, six capture attempts and 26
+build attempts with no deaths, stalls, retries, scheduling pauses or errors.
+All seven torpedoes targeted ships: three hit, three were deflected and one
+missed; no nova occurred in that sample. Final displayed points were Federation
+14893.5 and Empire 14112.0. Evidence is retained in
+logs/automated-player-fleet-v8-battle-2026-09-07/.
+
+Focused captain-v8 policy and Telnet scenarios passed 24/24 in
+logs/automated-player-objectives/captain-v8-focused.log. These two independent
+worlds establish functional battle behavior and expose nova risk; they do not
+rank torpedoes against a phaser-only control. No existing galaxy, runtime or
+legacy source was changed.
+
+The final captain-v8 experimental-player regression passed 62/62 in
+logs/automated-player-objectives/captain-v8-regression.log. It took 108.8
+seconds because the bounded fleet and objective scenarios completed their full
+shutdown paths; the process exited normally. Typecheck and archive/generated
+audit passed in captain-v8-typecheck.log and captain-v8-audit.log.
+`git diff --check` passed.
+
+## 2026-09-07 — Coordinate-retry recovery and seeded weapon tournaments
+
+Closed the execution defect from the first captain-v8 weapon comparison. During
+the fourth match, Wing observed 65-23 and requested `MOVE ABSOLUTE 64 22`, but
+game activity made that target its present location before MOVE executed. Austin
+then entered LOCATE's interactive `Coordinates:` retry and the external client
+timed out because it waited only for a command or reentry prompt. The failed run
+is retained at
+`logs/automated-player-weapon-tournament-v8-2026-09-07/summary.json` and the
+exact dialogue in match-04/fleet/Wing.jsonl.
+
+PlayerClient now recognizes only the source `Coordinates:` continuation, sends
+ASCII ETX as Ctrl-C, and waits for the recovered game prompt before returning.
+Unknown continuations still time out and close. This follows Austin
+MSG.MAC coord1:39, supplied HELP CTL-C at HLP/DECWAR.RNH:513-527, and the port's
+explicit ETX/Telnet-IP handling at src/transport/server.ts:52-55. A mock Telnet
+test verifies the byte and connection reuse; a native Austin scenario submits
+the current ship coordinates, observes the historical split error text and
+retry prompt, then successfully reads STATUS on the same socket.
+
+A clean replacement four-match run used fresh disposable Austin worlds, ten
+ships and 90-second limits. All 40 captains completed with no death, failure,
+stall or retry. Direct torpedoes and the identical phaser-only captain split
+score leads 2-2. Torpedoes averaged 4,138.6 points against 3,868.8 (+269.8), but
+Empire led all four matches regardless of policy. The 55 torpedo attempts
+produced 26 hits, 13 misses, five deflections, three misfires and eight
+accidental novas. Torpedoes increased damage-to-enemies points (7,893.5 versus
+4,455.2); phaser-only play earned more build points (2,650 versus 750). The
+faction result, four samples and nova exposure make the policy comparison
+inconclusive. Evidence:
+`logs/automated-player-weapon-tournament-v8-recovery-2026-09-07/summary.json`.
+
+Implemented the game's actual seeded tournament startup across the client,
+single-player CLI, fleet and disposable-host launchers. Both strategy and weapon
+tournament harnesses now send `TOURNAMENT <seed>` through the first ordinary
+Telnet session and give each adjacent faction swap the same seed. This aligns
+initial random state but cannot pair later events once policies and concurrent
+scheduling consume draws differently. A two-match 30-second smoke run recorded
+`TOURNAMENT 1729` in both first-captain transcripts, completed all 20 captains
+without errors, split faction leads 1-1, and had torpedoes lead both short
+samples. This validates the harness, not competitive strength. Evidence:
+`logs/automated-player-weapon-tournament-v8-seeded-smoke-2026-09-07/summary.json`.
+
+Validation: client/startup tests pass in
+`logs/automated-player-objectives/captain-v8-seeded-client.log`; the final full
+experimental-player regression passed 65/65 in
+`captain-v8-seeded-regression.log`. TypeScript checking and archive/generated
+audit passed in `captain-v8-seeded-typecheck.log` and
+`captain-v8-seeded-audit.log`. `git diff --check` passed. No legacy source,
+game runtime, existing galaxy or interactive server was changed.

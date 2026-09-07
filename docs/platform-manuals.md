@@ -100,10 +100,10 @@ Austin NXTT's linked pointer instruction is `505500440700` at octal 460475,
 and its IDPB is `136440000012` at 460522. ANUM resets the shared counter with
 `515340204500` at 460603, yielding octal `204500000000` (decimal 17800626176).
 These words were read from the preserved, hash-verified executable, rather than
-inferred from a synthetic floating fixture. The [specification evidence](spec/evidence.md#compiled-tokenizer-observations)
-records reproduction commands; [LEX-8](spec/lexical.md#lex-8--decimal-text-spill)
-defines the resulting abstract cross-field effects. This closes text-deposit
-encoding for ordinary lines, not all floating-point arithmetic or trap behavior.
+inferred from a synthetic floating fixture. This closes text-deposit encoding
+for ordinary lines in the port investigation, not all floating-point arithmetic
+or trap behavior. Machine encoding and cross-field effects are not inputs to
+the new game-language specification.
 
 ## FORTRAN language and runtime
 

@@ -27,6 +27,59 @@ connected changes from inactive source such as DSHIP. The production factory is
 [src/runtime/game-session.ts](../src/runtime/game-session.ts); some of its binders
 still live under test/fixtures and remain required runtime files.
 
+## Experimental automated player
+
+[experimental/automated-player](../experimental/automated-player/README.md) contains
+an external Austin captain that parses scans/reports, routes around obstacles,
+patrols, uses phasers against observed enemy ships, selects resupply refuges,
+repairs, docks and reenters after death within a configured life limit.
+An optional `--stay-connected` mode keeps observing after the decision limit.
+The experimental fleet launcher starts two bots per faction, retries selected
+connection failures within shared budgets, records health/stalls, and quits its
+bots at a duration limit, with balanced rosters of 4–10 bots. Late client timers receive one bounded grace period.
+Real TCP-loss recovery and fleet shutdown are tested; a local process still
+depends on its computer remaining available.
+The captain combines default LIST reports with fresh SCANs to prioritize ship
+targets and seek known enemy installations. It attacks base shields and enemy
+planet builds from outside their defense radii. One fleet captain per faction
+has an objective role that captures freshly confirmed neutral or unfortified
+enemy planets and applies five builds to create a base when capacity permits.
+In a disposable 600-second Austin run, both objective captains autonomously
+found planets and issued CAPTURE and BUILD commands; a corrected 90-second run
+confirmed ownership/build attribution only for the acting captain. Competitive
+strength and coordinated team assignment remain open. An experimental
+captain-v6 defender guards public LIST-reported friendly assets and alternates
+watch periods with combat sorties. A new tournament harness runs fresh source
+`TOURNAMENT` galaxies with paired seeds, swaps named strategies across factions, captures final POINTS
+categories and reports fixed-time score leads with uncertainty. In its first
+four-match captain-v6 comparison, balanced defense led once and the prior
+objective strategy led three times; this is diagnostic evidence, not a win-rate
+claim.
+Controlled Telnet scenarios and a bounded two-captain patrol exercise these
+capabilities. A 16-trial [tactical comparison](../experimental/automated-player/TRAINING.md)
+added combat-reserve withdrawal and cautious approaches to distant enemies;
+it measures bounded behavior, not competitive strength. The
+[development plan](../experimental/automated-player/PLAN.md) describes reusable
+code capabilities, tactical planning and match evaluation. Game runtime behavior
+is unchanged; the experiment has separate test/typecheck commands.
+Its source-ordered command matrix covers all 31 Austin public commands. Eighteen
+are used automatically, five are verification/information commands, seven have
+explicit future tactical roles, and GRIPE remains manual. TARGETS now confirms
+SCAN ship locations before firing; captain-v8 adds conservative one-round
+torpedoes. Deliberate star novas are disabled after a bounded battle demonstrated
+off-target friendly nova damage despite a safe intended blast area. Radio
+coordination and teammate support are the next tactical slice. A four-match
+direct-torpedo A/B test split 2–2 and was dominated by faction; a subsequent
+paired-seed smoke test verified actual TOURNAMENT startup but is too short to
+rank the policies. The Telnet client also recovers the verified Austin
+`Coordinates:` retry with source-documented Ctrl-C.
+An experimental shared Telnet I/O capture runner now preserves initial modes,
+records raw bytes and emits exact or explicitly echo-adjusted comparisons.
+TypeScript checks cover 61 mode steps and 58 interactive dialogue steps;
+native-reference coverage is tracked in
+the experiment README and logs. This is partial comparison tooling, not a
+completed differential audit.
+
 ## Verification
 
 At commit `31d34e4`, a clean snapshot containing only staged repository files

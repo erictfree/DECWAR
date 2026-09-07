@@ -1,0 +1,44 @@
+\usepackage{fontspec}
+\setmainfont{Palatino}
+\setsansfont{Helvetica}
+\setmonofont[Scale=0.84]{Menlo}
+
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+
+\definecolor{decwarblue}{HTML}{213A5C}
+\definecolor{decwargray}{HTML}{606770}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=decwarblue,
+  urlcolor=decwarblue,
+  pdfborder={0 0 0}
+}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.45em}
+\setlength{\headheight}{14pt}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textsc{DECWAR Specifications}}
+\fancyhead[R]{\small\textsc{Austin Core}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.35pt}
+
+\titleformat{\section}
+  {\Large\bfseries\color{decwarblue}}
+  {\thesection}{0.65em}{}
+\titleformat{\subsection}
+  {\large\bfseries\color{decwarblue}}
+  {\thesubsection}{0.65em}{}
+\titleformat{\subsubsection}
+  {\normalsize\bfseries}
+  {\thesubsubsection}{0.65em}{}
+
+\widowpenalty=10000
+\clubpenalty=10000
+\displaywidowpenalty=10000

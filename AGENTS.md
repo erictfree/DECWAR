@@ -1,15 +1,13 @@
 # DECWAR port contract
 
-Specification scope: the user's latest 2026-09-05 direction makes the language
-specification forward-looking. Derive command syntax and game mechanics from
-the archives, but express semantics with abstract types, readable pseudocode
-and ordinary mathematical quantities. Remove PDP-10 integer/floating-point
-quirks, packed representations and accidental cross-field effects from the
-normative book. Small resulting numerical differences are authorized; invented
-syntax, mechanics and balance changes are not. Record normalization in
-docs/spec/NORMALIZATION.md and retain historical analysis outside book.json.
-This exception applies to the specification, not the running port: the fidelity
-requirements below still govern game code and source preservation.
+Specification 1.0 lives in `docs/spec1.0` and is governed by its local
+`AGENTS.md`. It defines DECWAR as a pure game language using abstract TypeScript
+data and algorithms, EBNF command syntax, ordered output, and first-class
+autonomous processes. Do not consult or revive the externally archived first
+specification. The PDP-10 and current port may provide behavioral evidence but
+must not shape the new specification's architecture. This exception applies to
+the specification, not the running port: the fidelity requirements below still
+govern game code and source preservation.
 
 Current user priority: on 2026-09-05 the user explicitly asked to set aside
 unresolved historical/compiler parity and get a functioning game. Implement
@@ -62,13 +60,14 @@ do not expand isolated compatibility work without connecting it to a remaining
 runtime dependency or an observable fidelity requirement. Preserve all parity
 requirements and keep required services explicit.
 
-The user's preferred working setting is Astra medium for routine implementation,
-integration, tests and documentation. Reserve high for difficult source semantics,
-numeric behavior, aliasing, concurrency or debugging. This is a workflow preference,
-not a mechanism for changing the app's actual model or reasoning setting.
-Tell the user when a concrete source ambiguity or debugging problem warrants
-switching back to high, explaining the specific reason. Do not silently change
-settings or relax fidelity requirements when working at medium.
+The user's preferred working setting is Luna medium for routine implementation,
+integration, tests, tournament runs, documentation, commits and pushes. Stop and
+ask the user to switch to Astra before work that requires difficult source
+semantics, PDP-10 numeric behavior, random draw ordering or hard concurrency
+debugging, explaining the specific reason. This is a workflow preference, not a
+mechanism for changing the app's actual model or reasoning setting. Do not
+silently change settings or relax fidelity requirements when working at Luna
+medium.
 Continue across verified checkpoints without ending work just to report a round.
 Give progress updates while working. Pause only for needed user input, a concrete
 blocker, or a recommended settings change; completing a routine is not a stop gate.
