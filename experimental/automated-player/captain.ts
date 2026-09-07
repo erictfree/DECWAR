@@ -3,6 +3,8 @@ import { distance, fleetSymbols, positionKey, type Cell, type Devices, type List
 import { neighbors, ObservedMap, route } from './navigation.ts';
 import type { Decision } from './policy.ts';
 
+const OBJECTIVE_WAYPOINT_TTL_MS = 30_000;
+
 export type Observation = { status: ShipStatus; devices: Devices; scan: Scan; bases: Position[]; objects?: ListedObject[]; targets?: ListedObject[]; intel?: ListedObject[] };
 
 // SNOVA recursively visits orthogonally and diagonally adjacent stars. A
@@ -47,7 +49,7 @@ export class Captain {
   // Objective captains retain a selected planet across ordinary resupply and
   // combat detours. The position is only a navigation objective; capture or
   // build still requires a fresh LIST row and matching SCAN symbol below.
-  private objectiveTarget: { position: Position; kind: 'planet'; observedAt: number } | undefined;
+  private objectiveTarget: { position: Position; kind: 'planet'; selectedAt: number } | undefined;
   private resupplying = false;
   private patrolIndex = 0;
   private lastFire = -Infinity;
@@ -211,10 +213,13 @@ export class Captain {
         .filter(o => scan.cells.some(c => distance(c, o.position!) === 0 && c.symbol === planetSymbol(o.faction)))
         .sort((a, b) => distance(s.position, a.position!) - distance(s.position, b.position!));
       const planet = candidates[0];
-      if (planet?.position) this.objectiveTarget = { position: { ...planet.position }, kind: 'planet', observedAt: now };
-      // Keep a navigation waypoint for one minute when LIST no longer prints
+      if (planet?.position && (!this.objectiveTarget || this.objectiveTarget.position.v !== planet.position.v || this.objectiveTarget.position.h !== planet.position.h)) {
+        this.objectiveTarget = { position: { ...planet.position }, kind: 'planet', selectedAt: now };
+      }
+      // Keep a navigation waypoint briefly when LIST no longer prints
       // the distant row. It is never a firing or CAPTURE/BUILD authorization.
-      const remembered = this.objectiveTarget && now - this.objectiveTarget.observedAt <= 60000 ? this.objectiveTarget : undefined;
+      const remembered = this.objectiveTarget && now - this.objectiveTarget.selectedAt <= OBJECTIVE_WAYPOINT_TTL_MS ? this.objectiveTarget : undefined;
+      if (!remembered) this.objectiveTarget = undefined;
       const targetPosition = planet?.position ?? remembered?.position;
       if (targetPosition) {
         if (planet?.position && distance(s.position, planet.position) <= 1) {
@@ -229,7 +234,7 @@ export class Captain {
         .filter(actionable)
         .sort((a, b) => distance(s.position, a.position!) - distance(s.position, b.position!))[0];
       if (known?.position) {
-        this.objectiveTarget = { position: { ...known.position }, kind: 'planet', observedAt: now };
+        this.objectiveTarget = { position: { ...known.position }, kind: 'planet', selectedAt: now };
         const step = route(this.map, s.position, known.position, this.team, now, true, true, 1);
         if (step) return this.move(step, s, d, 'Seek the planet reported by LIST; confirm ownership with SCAN before acting.');
       }

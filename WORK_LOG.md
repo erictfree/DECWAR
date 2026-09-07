@@ -5708,3 +5708,24 @@ team points were Federation 3,531.1 and Empire 3,452.6, a narrow Federation
 lead. No captures or builds occurred in this sample, so it is evidence of
 stability and a small matchup signal rather than a superiority claim. Evidence
 is at `logs/automated-player-fresh-fleet-v12-objective-vs-patrol-2026-09-07/`.
+
+## 2026-09-07 — Four-match objective versus patrol tournament
+
+Ran four fresh seeded 90-second ten-ship matchups, alternating which faction
+received the objective strategy (base seeds 1741–1742). All four reached their
+time limits with zero execution errors. Patrol led three matches and objective
+led one; objective averaged 1,561.4 points versus patrol's 2,012.4 (average
+margin -451). Objective produced one confirmed capture and no deaths; patrol
+had one death and no captures. The result indicates objective pursuit is safe
+but currently spends too much time away from combat, so its navigation timeout
+and handoff conditions need tuning. Evidence is at
+`logs/automated-player-combat-tournament-v12-2026-09-07/summary.json`.
+
+Reduced objective waypoint commitment from a refresh-based 60-second window to
+a 30-second total commitment window. Repeated LIST sightings no longer extend
+the same planet pursuit indefinitely; fresh action checks are unchanged. The
+focused captain suite stayed green at 19/19 and TypeScript checking passed. A
+post-change 60-second ten-ship smoke completed 239 decisions and 170 moves with
+32 shots, 13 torpedo attempts (seven hits, two misses), and no deaths, stalls
+or reconnects. Evidence is at
+`logs/automated-player-fresh-fleet-v14-commit-smoke-2026-09-07/`.
