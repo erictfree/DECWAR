@@ -5776,3 +5776,13 @@ decisions and 262 moves, confirmed three captures and seven builds, and made 20
 torpedo attempts (13 hits, one miss, one deflection, one misfire and four
 novas), with zero deaths, stalls or reconnects. Evidence is at
 `logs/automated-player-fresh-fleet-v16-safety-2026-09-07/`.
+
+## 2026-09-07 — v16 four-match safety validation
+
+Ran four new paired 90-second, ten-ship matchups (base seeds 1753–1754) after
+adding the enemy-base defense-zone filter. All matches reached their limits
+with zero execution errors. Objective and patrol split leads 2–2; objective
+averaged 1,808.9 points versus patrol's 1,829.8, while objective confirmed two
+captures and eight builds and patrol none. The one recorded death was patrol
+role Lancer rather than an objective captain. Evidence is at
+`logs/automated-player-combat-tournament-v16-2026-09-07/summary.json`.
