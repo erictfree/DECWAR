@@ -5631,3 +5631,14 @@ is retained at
 `logs/automated-player-fleet-v10-intel-2026-09-07/fleet/summary.json` and the
 per-ship transcripts. This establishes live pursuit and stability, not a
 competitive score claim.
+
+## 2026-09-07 — Attach-run availability check
+
+Attempted another bounded ten-ship, 120-second Austin battle against the
+interactive host on port 2423. The first attempt was blocked by the sandbox
+(`EPERM`); the approved retry reached the port but received `ECONNREFUSED`, so
+no captain joined and no gameplay evidence was produced. The failed diagnostic
+transcripts are retained at
+`logs/automated-player-fleet-v10-battle-2026-09-07/` and
+`logs/automated-player-fleet-v10-battle-2026-09-07-escalated/`. The next live
+run should start or expose a reachable host before launching the fleet.
