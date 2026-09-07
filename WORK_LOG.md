@@ -5642,3 +5642,15 @@ transcripts are retained at
 `logs/automated-player-fleet-v10-battle-2026-09-07/` and
 `logs/automated-player-fleet-v10-battle-2026-09-07-escalated/`. The next live
 run should start or expose a reachable host before launching the fleet.
+
+## 2026-09-07 — Captain-v10 180-second ten-ship battle
+
+The disposable Austin launcher successfully created an ephemeral host and ran
+ten captains for 180 seconds with tournament seed 1735. All ten sessions ended
+only at the planned duration: 672 decisions, 487 moves, 91 shots and 41
+torpedo attempts (28 hits, eight misses; remaining outcomes were deflections,
+misfires or other classified results). Fleet-local pursuit produced 228
+decisions. There were no deaths, stalls, reconnects or execution errors. The
+run confirmed one planet capture but no builds or base conversions, so the next
+policy work should improve objective follow-through after capture. Evidence is
+retained at `logs/automated-player-fresh-fleet-v10-battle-2026-09-07/`.
