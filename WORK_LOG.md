@@ -5752,3 +5752,15 @@ passes. A paired two-match, 90-second, ten-ship smoke (seed 1749) split leads
 1–1, but objective averaged 3,379.7 points versus patrol's 2,599.7, confirmed
 one capture and four builds, and had no deaths or execution errors. Evidence is
 at `logs/automated-player-combat-tournament-v15-smoke-2026-09-07/summary.json`.
+
+## 2026-09-07 — v15 four-match validation tournament
+
+Ran four new paired 90-second, ten-ship matchups after giving objective
+captains priority over shared teammate pursuit (base seeds 1750–1751). All
+matches reached their limits with zero execution errors. Objective led three
+matches and patrol one; objective averaged 3,792.4 points versus patrol's
+3,440.8 (average margin +351.6). Objective confirmed three captures and 12
+builds, while patrol confirmed none. Objective had one death and patrol none,
+so the strategic gain is clear in this sample but safety still needs monitoring.
+Evidence is at
+`logs/automated-player-combat-tournament-v15-2026-09-07/summary.json`.
