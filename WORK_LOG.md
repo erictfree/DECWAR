@@ -5729,3 +5729,15 @@ post-change 60-second ten-ship smoke completed 239 decisions and 170 moves with
 32 shots, 13 torpedo attempts (seven hits, two misses), and no deaths, stalls
 or reconnects. Evidence is at
 `logs/automated-player-fresh-fleet-v14-commit-smoke-2026-09-07/`.
+
+## 2026-09-07 — v14 four-match objective versus patrol tournament
+
+Repeated the paired four-match, 90-second, ten-ship tournament after bounding
+objective commitment to 30 seconds (base seeds 1745–1746). All four matches
+reached their time limits with zero execution errors or deaths. Objective and
+patrol split match leads 2–2, but objective averaged 2,566.5 points versus
+patrol's 1,843.9 (average margin +722.5). Objective confirmed one capture and
+four builds; patrol confirmed none. This is stronger evidence that bounded
+planet pursuit improves strategic output, though the sample remains small.
+Evidence is at
+`logs/automated-player-combat-tournament-v14-2026-09-07/summary.json`.
