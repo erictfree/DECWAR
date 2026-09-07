@@ -5812,3 +5812,16 @@ changes. Archive/generated audit, TypeScript checking and the complete root
 test suite passed, including live TELL/RADIO exchange, tractor release,
 PHASERS/TORPEDO combat, SCAN/USERS/LIST, and CAPTURE/BUILD/DOCK/POINTS
 scenarios. No legacy archive or runtime source was changed by the player work.
+
+## 2026-09-07 — v16 weapon-policy tournament
+
+Compared the current conservative torpedo policy against a phaser-only control in
+four paired 90-second, ten-ship Austin tournament matches (base seeds 1756–1757).
+All matches reached their time limits with zero execution errors or deaths. The
+torpedo policy led all four fixed-time score comparisons, averaging 2,984 points
+versus 1,265.8 for phaser-only control (average margin +1,718.3). It made 64
+torpedo attempts with 35 hits, nine misses, eight deflections and 12 novas;
+the phaser control made 59 ship shots. The result supports retaining torpedoes
+as the primary weapon, but this small sample is not a claim of universal parity
+or completed-game victory. Evidence is at
+`logs/automated-player-weapon-tournament-v16-2026-09-07/summary.json`.
