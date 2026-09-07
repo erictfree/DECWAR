@@ -6070,3 +6070,34 @@ passed. The 30-second four-ship CLI smoke reached its duration, recorded
 captains with no errors. Evidence: logs/automated-player-v17-opt-in-live.txt
 and logs/automated-player-v17-opt-in-cli-smoke/. The unguarded default is
 explicitly covered by the final corridor unit test.
+
+## 2026-09-07 — player library initial design review
+
+Reviewed the current external player's client, parsers, captain, play loop,
+supervisor, fleet/reporting seams and repository check configuration. Wrote
+experimental/player-library/DESIGN.md and a status README; these describe a
+proposed library, not delivered exports. The design separates public observations,
+strategy factory instances, ordered dialogue execution, optional tactics and
+recovery. Existing command order, resets, budgets, default strategy settings
+and launchers are migration invariants. A synchronous injected strategy and
+compatibility wrappers provide the first extraction seam.
+
+M0 captures complete pre-migration decision fixtures; M1 injects the strategy
+factory; M2 extracts the library and demonstrates an independently authored
+strategy using public exports. Later gates cover typed actions, replay and
+native adapters. Findings: existing decision records omit parsed SCAN cells;
+fleet-local intel is out-of-band coordination; printable commands can still
+enter continuations; root npm run check excludes experimental files. These
+must be accounted for rather than hidden behind a broad compatibility claim.
+
+Validation: source inventory and document checks saved in
+logs/player-library-design/. Proposed API snippet typechecks against current
+Observation/Decision/Team types (api-typecheck-final.txt). Initial CLI typecheck
+required the TypeScript 7 --ignoreConfig flag when passing an explicit file;
+retained that diagnostic in api-typecheck.txt. The next invocation also needed
+explicit --types node after skipping tsconfig; retained api-typecheck-rerun.txt.
+Archive audit passed (audit.txt).
+No runtime code changed and no gameplay tests were repeated for this design.
+Initial design review is complete. Next model recommendation: Luna medium for
+M0-M2 implementation, Astra medium for the final migration review; source,
+protocol or concurrency ambiguities need focused review before behavior changes.
