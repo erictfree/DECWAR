@@ -9,3 +9,8 @@ The [existing automated player](../automated-player/README.md) remains the
 runnable implementation. Its default captain preserves current behavior while
 accepting independently authored strategies through `PlayerOptions.strategy`.
 The smallest example is `examples/status-strategy.ts`.
+
+Use `commands` for the supported single-line actions and `runPlayer` to reuse
+the Austin Telnet runner while the deeper transport extraction is completed.
+Builders validate coordinates and energy but leave tactical safety decisions to
+the strategy.
