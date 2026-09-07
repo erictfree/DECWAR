@@ -5850,3 +5850,40 @@ stalls, reconnects or execution errors. Final observed score was Empire
 objective behavior; it is endurance evidence, not a completed-game parity
 claim. Evidence is at
 `logs/automated-player-fresh-fleet-v16-endurance-2026-09-07/fleet/summary.json`.
+
+## 2026-09-07 — Specification 1.0 MOVE review draft
+
+Added docs/spec1.0/07-command-semantics.md with Section 7.1 MOVE in the
+agreed language-reference format: displayed forms, syntax, semantics, output,
+and six worked movement examples. Included it in the PDF build and linked it
+from the specification README. Section numbers retain the existing outline;
+lexical/grammar chapters are not claimed complete.
+
+Reviewed the authorized Austin MOVE, LOCATE, CHECK/CHKPNT, output formatting,
+random helpers, and completion calls. Separate provenance is recorded in
+docs/spec1.0/evidence/07-move.md. The entry uses displayed energy/damage units
+and mathematical geometry. C-005 through C-007 record open choices about
+rejected-command side effects, path/towing behavior, and readiness timing.
+Shared completion, player preferences, and randomness still require review;
+the command is explicitly a draft, not a complete conformance contract.
+
+Rebuilt output/pdf/decwar-specification-austin-core.pdf (17 pages; MOVE begins
+on printed page 12). Reviewed the title, contents, ADT/command transition, and
+all new pages as rendered PNGs. Corrected missing operand/arrow glyphs,
+overflowing output/example tables, and the section page break. Initial warning
+logs remain in logs/spec1.0-move; pdf-build-final-layout.log is the clean final
+build and pdf-info-final.log records the artifact. Archive/generated audit
+passed in audit.log; diff-check-final.log passed. This was documentation work;
+no running-game behavior changed or original-executable parity was claimed.
+
+## 2026-09-07 — v16 objective generalization tournament
+
+Ran six paired 90-second, ten-ship Austin tournament matches across three fresh
+seeds (1761–1763), alternating objective and patrol assignments by faction.
+Every match reached its time limit with zero execution errors. Objective and
+patrol each led three matches, but objective averaged 3,300.5 points versus
+patrol's 2,092.6 (average margin +1,208.0), confirmed four captures and 16
+builds, and recorded zero deaths. Patrol confirmed no captures or builds and
+recorded one death. Objective made 58 torpedo attempts with 36 hits; patrol
+made 41 with 25 hits. Evidence is at
+`logs/automated-player-combat-tournament-v16-generalization-2026-09-07/summary.json`.
