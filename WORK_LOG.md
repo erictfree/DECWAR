@@ -5796,3 +5796,13 @@ that exact path safely from a coarse SCAN without reproducing source geometry
 and arithmetic. No speculative star-avoidance rule was added. This remains a
 candidate for Astra-level source-semantic work; ordinary Luna-medium testing
 continues with the verified conservative weapon policy.
+
+## 2026-09-07 — v16 300-second objective confirmation
+
+Ran ten objective-configured captains for 300 seconds on a fresh Austin world
+(seed 1755). The fleet completed 1,115 decisions and 746 moves, with 118 shots
+and 31 torpedo attempts (19 hits, three misses, three deflections and six
+novas). It confirmed six planet captures and 20 builds, with no stalls or
+reconnects. One death occurred in patrol-role Archer; the objective captains
+survived. Evidence is at
+`logs/automated-player-fresh-fleet-v16-long-confirmation-2026-09-07/`.
