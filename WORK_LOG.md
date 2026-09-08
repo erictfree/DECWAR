@@ -6101,3 +6101,24 @@ No runtime code changed and no gameplay tests were repeated for this design.
 Initial design review is complete. Next model recommendation: Luna medium for
 M0-M2 implementation, Astra medium for the final migration review; source,
 protocol or concurrency ambiguities need focused review before behavior changes.
+
+## 2026-09-08 — paired Telnet parity harness
+
+Added experimental/parity: explicit TypeScript/PDP-10 endpoint orchestration,
+operator-declared profile/reference identity, retained wire JSONL and diagnostics,
+stable scenario comparisons, Markdown/JSON reports and distinct match/difference/
+incomplete exit codes. Reuses compare-io, io-scenarios and io-comparison; adds
+per-step elapsed time and expected prompt metadata without changing dialogue.
+Only optional exact leading command echo removal is supported. Worlds, clocks
+and random draws are unaligned; raw values and control characters stay visible.
+
+Four comparator tests and scoped TypeScript checking passed. Dedicated Austin
+server on 2424 completed all 61 mode and 58 dialogue steps with normal cleanup.
+Evidence: logs/parity-harness/{tests-final.txt,typecheck-final.txt,audit-final.txt,
+typescript-modes.jsonl,typescript-dialogs.jsonl,live-smoke/}. Docker daemon is
+unavailable even outside the sandbox. Port 2030 emitted a KL-10 simulator banner
+but no expected TOPS-10 login prompt; native comparison remains unverified.
+The live-smoke report retains this incomplete reference capture. No legacy
+sources, game semantics, existing galaxies or specification files were changed.
+Next: supply a ready reference terminal and verified Docker image/build identity,
+rerun paired suites, then investigate reported differences individually.

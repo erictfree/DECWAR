@@ -24,13 +24,14 @@ try {
   await client.join({ name: 'Iocheck', team: 'FEDERATION', ship: 'YORKTOWN', preserveModes: true });
   joined = true;
   for (const group of selected) for (const step of group.steps) {
+    const started = performance.now();
     pendingPrompt = Boolean(step.prompt);
     const response = step.prompt
       ? await client.exchange(step.command, new RegExp(step.prompt.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '$'))
       : await client.command(step.command);
     const passed = !step.contains || response.includes(step.contains);
     record({ event: 'case', index: ++count, id: step.id, group: group.id, command: step.command,
-      response, expectedText: step.contains, passed });
+      response, expectedText: step.contains, passed, elapsedMs: performance.now() - started, expectedPrompt: step.prompt ?? 'game' });
     if (!passed) throw new Error(`Case ${step.id} did not contain ${JSON.stringify(step.contains)}`);
   }
   record({ event: 'complete', cases: count, fullSuite: count === available,

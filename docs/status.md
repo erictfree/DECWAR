@@ -29,6 +29,12 @@ still live under test/fixtures and remain required runtime files.
 
 ## Experimental automated player
 
+The [paired I/O harness](../experimental/parity/README.md) runs the existing
+mode/dialogue capture suites against explicit TypeScript and PDP-10 endpoints,
+retains raw wire evidence, and reports differences or incomplete captures.
+Its comparison tests are verified; live Docker/PDP-10 completion remains
+unverified. It does not align world state or random draws.
+
 The reusable player-library quickstart is available at
 [`experimental/player-library/QUICKSTART.md`](../experimental/player-library/QUICKSTART.md).
 It documents the current Austin runner facade, public strategy contract,
