@@ -48,6 +48,15 @@ The initial report is retained: reanalysis corrected a harness expectation
 about invalid-coordinate rejection preserving a prior docked flag. Damaged
 device repair, depleted ammunition, towing and broader movement remain unverified.
 
+The capture/construction suite then matched seven observed state contracts:
+BUILD refusal before capture, neutral ownership transfer, builds 1–4 without
+an energy charge, and fifth-build refusal at full friendly base capacity.
+Six responses matched after command-echo removal; capture retained different
+coordinates and defensive damage. Both sessions logged out cleanly. The overall
+report remains incomplete because no new base was created and docking there
+was skipped. Evidence: logs/parity-objectives/live/report.json. This native
+SIMH run does not establish Docker operation or aligned combat parity.
+
 The reusable player-library quickstart is available at
 [`experimental/player-library/QUICKSTART.md`](../experimental/player-library/QUICKSTART.md).
 It documents the current Austin runner facade, public strategy contract,

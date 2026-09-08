@@ -6,6 +6,7 @@ import { parseArgs } from 'node:util';
 import { parityReport } from './report.ts';
 import { ioScenarios } from '../automated-player/io-scenarios.ts';
 import { behaviorReport } from './behavior.ts';
+import { objectiveIds, objectivesReport } from './objectives.ts';
 
 const { values: v } = parseArgs({ options: {
   'typescript-port': { type: 'string' }, 'pdp10-port': { type: 'string' },
@@ -15,24 +16,25 @@ const { values: v } = parseArgs({ options: {
   help: { type: 'boolean' },
 } });
 if (v.help) {
-  console.log('Usage: node experimental/parity/run.ts --typescript-port PORT --pdp10-port PORT --typescript-profile playable|historical-diagnostic --reference-id IMAGE_OR_BUILD_ID [--suite modes|dialogs|behavior] [--limit N|all] [--out NEW_DIRECTORY] [--ignore-command-echo]');
+  console.log('Usage: node experimental/parity/run.ts --typescript-port PORT --pdp10-port PORT --typescript-profile playable|historical-diagnostic --reference-id IMAGE_OR_BUILD_ID [--suite modes|dialogs|behavior|objectives] [--limit N|all] [--out NEW_DIRECTORY] [--ignore-command-echo]');
 } else {
   const port = (s: string | undefined) => { if (!s || !/^\d+$/.test(s) || +s < 1 || +s > 65535) throw new Error('Explicit ports 1..65535 required'); return s; };
   const ts = port(v['typescript-port']), pdp = port(v['pdp10-port']);
   if (ts === pdp) throw new Error('Backends must use different localhost ports');
-  if (v.suite !== 'modes' && v.suite !== 'dialogs' && v.suite !== 'behavior') throw new Error('Unknown suite');
+  if (v.suite !== 'modes' && v.suite !== 'dialogs' && v.suite !== 'behavior' && v.suite !== 'objectives') throw new Error('Unknown suite');
   if (!v['reference-id'] || !['playable', 'historical-diagnostic'].includes(v['typescript-profile'] ?? '')) throw new Error('Reference identity and TypeScript profile required');
   const suite = v.suite;
-  const available = suite === 'behavior' ? 5 : ioScenarios(suite).reduce((n, g) => n + g.steps.length, 0);
+  const available = suite === 'objectives' ? objectiveIds.length : suite === 'behavior' ? 5 : ioScenarios(suite).reduce((n, g) => n + g.steps.length, 0);
   const limit = v.limit === 'all' ? available : Number(v.limit);
   if (!Number.isInteger(limit) || limit < 1 || limit > available) throw new Error('Invalid limit');
   // Validate a complete group before connecting or reserving output.
   if (suite === 'behavior' && limit !== 5) throw new Error('Behavior suite requires all five cases');
-  if (suite !== 'behavior') parityReport([], [], suite, limit);
+  if (suite === 'objectives' && limit !== available) throw new Error('Objectives suite requires all cases');
+  if (suite === 'modes' || suite === 'dialogs') parityReport([], [], suite, limit);
   const out = resolve(v.out ?? `logs/parity-${Date.now()}`);
   mkdirSync(out); // Never overwrite previous evidence.
   writeFileSync(`${out}/manifest.json`, JSON.stringify({ ...v, time: new Date().toISOString(), node: process.version, referenceIdentitySource: 'operator-supplied', stateAligned: false }, null, 2));
-  const script = fileURLToPath(new URL(suite === 'behavior' ? './capture-behavior.ts' : '../automated-player/compare-io.ts', import.meta.url));
+  const script = fileURLToPath(new URL(suite === 'objectives' ? './capture-objectives.ts' : suite === 'behavior' ? './capture-behavior.ts' : '../automated-player/compare-io.ts', import.meta.url));
   const controller = new AbortController();
   const stop = () => controller.abort();
   process.on('SIGINT', stop); process.on('SIGTERM', stop);
@@ -57,7 +59,7 @@ if (v.help) {
   try {
     // Sequential sessions preserve independent dialogue state; no lockstep clocks are implied.
     const left = await capture('typescript', ts), right = await capture('pdp10', pdp);
-    const report = suite === 'behavior' ? behaviorReport(left, right, v['ignore-command-echo']) : parityReport(left, right, suite, limit, v['ignore-command-echo']);
+    const report = suite === 'objectives' ? objectivesReport(left, right, v['ignore-command-echo']) : suite === 'behavior' ? behaviorReport(left, right, v['ignore-command-echo']) : parityReport(left, right, suite, limit, v['ignore-command-echo']);
     writeFileSync(`${out}/report.json`, JSON.stringify(report, null, 2) + '\n');
     const rows = report.comparison?.cases.map(c => `- ${c.id}: ${c.result}${'outputComparison' in c ? `; output: ${c.outputComparison}` : ''}`).join('\n') ?? 'No comparable steps.';
     const errors = Object.entries(report.captures).flatMap(([backend, c]) => c.errors.map(e => `- ${backend}: ${e}`)).join('\n') || 'None.';

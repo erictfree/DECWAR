@@ -98,6 +98,34 @@ Recheck saved behavior captures without connecting to either game:
 node experimental/parity/review-behavior.ts logs/parity-behavior-first/typescript.jsonl logs/parity-behavior-first/pdp10.jsonl logs/parity-behavior-first/reviewed.json --ignore-command-echo
 ```
 
+## Capture and construction
+
+Use `--suite objectives --limit all` with the same endpoints, profile and
+reference identity arguments. It selects a public LIST-reported neutral planet,
+approaches within 60 one-sector moves, and requires fresh neutral SCAN/LIST
+confirmation before acting. This changes ownership and installations in the
+test galaxy; use dedicated games.
+
+```sh
+node experimental/parity/run.ts --typescript-port 2424 --pdp10-port 2030 --typescript-profile playable --reference-id YOUR_IMAGE_OR_BUILD_ID --suite objectives --limit all --out logs/parity-objectives-first --ignore-command-echo
+```
+
+Eight cases cover BUILD before capture, neutral capture, builds 1–4, the fifth
+BUILD, and docking at a newly created base. Austin BUILD (DECWAR.FOR 523–591)
+requires ownership, adds no direct energy charge, and refuses conversion when
+all ten friendly base slots are occupied. Normal fresh galaxies start at that
+capacity. A matched capacity refusal is **not** conversion coverage: docking at
+a new base is then skipped and the overall report remains incomplete. The
+harness does not destroy an existing base to create capacity.
+
+CAPTUR (600–684) changes ownership and resets builds, then calls PHADAM even
+for a neutral planet. The report checks ownership and build progression but
+retains defensive-hit energy/shield differences without asserting equal random
+damage. Raw command responses remain separately compared; differing planet
+coordinates can produce differing capture messages. Points, timing and full
+combat parity are outside this suite. Before/after target rows, base counts,
+scan symbols and ship STATUS are retained for every measured action.
+
 ## September 8, 2026 native checkpoint
 
 The existing native SIMH environment was restarted and exercised through the
@@ -127,6 +155,16 @@ expectation was corrected from the source ordering, then recomputed against
 the original recorded state. `logs/parity-behavior/live/` also preserves the
 first incomplete docking setup. These checks do not establish effective repair
 or torpedo refilling on the undamaged, fully armed ships used in the run.
+
+The objectives run in `logs/parity-objectives/live/` matched all seven measured
+state contracts: pre-capture BUILD refusal, neutral capture, four build
+increments and full-capacity refusal. Six action responses matched after echo
+removal; capture retained differing coordinates and defensive hits (18.7 units
+on TypeScript, 9.3 on native). Both sessions completed cleanup. The report is
+**incomplete** because conversion and docking at a new base were unavailable
+with ten friendly bases. Neither successful conversion nor new-base docking is
+claimed from that refusal. Fifteen harness tests, scoped TypeScript checking
+and the source audit passed at this checkpoint.
 
 ```sh
 node --test experimental/parity/test/*.test.ts
