@@ -70,6 +70,15 @@ This verifies initial boards for those cases, not all state fields or later
 random streams. Native snapshot collection still includes a manual debugger
 step; Docker remains unverified.
 
+From fresh seed-1729 starts, a ten-command movement/docking/shield sequence
+matched all source state checks and all action, STATUS, DAMAGES and SCAN
+responses after command-echo removal. A separate single-torpedo star shot also
+matched: both engines produced a nova at 11–1, removed the star and consumed
+one torpedo with identical subsequent reports. Evidence:
+logs/parity-sequence/report.json and shot-report.json. These exercise one
+random-dependent outcome; ship combat and future random-stream alignment
+remain unverified.
+
 The reusable player-library quickstart is available at
 [`experimental/player-library/QUICKSTART.md`](../experimental/player-library/QUICKSTART.md).
 It documents the current Austin runner facade, public strategy contract,

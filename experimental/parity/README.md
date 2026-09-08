@@ -169,6 +169,31 @@ test. See [board snapshot procedure](BOARD-SNAPSHOTS.md).
 
 ### Other paired suites
 
+The seeded action runner uses a fresh seed-1729 galaxy on each backend:
+
+```sh
+node experimental/parity/capture-sequence.ts typescript 2424 logs/sequence-ts.jsonl
+node experimental/parity/capture-sequence.ts pdp10 2031 logs/sequence-native.jsonl
+node experimental/parity/review-sequence.ts logs/sequence-ts.jsonl logs/sequence-native.jsonl > logs/sequence-report.json
+```
+
+The default ten commands cover warp/impulse movement, docking, shield lowering
+and raising, two-way energy transfer, and invalid-coordinate rejection.
+Capture checks source-derived resource expectations and stops on failure.
+Review compares every action response and subsequent STATUS, DAMAGES and SCAN,
+removing only command echo. Stardate differences remain visible. The September
+8 run matched all ten steps, all initial reports and all forty post-action
+responses, with clean logout on both engines (`logs/parity-sequence/report.json`).
+
+On fresh hosts, append `star-shot` to each capture command to select a single
+torpedo at the seed-1729 star at 11–1. The runner verifies that star first and
+requires ammunition to fall from ten to nine. The star's random outcome is
+compared without prescribing it. This does not cover ship-versus-ship combat.
+The September 8 paired shot produced `Star @11-1 novas` on both engines,
+changed that scan cell to empty, consumed one torpedo and matched all resulting
+reports after echo removal (`logs/parity-sequence/shot-report.json`). This is
+one matching random-dependent event, not general random-stream equivalence.
+
 The existing native SIMH environment was restarted and exercised through the
 same PDP-10 adapter. Both full suites completed, including login and logout:
 
