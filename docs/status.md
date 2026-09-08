@@ -62,7 +62,13 @@ black holes disabled. Two fresh starts per engine matched Yorktown's initial
 7–2 position, all ten friendly-base coordinates and 204 local scan cells.
 Evidence: logs/parity-seed/report.json. This establishes repeatable matching
 public observations for that seed, not full-galaxy equality or later random
-stream alignment.
+stream alignment. A subsequent complete-board comparison matched all 1,875
+packed words (5,625 cells, including object indices) for seeds 1729, 42 and
+8675309 with the same options. The native debugger snapshots reproduced the
+recorded public scans. Evidence: logs/parity-full-map/report-{1729,42,8675309}.json.
+This verifies initial boards for those cases, not all state fields or later
+random streams. Native snapshot collection still includes a manual debugger
+step; Docker remains unverified.
 
 The reusable player-library quickstart is available at
 [`experimental/player-library/QUICKSTART.md`](../experimental/player-library/QUICKSTART.md).

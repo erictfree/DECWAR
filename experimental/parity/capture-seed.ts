@@ -1,10 +1,10 @@
-import { appendFileSync, writeFileSync } from 'node:fs';
+import { appendFileSync, existsSync, writeFileSync } from 'node:fs';
 import { PlayerClient } from '../automated-player/client.ts';
 import { parseScan, parseStatus } from '../automated-player/observations.ts';
 
 // Austin SETUP.FOR:169–193: a tournament seed applies only on world creation.
 // Capture initial public observations without movement or weapons.
-const [backend, port, seed, output] = process.argv.slice(2);
+const [backend, port, seed, output, snapshotGate] = process.argv.slice(2);
 if (!['typescript', 'pdp10'].includes(backend) || !/^\d+$/.test(port) || +port < 1 || +port > 65535 || !/^\d+$/.test(seed) || !Number.isSafeInteger(+seed) || +seed < 1 || !output) throw new Error('Usage: capture-seed.ts typescript|pdp10 PORT NONZERO_SEED NEW_OUTPUT');
 writeFileSync(output, '', { flag: 'wx' });
 let seeded = false, joined = false;
@@ -25,6 +25,14 @@ try {
   const position = parseStatus(statusText).position;
   const cells = parseScan(scanText).cells.map(({ v, h, symbol }) => ({ v, h, symbol }));
   record({ event: 'seed-observation', position, cells, bases, statusText, scanText });
+  if (snapshotGate) {
+    writeFileSync(snapshotGate + '.ready', '', { flag: 'wx' });
+    const deadline = Date.now() + 300000;
+    while (!existsSync(snapshotGate + '.release')) {
+      if (Date.now() > deadline) throw new Error('Snapshot gate timed out');
+      await new Promise(resolve => setTimeout(resolve, 250));
+    }
+  }
   record({ event: 'complete' });
 } catch (error) { record({ event: 'failed', error: String(error) }); process.exitCode = 1; }
 finally {

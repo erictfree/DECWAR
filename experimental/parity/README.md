@@ -152,6 +152,21 @@ selection and complete cleanup. Seed zero is excluded because the source uses
 the clock for zero. Tournament selection applies only when creating a galaxy
 (Austin SETUP.FOR:169–193); later arrivals inherit the existing galaxy.
 
+### Complete initial boards
+
+A subsequent read-only snapshot comparison matched every packed board word for
+seeds **1729, 42 and 8675309**: 1,875 words / 5,625 cells per seed, including
+object indices and the starting Yorktown. Romulans and black holes were off.
+The native snapshots were decoded through the stopped job's page tables and
+cross-checked against its Telnet scan. All sessions completed cleanup.
+Evidence: `logs/parity-full-map/report-{1729,42,8675309}.json`.
+
+This establishes complete initial **board** equality for those three seeds and
+options. It does not establish equality of every state field, other seeds,
+later random streams or battles. The native capture currently requires a
+manual debugger step on an isolated SIMH copy; it is not an automated Docker
+test. See [board snapshot procedure](BOARD-SNAPSHOTS.md).
+
 ### Other paired suites
 
 The existing native SIMH environment was restarted and exercised through the
