@@ -38,6 +38,16 @@ with successful login and logout on both backends: 93 command-echo-only matches,
 on blank replies. Those differences remain in the reports. Docker deployment
 remains unverified. The harness does not align world state or random draws.
 
+The September 8 behavior suite also exercised invalid-coordinate and
+impulse-range rejection, one-sector warp/impulse, and docking after independent
+base approaches. All five source-relative state contracts and action responses
+matched after command-echo removal. Both engines consumed eight displayed
+energy units with shields raised; docking restored both ships to 5,000.
+Evidence: logs/parity-behavior/retry/reviewed.json (source-contracts-v2).
+The initial report is retained: reanalysis corrected a harness expectation
+about invalid-coordinate rejection preserving a prior docked flag. Damaged
+device repair, depleted ammunition, towing and broader movement remain unverified.
+
 The reusable player-library quickstart is available at
 [`experimental/player-library/QUICKSTART.md`](../experimental/player-library/QUICKSTART.md).
 It documents the current Austin runner facade, public strategy contract,

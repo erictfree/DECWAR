@@ -386,6 +386,13 @@ Evidence is in logs/parity-reference-startup/paired-dialogs/. The reference
 is the preserved Austin reconstruction running under SIMH; Docker deployment
 has not been verified.
 
+The paired harness also supports `--suite behavior`: invalid-coordinate and
+impulse-range rejection, one-sector warp/impulse, and a bounded approach to a
+single friendly base for docking. It retains command responses and before/after
+state, recomputes source-contract checks, and reports unavailable setup as
+incomplete. See the [behavior guide](../parity/README.md#movement-and-docking)
+for scope, source references and offline reanalysis.
+
 Fleet report schema 2 separates `retrySchedules` (backoff scheduled),
 `retryAttempts` (a subsequent connection attempt started), and `reconnects`
 (successfully joined again after an earlier connection). Reports without a

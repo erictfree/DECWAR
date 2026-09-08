@@ -52,6 +52,52 @@ This first harness tests selected I/O behavior. It does not synchronize game
 clocks or random draws, prove combat parity, or infer a tournament win rate.
 The preserved Austin binary is a reconstruction build, not a recovered original.
 
+## Movement and docking
+
+Select `--suite behavior` to run all five state-relative cases:
+
+```sh
+node experimental/parity/run.ts --typescript-port 2424 --pdp10-port 2030 --typescript-profile playable --reference-id YOUR_IMAGE_OR_BUILD_ID --suite behavior --out logs/parity-behavior-first --ignore-command-echo
+```
+
+The suite rejects absolute coordinates 0,0 and a two-sector impulse request,
+then attempts a freshly scanned clear cardinal step with each engine. Rejected
+actions must preserve location and supplies; successful one-sector movement
+must reach the selected sector and consume 4 displayed energy units, or 8 with
+shields raised. These expectations come from Austin DECWAR.FOR MOVE/IMPULS
+2141–2254 and its displayed-unit scaling. No random stream is synchronized.
+Invalid coordinates preserve the prior docking flag because they return before
+MOVE label 700. Excessive impulse distance is rejected after that label clears
+the flag. These are distinct rejection paths, not one generic no-effect rule.
+
+Docking makes at most 80 one-sector approach moves toward a BASES-reported
+friendly base, using the existing public-observation navigator. The measured
+DOCK requires exactly one freshly scanned adjacent friendly base and no
+adjacent friendly planet. Expectations follow DOCK 893–938, including resource
+caps and the additional hull repair when already docked. Approaches require a
+healthy ship, adequate energy, no reported mobile targets, positions outside
+observed installation defense ranges and a fresh empty next cell.
+Unavailable setup is a skip and makes the report incomplete. This suite moves
+ships and consumes energy; use dedicated test games and allow several minutes.
+
+Every measured action records before/after STATUS, response and named checks;
+observations and approach actions are retained separately. State contracts and
+response comparisons have separate results: matching failures never count as
+parity. Different coordinates are chosen on each map, so commands need not be
+identical. Elapsed time/stardates are retained but not equalized. Fully stocked
+ships cannot demonstrate effective torpedo refilling or damaged-device repair;
+the report explicitly limits those claims. External players can invalidate the
+observed preconditions after a scan; a failure remains evidence for review.
+The report recomputes checks from recorded state and command text; recorded
+capture-time booleans are evidence, not trusted verdicts. The evaluator version
+is included so a corrected test expectation can be audited through reanalysis.
+
+Recheck saved behavior captures without connecting to either game:
+
+```sh
+node experimental/parity/review-behavior.ts logs/parity-behavior-first/typescript.jsonl logs/parity-behavior-first/pdp10.jsonl logs/parity-behavior-first/reviewed.json --ignore-command-echo
+```
+
 ## September 8, 2026 native checkpoint
 
 The existing native SIMH environment was restarted and exercised through the
@@ -69,6 +115,18 @@ comparison deliberately removes only nonempty echoed commands. Their raw byte
 differences remain review items. No game implementation was changed to make
 these captures match. These runs establish selected native I/O coverage;
 Docker packaging, aligned world behavior and combat remain separate work.
+
+The subsequent five-case behavior run passed all state contracts and action
+response comparisons after the explicit echo adjustment. Both one-sector
+engine actions consumed eight energy units with shields up. Docking restored
+TypeScript energy from 4,776 to 5,000 and native energy from 4,824 to 5,000.
+Both sessions completed cleanup. The authoritative reanalysis is
+`logs/parity-behavior/retry/reviewed.json`, using `source-contracts-v2`.
+The earlier report and capture booleans remain: an invalid-coordinate docking
+expectation was corrected from the source ordering, then recomputed against
+the original recorded state. `logs/parity-behavior/live/` also preserves the
+first incomplete docking setup. These checks do not establish effective repair
+or torpedo refilling on the undamaged, fully armed ships used in the run.
 
 ```sh
 node --test experimental/parity/test/*.test.ts
