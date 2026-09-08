@@ -32,8 +32,11 @@ still live under test/fixtures and remain required runtime files.
 The [paired I/O harness](../experimental/parity/README.md) runs the existing
 mode/dialogue capture suites against explicit TypeScript and PDP-10 endpoints,
 retains raw wire evidence, and reports differences or incomplete captures.
-Its comparison tests are verified; live Docker/PDP-10 completion remains
-unverified. It does not align world state or random draws.
+September 8 native SIMH comparison completed 61 mode and 58 dialogue steps,
+with successful login and logout on both backends: 93 command-echo-only matches,
+20 world-dependent STATUS/SCAN differences and six leading-CRLF differences
+on blank replies. Those differences remain in the reports. Docker deployment
+remains unverified. The harness does not align world state or random draws.
 
 The reusable player-library quickstart is available at
 [`experimental/player-library/QUICKSTART.md`](../experimental/player-library/QUICKSTART.md).

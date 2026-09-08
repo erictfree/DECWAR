@@ -52,6 +52,24 @@ This first harness tests selected I/O behavior. It does not synchronize game
 clocks or random draws, prove combat parity, or infer a tournament win rate.
 The preserved Austin binary is a reconstruction build, not a recovered original.
 
+## September 8, 2026 native checkpoint
+
+The existing native SIMH environment was restarted and exercised through the
+same PDP-10 adapter. Both full suites completed, including login and logout:
+
+| Suite | Steps | Matches after command echo removal | Retained differences |
+| --- | ---: | ---: | --- |
+| Modes | 61 | 41 | 10 STATUS locations and 10 unaligned SCANs |
+| Dialogues | 58 | 52 | Six blank replies with an extra native leading CRLF |
+
+The four-step smoke report and full reports are in
+`logs/parity-reference-startup/{paired-four,paired-modes,paired-dialogs}/`.
+The six blank replies are consistent with terminal Enter echo, but the current
+comparison deliberately removes only nonempty echoed commands. Their raw byte
+differences remain review items. No game implementation was changed to make
+these captures match. These runs establish selected native I/O coverage;
+Docker packaging, aligned world behavior and combat remain separate work.
+
 ```sh
 node --test experimental/parity/test/*.test.ts
 ```

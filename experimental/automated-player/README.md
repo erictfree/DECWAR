@@ -371,14 +371,20 @@ The PDP-10 adapter expects the supplied TOPS-10 DECWAR account and executable;
 it does not launch Docker or provision disks. It rejects an already logged-in
 terminal before sending commands. After a successful game session it sends
 QUIT/YES followed by K/F to log out only the account it established. This cleanup
-is source-transcript-backed and tested with a simulated terminal; live native
-logout through this updated path remains unverified. A failed login or broken
+is source-transcript-backed and verified in the September 8 native comparison.
+A failed login or broken
 connection may still require preparing a clean terminal before retrying.
 
-September 7 checkpoint: logs/automated-player-io-v2 contains successful 61-step
-mode and 58-step dialogue TypeScript captures. Reanalysis of the earlier four
-native cases identifies three echo-only matches and one coordinate difference,
-with 57 missing reference cases. No new native mode coverage is claimed.
+The [paired harness](../parity/README.md) automates both captures and reports
+failed/incomplete sessions separately from output differences. September 8
+native SIMH mode coverage completed all 61 paired steps: 41 echo-only matches,
+10 STATUS location differences and 10 SCAN differences in unaligned worlds.
+Evidence is in logs/parity-reference-startup/paired-modes/. The native reference
+also completed all 58 dialogue steps: 52 echo-only matches and six blank replies
+with an extra leading CRLF, retained as differences rather than stripped.
+Evidence is in logs/parity-reference-startup/paired-dialogs/. The reference
+is the preserved Austin reconstruction running under SIMH; Docker deployment
+has not been verified.
 
 Fleet report schema 2 separates `retrySchedules` (backoff scheduled),
 `retryAttempts` (a subsequent connection attempt started), and `reconnects`

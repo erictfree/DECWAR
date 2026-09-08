@@ -6122,3 +6122,13 @@ The live-smoke report retains this incomplete reference capture. No legacy
 sources, game semantics, existing galaxies or specification files were changed.
 Next: supply a ready reference terminal and verified Docker image/build identity,
 rerun paired suites, then investigate reported differences individually.
+
+## 2026-09-08 — reference terminal startup diagnosis
+
+Identified port 2030 as native SIMH PID 42474 in /private/tmp/decwar-austin-reference/docker; Docker daemon remains unavailable. Boot log shows successful TOPS-10 initialization. Two bounded terminal activation probes, including the existing Telnet negotiation codec and a blank line after the simulator banner, produced no login prompt; the latter returned only CRLF. Evidence: logs/parity-reference-startup/probe.jsonl and negotiated-probe.jsonl. The original console tool session is no longer accessible. No emulator restart or game commands were issued. Restart requires considering existing native game state under the preservation instruction.
+
+## 2026-09-08 — complete native I/O comparison
+
+User authorized restarting the native emulator and resolving startup. SIGTERM did not stop PID42474; initial duplicate boot hit port2030 conflict and was stopped at the simulator console, then quit. Force-stopped the old emulator and booted one instance with the existing configuration. TOPS-10 login and reference logout now work. Temporary disk state was restarted; preserved legacy artifacts were unchanged. Native SIMH is running on2030, not Docker.
+
+Four-step paired smoke: three echo-only matches and one STATUS location difference. Complete modes:61 steps,41 echo-only matches,10 STATUS location differences and10 SCAN differences. Complete dialogues:58 steps,52 echo-only matches and six blank replies with one extra native leading CRLF. Both backends completed login and logout without capture/cleanup errors. No new normalization or gameplay changes. Logs and summary: logs/parity-reference-startup/, including native-console.log, environment.json and paired-{four,modes,dialogs}/report.json. The CRLF difference is consistent with Enter echo, not yet a proven equivalence rule. Updated current documentation; Docker deployment and aligned movement/combat remain unverified.
