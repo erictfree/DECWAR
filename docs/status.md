@@ -57,6 +57,13 @@ report remains incomplete because no new base was created and docking there
 was skipped. Evidence: logs/parity-objectives/live/report.json. This native
 SIMH run does not establish Docker operation or aligned combat parity.
 
+A subsequent seeded-start check used tournament ID 1729 with Romulans and
+black holes disabled. Two fresh starts per engine matched Yorktown's initial
+7–2 position, all ten friendly-base coordinates and 204 local scan cells.
+Evidence: logs/parity-seed/report.json. This establishes repeatable matching
+public observations for that seed, not full-galaxy equality or later random
+stream alignment.
+
 The reusable player-library quickstart is available at
 [`experimental/player-library/QUICKSTART.md`](../experimental/player-library/QUICKSTART.md).
 It documents the current Austin runner facade, public strategy contract,

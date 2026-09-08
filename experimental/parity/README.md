@@ -128,6 +128,32 @@ scan symbols and ship STATUS are retained for every measured action.
 
 ## September 8, 2026 native checkpoint
 
+### Tournament seed repeatability
+
+Seed 1729, Romulans off and black holes off, was exercised on two fresh
+TypeScript hosts and two independently booted native SIMH copies. All four
+starts matched: Yorktown at 7–2, ten friendly-base coordinates and all 204
+initial scan cells. Every capture selected TOURNAMENT explicitly and completed
+logout. Evidence: `logs/parity-seed/report.json` and the four raw captures.
+This is matching initial **public observations**, not full-galaxy equality.
+Other cells, seeds, later random draws and combat remain unverified.
+
+Use a fresh, isolated host for each capture; an inherited world is rejected:
+
+```sh
+node experimental/parity/capture-seed.ts typescript 2424 1729 logs/seed-ts-first.jsonl
+node experimental/parity/capture-seed.ts pdp10 2031 1729 logs/seed-pdp-first.jsonl
+# Repeat on fresh hosts, then compare the four capture paths:
+node experimental/parity/review-seed.ts logs/seed-ts-first.jsonl logs/seed-ts-repeat.jsonl logs/seed-pdp-first.jsonl logs/seed-pdp-repeat.jsonl > logs/seed-report.json
+```
+
+The reviewer reparses raw STATUS, BASES and SCAN responses and requires seed
+selection and complete cleanup. Seed zero is excluded because the source uses
+the clock for zero. Tournament selection applies only when creating a galaxy
+(Austin SETUP.FOR:169–193); later arrivals inherit the existing galaxy.
+
+### Other paired suites
+
 The existing native SIMH environment was restarted and exercised through the
 same PDP-10 adapter. Both full suites completed, including login and logout:
 
