@@ -57,6 +57,18 @@ report remains incomplete because no new base was created and docking there
 was skipped. Evidence: logs/parity-objectives/live/report.json. This native
 SIMH run does not establish Docker operation or aligned combat parity.
 
+A subsequent base-replacement fixture closed the successful-conversion gap.
+Both engines destroyed an Empire base with ten matching phaser responses,
+captured a neutral planet, completed all five builds and docked at the new
+base. All eight source-relative contracts passed, including base count
+10→9→10, removal of the planet row, and energy restoration to 5,000.
+Sixteen of seventeen measured action responses matched after echo removal.
+Capture retained a defensive-hit difference (TypeScript 5.1, native 5.0);
+builder random streams were not aligned. The report remains `differences`,
+with no missing stages or cleanup errors. Evidence:
+logs/parity-installations/report.json. Other planets, base layouts, effective
+device repair and depleted-ammunition refill remain separate coverage.
+
 A subsequent seeded-start check used tournament ID 1729 with Romulans and
 black holes disabled. Two fresh starts per engine matched Yorktown's initial
 7–2 position, all ten friendly-base coordinates and 204 local scan cells.

@@ -4,10 +4,11 @@ import { PlayerClient, ReentryRequired } from '../automated-player/client.ts';
 import { distance, parseDevices, parseScan, parseStatus, type Position } from '../automated-player/observations.ts';
 import { ObservedMap } from '../automated-player/navigation.ts';
 import { duelRoute } from './duel-route.ts';
+import { captureInstallations } from './installations.ts';
 
 const [backend, port, output, mode = 'two-shots', gate] = process.argv.slice(2);
-if (!['two-shots', 'destruction'].includes(mode)) throw new Error('Unknown duel mode');
-if (!['typescript', 'pdp10'].includes(backend) || !/^\d+$/.test(port) || +port < 1 || +port > 65535 || !output) throw new Error('Usage: capture-duel.ts typescript|pdp10 PORT NEW_OUTPUT [two-shots|destruction] [GATE_PREFIX]');
+if (!['two-shots', 'destruction', 'installations'].includes(mode)) throw new Error('Unknown duel mode');
+if (!['typescript', 'pdp10'].includes(backend) || !/^\d+$/.test(port) || +port < 1 || +port > 65535 || !output) throw new Error('Usage: capture-duel.ts typescript|pdp10 PORT NEW_OUTPUT [two-shots|destruction|installations] [GATE_PREFIX]');
 writeFileSync(output, '', { flag: 'wx' });
 const record = (e: Record<string, unknown>) => appendFileSync(output, JSON.stringify({ time: new Date().toISOString(), ...e }) + '\n');
 record({ event: 'configuration', backend, scenario: 'seeded-duel-v1', setupPolicy: 'even-target-turns-v1', mode, destructionPolicy: mode === 'destruction' ? 'stationary-unshielded-phasers-v1' : undefined, seed: 1729, romulan: false, blackHoles: false });
@@ -76,6 +77,9 @@ try {
   const before = { attacker: await combatState(attacker), target: await combatState(target) };
   if (before.attacker.status.position.v !== 10 || before.attacker.status.position.h !== 9 || before.attacker.status.energy !== 4920 || before.target.status.position.v !== 10 || before.target.status.position.h !== 10 || before.target.status.energy !== 4968 || before.target.status.shieldPercent !== 100 || before.target.status.hullDamage !== 0) throw new Error('Aligned firing fixture not reached');
   record({ event: 'combat-ready', ...before });
+  if (mode === 'installations') {
+    await captureInstallations(attacker, target, record);
+  } else {
   for (const command of ['PHASERS ABSOLUTE 180 10 10', 'TORPEDOES ABSOLUTE 1 10 10']) {
     if (gate && command.startsWith('TORPEDOES')) {
       writeFileSync(gate + '.ready', '', { flag: 'wx' });
@@ -118,7 +122,8 @@ try {
     }
     if (!destroyed) throw new Error('Target survived bounded destruction shots');
   }
-  record({ event: 'complete', steps: 2 });
+  }
+  record({ event: 'complete', ...(mode === 'installations' ? { scenario: 'installations' } : { steps: 2 }) });
 } catch (error) { record({ event: 'failed', error: error instanceof ReentryRequired ? 'Ship died during bounded two-shot test; inspect raw death evidence' : String(error) }); process.exitCode = 1; }
 finally {
   for (const { role, client, joined } of [...clients].reverse()) {

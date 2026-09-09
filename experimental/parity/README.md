@@ -128,6 +128,39 @@ scan symbols and ship STATUS are retained for every measured action.
 
 ## September 8, 2026 native checkpoint
 
+### Base destruction and replacement fixture
+
+The `installations` duel mode uses two ships in a fresh seed-1729 test galaxy.
+After the shared activity phase is aligned, Yorktown attacks the Empire base
+at 15–10 from outside its defense radius. Wolf then captures the neutral planet
+at 19–14, builds it five times and docks at the replacement base. This destroys
+an installation in the test world; use isolated hosts with no other players.
+
+```sh
+node experimental/parity/capture-duel.ts typescript 2424 logs/installations-ts.jsonl installations
+node experimental/parity/capture-duel.ts pdp10 2031 logs/installations-native.jsonl installations
+node experimental/parity/review-installations.ts logs/installations-ts.jsonl logs/installations-native.jsonl > logs/installations-report.json
+```
+
+The siege is bounded by 25 shots and resource/health guards. A missing base,
+unsafe approach or failed capture stops the run. The reviewer requires the
+old base to disappear, nine remaining friendly bases before construction,
+five build transitions, removal of the planet row, ten bases including the new
+location, and energy replenishment while docked beside that single friendly
+asset. It compares weapon and construction responses separately from these
+state contracts. Builder private random streams and setup stardates remain
+unaligned, so this does not imply identical capture damage or full world state.
+
+The September 8 paired run completed all eight contracts with clean logout.
+Both bases fell on the tenth shot; all ten siege responses, five BUILD
+responses and DOCK matched after echo removal. The fifth build changed the
+friendly-base count from nine to ten and removed the planet row. Docking
+restored energy from 4,898.8 (TypeScript) and 4,898.9 (native) to 5,000.
+Capture's defensive hit differed: 5.1 versus 5.0. The completed report is
+`differences`, preserving that unequal random result rather than claiming a
+full match. Evidence: `logs/parity-installations/report.json` and paired JSONL
+captures. This uses native SIMH; Docker remains unverified.
+
 ### Tournament seed repeatability
 
 Seed 1729, Romulans off and black holes off, was exercised on two fresh
