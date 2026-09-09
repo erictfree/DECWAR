@@ -1,15 +1,16 @@
-import { appendFileSync, writeFileSync } from 'node:fs';
+import { appendFileSync, writeFileSync, existsSync } from 'node:fs';
+import { setTimeout as delay } from 'node:timers/promises';
 import { PlayerClient, ReentryRequired } from '../automated-player/client.ts';
 import { distance, parseDevices, parseScan, parseStatus, type Position } from '../automated-player/observations.ts';
 import { ObservedMap } from '../automated-player/navigation.ts';
 import { duelRoute } from './duel-route.ts';
 
-const [backend, port, output, mode = 'two-shots'] = process.argv.slice(2);
+const [backend, port, output, mode = 'two-shots', gate] = process.argv.slice(2);
 if (!['two-shots', 'destruction'].includes(mode)) throw new Error('Unknown duel mode');
-if (!['typescript', 'pdp10'].includes(backend) || !/^\d+$/.test(port) || +port < 1 || +port > 65535 || !output) throw new Error('Usage: capture-duel.ts typescript|pdp10 PORT NEW_OUTPUT');
+if (!['typescript', 'pdp10'].includes(backend) || !/^\d+$/.test(port) || +port < 1 || +port > 65535 || !output) throw new Error('Usage: capture-duel.ts typescript|pdp10 PORT NEW_OUTPUT [two-shots|destruction] [GATE_PREFIX]');
 writeFileSync(output, '', { flag: 'wx' });
 const record = (e: Record<string, unknown>) => appendFileSync(output, JSON.stringify({ time: new Date().toISOString(), ...e }) + '\n');
-record({ event: 'configuration', backend, scenario: 'seeded-duel-v1', mode, destructionPolicy: mode === 'destruction' ? 'stationary-unshielded-phasers-v1' : undefined, seed: 1729, romulan: false, blackHoles: false });
+record({ event: 'configuration', backend, scenario: 'seeded-duel-v1', setupPolicy: 'even-target-turns-v1', mode, destructionPolicy: mode === 'destruction' ? 'stationary-unshielded-phasers-v1' : undefined, seed: 1729, romulan: false, blackHoles: false });
 const clients: { role: string; client: PlayerClient; joined: boolean }[] = [];
 async function join(role: string, team: 'FEDERATION' | 'EMPIRE', ship: string) {
   const client = new PlayerClient({ host: '127.0.0.1', port: +port, timeoutMs: 120000, settleMs: 150, recordWire: true, record: e => record({ ...e, role }) });
@@ -33,7 +34,7 @@ try {
   record({ event: 'attacker-initial', ...a });
   const target = await join('target', 'EMPIRE', 'WOLF');
   const map = new ObservedMap(), goal = { v: 14, h: 10 };
-  let arrived = false, previous: Position | undefined;
+  let arrived = false, previous: Position | undefined, setupTurns = 0;
   for (let step = 0; step < 70; step++) {
     const o = await sample(target), now = Date.now(), p = o.status.position;
     record({ event: 'target-approach', step, ...o }); map.ingest(o.scan, p);
@@ -44,6 +45,7 @@ try {
     if (!next) throw new Error('No safe public-observation route to fixture base');
     previous = p;
     record({ event: 'target-move', command: `MOVE ABSOLUTE ${next.v} ${next.h}`, response: await target.command(`MOVE ABSOLUTE ${next.v} ${next.h}`) });
+    setupTurns++;
   }
   if (!arrived) throw new Error('Target approach budget exhausted');
   const portView = await sample(target);
@@ -53,9 +55,20 @@ try {
   for (let attempt = 0; attempt < 5; attempt++) {
     const response = await target.command('DOCK'), statusText = await target.command('STATUS');
     record({ event: 'target-dock', attempt, response, statusText });
+    setupTurns++;
     if (parseStatus(statusText).energy === 5000) break;
   }
+  // Austin main:223–239: shared DOTIME invokes defenses every NUMPLY
+  // completed actions. Two players require even setup turns before the fixed
+  // approaches. A full-supply DOCK advances the counter without changing ship
+  // supplies. Do this before the same complete restoration checks below.
+  if (setupTurns % 2) {
+    record({ event: 'target-phase-dock', response: await target.command('DOCK') });
+    setupTurns++;
+  }
+  record({ event: 'setup-phase', setupTurns, players: 2 });
   const restored = await combatState(target);
+  if (restored.status.stardate !== setupTurns) throw new Error('Target setup action count differs from public stardate');
   if (!restored.status.docked || restored.status.energy !== 5000 || restored.status.hullDamage !== 0 || restored.status.shieldPercent !== 100 || restored.status.torpedoes !== 10 || Object.values(parseDevices(restored.damages)).some(v => v !== 0)) throw new Error('Target not fully restored');
   record({ event: 'target-restored', ...restored });
   for (const v of [13, 12, 11, 10]) await target.command(`MOVE ABSOLUTE ${v} 10`);
@@ -64,6 +77,15 @@ try {
   if (before.attacker.status.position.v !== 10 || before.attacker.status.position.h !== 9 || before.attacker.status.energy !== 4920 || before.target.status.position.v !== 10 || before.target.status.position.h !== 10 || before.target.status.energy !== 4968 || before.target.status.shieldPercent !== 100 || before.target.status.hullDamage !== 0) throw new Error('Aligned firing fixture not reached');
   record({ event: 'combat-ready', ...before });
   for (const command of ['PHASERS ABSOLUTE 180 10 10', 'TORPEDOES ABSOLUTE 1 10 10']) {
+    if (gate && command.startsWith('TORPEDOES')) {
+      writeFileSync(gate + '.ready', '', { flag: 'wx' });
+      record({ event: 'torpedo-gate', gate });
+      const deadline = Date.now() + 300000;
+      while (!existsSync(gate + '.release')) {
+        if (Date.now() >= deadline) throw new Error('Torpedo debugger gate timed out');
+        await delay(100);
+      }
+    }
     const response = await attacker.command(command);
     const after = { attacker: await combatState(attacker), target: await combatState(target) };
     record({ event: 'combat-step', command, response, ...after });

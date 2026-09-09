@@ -200,6 +200,9 @@ Start fresh, isolated hosts for each capture. This fixture selects tournament
 1729 with Romulans and black holes disabled, joins Yorktown and Wolf, and moves
 Wolf to a friendly base using public observations. Repeated docking restores
 its supplies before both ships take fixed approaches to adjacent firing cells.
+An extra full-supply DOCK, when needed, makes the target's setup action count
+even. This aligns the shared activity counter for two players: otherwise a
+planet pass can consume twenty random draws between the measured weapons.
 The target is passive. Native setup can take several minutes.
 
 ```sh
@@ -234,6 +237,35 @@ differ, so the report is `differences`, not a parity pass
 (`logs/parity-duel/stationary-retry/report.json`). One earlier TypeScript
 attempt stalled after docking; its timeout evidence is retained separately.
 These runs used native SIMH; Docker remains unverified.
+
+The torpedo difference was traced to setup action parity. Austin's shared
+`DOTIME` counter runs defenses every `NUMPLY` completed actions
+(DECWAR.FOR:223–239). Unequal travel/docking counts left the two worlds on
+opposite phases. Native consumed twenty PLNATK draws after the first phaser;
+TypeScript did not. Both used identical phaser inputs. Replaying the observed
+torpedo inputs through the existing arithmetic reproduces 103.8 and 94.9.
+Evidence: `logs/parity-torpedo-trace/random-window-report.json`. This explains
+that mismatch without changing game logic; it does not establish general
+combat parity. Current captures record `even-target-turns-v1`, and review
+rejects mismatched setup policies or invalid phase records.
+
+The aligned rerun matched all seven weapon responses, canonical ship/device
+states and total scores, including destruction after five follow-up phaser
+shots. Both attackers finished with energy 2,640 and score 3,551.9; both targets
+were removed from USERS, with clean cleanup on each backend. The native setup
+exercised the extra docking action. Final evidence:
+`logs/parity-torpedo-trace/aligned/report.json`. Setup stardates still differ
+and remain visible in raw comparisons; this is selected encounter coverage.
+
+For an isolated diagnostic run, `trace-random-host.ts PORT NEW_TRACE` starts
+an in-memory Austin host and records existing random calls without replacing
+their results. Run `capture-duel.ts` against it as usual. The optional final
+capture argument is a debugger gate prefix: after the phaser, `.ready` is
+created and the runner waits up to five minutes for `.release` before firing
+the torpedo. Preserve the raw capture and debugger log. The narrowly scoped
+`review-random-window.ts TS_RANDOM TS_CAPTURE NATIVE_DEBUGGER` checks the
+pinned native register trace and reconstructs the two observed damage values.
+See the [native random tracing procedure](RANDOM-TRACE.md) for debugger details.
 
 The existing native SIMH environment was restarted and exercised through the
 same PDP-10 adapter. Both full suites completed, including login and logout:

@@ -82,8 +82,13 @@ A controlled two-ship encounter matched canonical ship/device state, total
 score and both weapon responses after docking and fixed approaches. The first
 torpedo hit was 103.8 on both engines. A repeat matched the visible pre-fire
 state and phaser result but produced 94.9 on native versus 103.8 on TypeScript
-at the first torpedo. The cause remains unresolved; matching seeded boards
-does not guarantee repeatable combat. Target setup stardates are excluded from
+at the first torpedo. Subsequent random tracing identified unequal setup action
+parity: native ran a twenty-draw planet pass between the weapons, while
+TypeScript did not. The shared DOTIME/NUMPLY counter controls that pass.
+Existing arithmetic reproduces both damage values from the observed inputs;
+no game-code change is needed for this discrepancy. Current fixtures align
+the two-player activity phase through an extra docking action when needed.
+Matching seeded boards alone does not guarantee repeatable combat. Target setup stardates are excluded from
 canonical state but retained in raw report comparisons. Evidence:
 logs/parity-duel/supplied/report.json and logs/parity-duel/destruction/report.json.
 The extended torpedo run exhausted its shot budget without either target dying
@@ -93,6 +98,12 @@ with clean cleanup, but required four follow-up shots on native and five on
 TypeScript. Its completed report is `differences`, including unequal final
 scores (logs/parity-duel/stationary-retry/report.json). An earlier TypeScript
 attempt stalled after docking; the cause remains uninvestigated.
+After aligning the shared activity phase, the full encounter matches canonical
+ship/device state, total scores and all seven weapon responses: the torpedo
+hits for 103.8 on both engines, followed by five phaser shots to destruction.
+Both targets are removed from USERS and both sessions clean up successfully.
+Evidence: logs/parity-torpedo-trace/aligned/report.json. This verifies the
+corrected fixture, not all combat or random-stream behavior.
 
 The reusable player-library quickstart is available at
 [`experimental/player-library/QUICKSTART.md`](../experimental/player-library/QUICKSTART.md).

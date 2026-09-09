@@ -13,10 +13,17 @@ const captures = paths.map((path, index) => {
   if (!events.some(e => e.event === 'sent' && e.role === 'attacker' && e.line === 'TOURNAMENT 1729')) errors.push('Missing fresh tournament selection');
   if (!ready || steps.length !== 2 || commands.some((c, i) => steps[i]?.command !== c)) errors.push('Incomplete encounter');
   if (!events.some(e => e.event === 'complete') || ['attacker', 'target'].some(role => !events.some(e => e.event === 'cleanup-complete' && e.role === role))) errors.push('Incomplete lifecycle');
-  return { path, mode: config?.mode ?? 'two-shots', destructionPolicy: config?.destructionPolicy, errors, ready, steps, events };
+  if (config?.setupPolicy !== undefined && config.setupPolicy !== 'even-target-turns-v1') errors.push('Unknown setup policy');
+  if (config?.setupPolicy === 'even-target-turns-v1') {
+    const turns = events.filter(e => ['target-move', 'target-dock', 'target-phase-dock'].includes(e.event)).length;
+    const phase = events.find(e => e.event === 'setup-phase');
+    if (!phase || phase.players !== 2 || phase.setupTurns !== turns || turns % 2 || !ready || parseStatus(ready.target.statusText).stardate !== turns + 4) errors.push('Invalid setup phase');
+  }
+  return { path, setupPolicy: config?.setupPolicy ?? 'unaligned', mode: config?.mode ?? 'two-shots', destructionPolicy: config?.destructionPolicy, errors, ready, steps, events };
 });
 if (captures[0].mode !== captures[1].mode) throw new Error('Duel modes differ');
 if (captures[0].destructionPolicy !== captures[1].destructionPolicy) throw new Error('Destruction policies differ');
+if (captures[0].setupPolicy !== captures[1].setupPolicy) throw new Error('Setup policies differ');
 const canonical = (o: { statusText: string; damages: string; points: string }) => {
   const { observedAt, stardate, ...status } = parseStatus(o.statusText);
   const score = /Total points:\s+(-?\d+(?:\.\d+)?)/.exec(o.points);
@@ -65,6 +72,6 @@ if (captures[0].mode === 'destruction') {
 }
 const outcome = captures.some(c => c.errors.length) ? 'incomplete' : contracts.every(Boolean) && states.every(s => s.complete && s.roles?.every(r => r.stateEqual) && s.actionResponseEqual !== false) && destructionMatched ? 'matched-combat-state-and-hit-output' : 'differences';
 const firstObservedDivergence = states.find(s => s.complete && (s.roles.some(r => !r.stateEqual) || s.actionResponseEqual === false));
-console.log(JSON.stringify({ schema: 'duel-comparison-v1', outcome, mode: captures[0].mode, contracts, firstObservedDivergence: firstObservedDivergence ? { index: firstObservedDivergence.index, command: firstObservedDivergence.command ?? 'combat-ready' } : null, captures: captures.map(({ path, errors }) => ({ path, errors })), states, destruction,
+console.log(JSON.stringify({ schema: 'duel-comparison-v1', outcome, mode: captures[0].mode, setupPolicy: captures[0].setupPolicy, contracts, firstObservedDivergence: firstObservedDivergence ? { index: firstObservedDivergence.index, command: firstObservedDivergence.command ?? 'combat-ready' } : null, captures: captures.map(({ path, errors }) => ({ path, errors })), states, destruction,
   scope: 'Scripted passive-target encounter after public navigation and docking. Canonical ship/device state and total score exclude observation time and stardate because target setup trips differ. Raw STATUS/SCAN/DAMAGES/POINTS comparisons remain visible. Optional destruction requires reentry evidence, USERS release and cleanup. No general random-stream equivalence.' }, null, 2));
 process.exitCode = outcome === 'incomplete' ? 2 : outcome === 'differences' ? 1 : 0;
