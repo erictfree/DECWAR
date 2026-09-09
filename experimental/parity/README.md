@@ -268,7 +268,11 @@ four follow-up phaser shots, TypeScript five. Both targets reached the reentry
 prompt, disappeared from USERS and completed cleanup. Damage and final scores
 differ, so the report is `differences`, not a parity pass
 (`logs/parity-duel/stationary-retry/report.json`). One earlier TypeScript
-attempt stalled after docking; its timeout evidence is retained separately.
+attempt stalled after docking across UTC midnight and later exhausted its heap.
+The midnight wait and disconnect spin are now covered by bounded regressions and
+a playable clock repair; diagnostic timing remains explicit. See
+[playable decisions](../../docs/playable-decisions.md). The original timeout and
+OOM evidence remains in `logs/parity-duel/stationary/`.
 These runs used native SIMH; Docker remains unverified.
 
 The torpedo difference was traced to setup action parity. Austin's shared

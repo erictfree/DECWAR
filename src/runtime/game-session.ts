@@ -25,6 +25,7 @@ import { loadArgumentBlock,selectArgumentBlock } from '../compat/fortran-call.ts
 import { reloadRuntime } from '../compat/reset.ts';
 import { sourceAsset } from '../runtime/source-assets.ts';
 import { bindPlayablePolicy } from '../../test/fixtures/playable-runtime-policy.ts';
+import { bindLiveWait } from './live-wait.ts';
 
 // Shared host/test session factory. Statement binders are being migrated from
 // test/fixtures; their synthetic compiler scratch and modern monitor services
@@ -80,7 +81,7 @@ function composeLiveSession(terminal:SessionTerminal,mode:'initialize'|'full'='i
   f.clockIO.mstime=function*(){f.r.f=BigInt(Date.now()%86_400_000);};
   f.clockIO.runtim=function*(){f.r.f=terminal.runtimeMilliseconds();};
   main.time.clockIO.mstime=f.clockIO.mstime;main.time.clockIO.runtim=f.clockIO.runtim;
-  f.wait.io.mstime=function*(register){f.r[register]=BigInt(Date.now()%86_400_000);};
+  bindLiveWait(f.wait.io,f.r,options.playable===true);
   f.jobStatus.io.getppn=function*(){f.r.t1=9n;return false;};
   f.jobStatus.io.inchwl=function*(){
     f.jobStatus.events.push('inchwl');

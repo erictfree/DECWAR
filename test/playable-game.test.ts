@@ -126,3 +126,38 @@ test('Playable endgame removes the old world, scores remaining captain and permi
   assert.notEqual(game.worlds.load(),old);
   const next=await captain(t,game.worlds,2);assert.equal(next.runtime.f.high.read('gameno'),2n);await next.quit();
 });
+
+for(const disconnect of [false,true])test(`Playable DOCK crossing UTC midnight ${disconnect?'cleans up after disconnect':'returns to command input'}`,{timeout:10000},async t=>{
+  const game=await captain(t),{f}=game.runtime;
+  // Controlled placement beside an existing friendly base; DOCK, its timing,
+  // prompt and disconnect cleanup all run through the production session.
+  let adjacent:number[]|undefined;
+  for(let b=1;b<=K.KNBASE&&!adjacent;b++){
+    const v=Number(f.high.read('base',b,K.KVPOS,1)),h=Number(f.high.read('base',b,K.KHPOS,1));
+    adjacent=[[v,h+1],[v,h-1],[v+1,h],[v-1,h]].find(([sv,sh])=>sv>=1&&sv<=K.KGALV&&sh>=1&&sh<=K.KGALH&&f.views.high.board.disp(sv,sh)===0);
+  }
+  assert.ok(adjacent);
+  f.views.high.board.setdsp(Number(f.high.read('shpcon',1,K.KVPOS)),Number(f.high.read('shpcon',1,K.KHPOS)),0);
+  f.high.write('shpcon',BigInt(adjacent[0]),1,K.KVPOS);f.high.write('shpcon',BigInt(adjacent[1]),1,K.KHPOS);f.views.high.board.setdsp(adjacent[0],adjacent[1],101);
+  let wall=86399950,clockReads=0;
+  t.mock.method(Date,'now',()=>wall);
+  const clock=f.wait.io.mstime,hiber=f.wait.io.hiber;
+  f.wait.io.mstime=function*(reg){yield*clock(reg);clockReads++;if(reg==='t3')wall=50;};
+  f.wait.io.hiber=function*(){
+    if(disconnect&&clockReads===1)setImmediate(()=>game.session.disconnect());
+    return yield*hiber();
+  };
+  const start=game.output().length;
+  if(disconnect){
+    game.session.receive(Buffer.from('DOCK\r\n'));
+    assert.deepEqual(await game.session.done,{reason:'completed'});
+    assert.equal(f.high.read('numply'),0n);assert.equal(f.low.read('who'),0n);
+  }else{
+    await game.command('DOCK','dock');
+    assert.equal(f.high.read('docked',1),-1n);
+    await game.command('STATUS','status');
+  }
+  assert.match(game.output().slice(start),/DOCKED\./);
+  assert.ok(clockReads>=2,'DOCK must actually cross a PAUSE clock boundary');
+  assert.equal(f.wait.operands.length,0,'live waits do not retain fixture operands');
+});

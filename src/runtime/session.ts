@@ -100,10 +100,14 @@ export class GameSession{
 
   private async wait(request:SessionWait):Promise<void>{
     if(request.type==='delay'&&(!Number.isFinite(request.milliseconds)||request.milliseconds<0))throw new RangeError('Invalid session delay');
-    // Closed input/delays wake immediately, but source computation must still
-    // cooperate so a hung-up job cannot starve other jobs or forced shutdown.
-    if((this.closed&&request.type!=='cooperate')||this.interrupted||this.cancelled||this.controlFailed)return;
-    if(this.queue.length&&(request.type==='input'||(request.type==='delay'&&request.wakeOnInput)))return;
+    // Disconnect wakes the current wait for source hangup handling. Subsequent
+    // delays still sleep: a source PAUSE may keep waiting (including the raw
+    // midnight bug), and skipping its delay creates an allocating microtask spin.
+    // Repeated EOF reads must also give controls and other jobs a chance to run.
+    if(this.cancelled||this.controlFailed)return;
+    if(this.closed&&request.type==='input')request={type:'cooperate'};
+    if(!this.closed&&this.interrupted)return;
+    if(!this.closed&&this.queue.length&&(request.type==='input'||(request.type==='delay'&&request.wakeOnInput)))return;
     await new Promise<void>(resolve=>{
       let timer:ReturnType<typeof setTimeout>|undefined,immediate:ReturnType<typeof setImmediate>|undefined;
       const finish=()=>{if(timer)clearTimeout(timer);if(immediate)clearImmediate(immediate);this.wake=undefined;this.waiting=undefined;resolve();};

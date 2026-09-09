@@ -109,7 +109,15 @@ The subsequent stationary phaser fixture destroyed and released both targets,
 with clean cleanup, but required four follow-up shots on native and five on
 TypeScript. Its completed report is `differences`, including unequal final
 scores (logs/parity-duel/stationary-retry/report.json). An earlier TypeScript
-attempt stalled after docking; the cause remains uninvestigated.
+attempt stalled after docking across UTC midnight and later exhausted its heap.
+Bounded reproduction identifies a raw PAUSE deadline that cannot be reached after
+clock rollover, amplified by immediate post-disconnect retries retaining wait
+records. Playable PAUSE now uses a monotonic clock; both profiles retain scheduling
+after disconnect and live HIBER no longer accumulates fixture records. Tests cover
+both variants' wait behavior and production DOCK completion/disconnect cleanup.
+The original failure has no heap snapshot; the complete historical process cannot
+be reconstructed from its logs. See [playable decisions](playable-decisions.md)
+and `logs/parity-stall-midnight/` for the repair and regression evidence.
 After aligning the shared activity phase, the full encounter matches canonical
 ship/device state, total scores and all seven weapon responses: the torpedo
 hits for 103.8 on both engines, followed by five phaser shots to destruction.
