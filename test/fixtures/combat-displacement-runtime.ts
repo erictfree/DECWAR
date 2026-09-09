@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import assert from 'node:assert/strict';
 import { WordBlock } from '../../src/compat/memory.ts';
 import type { CommonBlock } from '../../src/compat/memory.ts';
@@ -25,7 +26,7 @@ export function combatDisplacementRuntimeFixture(f:Pick<ReturnType<typeof status
   const chkout=new WordBlock(f.m,localLayout.check),path=localState(f.m).check(power);
   path.dhs=real.literal('1');path.dvs=real.literal('0');
   const jumpLocals={iloc1:13950n,jloc1:13951n,ivv:13952n,ihh:13953n,l:13954n},baseLocals={ib:13955n,ie:13956n,i:13957n,j:13958n};
-  const events:string[]=[],prepare=(words:bigint[])=>{loadArgumentBlock(f.m,13960n,words);selectArgumentBlock(f.r,13960n);};
+  const events:string[]=diagnosticRecords(),prepare=(words:bigint[])=>{loadArgumentBlock(f.m,13960n,words);selectArgumentBlock(f.r,13960n);};
   const cpu={*sub(reg:'f'|'t1',n:bigint):Generator<string,void,void>{f.r[reg]=add36(f.r[reg],-n);},
     *movm(reg:'f'|'t1'):Generator<string,void,void>{assert.notEqual(f.r[reg],MIN_INTEGER);if(f.r[reg]<0n)f.r[reg]=-f.r[reg];}};
   const ldisCPU={*subT1(n:bigint){yield*cpu.sub('t1',n);},*movmT1(){yield*cpu.movm('t1');}};

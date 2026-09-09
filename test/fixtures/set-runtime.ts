@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import type { pregameInputRuntimeFixture } from './pregame-input-runtime.ts';
 import { setStatements,setSwitches,setMessages } from '../../src/game/set-statements.ts';
 import type { SetStatementServices,SetSymbols } from '../../src/game/set-statements.ts';
@@ -10,7 +11,7 @@ export function bindSetRuntime(f:ReturnType<typeof pregameInputRuntimeFixture>){
   const symbols={} as SetSymbols;
   for(const [i,key] of setSwitches.entries()){symbols[key]=22340n+BigInt(i*8);f.h.put(symbols[key],key);}
   for(const [i,key] of setMessages.entries()){symbols[key]=22500n+BigInt(i*32);f.h.put(symbols[key],messages[key].text);}
-  const prepare=(args:bigint[])=>{loadArgumentBlock(f.m,header,args);selectArgumentBlock(f.r,header);},events:string[]=[],numeric=f.weapon.io;
+  const prepare=(args:bigint[])=>{loadArgumentBlock(f.m,header,args);selectArgumentBlock(f.r,header);},events:string[]=diagnosticRecords(),numeric=f.weapon.io;
   const io:SetStatementServices<string>={logical:numeric.logical,not:w=>!numeric.logical(w),
     *assign(...a){yield*numeric.assign(...a);},*assignTrue(d){f.m.write(d(),-1n);}, // Explicit logical-to-integer fixture encoding.
     *bounds(...a){return yield*f.location.io.bounds(...a);},enterLoop:f.location.io.enterLoop,

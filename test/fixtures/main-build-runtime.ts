@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import type { pregameRuntimeFixture } from './pregame-runtime.ts';
 import type { RepairServices } from '../../src/game/repair-statements.ts';
 import type { bindRemovePlanetRuntime } from './remove-planet-runtime.ts';
@@ -10,7 +11,7 @@ import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-
 export function bindMainBuildRuntime(f:ReturnType<typeof pregameRuntimeFixture>,numeric:Pick<RepairServices<string>,'logical'|'and'|'integer'|'assign'|'etim'>,removal:ReturnType<typeof bindRemovePlanetRuntime>){
   f.m.map(54000n,Array<bigint>(500).fill(77n));const locals={v:54000n,tem:54001n,vloc:54002n,hloc:54003n,c:54004n,i:54005n,j:54006n},s={header:54010n,count:54020n,value:54021n,char:54022n,prcflg:54023n,w:54024n,tw:54025n},labels={} as Record<BuildMessage,bigint>;
   for(const [i,key] of (['build1','build2','build3','build4','build5','build7','noplnt','captu5','busy1','busy2'] as const).entries()){labels[key]=54100n+BigInt(i*30);f.h.put(labels[key],key==='busy1'?'Sorry, Captain, but the construction crew is':key==='busy2'?'busy with repairs at the moment.':messages[key].text);}f.h.put(s.char,'s');
-  const events:string[]=[],prepare=(a:bigint[])=>{loadArgumentBlock(f.m,s.header,a);selectArgumentBlock(f.r,s.header);};
+  const events:string[]=diagnosticRecords(),prepare=(a:bigint[])=>{loadArgumentBlock(f.m,s.header,a);selectArgumentBlock(f.r,s.header);};
   const io:BuildServices<string>={...numeric,*or(a,b){return a()||b();},
     *locate(entry,n){events.push(entry);return yield*f.io.locate(entry,n);},
     *ldis(v,h,ov,oh,range){f.m.write(s.count,BigInt(range));prepare([v,h,ov,oh,s.count]);yield*rawLdis(f.r,f.rt.args,f.ldisCPU);return f.r.f;},

@@ -25,16 +25,17 @@ import { loadArgumentBlock,selectArgumentBlock } from '../compat/fortran-call.ts
 import { reloadRuntime } from '../compat/reset.ts';
 import { sourceAsset } from '../runtime/source-assets.ts';
 import { bindPlayablePolicy } from '../../test/fixtures/playable-runtime-policy.ts';
+import { diagnosticRecords,withDiagnosticRecords } from './diagnostic-records.ts';
 import { bindLiveWait } from './live-wait.ts';
 
 // Shared host/test session factory. Statement binders are being migrated from
 // test/fixtures; their synthetic compiler scratch and modern monitor services
 // remain documented bindings, not recovered PDP-10 instruction addresses.
-export function createGameSession(terminal:SessionTerminal,mode:'initialize'|'full'='initialize',world?:SharedGameWorld,job=1,options:{promptForName?:boolean;playable?:boolean;lifecycle?:{removeHighSegment():void;run():never}}={}){
+export function createGameSession(terminal:SessionTerminal,mode:'initialize'|'full'='initialize',world?:SharedGameWorld,job=1,options:{promptForName?:boolean;playable?:boolean;diagnosticLimit?:number;lifecycle?:{removeHighSegment():void;run():never}}={}){
   const context=world?.variant??createVariantContext('compuserve',options.playable?'playable':'historical-diagnostic');
-  return withVariant(context,()=>composeLiveSession(terminal,mode,world,job,options));
+  return withVariant(context,()=>withDiagnosticRecords(options.diagnosticLimit??0,()=>composeLiveSession(terminal,mode,world,job,options)));
 }
-function composeLiveSession(terminal:SessionTerminal,mode:'initialize'|'full'='initialize',world?:SharedGameWorld,job=1,options:{promptForName?:boolean;playable?:boolean;lifecycle?:{removeHighSegment():void;run():never}}={}){
+function composeLiveSession(terminal:SessionTerminal,mode:'initialize'|'full'='initialize',world?:SharedGameWorld,job=1,options:{promptForName?:boolean;playable?:boolean;diagnosticLimit?:number;lifecycle?:{removeHighSegment():void;run():never}}={}){
   const f=pregameRuntimeFixture([]),main=bindMainLoopRuntime(f),entry=bindEntryRuntime(f,main);
   for(let a=f.high.address('hfz');a<=f.high.address('hlz');a++)f.m.write(a,0n);
   f.high.write('tim0',-1n);f.editor.bytes.length=0;f.input.pointer=-1n;
@@ -207,7 +208,7 @@ function composeLiveSession(terminal:SessionTerminal,mode:'initialize'|'full'='i
       yield*f.rt.run('out');
     },clear:()=>f.wait.clear(),
   });
-  const interrupts={returns:[] as bigint[],traps:[] as bigint[]};
+  const interrupts={returns:diagnosticRecords<bigint>(),traps:diagnosticRecords<bigint>()};
   function* interrupt():Generator<string,void,void>{
     // Opaque host continuation word: 0 resumes at this generator boundary; the
     // source INWAIT increment records 1 for the input skip. This is not a PC.

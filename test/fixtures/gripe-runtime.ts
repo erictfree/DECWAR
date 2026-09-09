@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import assert from 'node:assert/strict';
 import type { pregameInputRuntimeFixture } from './pregame-input-runtime.ts';
 import type { bindHonorRollRuntime } from './honor-roll-runtime.ts';
@@ -40,7 +41,7 @@ export function bindGripeRuntime(f:Host){
     let pos=(w>>30n)&63n,address=rightHalf(w);if(pos<7n){pos=36n;address=rightHalf(address+1n);}pos-=7n;
     f.m.write(a,(w&~((63n<<30n)|0o777777n))|(pos<<30n)|address);f.m.write(address,(unsigned36(f.m.read(address))&~(127n<<pos))|((c&127n)<<pos));
   }; // Ordinary nonindexed 7-bit IDPB selected explicitly for the log buffer.
-  const events:string[]=[],disk:bigint[]=[],writes:bigint[][]=[],openResults:{success:boolean;error?:bigint}[]=[],monitor={inputError:false,outputError:false,hiberSkip:true,coreSuccess:true};
+  const events:string[]=diagnosticRecords(),disk:bigint[]=[],writes:bigint[][]=diagnosticRecords(),openResults:{success:boolean;error?:bigint}[]=[],monitor={inputError:false,outputError:false,hiberSkip:true,coreSuccess:true};
   const jobState={get jbff(){return f.job.jbff;},set jbff(w:bigint){f.job.jbff=w;},get jbrel(){return f.job.jbrel;},set jbrel(w:bigint){f.job.jbrel=w;},get hungup(){return state.hungup;}};
   const openIO:OpenServices<string>={...f.statistics.openIO,*filop(){events.push('filop');const result=openResults.shift()??{success:true};if(!result.success){f.file.write('leblk',result.error??1n,1);return false;}f.file.write('leblk',disk.length?halfWords(-BigInt(disk.length),0n):0n,3);return true;}};
   const closeIO:CloseServices<string>={...f.ini.closeIO,*executeClose(){events.push('close-instruction');},*core(w:bigint){events.push('close-core:'+w);f.job.jbrel=w;return true;}};

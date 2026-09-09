@@ -49,11 +49,11 @@ received a native-executable differential test.
 
 ## Remaining limits
 
-Other fixture diagnostic event arrays still retain records while a session is
-active. Removing the duplicate output stream reduces retention but does not
-make all diagnostic storage bounded. The post-GC measurements distinguish this
-from the original disconnect spin and show reclamation after session release.
-Long-lived session tracing is a separate remaining runtime maintenance concern.
+The diagnostic-array retention limit identified in this checkpoint was subsequently
+addressed: live sessions now default to no retained histories, with optional
+bounded recent history. See [runtime diagnostics](runtime-diagnostics.md) for the
+later implementation and measured off/capped bot runs. The figures above preserve
+this earlier checkpoint's evidence.
 
 These runs are minutes long. They do not prove overnight behavior, recovery from
 machine sleep, all malformed dialogues, or competitive strategy quality. Native

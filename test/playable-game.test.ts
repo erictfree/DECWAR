@@ -12,10 +12,10 @@ import { mkdtempSync,rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-async function captain(t:TestContext,worlds=new WorldDirectory(),id=1,ship='LEXINGTON',fresh=true,team='FEDERATION'){
+async function captain(t:TestContext,worlds=new WorldDirectory(),id=1,ship='LEXINGTON',fresh=true,team='FEDERATION',diagnosticLimit=100_000){
   let runtime!:ReturnType<typeof liveSessionRuntime>,output='';const events=new EventEmitter();
   const session=new GameSession(terminal=>reloadableSession(()=>{
-    const world=worlds.load();runtime=liveSessionRuntime(terminal,'full',world,id,{playable:true,lifecycle:{removeHighSegment(){worlds.remove(world);},run(){throw new SessionReload();}}});
+    const world=worlds.load();runtime=liveSessionRuntime(terminal,'full',world,id,{playable:true,diagnosticLimit,lifecycle:{removeHighSegment(){worlds.remove(world);},run(){throw new SessionReload();}}});
     const r=runtime;r.f.jobStatus.monitor.job=BigInt(id);r.f.jobStatus.monitor.sequenceJob=BigInt(id);
     const invoke=r.main.io.invoke,hiber=r.f.wait.io.hiber,gtkn=r.main.io.gtkn;
     r.main.io.invoke=function*(call){const result=yield*invoke(call);events.emit('command:'+call.routine);return result;};
@@ -161,4 +161,14 @@ for(const disconnect of [false,true])test(`Playable DOCK crossing UTC midnight $
   assert.match(game.output().slice(start),/DOCKED\./);
   assert.ok(clockReads>=2,'DOCK must actually cross a PAUSE clock boundary');
   assert.equal(f.wait.operands.length,0,'live waits do not retain fixture operands');
+});
+
+for(const limit of [0,8])test(`Live session history limit ${limit} preserves reports and cleanup`,{timeout:10000},async t=>{
+  const game=await captain(t,new WorldDirectory(),1,'LEXINGTON',true,'FEDERATION',limit),{f,main}=game.runtime;
+  for(let i=0;i<12;i++)await game.command('SCAN 1','scan');
+  await game.command('STATUS','status');
+  assert.ok(game.output().length>1000);
+  for(const records of [f.events,f.editor.events,f.tokens.events,f.getCommand.events,main.events,main.calls,main.scan.events])assert.ok(records.length<=limit);
+  if(limit)assert.equal(main.scan.events.length,limit,'retained history reaches its cap');
+  await game.quit();assert.equal(f.high.read('numply'),0n);
 });

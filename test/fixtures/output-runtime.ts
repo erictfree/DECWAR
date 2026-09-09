@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import assert from 'node:assert/strict';
 import { outputRuntime } from '../../src/compat/output-runtime.ts';
 import type { OutputEntry,OutputRuntimeServices } from '../../src/compat/output-runtime.ts';
@@ -12,7 +13,7 @@ import { statusOutputFixture } from './status-output.ts';
 export function outputRuntimeFixture(){
   const m=new AddressSpace();m.map(0n,Array<bigint>(16).fill(0n));m.map(5000n,Array<bigint>(4000).fill(0n));
   for(const l of [fileLayout,inputRuntimeLayout])m.map(BigInt(l.address),Array<bigint>(l.words).fill(0n));
-  const r=machineRegisters(m),file=new FileBlock(m),output=new WordBlock(m,inputRuntimeLayout),events:string[]=[],emitted:{sink:string;c:bigint}[]=[];
+  const r=machineRegisters(m),file=new FileBlock(m),output=new WordBlock(m,inputRuntimeLayout),events:string[]=diagnosticRecords(),emitted:{sink:string;c:bigint}[]=diagnosticRecords();
   const state={hungup:0n,hcpos:0n,blank:0n,who:0n,oflg:0n,versio:21n,gameno:17n,blhopt:-1n,romopt:-1n},job={jbff:7000n,jbrel:7500n};
   const h=statusOutputFixture({memory:m,registers:r,character:function*(){assert.fail();},hcpos:()=>state.hcpos,blank:()=>state.blank,who:()=>state.who});
   h.hs.tmp=file.address('tmp',0);h.hs.tmpPointer=halfWords(0o440700n,h.hs.tmp);

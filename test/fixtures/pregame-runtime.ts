@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import assert from 'node:assert/strict';
 import { bindJobStatusRuntime } from './job-status-runtime.ts';
 import { bindPasswordRuntime } from './password-runtime.ts';
@@ -44,7 +45,7 @@ export function pregameRuntimeFixture(lines=['PREGAME','ACTIVATE']){
   } // Explicit packed literal fixture, including the continued documentation text.
   const filop=f.news.openIO.filop;
   f.news.openIO.filop=function*(){const ok=yield*filop();if(ok&&f.r.x1===f.news.symbols.nwsfil){const text=sourceAsset('DECWAR.NWS');f.ini.load(text.slice(0,200));f.ini.refills.length=0;for(let i=200;i<text.length;i+=200)f.ini.refills.push({text:text.slice(i,i+200)});f.ini.refills.push({eof:true});}return ok;};
-  const prepare=(a:bigint[])=>{loadArgumentBlock(f.m,symbols.header,a);selectArgumentBlock(f.r,symbols.header);},events:string[]=[];
+  const prepare=(a:bigint[])=>{loadArgumentBlock(f.m,symbols.header,a);selectArgumentBlock(f.r,symbols.header);},events:string[]=diagnosticRecords();
   const jobStatus=bindJobStatusRuntime(f);
   const password=bindPasswordRuntime(f,jobStatus);
   const type=bindTypeRuntime(f),typeBinding:{kind?:bigint}={};

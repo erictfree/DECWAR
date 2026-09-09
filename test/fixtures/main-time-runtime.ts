@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import assert from 'node:assert/strict';
 import type { pregameRuntimeFixture } from './pregame-runtime.ts';
 import { timeStatements } from '../../src/game/time-command.ts';
@@ -10,7 +11,7 @@ import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-
 export function bindMainTimeRuntime(f:ReturnType<typeof pregameRuntimeFixture>){
   f.m.map(48800n,Array<bigint>(400).fill(77n));const s={header:48800n,zero:48810n,value:48811n,d:48812n},labels={} as Record<TimeHeading,bigint>;
   for(const [i,key] of (['time01','time02','time03','time04','time05'] as const).entries()){labels[key]=48900n+BigInt(i*40);f.h.put(labels[key],messages[key].text);}
-  f.m.write(s.zero,0n);const runs:bigint[]=[],events:string[]=[],prepare=(a:bigint[])=>{loadArgumentBlock(f.m,s.header,a);selectArgumentBlock(f.r,s.header);};
+  f.m.write(s.zero,0n);const runs:bigint[]=[],events:string[]=diagnosticRecords(),prepare=(a:bigint[])=>{loadArgumentBlock(f.m,s.header,a);selectArgumentBlock(f.r,s.header);};
   const clockIO:ClockServices<string>={...f.clockIO,*runtim(){events.push('runtim');assert.ok(runs.length,'TIME requires scheduled RUNTIM');f.r.f=runs.shift()!;}};
   function* clock(entry:'etim'|'daytim'|'runtim',a:bigint):Generator<string,bigint,void>{events.push(entry);prepare([a]);yield*clockRoutine(entry,f.m,f.r,f.rt.args,clockIO);return f.r.f;}
   const io:TimeStatementServices<string>={

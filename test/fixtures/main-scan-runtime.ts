@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import type { pregameRuntimeFixture } from './pregame-runtime.ts';
 import type { RepairServices } from '../../src/game/repair-statements.ts';
 import { scanStatements } from '../../src/game/scan-statements.ts';
@@ -18,7 +19,7 @@ export function bindMainScanRuntime(f:ReturnType<typeof pregameRuntimeFixture>,n
   for(let i=-1;i<5;i++)f.m.write(s.b7tbl+BigInt(i),halfWords((BigInt(29-i*7)<<12n)|(7n<<6n),screen.screen));
   for(const [i,pair] of scanObjects.entries()){if(pair.text===null)continue;f.m.write(s.objectPairs+BigInt(i*2),BigInt(pair.text.charCodeAt(0)));f.m.write(s.objectPairs+BigInt(i*2+1),BigInt(pair.text.charCodeAt(1)));}
   outputTables.shtshp.forEach((x,i)=>f.h.put(s.shtshp+BigInt(i),x.text));
-  const events:string[]=[],prepare=(a:bigint[])=>{loadArgumentBlock(f.m,s.header,a);selectArgumentBlock(f.r,s.header);};
+  const events:string[]=diagnosticRecords(),prepare=(a:bigint[])=>{loadArgumentBlock(f.m,s.header,a);selectArgumentBlock(f.r,s.header);};
   const advance=(register:'p1'|'p2')=>{let p=unsigned36(f.r[register]),position=(p>>30n)&63n,address=rightHalf(p);const size=(p>>24n)&63n;if(size!==7n&&size!==12n)throw new Error('scan fixture byte size');if(position<size){position=36n;address=rightHalf(address+1n);}position-=size;p=(p&~((63n<<30n)|262143n))|(position<<30n)|address;f.r[register]=signed36(p);return {position,address,mask:(1n<<size)-1n};};
   const machineIO:ScanMachineServices<string>={...f.rt.stack,
     *ildb(){const p=advance('p1');f.r.t1=(unsigned36(f.m.read(p.address))>>p.position)&p.mask;},

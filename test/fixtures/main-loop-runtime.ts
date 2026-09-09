@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import { bindSetupPrefixRuntime } from './setup-prefix-runtime.ts';
 import { bindSetupAdmissionRuntime } from './setup-admission-runtime.ts';
 import type { pregameRuntimeFixture } from './pregame-runtime.ts';
@@ -32,7 +33,7 @@ export function bindMainLoopRuntime(f:ReturnType<typeof pregameRuntimeFixture>){
   f.m.write(n,77n);f.h.put(yes,'YES');f.h.put(sure,messages.sure00.text);
   const turnLocals={i:f.apr.locals.i,d1:44060n,d2:44061n},repairLocals={v:44070n,l:44071n,repsiz:44072n,ntoken:44073n,maxd:44074n,i:44075n},il=44076n,repairSymbols={all:44080n,damage:44085n};
   f.h.put(repairSymbols.all,'ALL');f.h.put(repairSymbols.damage,'DAMAGE');const turnLabels={lifdam:44100n,strdat:44140n};for(const key of ['lifdam','strdat'] as const)f.h.put(turnLabels[key],messages[key].text);
-  const events:string[]=[],calls:StatementCommandCall[]=[],policy:{debug?:'omit'|((op:'timin'|'timout',label:string)=>Generator<string,void,void>);quit?:(result:bigint)=>Generator<string,'leave'|'next',void>;movement?:(alive:()=>bigint)=>Generator<string,'leave'|'repair',void>}={};
+  const events:string[]=diagnosticRecords(),calls:StatementCommandCall[]=diagnosticRecords(),policy:{debug?:'omit'|((op:'timin'|'timout',label:string)=>Generator<string,void,void>);quit?:(result:bigint)=>Generator<string,'leave'|'next',void>;movement?:(alive:()=>bigint)=>Generator<string,'leave'|'repair',void>}={};
   const io:MainLoopServices<string>={logical:f.weapon.io.logical,*assignTrue(a){f.m.write(a(),-1n);},*assignFalse(a){f.m.write(a(),0n);},
     *debugLine(op,label){events.push(op+':'+label);if(policy.debug===undefined)throw new Error('required column-D compilation policy');if(policy.debug!=='omit')yield*policy.debug(op,label);},
     *getcmd(a){events.push('getcmd');yield*f.getCommand.run(a);},

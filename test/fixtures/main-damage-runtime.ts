@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import type { pregameRuntimeFixture } from './pregame-runtime.ts';
 import { damageStatements } from '../../src/game/damage-statements.ts';
 import type { DamageServices } from '../../src/game/damage-statements.ts';
@@ -11,7 +12,7 @@ export function bindMainDamageRuntime(f:ReturnType<typeof pregameRuntimeFixture>
   const locals={i:48400n,j:48401n,ia:48403n,ja:48404n},s={stoken:48402n,header:48410n,count:48420n,width:48421n,object:48422n,zero:48423n};
   const labels={alldok:48500n,units1:48540n,damrep:48580n,dmhdr1:48620n,dmhdr2:48660n};
   for(const key of Object.keys(labels) as (keyof typeof labels)[])f.h.put(labels[key],messages[key].text);
-  const events:string[]=[],prepare=(a:bigint[])=>{loadArgumentBlock(f.m,s.header,a);selectArgumentBlock(f.r,s.header);};
+  const events:string[]=diagnosticRecords(),prepare=(a:bigint[])=>{loadArgumentBlock(f.m,s.header,a);selectArgumentBlock(f.r,s.header);};
   const io:DamageServices<string>={logical:f.weapon.io.logical,enterTokenLoop:(a,b)=>a<=b,
     *equal(a,b){events.push('equal');return yield*f.pregameInput.io.equal(a,b);},
     *out(key,count){events.push(key);f.m.write(s.count,BigInt(count));prepare([labels[key],s.count]);yield*f.rt.run('out');},

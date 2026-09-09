@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import assert from 'node:assert/strict';
 import { basePhaserStatements } from '../../src/game/base-phaser-statements.ts';
 import type { BasePhaserServices } from '../../src/game/base-phaser-statements.ts';
@@ -28,7 +29,7 @@ export function basePhaserRuntimeFixture(){
   for(let i=1;i<=K.KNPLAY;i++)f.high.write('bits',1n<<BigInt(i-1),i);
   Object.assign(high.players[1].ship,{v:10,h:20,energy:50000n,damage:0n,shieldCondition:-1n});high.players[1].alive=-1n;high.board.setdsp(10,20,101);
   const base=(team=2,index=1,v=12,h=20,strength=1000n)=>{Object.assign(high.bases[team][index],{v,h,strength});f.high.write('nbase',1n,team);};base();
-  const locals={jb:13000n,je:13001n,i:13002n,j:13003n,k:13004n,id:13005n,ka:13006n},events:string[]=[],calls:bigint[][]=[],queued:(typeof hit)[]=[];
+  const locals={jb:13000n,je:13001n,i:13002n,j:13003n,k:13004n,id:13005n,ka:13006n},events:string[]=diagnosticRecords(),calls:bigint[][]=diagnosticRecords(),queued:(typeof hit)[]=diagnosticRecords();
   const queue=new HitQueue(),priority=priorityDistanceRuntimeFixture(f,f.high,f.low);
   const prepare=(words:bigint[])=>{loadArgumentBlock(f.m,13500n,words);selectArgumentBlock(f.r,13500n);};
   const ref=(address:bigint)=>({get value(){return f.m.read(address);},set value(w:bigint){f.m.write(address,w);}});

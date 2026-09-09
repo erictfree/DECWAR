@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import { currentVariant } from '../../src/runtime/variant-execution.ts';
 import assert from 'node:assert/strict';
 import type { pregameInputRuntimeFixture } from './pregame-input-runtime.ts';
@@ -12,7 +13,7 @@ type Host=ReturnType<typeof pregameInputRuntimeFixture>&{getMessage:ReturnType<t
 export function bindMakeMessageRuntime(f:Host){
   f.m.map(27800n,Array<bigint>(600).fill(0n));const header=27800n,string=27900n,indirect=27810n;
   const symbols={dbits:f.low.address('dbits'),dispfr:f.low.address('dispfr'),ccflg:f.low.address('ccflg'),lkfail:f.low.address('lkfail'),cbits:f.tokens.symbols.cbits,eol:BigInt(characterBits.flags['cf.eol']),point7:0o440700n,linePointer:signed36(halfWords(0o444400n,f.input.lineAddress)),queuePointer:signed36(halfWords(-32n,f.getMessage.symbols.msgql)),messagePointer:signed36(halfWords(0o440700n,f.getMessage.symbols.msgq+1n)),msglen:17n,capacity:77n,msgflg:f.high.address('msgflg',1),prompt:27820n,notSent:27830n};
-  f.h.put(symbols.prompt,'Msg: ');f.h.put(symbols.notSent,'No message sent'+currentVariant().definition.ascilSuffix);f.h.put(string,'HELLO');f.m.write(indirect,string);const events:string[]=[];
+  f.h.put(symbols.prompt,'Msg: ');f.h.put(symbols.notSent,'No message sent'+currentVariant().definition.ascilSuffix);f.h.put(string,'HELLO');f.m.write(indirect,string);const events:string[]=diagnosticRecords();
   function pointer(reg:'p1'|'t1',advance:boolean){const w=unsigned36(f.r[reg]),size=(w>>24n)&63n;let pos=(w>>30n)&63n,a=rightHalf(w);assert.ok(size===7n||size===36n);assert.equal((w>>18n)&63n,0n);if(advance){if(pos<size){pos=36n;a=rightHalf(a+1n);}pos-=size;f.r[reg]=signed36((w&~((63n<<30n)|0o777777n))|(pos<<30n)|a);}assert.ok(pos+size<=36n);return {a,pos,mask:(1n<<size)-1n};}
   const io:MakeMessageServices<string>={
     *ildb(){events.push('ildb');const p=pointer('p1',true);f.r.c=signed36((unsigned36(f.m.read(p.a))>>p.pos)&p.mask);},

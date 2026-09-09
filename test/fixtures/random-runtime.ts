@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import { createSessionRandom } from '../../src/runtime/random.ts';
 import assert from 'node:assert/strict';
 import { randomRoutine } from '../../src/compat/random-runtime.ts';
@@ -7,7 +8,7 @@ import { multiply36,divide36 } from '../../src/compat/word36.ts';
 import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-call.ts';
 type Runtime=Pick<ReturnType<typeof outputRuntimeFixture>,'m'|'r'|'rt'|'file'>;
 export function randomRuntimeFixture(f:Runtime){
-  const s={seed:f.file.address('seed')},events:string[]=[],clock:bigint[]=[];
+  const s={seed:f.file.address('seed')},events:string[]=diagnosticRecords(),clock:bigint[]=[];
   const divide=(w:bigint)=>{const d=divide36(f.r.t0,w);f.r.t0=d.quotient;f.r.t1=d.remainder;};
   const io:RandomServices<string>={
     *mstimeT1(){events.push('mstime');assert.ok(clock.length,'unscheduled MSTIME');f.r.t1=clock.shift()!;},

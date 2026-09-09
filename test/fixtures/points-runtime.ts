@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import type { pregameInputRuntimeFixture } from './pregame-input-runtime.ts';
 import { pointsStatements,pointsMessages,pointsSwitches } from '../../src/game/points-statements.ts';
 import type { PointsStatementServices,PointsSymbols,PointsMessage } from '../../src/game/points-statements.ts';
@@ -14,7 +15,7 @@ export function bindPointsRuntime(f:ReturnType<typeof pregameInputRuntimeFixture
   f.m.write(i,77n);f.h.put(two,'  ');
   const labels={} as Record<PointsMessage,bigint>;for(const [n,key] of pointsMessages.entries()){labels[key]=23900n+32n*BigInt(n);f.h.put(labels[key],messages[key].text);}
   const symbols={federa:labels.federa} as PointsSymbols;for(const [n,key] of pointsSwitches.entries()){symbols[key]=23840n+8n*BigInt(n);f.h.put(symbols[key],key);}
-  const events:string[]=[],frames=new Map<'switches'|'rows',Fortran5DoFrame>(),numeric=f.weapon.io,prepare=(a:bigint[])=>{loadArgumentBlock(f.m,header,a);selectArgumentBlock(f.r,header);};
+  const events:string[]=diagnosticRecords(),frames=new Map<'switches'|'rows',Fortran5DoFrame>(),numeric=f.weapon.io,prepare=(a:bigint[])=>{loadArgumentBlock(f.m,header,a);selectArgumentBlock(f.r,header);};
   const final:{continuation?: (index:bigint)=>Generator<string,boolean,void>}={};
   const block=bindBlockRuntime(f);
   const io:PointsStatementServices<string>={logical:numeric.logical,not:w=>!numeric.logical(w),

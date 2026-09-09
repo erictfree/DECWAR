@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import assert from 'node:assert/strict';
 import { checkRuntimeFixture } from './check-runtime.ts';
 import { locateStatements } from '../../src/game/locate-statements.ts';
@@ -20,7 +21,7 @@ export function bindLocateRuntime(f:ReturnType<typeof checkRuntimeFixture>){
   const labels={} as Record<LocateMessage,bigint>;
   for(const [i,name] of (['coord1','damcom','erloc1','erloc2','erloc3','erloc4','noship','erloc7','erloc8','erloc9'] as const).entries()){labels[name]=15500n+BigInt(i*32);f.h.put(labels[name],M[name].text);}
   const prepare=(a:bigint[])=>{loadArgumentBlock(f.m,15420n,a);selectArgumentBlock(f.r,15420n);};
-  const numeric=f.weapon.io,check=f.io,events:string[]=[];
+  const numeric=f.weapon.io,check=f.io,events:string[]=diagnosticRecords();
   const io:LocateStatementServices<string>={
     *binary(...a){return yield*numeric.binary(...a);},*convert(...a){return yield*numeric.convert(...a);},*compare(...a){return yield*numeric.compare(...a);},*assign(...a){yield*numeric.assign(...a);},realLiteral:t=>numeric.realLiteral(t),logical:w=>numeric.logical(w),
     *and(...a){return yield*numeric.and(...a);},*or(...a){return yield*numeric.or(...a);},

@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import assert from 'node:assert/strict';
 import type { pregameInputRuntimeFixture } from './pregame-input-runtime.ts';
 import type { bindEndgameRuntime } from './endgame-runtime.ts';
@@ -32,7 +33,7 @@ export function bindStatisticsRuntime(f:Host){
   for(const key of ['stared','staupd','stfred','stfupd'] as const)f.m.write(s.openLiterals[key],halfWords(s[key],s[key]));
   statisticsText.forEach((item,i)=>f.h.put(s.statisticsText[i],item.text));commissionText.forEach((item,i)=>f.h.put(s.commissionText[i],item.text));
   outputTables.lngshp.forEach((item,i)=>{const a=37800n+BigInt(i*8);f.m.write(s.lngshp+BigInt(i),a);f.h.put(a,item.text);});
-  const events:string[]=[],files={stared:Array<bigint>(640).fill(0n),stfred:Array<bigint>(640).fill(0n)},writes:{key:Key;descriptor:bigint;words:bigint[]}[]=[],opens:Partial<Record<Key,{success:boolean;lePpn:bigint}>>={},date={value:123456n};
+  const events:string[]=diagnosticRecords(),files={stared:Array<bigint>(640).fill(0n),stfred:Array<bigint>(640).fill(0n)},writes:{key:Key;descriptor:bigint;words:bigint[]}[]=diagnosticRecords(),opens:Partial<Record<Key,{success:boolean;lePpn:bigint}>>={},date={value:123456n};
   let selected:Key='stared';
   const fileState={get jbff(){return f.job.jbff;},set jbff(w:bigint){f.job.jbff=w;},get jbrel(){return f.job.jbrel;},set jbrel(w:bigint){f.job.jbrel=w;},get hungup(){return f.low.read('hungup');}};
   const openIO:OpenServices<string>={...f.news.openIO,

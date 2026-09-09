@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import { boardDiagnostic,traceRoutine } from '../../src/compat/board-diagnostics.ts';
 import type { BoardDiagnosticServices,TraceServices } from '../../src/compat/board-diagnostics.ts';
 import type { CommonBlock } from '../../src/compat/memory.ts';
@@ -11,7 +12,7 @@ export function boardDiagnosticsFixture(f:DiagnosticFixtureRuntime,low:CommonBlo
   const ranges=[[0,0],[1,5],[6,10],[1,10],[1,10],[0,1],[1,80],[1,80],[1,80],[0,0],[0,0]];
   ranges.forEach(([lo,hi],i)=>f.m.write(s.rngtbl+BigInt(i),halfWords(BigInt(lo!),BigInt(hi!))));
   f.h.put(s.illegalCoordinate,'%Illegal coordinate: ');f.h.put(s.illegalDisplay,'%Illegal display code: ');
-  const events:string[]=[];
+  const events:string[]=diagnosticRecords();
   const traceSymbols={pdlsiz:40n,hungup:low.address('hungup')};
   const traceIO:TraceServices<string>={...f.rt.stack,*addiX2(w){f.r.x2=add36(f.r.x2,w);},*soj(reg){f.r[reg]=add36(f.r[reg],-1n);},output:f.rt.run,*outputTTY(){events.push('flush');yield*f.cpu.outputTTY();}};
   const trace=()=>traceRoutine(f.m,f.r,traceSymbols,traceIO);

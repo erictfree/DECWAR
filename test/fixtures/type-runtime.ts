@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import type { pregameInputRuntimeFixture } from './pregame-input-runtime.ts';
 import { typeStatements,typeMessages } from '../../src/game/type-statements.ts';
 import type { TypeStatementServices,TypeMessage } from '../../src/game/type-statements.ts';
@@ -9,7 +10,7 @@ export function bindTypeRuntime(f:ReturnType<typeof pregameInputRuntimeFixture>)
   f.m.write(symbols.p,88n);f.m.write(symbols.kind,0n);
   for(const key of ['O','OUTPUT','OPTION'] as const)f.h.put(symbols[key],key);
   const labels={} as Record<TypeMessage,bigint>;for(const [i,key] of typeMessages.entries()){labels[key]=21800n+16n*BigInt(i);f.h.put(labels[key],messages[key].text);}
-  const numeric=f.weapon.io,events:string[]=[],prepare=(args:bigint[])=>{loadArgumentBlock(f.m,symbols.header,args);selectArgumentBlock(f.r,symbols.header);};
+  const numeric=f.weapon.io,events:string[]=diagnosticRecords(),prepare=(args:bigint[])=>{loadArgumentBlock(f.m,symbols.header,args);selectArgumentBlock(f.r,symbols.header);};
   const io:TypeStatementServices<string>={logical:numeric.logical,not:w=>!numeric.logical(w),
     *assign(...a){yield*numeric.assign(...a);},*compare(...a){return yield*numeric.compare(...a);},
     *twoLabelIf(field,v){events.push('branch:'+field);return (yield*v.evaluate())<0n?'first':'second';}, // Explicit two-label compiler fixture.

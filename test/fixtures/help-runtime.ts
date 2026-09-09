@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import { newsRuntimeFixture } from './news-runtime.ts';
 import { helpFileRuntime } from '../../src/game/help-runtime.ts';
 import type { HelpFileServices } from '../../src/game/help-runtime.ts';
@@ -8,7 +9,7 @@ export function helpRuntimeFixture(text='\n.ENERGY\nBody\n.NEXT',keyword='Energy
   for(const base of [symbols.hl1fil,symbols.hl2fil])for(let i=0n;i<8n;i++)f.m.write(base+i,f.m.read(f.news.symbols.nwsfil+i));
   f.h.put(symbols.keyword,keyword);f.h.put(symbols.warning,helpText[6].text);f.h.put(symbols.missing,helpText[7].text);f.r.p1=symbols.keyword;
   f.ini.refills.length=0;for(let i=200;i<text.length;i+=200)f.ini.refills.push({text:text.slice(i,i+200)});f.ini.refills.push({eof:true});
-  const events:string[]=[],io:HelpFileServices<string>={
+  const events:string[]=diagnosticRecords(),io:HelpFileServices<string>={
     *pushData(w){events.push(`save:${w}`);yield*f.rt.stack.pushData(w);},*popData(){events.push('restore');return yield*f.rt.stack.popData();},
     *open(){events.push(`open:${f.r.x1}`);return yield*f.news.io.open();},*close(){events.push('close');yield*f.news.io.close();},*setInput(){events.push(`seti:${f.r.x1}`);yield*f.news.io.setInput();},
     *ichr(){yield*f.editor.io.ichr();events.push(`char:${f.r.c}`);},*ochr(){events.push(`ochr:${f.r.c}`);yield*f.editor.io.ochr();},

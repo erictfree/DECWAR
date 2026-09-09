@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import { currentVariant } from '../../src/runtime/variant-execution.ts';
 import assert from 'node:assert/strict';
 import type { checkRuntimeFixture } from './check-runtime.ts';
@@ -21,7 +22,7 @@ export function bindEditorRuntime(f:Host){
   };
   const symbols={cbits:f.tokens.symbols.cbits,linbuf:f.input.lineAddress,maxcnt:BigInt(inputLayout.maximum),newline:17500n,caret:17502n};
   f.h.put(symbols.newline,'\r\n');f.h.put(symbols.caret,'^');
-  const events:string[]=[],bytes:bigint[]=[];
+  const events:string[]=diagnosticRecords(),bytes:bigint[]=[];
   const terminalIO:RawTerminalServices<string>={
     *inchwl(){events.push('inchwl');if(!bytes.length){yield 'input';if(!bytes.length&&(base.hungup!==0n||base.ccflg!==0n)){f.r.c=0n;return;}}assert.ok(bytes.length,'unscheduled monitor input');f.r.c=bytes.shift()!;},
     *clrbfi(){events.push('clrbfi');bytes.length=0;},

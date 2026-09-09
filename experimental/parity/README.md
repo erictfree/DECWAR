@@ -348,10 +348,12 @@ node --test experimental/parity/test/*.test.ts
 
 ## Isolated heap diagnostics
 
-`node --expose-gc experimental/parity/memory-host.ts NEW_JSONL` starts an isolated
+`node --expose-gc experimental/parity/memory-host.ts NEW_JSONL [RECORD_LIMIT]` starts an isolated
 Austin playable host on an ephemeral loopback port. Its first JSONL record gives
 the port and process ID. Every ten seconds it records post-GC heap size and the
-largest exposed runtime arrays, inspecting only plain data properties. Run an
+largest exposed runtime arrays and tracked history counts/limits, inspecting only
+plain data properties. The optional record limit defaults to zero; use a small
+positive value to verify capped retention. Run an
 external fleet against that port, then stop this diagnostic host with SIGTERM.
 It writes no persistent galaxy and changes no game rules. Explicit garbage
 collection is measurement instrumentation, not a production repair or a claim

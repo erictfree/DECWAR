@@ -176,9 +176,12 @@ test('Live HELP reads actual archive topics on every open and NEWS retains its s
   let start=output().length;await send('HELP MOVE NEWS','command:help');
   assert.ok(output().slice(start).includes(body('MOVE')));assert.ok(output().slice(start).includes(body('NEWS')));
   start=output().length;await send('NEWS','command:news');assert.ok(output().slice(start).includes(sourceFile('DECWAR.NWS')));
-  f.low.write('pasflg',-1n);const opens=f.help.events.length;start=output().length;
+  f.low.write('pasflg',-1n);const opens:bigint[]=[],open=f.help.io.open;start=output().length;
+  // Record the two file-open boundaries directly; a bounded recent history
+  // need not retain early events while HELP scans the whole archive.
+  f.help.io.open=function*(){opens.push(f.r.x1);return yield*open();};
   await send('HELP MOVE','command:help');assert.ok(output().slice(start).includes(body('MOVE')));
-  assert.deepEqual(f.help.events.slice(opens).filter(event=>event.startsWith('open:')),[`open:${f.help.symbols.hl1fil}`,`open:${f.help.symbols.hl2fil}`]);
+  assert.deepEqual(opens,[f.help.symbols.hl1fil,f.help.symbols.hl2fil]);
   assert.equal(f.views.high.board.disp(v,h),101);assert.equal(f.high.read('shpcon',1,K.KNTURN),turns);
   await send('STATUS','command:status');
 });

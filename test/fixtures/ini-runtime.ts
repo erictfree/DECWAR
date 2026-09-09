@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import assert from 'node:assert/strict';
 import type { checkRuntimeFixture } from './check-runtime.ts';
 import type { bindEditorRuntime } from './editor-runtime.ts';
@@ -14,7 +15,7 @@ export function bindIniRuntime(f:Host){
   const machine={bufferCountOffset:2n,bufferPointerOffset:1n,inInstructionLeftHalf:0o123456n}; // Synthetic monitor constants.
   f.m.write(symbols.ttyFile,f.editor.terminalTarget);f.m.write(symbols.ttyFile+5n,18010n);
   f.m.write(symbols.iniFile,symbols.iniTarget);f.m.write(symbols.iniFile+5n,symbols.buffer);f.m.write(symbols.iniFile+2n,halfWords(3n,0n));
-  const events:string[]=[],refills:({text:string}|{eof:true})[]=[];
+  const events:string[]=diagnosticRecords(),refills:({text:string}|{eof:true})[]=[];
   const load=(text:string)=>{assert.ok(text.length<=200);for(let i=0;i<Math.ceil(text.length/5);i++)f.m.write(symbols.data+BigInt(i),packAscii(text.slice(i*5,i*5+5)));
     f.m.write(symbols.buffer+1n,signed36(halfWords(0o440700n,symbols.data)));f.m.write(symbols.buffer+2n,BigInt(text.length));};
   const bufferedIO:RawBufferedServices<string>={

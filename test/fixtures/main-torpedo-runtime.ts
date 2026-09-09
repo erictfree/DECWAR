@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import type { pregameRuntimeFixture } from './pregame-runtime.ts';
 import type { bindMainDefensesRuntime } from './main-defenses-runtime.ts';
 import type { bindRomulanTorpedoRuntime } from './romulan-torpedo-runtime.ts';
@@ -14,7 +15,7 @@ export function bindMainTorpedoRuntime(f:ReturnType<typeof pregameRuntimeFixture
   for(const [i,key] of (['iflg','i','tem','ntorp','id','iv','ih','idis','aran','nplc','j','d','idum','d1','d2'] as const).entries())locals[key]=55500n+BigInt(i);f.m.write(locals.d,f.realWord('99'));
   const s={header:55520n,count:55530n,zero:55531n,pteam:55532n,kind:55533n,index:55534n},labels={} as Record<TorpedoMessage,bigint>;f.m.write(s.kind,BigInt(K.DXROM));f.m.write(s.index,1n);
   for(const [i,key] of (['torp00','torp01','torp02','torp03','torp04','torp05','torp06','torp07','phacn1','error1','error2','empty'] as const).entries()){labels[key]=55600n+BigInt(i*30);f.h.put(labels[key],key==='empty'?'Sorry, Captain, but the torpedo tubes are empty!':messages[key].text);}
-  const events:string[]=[],hits:(typeof f.hit)[]=[],prepare=(a:bigint[])=>{loadArgumentBlock(f.m,s.header,a);selectArgumentBlock(f.r,s.header);};
+  const events:string[]=diagnosticRecords(),hits:(typeof f.hit)[]=diagnosticRecords(),prepare=(a:bigint[])=>{loadArgumentBlock(f.m,s.header,a);selectArgumentBlock(f.r,s.header);};
   const io:TorpedoStatementServices<string>={...rom.io,
     *iran(n){events.push('iran:'+n);return yield*f.tell.random.iran(BigInt(n));},
     *locate(entry,e){events.push(entry);f.m.write(f.location.n,yield*e.evaluate());return yield*f.location.run(entry);},

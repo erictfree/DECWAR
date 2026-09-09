@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import type { pregameRuntimeFixture } from './pregame-runtime.ts';
 import type { RepairServices } from '../../src/game/repair-statements.ts';
 import { dockStatements } from '../../src/game/dock-statements.ts';
@@ -8,7 +9,7 @@ import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-
 export function bindMainDockRuntime(f:ReturnType<typeof pregameRuntimeFixture>,numeric:Pick<RepairServices<string>,'logical'|'integer'|'assign'|'equal'|'etim'>){
   f.m.map(49200n,Array<bigint>(400).fill(77n));const locals={v:49200n,ifract:49201n,i:49202n,j:49203n},s={header:49210n,count:49220n,object:49221n,space:49222n,status:49230n,dock01:49300n,dockin:49340n};
   f.h.put(s.status,'STATUS');f.h.put(s.dock01,messages.dock01.text);f.h.put(s.dockin,messages.dockin.text);
-  const events:string[]=[],prepare=(a:bigint[])=>{loadArgumentBlock(f.m,s.header,a);selectArgumentBlock(f.r,s.header);};
+  const events:string[]=diagnosticRecords(),prepare=(a:bigint[])=>{loadArgumentBlock(f.m,s.header,a);selectArgumentBlock(f.r,s.header);};
   const io:DockServices<string>={...numeric,trueWord:-1n,enterPlanets:(a,b)=>a<=b,
     *different(a,b){return (yield*a())!==(yield*b());},
     *etim(a){events.push('etim');return yield*numeric.etim(a);},

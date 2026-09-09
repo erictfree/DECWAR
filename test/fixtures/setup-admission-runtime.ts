@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import type { pregameRuntimeFixture } from './pregame-runtime.ts';
 import { setupAdmissionStatements,setupCancelStatements } from '../../src/game/setup-admission-statements.ts';
 import type { AdmissionServices,AdmissionLabel } from '../../src/game/setup-admission-statements.ts';
@@ -12,7 +13,7 @@ export function bindSetupAdmissionRuntime(f:ReturnType<typeof pregameRuntimeFixt
   f.m.map(59200n,Array<bigint>(800).fill(77n));const locals={identity:BigInt(localLayout.local.address),kindex:59200n,i:59201n,ibeg:59202n,iend:59203n,d:59204n},s={header:59220n,count:59230n,yes:59240n,federation:59245n,empire:59250n};
   const labels={} as Record<AdmissionLabel,bigint>;(['setu11','setu12','setu13','setu14','setu15','setu16','setu17','stu17a','setu18',...Object.keys(setupLiterals)] as AdmissionLabel[]).forEach((key,i)=>{labels[key]=59300n+BigInt(i*25);f.h.put(labels[key],key in setupLiterals?setupLiterals[key as keyof typeof setupLiterals].text:messages[key as keyof typeof messages].text);});
   f.h.put(s.yes,'YES');f.h.put(s.federation,'FEDERATION');f.h.put(s.empire,'EMPIRE');
-  const events:string[]=[],runs:bigint[]=[],trapAddresses:Partial<Record<'zero'|'cc1'|'cc2'|'clrbuf',bigint>>={},prepare=(a:bigint[])=>{loadArgumentBlock(f.m,s.header,a);selectArgumentBlock(f.r,s.header);};
+  const events:string[]=diagnosticRecords(),runs:bigint[]=[],trapAddresses:Partial<Record<'zero'|'cc1'|'cc2'|'clrbuf',bigint>>={},prepare=(a:bigint[])=>{loadArgumentBlock(f.m,s.header,a);selectArgumentBlock(f.r,s.header);};
   const clockIO={...f.clockIO,*runtim(){if(!runs.length)throw new Error('admission requires scheduled RUNTIM');f.r.f=runs.shift()!;}};
   const io:AdmissionServices<string>={logical:f.weapon.io.logical,trueWord:()=>-1n,*interrupted(cc,hungup){return f.weapon.io.logical(cc())||f.weapon.io.logical(hungup());},
     *out(key,lines){events.push(key);f.m.write(s.count,BigInt(lines));prepare([labels[key],s.count]);yield*f.rt.run('out');},

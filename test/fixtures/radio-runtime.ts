@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import type { pregameInputRuntimeFixture } from './pregame-input-runtime.ts';
 import { radioStatements,radioMessages } from '../../src/game/radio-statements.ts';
 import type { RadioStatementServices,RadioMessage,RadioSymbols } from '../../src/game/radio-statements.ts';
@@ -10,7 +11,7 @@ export function bindRadioRuntime(f:ReturnType<typeof pregameInputRuntimeFixture>
   // Explicit relocated SHTDSP/LNGDSP ship entries from WARMAC:2409-2439.
   for(const n of [1n,2n]){f.m.write(f.s.object.shtdsp+n,halfWords(2n,29139n));f.m.write(f.s.object.lngdsp+n,halfWords(0o22n,f.s.status.lngshp-1n));}
   for(const ship of ships){f.h.put(29140n+BigInt(ship.id-1),ship.name[0]);const a=29200n+3n*BigInt(ship.id-1);f.h.put(a,ship.name);f.m.write(f.s.status.lngshp+BigInt(ship.id-1),a);}
-  const events:string[]=[],numeric=f.weapon.io,prepare=(args:bigint[])=>{loadArgumentBlock(f.m,header,args);selectArgumentBlock(f.r,header);};
+  const events:string[]=diagnosticRecords(),numeric=f.weapon.io,prepare=(args:bigint[])=>{loadArgumentBlock(f.m,header,args);selectArgumentBlock(f.r,header);};
   const io:RadioStatementServices<string>={logical:numeric.logical,*assign(...a){yield*numeric.assign(...a);},*binary(...a){return yield*numeric.binary(...a);},*or(...a){return yield*numeric.or(...a);},
     *bits(op,a,b){const left=yield*a.evaluate(),right=yield*b.evaluate();return signed36(op==='or'?left|right:left&right);},*negate(v){return signed36(-(yield*v.evaluate()));},
     *bounds(a,b){return yield*f.location.io.bounds(a,b,1);},enterLoop:(a,b)=>f.location.io.enterLoop(a,b,1),

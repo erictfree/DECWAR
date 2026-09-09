@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import type { pregameRuntimeFixture } from './pregame-runtime.ts';
 import { WordBlock } from '../../src/compat/memory.ts';
 import { localLayout } from '../../src/runtime/variant-values.ts';
@@ -24,7 +25,7 @@ export function bindMainListRuntime(f:ReturnType<typeof pregameRuntimeFixture>){
   const keys=['lstf01','lstf02','lstf03','lstf04','lstf05','lstf06','lstf07','lstf08','lstf09','lstf10','lstf11','lstf12','lstf13','lstf14','lstf15','lstf16','lstf17','known','ingame','inrang','inspra','type06','inactiveShip','outOfRange','builds','build3','buildAbbreviation','lsts01','lsts02','lsts03','lsts04','romulan','fedshp','empshp','fedbas','empbas','neupln','fedpln','emppln','target'] as const;
   keys.forEach((key,i)=>{labels[key]=56500n+BigInt(i*30);f.h.put(labels[key],literals[key]??messages[key as keyof typeof messages].text);});
   const keywords={} as Record<ListKeyword,bigint>;listKeywords.forEach((word,i)=>{keywords[word]=58000n+BigInt(i*4);f.h.put(keywords[word],word);});
-  const events:string[]=[],policy:{implicitShip?:bigint;twoLabel?:'true-first';reversedLoop?:'zero-trip'|'one-trip'}={},prepare=(a:bigint[])=>{loadArgumentBlock(f.m,s.header,a);selectArgumentBlock(f.r,s.header);};
+  const events:string[]=diagnosticRecords(),policy:{implicitShip?:bigint;twoLabel?:'true-first';reversedLoop?:'zero-trip'|'one-trip'}={},prepare=(a:bigint[])=>{loadArgumentBlock(f.m,s.header,a);selectArgumentBlock(f.r,s.header);};
   const outActual=function*(a:bigint,count:0|1){f.m.write(s.count,BigInt(count));prepare([a,s.count]);yield*f.rt.run('out');},out=function*(key:Label,count:0|1){events.push(key);yield*outActual(labels[key],count);};
   const crlf=function*(){yield*f.rt.run('crlf');},pdist=function*(v:bigint,h:bigint,ov:bigint,oh:bigint){prepare([v,h,ov,oh]);yield*rawPdist(f.r,f.rt.args,f.pdistCPU);return f.r.f;};
   const board=function*(entry:'disp'|'dispc',v:bigint,h:bigint){prepare([v,h]);yield*f.rawBoard.run(entry);return f.r.f;};

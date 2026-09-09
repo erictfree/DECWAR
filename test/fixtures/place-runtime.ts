@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import type { pregameRuntimeFixture } from './pregame-runtime.ts';
 import { placeStatements } from '../../src/game/place-statements.ts';
 import type { PlaceStatementArguments,PlaceStatementServices } from '../../src/game/place-statements.ts';
@@ -6,7 +7,7 @@ import { rawLdis } from '../../src/compat/ldis.ts';
 import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-call.ts';
 export function bindPlaceRuntime(f:ReturnType<typeof pregameRuntimeFixture>){
   f.m.map(46000n,Array<bigint>(400).fill(77n));const locals={k:46000n,i:46001n,pteam:46002n},s={header:46020n,object:46100n,n:46101n,v:46102n,h:46103n,range:46104n};
-  const events:string[]=[],draws:bigint[]=[],prepare=(a:bigint[])=>{loadArgumentBlock(f.m,s.header,a);selectArgumentBlock(f.r,s.header);};
+  const events:string[]=diagnosticRecords(),draws:bigint[]=diagnosticRecords(),prepare=(a:bigint[])=>{loadArgumentBlock(f.m,s.header,a);selectArgumentBlock(f.r,s.header);};
   const io:PlaceStatementServices<string>={logical:f.weapon.io.logical,
     *integer(op,l,r){const a=yield*l(),b=yield*r();return op==='sub'?add36(a,-b):divide36(a,b).quotient;},
     *compare(op,l,r){const a=yield*l(),b=yield*r();return op==='gt'?a>b:op==='le'?a<=b:a!==b;},

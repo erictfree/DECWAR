@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import { damageStatements } from '../../src/game/damage-statements.ts';
 import type { DamageServices } from '../../src/game/damage-statements.ts';
 import { rawEqual } from '../../src/compat/equal.ts';
@@ -26,7 +27,7 @@ export function damageRuntimeFixture(format:number=K.SHORT){
   const labels={alldok:10000n,units1:10100n,damrep:10200n,dmhdr1:10300n,dmhdr2:10400n};for(const name of Object.keys(labels) as (keyof typeof labels)[])f.h.put(labels[name],M[name].text);
   const locals={i:11000n,j:11001n,ia:11003n,ja:11004n},stoken=11002n;f.m.write(stoken,2n);
   const prepare=(words:bigint[])=>{loadArgumentBlock(f.m,10600n,words);selectArgumentBlock(f.r,10600n);};
-  const events:string[]=[],eq=equalServices(f),rawBoard=boardRuntimeFixture(f,high,low);
+  const events:string[]=diagnosticRecords(),eq=equalServices(f),rawBoard=boardRuntimeFixture(f,high,low);
   const io:DamageServices<string>={logical:w=>w<0n,enterTokenLoop:(start,limit)=>start<=limit,
     *equal(t,d){events.push(`equal:${t}:${d}`);prepare([t,d]);yield*rawEqual(f.r,f.rt.args,f.s.point7LeftHalf,eq);return f.r.f;},
     *out(name,lines){events.push(name);f.m.write(11100n,BigInt(lines));prepare([labels[name],11100n]);yield*f.rt.run('out');},

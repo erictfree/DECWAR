@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import assert from 'node:assert/strict';
 import type { pregameRuntimeFixture } from './pregame-runtime.ts';
 import type { bindMainDefensesRuntime } from './main-defenses-runtime.ts';
@@ -18,7 +19,7 @@ export function bindRomulanMainRuntime(f:ReturnType<typeof pregameRuntimeFixture
   for(const [i,key] of (['iplace','nplc','numsec','i','j','ctime','l','vt','ht','i1'] as const).entries()){locals[key]=45000n+BigInt(i);f.m.write(locals[key],77n);}
   const s={phit:45020n,id:45021n,header:45030n,args:45050n,realZero:45070n,power:45071n,ship:45072n,code:45073n,space:45074n,prc:45075n,width:45076n,tw:45077n,short:45078n,advance:45100n};
   f.m.write(s.phit,77n);f.m.write(s.id,88n);f.m.write(s.realZero,f.realWord('0.0'));f.h.put(s.advance,messages.romadv.text);f.m.write(s.short,BigInt(K.SHORT));
-  const events:string[]=[],calls:bigint[][]=[];
+  const events:string[]=diagnosticRecords(),calls:bigint[][]=diagnosticRecords();
   const prepare=(a:bigint[])=>{loadArgumentBlock(f.m,s.header,a);selectArgumentBlock(f.r,s.header);};
   function* actual(expr:RomulanExpression<string>,offset:number){if(expr.address)return expr.address();const a=s.args+BigInt(offset);f.m.write(a,yield*expr());return a;}
   const io:RomulanMainServices<string>={logical:f.weapon.io.logical,

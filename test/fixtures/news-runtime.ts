@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import { moveRuntimeFixture } from './move-runtime.ts';
 import { newsRuntime } from '../../src/game/news-runtime.ts';
 import type { NewsServices } from '../../src/game/news-runtime.ts';
@@ -14,7 +15,7 @@ export function newsRuntimeFixture(text='Hello\r\n'){
   for(const [i,w] of [f.ini.symbols.bufferedTarget,7000n,halfWords(4n,0n),0n,0n,f.ini.symbols.buffer,0n,0n].entries())f.m.write(symbols.nwsfil+BigInt(i),w);
   f.ini.block.write('ibflb',f.ini.symbols.ttyFile);f.input.pointer=-1n;f.ini.load(text);f.ini.refills.push({eof:true});
   const fileState={get jbff(){return f.job.jbff;},set jbff(v:bigint){f.job.jbff=v;},get jbrel(){return f.job.jbrel;},set jbrel(v:bigint){f.job.jbrel=v;},get hungup(){return state.hungup;}};
-  const events:string[]=[];
+  const events:string[]=diagnosticRecords();
   const openIO:OpenServices<string>={lookupOffset:1n,
     blt(end){let from=leftHalf(f.r.t1),to=rightHalf(f.r.t1);while(to<=end)f.m.write(to++,f.m.read(from++));f.r.t1=signed36(halfWords(from,to));},
     *getppn(){throw new Error('unscheduled GETPPN');},*filop(){events.push('filop');return true;},successReturn(){events.push('open-skip');},

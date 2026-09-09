@@ -10,8 +10,9 @@ not a certified fidelity level. The [playable decisions](playable-decisions.md)
 identify the repairs enabled for ordinary play.
 
 The [post-midnight testing checkpoint](testing-checkpoint.md) records the latest
-bounded fleet, both-variant clock/lifecycle and memory checks, including remaining
-diagnostic-record retention limits.
+bounded fleet and both-variant clock/lifecycle checks. The subsequent
+[runtime diagnostic policy](runtime-diagnostics.md) disables live history retention
+by default and offers a bounded recent-history option; 4589 runtime tests pass.
 
 ## What is available
 

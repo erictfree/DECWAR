@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import assert from 'node:assert/strict';
 import { statusStatements } from '../../src/game/status-statements.ts';
 import type { StatusServices,StatusSymbols,StatusMessage } from '../../src/game/status-statements.ts';
@@ -32,7 +33,7 @@ export function statusRuntimeFixture(format:number=K.SHORT){
   for(const [key,value] of Object.entries(symbols.switches))if(key!=='radio')f.h.put(value,key.toUpperCase());
   const locals={i:11000n,obit:11001n},stoken=11002n;f.m.write(stoken,2n);
   const a={prcflg:11200n,w:11201n,prlflg:11202n,proflg:11203n,tw:11204n};
-  const events:string[]=[],eq=equalServices(f),prepare=(words:bigint[],header=10600n)=>{loadArgumentBlock(f.m,header,words);selectArgumentBlock(f.r,header);};
+  const events:string[]=diagnosticRecords(),eq=equalServices(f),prepare=(words:bigint[],header=10600n)=>{loadArgumentBlock(f.m,header,words);selectArgumentBlock(f.r,header);};
   const input=new MemoryCommandInput(low,packAscii),parse=(line:string)=>{input.acceptLine(line);assert.equal(input.acquire(new TerminalOutput()),true);};parse('STATUS');
   const distanceCPU={*sub(reg:'f'|'t1',w:bigint):Generator<string,void,void>{f.r[reg]=add36(f.r[reg],-w);},*movm(reg:'f'|'t1'):Generator<string,void,void>{assert.notEqual(f.r[reg],MIN_INTEGER);if(f.r[reg]<0n)f.r[reg]=-f.r[reg];}};
   const pi:PrlocServices<string>={

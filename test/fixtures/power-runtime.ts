@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import assert from 'node:assert/strict';
 import { powerRoutine } from '../../src/compat/power-runtime.ts';
 import type { RawPowerServices } from '../../src/compat/power-runtime.ts';
@@ -10,7 +11,7 @@ type Runtime=Pick<ReturnType<typeof outputRuntimeFixture>,'m'|'r'|'rt'>;
 // Opaque 36-bit handles for exact rational fixture values. These are explicitly
 // NOT PDP-10 floating words. Only instruction/stack/control ordering is tested.
 export function powerRuntimeFixture(f:Runtime){
-  const s={oneImmediate:1n},values=new Map<bigint,Rational>([[262144n,real.literal('1')]]),events:string[]=[];
+  const s={oneImmediate:1n},values=new Map<bigint,Rational>([[262144n,real.literal('1')]]),events:string[]=diagnosticRecords();
   let next=262145n;
   const encode=(n:Rational)=>{const key=next++;values.set(key,n);return key;};
   const decode=(w:bigint)=>{const n=values.get(w);assert.ok(n,`unknown rational handle ${w}`);return n;};

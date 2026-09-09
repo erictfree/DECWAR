@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import { currentVariant } from '../../src/runtime/variant-execution.ts';
 import assert from 'node:assert/strict';
 import type { checkRuntimeFixture } from './check-runtime.ts';
@@ -12,7 +13,7 @@ import { add36,multiply36,signed36,halfWords,leftHalf,rightHalf,unsigned36,packA
 import { orderedRational as real } from '../support/rational-real.ts';
 type Host=Pick<ReturnType<typeof checkRuntimeFixture>,'m'|'r'|'rt'|'low'|'input'|'s'|'h'|'rawPower'>&{wait:ReturnType<typeof bindWaitRuntime>};
 export function bindTokenRuntime(f:Host){
-  f.m.map(16500n,Array<bigint>(1000).fill(0n));const events:string[]=[];
+  f.m.map(16500n,Array<bigint>(1000).fill(0n));const events:string[]=diagnosticRecords();
   const state={get bufptr(){return f.wait.state.bufptr;},set bufptr(v:bigint){f.wait.state.bufptr=v;},
     get hungup(){return f.wait.state.hungup;},get locked(){return f.wait.state.locked;},
     get svlock(){return f.wait.state.svlock;},set svlock(v:bigint){f.wait.state.svlock=v;},

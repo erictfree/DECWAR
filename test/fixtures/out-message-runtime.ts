@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import type { pregameInputRuntimeFixture } from './pregame-input-runtime.ts';
 import type { bindGetMessageRuntime } from './get-message-runtime.ts';
 import type { bindRadioRuntime } from './radio-runtime.ts';
@@ -11,7 +12,7 @@ import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-
 type Host=ReturnType<typeof pregameInputRuntimeFixture>&{getMessage:ReturnType<typeof bindGetMessageRuntime>;radio:ReturnType<typeof bindRadioRuntime>};
 export function bindOutMessageRuntime(f:Host){
   f.m.map(32000n,Array<bigint>(300).fill(0n));f.m.map(BigInt(localLayout.message.address),Array<bigint>(localLayout.message.words).fill(0n));const om=new WordBlock(f.m,localLayout.message),locals={i:32000n,k:32001n};
-  f.m.write(locals.i,77n);f.m.write(locals.k,77n);const header=32010n,lines=32020n,detail=32021n,labels={mess01:32100n,mess02:32140n},events:string[]=[];
+  f.m.write(locals.i,77n);f.m.write(locals.k,77n);const header=32010n,lines=32020n,detail=32021n,labels={mess01:32100n,mess02:32140n},events:string[]=diagnosticRecords();
   for(const key of ['mess01','mess02'] as const)f.h.put(labels[key],messages[key].text);
   // Source ODISP class five literals (WARMAC:2413,2437) for received speech.
   f.h.put(32030n,outputTables.shtdsp[5].text);f.h.put(32040n,outputTables.lngdsp[5].text);f.m.write(f.s.object.shtdsp+5n,32030n);f.m.write(f.s.object.lngdsp+5n,32040n);

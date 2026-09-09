@@ -130,6 +130,14 @@ log and data paths. The JSON-lines log records source identity, connections,
 reloads, completion, failures and shutdown, without player input/passwords.
 Implementation progress is recorded in WORK_LOG.md.
 
+## Optional internal histories
+
+Internal diagnostic record retention defaults to off. `--diagnostic-records 200`
+keeps the newest 200 entries per history per session; zero disables it and the
+maximum is 100000. It does not change game queues, state or file logging, and it
+is separate from `--strict`. See [runtime diagnostics](runtime-diagnostics.md)
+for scope, inspection and validation.
+
 ## Historical diagnostic mode
 
 ```sh

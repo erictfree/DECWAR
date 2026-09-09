@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import type { pregameInputRuntimeFixture } from './pregame-input-runtime.ts';
 import type { bindFreeRuntime } from './free-runtime.ts';
 import type { bindJobStatusRuntime } from './job-status-runtime.ts';
@@ -9,7 +10,7 @@ type Host=ReturnType<typeof pregameInputRuntimeFixture>&{free:ReturnType<typeof 
 export function bindRestartRuntime(f:Host){
   f.m.map(25800n,Array<bigint>(400).fill(0n));const locals={tteam:f.free.locals.tteam,i:f.free.locals.i,dummy:25404n},header=25800n,lines=25810n,labels={free01:25820n,free02:25850n};
   f.m.write(locals.dummy,77n);for(const key of ['free01','free02'] as const)f.h.put(labels[key],messages[key].text);
-  const events:string[]=[],prepare=(a:bigint[])=>{loadArgumentBlock(f.m,header,a);selectArgumentBlock(f.r,header);},base=f.free.io;
+  const events:string[]=diagnosticRecords(),prepare=(a:bigint[])=>{loadArgumentBlock(f.m,header,a);selectArgumentBlock(f.r,header);},base=f.free.io;
   const io:RestartStatementServices<string>={logical:base.logical,*binary(...a){return yield*base.binary(...a);},*assign(...a){yield*base.assign(...a);},*bounds(...a){return yield*base.bounds(...a);},enterLoop:base.enterLoop,
     *assignAliveTrue(d){f.m.write(d(),-1n);},
     *disp(v,h){events.push('disp');prepare([v,h]);yield*f.rawBoard.run('disp');return f.r.f;},

@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import assert from 'node:assert/strict';
 import type { pregameInputRuntimeFixture } from './pregame-input-runtime.ts';
 import type { bindGetMessageRuntime } from './get-message-runtime.ts';
@@ -6,7 +7,7 @@ import type { QueueProducerEntry,QueueProducerServices } from '../../src/compat/
 import { halfWords,leftHalf,rightHalf,signed36 } from '../../src/compat/word36.ts';
 type Host=ReturnType<typeof pregameInputRuntimeFixture>&{getMessage:ReturnType<typeof bindGetMessageRuntime>};
 export function bindQueueProducerRuntime(f:Host){
-  f.m.map(27000n,Array<bigint>(400).fill(0n));const symbols={lkfail:f.low.address('lkfail'),quelok:f.high.address('quelok'),reserveLiteral:27000n,updateLiteral:27001n},events:string[]=[];
+  f.m.map(27000n,Array<bigint>(400).fill(0n));const symbols={lkfail:f.low.address('lkfail'),quelok:f.high.address('quelok'),reserveLiteral:27000n,updateLiteral:27001n},events:string[]=diagnosticRecords();
   f.m.write(symbols.reserveLiteral,halfWords(27010n,symbols.quelok));f.m.write(symbols.updateLiteral,halfWords(27020n,symbols.quelok));f.h.put(27010n,'RSRV.');f.h.put(27020n,'UPDT.');
   function* run(entry:QueueProducerEntry):Generator<string,void,void>{yield*f.cpu.pushP(1000n);yield*queueProducerRuntime(entry,f.m,f.r,symbols,io);assert.equal(yield*f.cpu.popP(),1000n,'fixture requires queue producer return transfer');}
   const q=f.getMessage.qio;

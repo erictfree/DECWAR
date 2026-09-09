@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import assert from 'node:assert/strict';
 import { basePhaserRuntimeFixture } from './base-phaser-runtime.ts';
 import { checkStatements,checkPointStatements } from '../../src/game/check-statements.ts';
@@ -14,7 +15,7 @@ export function checkRuntimeFixture(){
   const args={h:14000n,v:14001n,dh:14002n,dv:14003n,dist:14004n,displ:14005n};
   [10n,20n,4n,2n,4n,f.rawPower.encode(real.literal('0'))].forEach((w,i)=>f.m.write(14000n+BigInt(i),w));
   f.m.write(locals.rh,f.rawPower.encode(real.literal('99')));f.m.write(locals.rv,f.rawPower.encode(real.literal('99')));
-  const events:string[]=[],numeric=f.weapon.io;
+  const events:string[]=diagnosticRecords(),numeric=f.weapon.io;
   const prepare=(words:bigint[])=>{loadArgumentBlock(f.m,14050n,words);selectArgumentBlock(f.r,14050n);};
   const io:CheckStatementServices<string>={
     *binary(...a){return yield*numeric.binary(...a);},*convert(...a){return yield*numeric.convert(...a);},*compare(...a){return yield*numeric.compare(...a);},*assign(...a){yield*numeric.assign(...a);},realLiteral:t=>numeric.realLiteral(t),logical:w=>numeric.logical(w),

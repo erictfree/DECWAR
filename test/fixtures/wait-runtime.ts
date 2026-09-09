@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import assert from 'node:assert/strict';
 import { pauseRuntime,inputWaitRuntime,clearInputRuntime } from '../../src/compat/wait-runtime.ts';
 import type { PauseRuntimeServices,InputWaitServices } from '../../src/compat/wait-runtime.ts';
@@ -14,7 +15,7 @@ import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-
 type WaitFixtureHost=Pick<ReturnType<typeof checkRuntimeFixture>,'m'|'r'|'input'|'rt'>&{locks:LockBlock;lockState:ReturnType<typeof lockState>;symbols:UnlockSymbols;lockIO:LockServices<string>;unlockIO:UnlockServices<string>};
 export function bindWaitRuntime(f:WaitFixtureHost){
   f.m.map(16300n,Array<bigint>(100).fill(0n));
-  const argument=16300n,header=16310n,events:string[]=[],clocks=[1000n,11000n],operands:bigint[]=[];
+  const argument=16300n,header=16310n,events:string[]=diagnosticRecords(),clocks=[1000n,11000n],operands:bigint[]=diagnosticRecords();
   f.m.write(argument,2000n);
   const state={
     get locked(){return f.lockState.locked;},set locked(v:bigint){f.lockState.locked=v;},

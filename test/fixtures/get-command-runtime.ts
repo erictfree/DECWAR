@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import type { pregameInputRuntimeFixture } from './pregame-input-runtime.ts';
 import type { bindEndgameRuntime } from './endgame-runtime.ts';
 import type { bindOutMessageRuntime } from './out-message-runtime.ts';
@@ -14,7 +15,7 @@ type Host=ReturnType<typeof pregameInputRuntimeFixture>&{endgame:ReturnType<type
 export function bindGetCommandRuntime(f:Host){
   f.m.map(32300n,Array<bigint>(700).fill(0n));const locals={} as GetCommandLocals;
   for(const [i,key] of (['i','txppn','txnm1','txnm2','txsh1','txsh2','txtim','txwhy','txtem','txtot'] as const).entries()){locals[key]=32300n+BigInt(i);f.m.write(locals[key],77n);}
-  const cmd=32310n,header=32320n,lines=32340n,temp=32341n,quit=32350n,labels={} as Record<GetCommandMessage,bigint>,events:string[]=[],trapAddress:{value?:bigint}={};f.m.write(cmd,77n);f.h.put(quit,'QUIT');
+  const cmd=32310n,header=32320n,lines=32340n,temp=32341n,quit=32350n,labels={} as Record<GetCommandMessage,bigint>,events:string[]=diagnosticRecords(),trapAddress:{value?:bigint}={};f.m.write(cmd,77n);f.h.put(quit,'QUIT');
   for(const [i,key] of (['beep','noquit','ambcom','unkcom','forhlp','main02'] as const).entries()){labels[key]=32400n+BigInt(i*40);if(key==='beep')f.m.write(labels[key],0o034160703400n);else f.h.put(labels[key],messages[key].text);}
   const prepare=(a:bigint[])=>{loadArgumentBlock(f.m,header,a);selectArgumentBlock(f.r,header);},numeric=f.weapon.io;
   const promptLabels={normal:32700n,L:32720n,S:32721n,D:32722n,E:32723n,end:32724n};f.h.put(promptLabels.normal,messages.comlin.text);for(const key of ['L','S','D','E'] as const)f.h.put(promptLabels[key],key);f.h.put(promptLabels.end,'> ');

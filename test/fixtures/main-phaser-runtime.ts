@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import type { pregameRuntimeFixture } from './pregame-runtime.ts';
 import type { bindMainDefensesRuntime } from './main-defenses-runtime.ts';
 import { phaserStatements } from '../../src/game/phaser-statements.ts';
@@ -11,7 +12,7 @@ import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-
 export function bindMainPhaserRuntime(f:ReturnType<typeof pregameRuntimeFixture>,defenses:ReturnType<typeof bindMainDefensesRuntime>){
   f.m.map(55000n,Array<bigint>(500).fill(77n));const locals={tem:55000n,bank:55001n,iv:55002n,ih:55003n,nplc:55004n,ip:55005n,id:55006n,phit:55007n},s={header:55020n,count:55030n,ship:55031n,flag:55032n,thirty:55033n},labels={} as Record<PhaserMessage,bigint>;
   f.m.write(s.thirty,30n);for(const [i,key] of (['phacn0','erloc1','error1','error2','phacn1','phacn2','phacn4','phacn5','phacn7','phacn8','phacn9'] as const).entries()){labels[key]=55100n+BigInt(i*30);f.h.put(labels[key],messages[key].text);}
-  const events:string[]=[],hits:(typeof f.hit)[]=[],prepare=(a:bigint[])=>{loadArgumentBlock(f.m,s.header,a);selectArgumentBlock(f.r,s.header);};
+  const events:string[]=diagnosticRecords(),hits:(typeof f.hit)[]=diagnosticRecords(),prepare=(a:bigint[])=>{loadArgumentBlock(f.m,s.header,a);selectArgumentBlock(f.r,s.header);};
   const io:PhaserStatementServices<string>={...defenses.weaponIO,
     *locate(entry,n){events.push(entry);f.m.write(f.location.n,BigInt(n));return yield*f.location.run(entry);},
     *board(entry,v,h){prepare([v,h]);yield*f.rawBoard.run(entry);return f.r.f;},

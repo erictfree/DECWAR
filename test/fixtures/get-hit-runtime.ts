@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import type { pregameInputRuntimeFixture } from './pregame-input-runtime.ts';
 import type { bindFreeRuntime } from './free-runtime.ts';
 import { getHitRuntime,getHitClearFields } from '../../src/compat/get-hit-runtime.ts';
@@ -16,7 +17,7 @@ export function bindGetHitRuntime(f:Host){
   const initialize=bindQueueInitializeRuntime(f,queues);
   for(const entry of ['setqh','setqm'] as const){if(!initialize.run(entry).next().done)throw new Error('fixture initialization requires non-suspending ordinary BLT');}
   const fields={} as Record<GetHitField,bigint>;for(const key of getHitClearFields)fields[key]=f.low.address(key);
-  const symbols={fields,dbits:f.low.address('dbits'),hitflg:f.high.address('hitflg',1),bits:f.high.address('bits',1),hitql:queues.address('hitql'),hitq:queues.address('hitq'),knhit:BigInt(queueLayout.constants.knhit)},events:string[]=[];
+  const symbols={fields,dbits:f.low.address('dbits'),hitflg:f.high.address('hitflg',1),bits:f.high.address('bits',1),hitql:queues.address('hitql'),hitq:queues.address('hitq'),knhit:BigInt(queueLayout.constants.knhit)},events:string[]=diagnosticRecords();
   const io:GetHitServices<string>={
     *sosl(a){const n=add36(f.m.read(a),-1n);f.m.write(a,n);return n<0n;},*sojgT1(){f.r.t1=add36(f.r.t1,-1n);return f.r.t1>0n;},*aojaX2(){f.r.x2=add36(f.r.x2,1n);},
     *imuliT1(n){f.r.t1=multiply36(f.r.t1,n);},*addi(reg,n){f.r[reg]=add36(f.r[reg],n);},

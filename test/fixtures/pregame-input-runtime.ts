@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import assert from 'node:assert/strict';
 import { helpCommandRuntimeFixture } from './help-command-runtime.ts';
 import { pregameInputStatements } from '../../src/game/pregame-input-statements.ts';
@@ -15,7 +16,7 @@ export function pregameInputRuntimeFixture(line='HELP'){
   f.h.put(symbols.pg,'PG');f.h.put(symbols.promptEnd,'> ');f.m.write(cmd,77n);f.m.write(locals.i,88n);
   const labels={} as Record<PregameInputMessage,bigint>;
   for(const [i,name] of (['ambcom','unkcom','maicom','forhlp'] as const).entries()){labels[name]=20400n+BigInt(i*40);f.h.put(labels[name],messages[name].text);}
-  const events:string[]=[],prepare=(args:bigint[])=>{loadArgumentBlock(f.m,symbols.header,args);selectArgumentBlock(f.r,symbols.header);};
+  const events:string[]=diagnosticRecords(),prepare=(args:bigint[])=>{loadArgumentBlock(f.m,symbols.header,args);selectArgumentBlock(f.r,symbols.header);};
   const numeric=f.weapon.io;
   const io:PregameInputStatementServices<string>={logical:numeric.logical,*or(...p){return yield*numeric.or(...p);},*assign(...a){yield*numeric.assign(...a);},
     *assignFalse(a){f.m.write(a,0n);},*bounds(...a){return yield*f.location.io.bounds(...a);},enterLoop:f.location.io.enterLoop,

@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import type { pregameRuntimeFixture } from './pregame-runtime.ts';
 import type { bindMainDefensesRuntime } from './main-defenses-runtime.ts';
 import type { bindRomulanTargetRuntime } from './romulan-target-runtime.ts';
@@ -14,7 +15,7 @@ export function bindRomulanTorpedoRuntime(f:ReturnType<typeof pregameRuntimeFixt
   for(const [i,key] of (['misfir','tpaus','id','idis','aran','nplc','j','iob','num99','iv2','ih2','i','pteam','d','idum'] as const).entries())locals[key]=46400n+BigInt(i);
   f.m.write(locals.d,f.realWord('99'));
   const s={header:46430n,flag:46455n,thirty:46456n,ship:46457n,zero:46458n,dv:46500n,dh:46501n};f.m.write(s.thirty,30n);f.m.write(s.ship,-1n);f.m.write(s.zero,0n);
-  const events:string[]=[],checks:bigint[][]=[],damageCalls:bigint[][]=[],numeric=defenses.weaponIO;
+  const events:string[]=diagnosticRecords(),checks:bigint[][]=diagnosticRecords(),damageCalls:bigint[][]=diagnosticRecords(),numeric=defenses.weaponIO;
   const prepare=(a:bigint[])=>{loadArgumentBlock(f.m,s.header,a);selectArgumentBlock(f.r,s.header);};
   const io:RomulanTorpedoStatementServices<string>={...numeric,
     *ran(z){events.push('ran');return yield*numeric.ran(z);},*iran(max){events.push('iran:'+max);return yield*f.tell.random.iran(BigInt(max));},

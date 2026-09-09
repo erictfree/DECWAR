@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import assert from 'node:assert/strict';
 import { boardRoutine } from '../../src/compat/board-runtime.ts';
 import type { BoardEntry,BoardServices } from '../../src/compat/board-runtime.ts';
@@ -10,7 +11,7 @@ import { add36,divide36,multiply36,halfWords,rightHalf,unsigned36 } from '../../
 // Explicit ordinary integer and local, unindexed POINT CPU fixture. CPU flags
 // and monitor traps remain required production services.
 export function boardRuntimeFixture(f:DiagnosticFixtureRuntime,high:CommonBlock,low:CommonBlock){
-  const {m,r}=f,s={ksid:25n,b12tbl:13200n,oldobj:13210n,pasflg:low.address('pasflg')},events:string[]=[];
+  const {m,r}=f,s={ksid:25n,b12tbl:13200n,oldobj:13210n,pasflg:low.address('pasflg')},events:string[]=diagnosticRecords();
   for(let i=-1;i<3;i++)m.write(s.b12tbl+BigInt(i),halfWords((BigInt(24-i*12)<<12n)|(12n<<6n),high.address('board',1)));
   const diagnostic=boardDiagnosticsFixture(f,low);
   const pointer=(word:bigint)=>{

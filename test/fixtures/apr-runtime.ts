@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import assert from 'node:assert/strict';
 import type { pregameInputRuntimeFixture } from './pregame-input-runtime.ts';
 import type { bindGripeRuntime } from './gripe-runtime.ts';
@@ -15,7 +16,7 @@ type Host=ReturnType<typeof pregameInputRuntimeFixture>&{gripe:ReturnType<typeof
 export function bindAprRuntime(f:Host){
   f.m.map(42400n,Array<bigint>(1600).fill(0n));
   const locals={} as DecwarExitLocals;for(const [i,key] of (['i','txppn','txnm1','txnm2','txsh1','txsh2','txtim','txwhy','txtem','txtot'] as const).entries()){locals[key]=42400n+BigInt(i);f.m.write(locals[key],77n);}
-  const header=42420n,lines=42440n,fatalTarget=42450n,trapInstruction=42451n,fallback=42452n,events:string[]=[],labels=new Map<number,bigint>();
+  const header=42420n,lines=42440n,fatalTarget=42450n,trapInstruction=42451n,fallback=42452n,events:string[]=diagnosticRecords(),labels=new Map<number,bigint>();
   let a=42500n;for(const group of decwarText.fatal)for(const item of group){labels.set(item.line,a);f.h.put(a,item.text);a+=20n;}
   f.m.write(fallback,42453n);f.m.write(42453n,5n);f.m.write(trapInstruction,0o254000012345n);
   const symbols={emergencyPushdownInitial:signed36(halfWords(-40n,f.file.address('stabuf',128)-1n)),dataStackInitial:f.s.initialStackWord,

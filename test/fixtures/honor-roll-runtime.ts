@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import assert from 'node:assert/strict';
 import type { pregameInputRuntimeFixture } from './pregame-input-runtime.ts';
 import type { bindStatisticsRuntime } from './statistics-runtime.ts';
@@ -13,7 +14,7 @@ export function bindHonorRollRuntime(f:Host){
     openLiterals:stats.symbols.openLiterals,text:honorRollText.map((_,i)=>39100n+BigInt(i*32))};
   // Explicit pooled-literal fixture; the runtime also permits distinct sites.
   f.m.write(s.freeLabelLiteral,packSixbit('DECWAF'));honorRollText.forEach((item,i)=>f.h.put(s.text[i],item.text));
-  const events:string[]=[],io:HonorRollRuntimeServices<string>={
+  const events:string[]=diagnosticRecords(),io:HonorRollRuntimeServices<string>={
     *pushData(w){yield*f.rt.stack.pushData(w);},*popData(){return yield*f.rt.stack.popData();},
     *open(){return yield*stats.io.open();},*inputSTA(d){yield*stats.io.inputSTA(d);},*closeSTA(){yield*stats.io.closeSTA();},*outputTTY(){events.push('flush');yield*stats.io.outputTTY();},
     *ostr(){events.push('ostr:'+f.r.p1);yield*f.rt.run('ostr.');},*ochr(){events.push('ochr:'+f.r.c);yield*f.rt.run('ochr.');},*osix(){events.push('osix');yield*f.rt.run('osix.');},*space(){events.push('space');yield*f.rt.run('ospc.');},

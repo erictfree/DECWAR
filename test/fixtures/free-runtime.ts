@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import type { pregameInputRuntimeFixture } from './pregame-input-runtime.ts';
 import type { bindBlockRuntime } from './block-runtime.ts';
 import { freeStatements } from '../../src/game/free-statements.ts';
@@ -12,7 +13,7 @@ type Host=ReturnType<typeof pregameInputRuntimeFixture>&{block:ReturnType<typeof
 export function bindFreeRuntime(f:Host){
   f.m.map(25400n,Array<bigint>(400).fill(0n));f.m.map(BigInt(localLayout.savedShip.address),Array<bigint>(localLayout.savedShip.words).fill(0n));
   const fr=new WordBlock(f.m,localLayout.savedShip),locals={tteam:25400n,d:25401n,kindex:25402n,i:25403n},searchLocals={i:25405n,ii:25406n},snum=25410n,header=25420n,zero=25430n;
-  f.m.write(snum,1n);for(const a of Object.values(locals))f.m.write(a,77n);const numeric=f.weapon.io,events:string[]=[];
+  f.m.write(snum,1n);for(const a of Object.values(locals))f.m.write(a,77n);const numeric=f.weapon.io,events:string[]=diagnosticRecords();
   const prepare=(args:bigint[])=>{loadArgumentBlock(f.m,header,args);selectArgumentBlock(f.r,header);};
   const searchIO={assign:numeric.assign,and:numeric.and,compare:numeric.compare,*bounds(s:Parameters<typeof f.location.io.bounds>[0],l:Parameters<typeof f.location.io.bounds>[1]){return yield*f.location.io.bounds(s,l,1);},enterLoop:(s:bigint,l:bigint)=>f.location.io.enterLoop(s,l,1)};
   const io:FreeStatementServices<string>={logical:numeric.logical,not:w=>!numeric.logical(w),

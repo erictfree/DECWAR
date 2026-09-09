@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import { helpListRuntimeFixture } from './help-list-runtime.ts';
 import { helpCommandRuntime } from '../../src/game/help-command-runtime.ts';
 import type { HelpCommandServices } from '../../src/game/help-command-runtime.ts';
@@ -12,7 +13,7 @@ export function helpCommandRuntimeFixture(line='HELP ENERGY',text='\n.ENERGY\r\n
   // Each successful synthetic FILOP starts the selected fixture file at byte zero.
   const filop=f.news.openIO.filop;f.news.openIO.filop=function*(){const success=yield*filop();if(success){f.ini.load(text.slice(0,200));f.ini.refills.length=0;for(let i=200;i<text.length;i+=200)f.ini.refills.push({text:text.slice(i,i+200)});f.ini.refills.push({eof:true});}return success;};
   const shipSymbols={shpcon:f.high.address('shpcon',1,1),alive:f.high.address('alive',1)},state={get who(){return f.low.read('who');}};
-  const events:string[]=[],io:HelpCommandServices<string>={
+  const events:string[]=diagnosticRecords(),io:HelpCommandServices<string>={
     *outstr(a){events.push('red-warning');yield*f.editor.io.outstr(a);},
     *afterAlertCheck(){events.push('alert-return');}, // Explicit literal-target fixture policy.
     *eshp(){events.push('eshp');yield*eraseTextShip(f.file,state,f.r,shipSymbols,()=>f.rawBoard.internal('sdsp'));},

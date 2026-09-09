@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import type { pregameInputRuntimeFixture } from './pregame-input-runtime.ts';
 import type { bindGetHitRuntime } from './get-hit-runtime.ts';
 import { makeHitRuntime } from '../../src/compat/make-hit-runtime.ts';
@@ -5,7 +6,7 @@ import type { MakeHitServices } from '../../src/compat/make-hit-runtime.ts';
 import { add36,multiply36,rightHalf,unsigned36 } from '../../src/compat/word36.ts';
 type Host=ReturnType<typeof pregameInputRuntimeFixture>&{getHit:ReturnType<typeof bindGetHitRuntime>};
 export function bindMakeHitRuntime(f:Host){
-  f.m.map(27400n,Array<bigint>(400).fill(0n));const symbols={...f.getHit.symbols,who:f.low.address('who'),pasflg:f.low.address('pasflg'),hitser:f.getHit.queues.address('hitser'),knhshp:40n,illegal:27400n},events:string[]=[];f.h.put(symbols.illegal,'%Illegal IWHAT code in MAKHIT: ');
+  f.m.map(27400n,Array<bigint>(400).fill(0n));const symbols={...f.getHit.symbols,who:f.low.address('who'),pasflg:f.low.address('pasflg'),hitser:f.getHit.queues.address('hitser'),knhshp:40n,illegal:27400n},events:string[]=diagnosticRecords();f.h.put(symbols.illegal,'%Illegal IWHAT code in MAKHIT: ');
   const io:MakeHitServices<string>={...f.rt.stack,
     *sosX1(){f.r.x1=add36(f.r.x1,-1n);},*imuli(reg,n){f.r[reg]=multiply36(f.r[reg],n);},*aosX1(){f.r.x1=add36(f.r.x1,1n);},*sojgT1(){return yield*f.getHit.io.sojgT1();},
     *afterOldestUpdate(){events.push('oldest-continuation');}, // Explicit return to scan after the source literal block.

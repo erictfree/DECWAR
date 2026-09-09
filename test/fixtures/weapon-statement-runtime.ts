@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import assert from 'node:assert/strict';
 import type { CommonBlock,AddressSpace } from '../../src/compat/memory.ts';
 import { add36,multiply36,divide36,signed36 } from '../../src/compat/word36.ts';
@@ -15,7 +16,7 @@ export function weaponStatementRuntimeFixture(f:{m:AddressSpace;high:CommonBlock
   for(const [name,a] of Object.entries(locals))f.m.write(a,name==='powfac'?0n:power.encode(real.literal('99')));
   const ref=(a:bigint)=>({get value(){return f.m.read(a);},set value(w:bigint){f.m.write(a,w);}});
   const numeric=(v:bigint,type:'integer'|'real')=>type==='real'?power.decode(v):real.fromInteger(v);
-  const events:string[]=[];
+  const events:string[]=diagnosticRecords();
   const random:Pick<WeaponStatementServices<string>,'ran'|'iran'>={
     *ran(zero){assert.equal(zero,0);return power.encode(damage.io.ran(0));},
     *iran(max){return damage.io.iran(BigInt(max));},

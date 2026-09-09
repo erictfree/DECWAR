@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import type { pregameInputRuntimeFixture } from './pregame-input-runtime.ts';
 import type { bindJobStatusRuntime } from './job-status-runtime.ts';
 import { passwordStatements } from '../../src/game/password-statements.ts';
@@ -8,7 +9,7 @@ import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-
 
 export function bindPasswordRuntime(f:ReturnType<typeof pregameInputRuntimeFixture>,job:ReturnType<typeof bindJobStatusRuntime>){
   f.m.map(21600n,Array<bigint>(100).fill(0n));
-  const symbols={header:21600n,kpass:21610n,one:21612n,zero:21613n},events:string[]=[];
+  const symbols={header:21600n,kpass:21610n,one:21612n,zero:21613n},events:string[]=diagnosticRecords();
   f.h.put(symbols.kpass,K.KPASS);f.m.write(symbols.one,1n);f.m.write(symbols.zero,0n);
   const numeric=f.weapon.io;
   const io:PasswordStatementServices<string>={logical:numeric.logical,

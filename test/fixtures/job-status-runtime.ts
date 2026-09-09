@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import { currentVariant } from '../../src/runtime/variant-execution.ts';
 import assert from 'node:assert/strict';
 import { jobStatusRuntime,userProject } from '../../src/compat/job-status-runtime.ts';
@@ -14,7 +15,7 @@ export function bindJobStatusRuntime(f:Host){
   f.m.write(symbols.trmopLiteral,halfWords(2n,21232n));f.m.write(21232n,12345n);f.m.write(21233n,-1n); // Synthetic .TORSP value.
   for(const [i,n] of (currentVariant().definition.id==='austin'?[300,50,75,110,134,150,200,300,600,1200,1800,2400]:[300,50,75,110,134,150,200,300,0,0,600,1200,1800,2400]).entries())f.m.write(symbols.speedTable+BigInt(i),BigInt(n)); // WARMAC:3747-3760.
   f.h.put(symbols.namePrompt,'\r\nYour name please: ');f.h.put(symbols.uscbh,'PLAYER');
-  const events:string[]=[],ppns=[9n,9n],bytes:bigint[]=[],monitor={speed:11n,trmopSkip:true,job:7n,sequenceJob:7n,tty:10n,getppnSkip:false};
+  const events:string[]=diagnosticRecords(),ppns=[9n,9n],bytes:bigint[]=[],monitor={speed:11n,trmopSkip:true,job:7n,sequenceJob:7n,tty:10n,getppnSkip:false};
   function pointer(reg:'t1'|'t2'){
     const word=unsigned36(f.r[reg]);let pos=(word>>30n)&63n,address=rightHalf(word);const size=(word>>24n)&63n;
     assert.ok(size===6n||size===7n,'fixture requires a six/seven-bit pointer');if(pos<size){pos=36n;address=rightHalf(address+1n);}pos-=size;f.r[reg]=signed36((word&~((63n<<30n)|0o777777n))|(pos<<30n)|address);return {pos,address,mask:(1n<<size)-1n};

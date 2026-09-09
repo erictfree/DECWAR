@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import { currentVariant } from '../../src/runtime/variant-execution.ts';
 import assert from 'node:assert/strict';
 import type { pregameInputRuntimeFixture } from './pregame-input-runtime.ts';
@@ -19,7 +20,7 @@ export function bindRomulanSpeechRuntime(f:Host){
   for(const key of ['broadcast','single','adjectives','populations','objects','generic','teams'] as const)T[key].forEach((item,i)=>f.m.write(s[key]+BigInt(i),halfWords(s.point7,string(item.text))));
   if(!broadcastOnly){f.m.write(s.columbus,halfWords(s.point7,string(T.specialNodes[0].text)));f.m.write(s.tymnet,halfWords(s.point7,string(T.specialNodes[1].text)));}
   T.nodes.forEach((item,i)=>f.m.write(s.nodes+BigInt(i),halfWords(packSixbit(item.node)>>18n,string(item.text))));f.m.write(s.nodes+BigInt(T.nodes.length),0n);
-  const events:string[]=[],nodes:bigint[]=[];
+  const events:string[]=diagnosticRecords(),nodes:bigint[]=[];
   function byte(reg:'p1'|'p2'){const w=unsigned36(f.r[reg]),size=(w>>24n)&63n;assert.equal(size,7n);assert.equal((w>>18n)&63n,0n);let pos=(w>>30n)&63n,a=rightHalf(w);if(pos<7n){pos=36n;a=rightHalf(a+1n);}pos-=7n;f.r[reg]=signed36((w&~((63n<<30n)|0o777777n))|(pos<<30n)|a);return {a,pos};}
   const io:RomulanSpeechServices<string>={
     *pushData(w){yield*f.rt.stack.pushData(w);},*popData(){return yield*f.rt.stack.popData();},

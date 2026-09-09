@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import { helpRuntimeFixture } from './help-runtime.ts';
 import { searchHelpList,outputHelpList,helpSummary } from '../../src/game/help-list-runtime.ts';
 import type { HelpListServices,OutputHelpListServices } from '../../src/game/help-list-runtime.ts';
@@ -9,7 +10,7 @@ export function helpListRuntimeFixture(words:readonly string[]=['ALPHA','BETA'],
   for(const [i,w] of words.entries()){f.m.write(symbols.table+BigInt(i*2),packAscii(w.padEnd(10).slice(0,5)));f.m.write(symbols.table+BigInt(i*2+1),packAscii(w.padEnd(10).slice(5,10)));}
   f.h.put(symbols.ambiguous,helpText[8].text);f.h.put(symbols.candidates,helpText[9].text);f.h.put(symbols.unknown,helpText[2].text);
   f.r.x1=signed36(halfWords(-2n*BigInt(words.length),symbols.table));f.r.x2=0n;f.r.p1=f.help.symbols.keyword;
-  const events:string[]=[],io:HelpListServices<string>={
+  const events:string[]=diagnosticRecords(),io:HelpListServices<string>={
     *pushData(w){events.push(`save:${w}`);yield*f.rt.stack.pushData(w);},*popData(){events.push('restore');return yield*f.rt.stack.popData();},
     *equal(){events.push(`equal:${f.r.p2}`);yield*f.news.io.equal();},
     *output(entry){events.push(entry);yield*f.rt.run(entry);},

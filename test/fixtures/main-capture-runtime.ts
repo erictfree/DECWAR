@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import type { pregameRuntimeFixture } from './pregame-runtime.ts';
 import type { bindMainBuildRuntime } from './main-build-runtime.ts';
 import type { bindMainDefensesRuntime } from './main-defenses-runtime.ts';
@@ -11,7 +12,7 @@ import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-
 export function bindMainCaptureRuntime(f:ReturnType<typeof pregameRuntimeFixture>,build:ReturnType<typeof bindMainBuildRuntime>,defenses:ReturnType<typeof bindMainDefensesRuntime>){
   f.m.map(54500n,Array<bigint>(500).fill(77n));const locals={v:54500n,tem:54501n,vloc:54502n,hloc:54503n,c:54504n,i:54505n,tcap:54506n,phit:54507n,id:54508n,idsp:54509n},s={header:54520n,count:54530n,prcflg:54531n,w:54532n,tw:54533n,ship:54534n},labels={} as Record<CaptureMessage,bigint>;
   for(const [i,key] of (['captu0','captu1','captu2','captu4','captu5','captu6','captu7','captu8','noplnt','nosur1','nosur2','nosur3','nosur4','refuses'] as const).entries()){labels[key]=54570n+BigInt(i*30);f.h.put(labels[key],key==='refuses'?"The planet's government refuses to surrender.":messages[key].text);}
-  const events:string[]=[],hits:(typeof f.hit)[]=[],prepare=(a:bigint[])=>{loadArgumentBlock(f.m,s.header,a);selectArgumentBlock(f.r,s.header);};
+  const events:string[]=diagnosticRecords(),hits:(typeof f.hit)[]=diagnosticRecords(),prepare=(a:bigint[])=>{loadArgumentBlock(f.m,s.header,a);selectArgumentBlock(f.r,s.header);};
   const io:CaptureServices<string>={...build.io,
     *out(key,n){events.push(key);f.m.write(s.count,BigInt(n));prepare([labels[key],s.count]);yield*f.rt.run('out');},
     *lock(){events.push('lock');yield*f.io.lock(f.high.address('plnlok'));},*unlock(){events.push('unlock');yield*f.io.unlock(f.high.address('plnlok'));},

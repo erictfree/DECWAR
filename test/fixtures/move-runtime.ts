@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import assert from 'node:assert/strict';
 import { checkRuntimeFixture } from './check-runtime.ts';
 import { moveStatements } from '../../src/game/move-statements.ts';
@@ -24,7 +25,7 @@ export function moveRuntimeFixture(line='MOVE 12 20',format:number=K.MEDIUM){
   f.low.write('oflg',BigInt(format));f.high.write('slwest',2n);f.high.write('tim0',0n);f.low.write('ptime',99n);f.low.write('icflg',BigInt(K.KABS));
   const ship=f.views.high.players[1].ship;Object.assign(ship,{energy:10000n,docked:true,condition:K.RED});f.parse(line);
   const locals={iflg:14200n,v:14201n,d:14202n,randam:14203n,time:14204n,tem:14205n,iv:14206n,ih:14207n,ia:14208n,tran:14209n,ied:14210n,indxto:14211n,indxfm:14212n,tl:14213n};
-  f.m.write(locals.d,f.realWord('99'));const events:string[]=[],clock=[100n,500n];f.damage.integers.push(1234n,1n);
+  f.m.write(locals.d,f.realWord('99'));const events:string[]=diagnosticRecords(),clock=[100n,500n];f.damage.integers.push(1234n,1n);
   const labels={} as Record<MoveMessage,bigint>;
   for(const [i,name] of (['wrpdam','impdam','error2','error1','move1a','move1b','move2s','move2l','move3s','move3l','engoff','move5l','move5s','move06','move08','move09','strdat','move10'] as const).entries()){labels[name]=14400n+BigInt(i*32);f.h.put(labels[name],M[name].text);}
   const prepare=(words:bigint[])=>{loadArgumentBlock(f.m,14340n,words);selectArgumentBlock(f.r,14340n);};

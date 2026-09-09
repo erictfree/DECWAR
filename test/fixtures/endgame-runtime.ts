@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import type { pregameInputRuntimeFixture } from './pregame-input-runtime.ts';
 import { endgameStatements,endgameMessages } from '../../src/game/endgame-statements.ts';
 import type { EndgameLocals,EndgameStatementServices } from '../../src/game/endgame-statements.ts';
@@ -9,7 +10,7 @@ export function bindEndgameRuntime(f:ReturnType<typeof pregameInputRuntimeFixtur
   const locals={} as EndgameLocals;for(const [i,key] of (['txppn','txnm1','txnm2','txsh1','txsh2','whowon','txwhy','txtim','txtem','txtot'] as const).entries()){locals[key]=23300n+BigInt(i);f.m.write(locals[key],77n);}
   const total=BigInt(localLayout.points.address),header=23320n,lines=23340n,labels={} as Record<typeof endgameMessages[number],bigint>;
   for(const [i,key] of endgameMessages.entries()){labels[key]=23400n+BigInt(i*40);f.h.put(labels[key],messages[key].text);}
-  const events:string[]=[],numeric=f.weapon.io,io:EndgameStatementServices<string>={logical:numeric.logical,
+  const events:string[]=diagnosticRecords(),numeric=f.weapon.io,io:EndgameStatementServices<string>={logical:numeric.logical,
     *and(...a){return yield*numeric.and(...a);},*compare(...a){return yield*numeric.compare(...a);},*assign(...a){yield*numeric.assign(...a);},*binary(...a){return yield*numeric.binary(...a);},
     *minmax(op,values){const words:bigint[]=[];for(const v of values)words.push(yield*v.evaluate());return words.reduce((a,b)=>op==='min0'?(a<b?a:b):(a>b?a:b));}, // Explicit left-to-right compiler fixture.
     *assignTrue(d){f.m.write(d(),-1n);},*kilhgh(){throw new Error('fixture requires KILHGH');},

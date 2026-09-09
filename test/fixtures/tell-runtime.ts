@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import type { pregameInputRuntimeFixture } from './pregame-input-runtime.ts';
 import type { bindRadioRuntime } from './radio-runtime.ts';
 import type { bindMakeMessageRuntime } from './make-message-runtime.ts';
@@ -12,7 +13,7 @@ type Host=ReturnType<typeof pregameInputRuntimeFixture>&{radio:ReturnType<typeof
 export function bindTellRuntime(f:Host){
   f.m.map(29400n,Array<bigint>(600).fill(0n));const locals={} as TellStatementLocals;
   for(const [i,key] of (['sntrom','rmspk','p','i','j','gm','gbits','svdb','mask','iship','ph','pv','ix','ir','jr'] as const).entries()){locals[key]=29400n+BigInt(i);f.m.write(locals[key],77n);}locals.local=29420n;
-  const header=29450n,lines=29460n,vertical=29461n,horizontal=29462n,object=29463n,romulan=29480n,labels={} as Record<TellMessage|'Romulan',bigint>,events:string[]=[];
+  const header=29450n,lines=29460n,vertical=29461n,horizontal=29462n,object=29463n,romulan=29480n,labels={} as Record<TellMessage|'Romulan',bigint>,events:string[]=diagnosticRecords();
   f.h.put(romulan,'ROMULAN');for(const [i,key] of [...tellMessages,'Romulan' as const].entries()){labels[key]=29500n+BigInt(i*32);f.h.put(labels[key],key==='Romulan'?'Romulan':messages[key].text);}
   const prepare=(a:bigint[])=>{loadArgumentBlock(f.m,header,a);selectArgumentBlock(f.r,header);},radio=f.radio.io,random=randomRuntimeFixture(f);
   const io:TellStatementServices<string>={...radio,

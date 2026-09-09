@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import type { pregameRuntimeFixture } from './pregame-runtime.ts';
 import { removePlanetStatements } from '../../src/game/remove-planet-statements.ts';
 import type { RemovePlanetStatementServices } from '../../src/game/remove-planet-statements.ts';
@@ -5,7 +6,7 @@ import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-
 import { bindKillHighRuntime } from './kill-high-runtime.ts';
 export function bindRemovePlanetRuntime(f:ReturnType<typeof pregameRuntimeFixture>){
   f.m.map(47000n,Array<bigint>(400).fill(77n));const locals={j:47000n},s={i:47020n,pteam:47021n,header:47030n,count:47050n,code:47051n};
-  const events:string[]=[],copies:bigint[][]=[],numeric=f.weapon.io,killHigh=bindKillHighRuntime(f),prepare=(a:bigint[])=>{loadArgumentBlock(f.m,s.header,a);selectArgumentBlock(f.r,s.header);};
+  const events:string[]=diagnosticRecords(),copies:bigint[][]=diagnosticRecords(),numeric=f.weapon.io,killHigh=bindKillHighRuntime(f),prepare=(a:bigint[])=>{loadArgumentBlock(f.m,s.header,a);selectArgumentBlock(f.r,s.header);};
   const io:RemovePlanetStatementServices<string>={...numeric,
     *baskil(team){events.push('baskil');yield*f.displacement.baskil(team);},
     *blkmov(from,to,count){const a=from(),b=to();f.m.write(s.count,yield*count.evaluate());events.push('blkmov');copies.push([a,b,f.m.read(s.count)]);yield*f.points.block.run('blkmov',[a,b,s.count]);},

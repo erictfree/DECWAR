@@ -1,3 +1,4 @@
+import { diagnosticRecords } from '../../src/runtime/diagnostic-records.ts';
 import type { pregameRuntimeFixture } from './pregame-runtime.ts';
 import type { bindMainLoopRuntime } from './main-loop-runtime.ts';
 import { initializeDecwarStatements,runDecwarStatements } from '../../src/game/entry-statements.ts';
@@ -6,7 +7,7 @@ import { decwarText,messages } from '../../src/runtime/variant-values.ts';
 import { loadArgumentBlock,selectArgumentBlock } from '../../src/compat/fortran-call.ts';
 export function bindEntryRuntime(f:ReturnType<typeof pregameRuntimeFixture>,main:ReturnType<typeof bindMainLoopRuntime>){
   f.m.map(71000n,Array<bigint>(1000).fill(77n));const s={header:71000n,count:71020n,zero:71021n,decver:71100n,BEGINNER:71040n,INTERMEDIATE:71045n,EXPERT:71050n};f.h.put(s.decver,messages.decver.text);for(const key of ['BEGINNER','INTERMEDIATE','EXPERT'] as const)f.h.put(s[key],key);
-  const text=decwarText.startup.map((item,i)=>{const address=71200n+BigInt(i*30);f.h.put(address,item.text);return {...item,address};}),events:string[]=[],prepare=(a:bigint[])=>{loadArgumentBlock(f.m,s.header,a);selectArgumentBlock(f.r,s.header);};
+  const text=decwarText.startup.map((item,i)=>{const address=71200n+BigInt(i*30);f.h.put(address,item.text);return {...item,address};}),events:string[]=diagnosticRecords(),prepare=(a:bigint[])=>{loadArgumentBlock(f.m,s.header,a);selectArgumentBlock(f.r,s.header);};
   function* out(a:bigint,lines:number){f.m.write(s.count,BigInt(lines));prepare([a,s.count]);yield*f.rt.run('out');}
   const io:EntryStatementServices<string>={
     *clearLow(first,last){events.push('clearLow');f.m.write(s.zero,0n);f.m.write(s.count,last-first+1n);yield*f.points.block.run('blkset',[first,s.zero,s.count]);},
