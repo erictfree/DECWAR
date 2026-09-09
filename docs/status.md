@@ -136,10 +136,24 @@ and the native reference. It covers ENERGY self/zero/reserve rejection, two
 100-unit transfers (100 spent, 90 received), both tractor shield restrictions,
 activation, one-sector towing, shield-triggered release and explicit OFF.
 Different setup routes left different receiver supplies; comparisons use energy
-changes and preserve starting values. Capacity clamping and all other release
+changes and preserve starting values. Other release
 causes remain unverified by this capture. Evidence:
 `logs/parity-assistance/report.json`; native execution used SIMH, not Docker.
 This is command verification, not a cooperative bot strategy.
+
+The six-case ENERGY boundary capture also matches action responses and explicit
+state contracts on both engines: distant/inactive/enemy recipients and negative
+amounts are rejected; filling a sixteen-unit capacity gap costs the donor 17.7
+units; a subsequent transfer to the full recipient changes neither energy level.
+Evidence: `logs/parity-energy-edges/report.json`. All three clients clean up on
+each backend. Native execution remains SIMH, not Docker.
+
+The extended tractor capture matches nine action responses, reciprocal towing,
+recipient-shield release, bare `TRACTOR` release, and exact activation/release
+notices for both captains. Recipient quit removes it from USERS and releases the
+survivor, whose next solo move costs four units rather than twelve while towing.
+Evidence: `logs/parity-tractor-edges/report.json`. Nova, weapon-hit and destruction
+release remain outside this capture; no game-code repair was required.
 
 The player runner recognizes source war-result messages as a separate `war-over`
 outcome, preserves final text, and avoids reconnecting after an observed result.

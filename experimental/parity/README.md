@@ -371,6 +371,41 @@ label does not establish a capacity clamp unless the recorded supplies show
 one. Recipient notification bytes, inactive/enemy/distant recipients and all
 tractor break causes require additional checks.
 
+For ENERGY boundary cases, add `energy-edges` to each capture command and use
+the same reviewer. This six-step variant checks distant and inactive recipients,
+restores Vulcan at a base, spends exactly sixteen energy units on two observed
+moves, then checks a 100-unit request against that capacity gap, a full recipient,
+a negative amount and a live enemy recipient. It logs out the additional enemy
+client too. The reviewer requires the clamp to give sixteen units and debit
+17.7 units from the donor, following ENERGY's scaled integer capacity and
+division operations. Other tested ENERGY commands must leave both ships' supplies
+and positions unchanged. Distant setup positions can differ across backends;
+each must independently satisfy the out-of-range precondition.
+
+```sh
+node experimental/parity/capture-assistance.ts typescript 2424 logs/energy-ts.jsonl energy-edges
+node experimental/parity/capture-assistance.ts pdp10 2031 logs/energy-pdp.jsonl energy-edges
+node experimental/parity/review-assistance.ts logs/energy-ts.jsonl logs/energy-pdp.jsonl
+```
+
+Use `tractor-edges` for reciprocal towing and release checks, followed by its
+dedicated reviewer:
+
+```sh
+node experimental/parity/capture-assistance.ts typescript 2424 logs/tractor-ts.jsonl tractor-edges
+node experimental/parity/capture-assistance.ts pdp10 2031 logs/tractor-pdp.jsonl tractor-edges
+node experimental/parity/review-tractor-edges.ts logs/tractor-ts.jsonl logs/tractor-pdp.jsonl
+```
+
+Both ships lower shields and attach. Vulcan then moves and tows Yorktown,
+raises its shields to release, reattaches for a bare `TRACTOR` release, then
+reattaches and quits. The remaining ship must receive the release notice, see
+Vulcan absent from USERS, and move at the ordinary solo energy cost. The review
+checks nine ordered actions, reciprocal positions, twelve-unit towing and
+four-unit solo movement costs, shield changes, and exact activation/release
+notices received by both captains. Setup supplies can differ; comparison uses
+energy changes. This does not exercise nova, weapon-hit or destruction release.
+
 ## Isolated heap diagnostics
 
 `node --expose-gc experimental/parity/memory-host.ts NEW_JSONL [RECORD_LIMIT]` starts an isolated
