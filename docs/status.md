@@ -76,8 +76,23 @@ responses after command-echo removal. A separate single-torpedo star shot also
 matched: both engines produced a nova at 11–1, removed the star and consumed
 one torpedo with identical subsequent reports. Evidence:
 logs/parity-sequence/report.json and shot-report.json. These exercise one
-random-dependent outcome; ship combat and future random-stream alignment
-remain unverified.
+random-dependent outcome, not general random-stream alignment.
+
+A controlled two-ship encounter matched canonical ship/device state, total
+score and both weapon responses after docking and fixed approaches. The first
+torpedo hit was 103.8 on both engines. A repeat matched the visible pre-fire
+state and phaser result but produced 94.9 on native versus 103.8 on TypeScript
+at the first torpedo. The cause remains unresolved; matching seeded boards
+does not guarantee repeatable combat. Target setup stardates are excluded from
+canonical state but retained in raw report comparisons. Evidence:
+logs/parity-duel/supplied/report.json and logs/parity-duel/destruction/report.json.
+The extended torpedo run exhausted its shot budget without either target dying
+and is reported as incomplete. Native testing uses SIMH, not Docker.
+The subsequent stationary phaser fixture destroyed and released both targets,
+with clean cleanup, but required four follow-up shots on native and five on
+TypeScript. Its completed report is `differences`, including unequal final
+scores (logs/parity-duel/stationary-retry/report.json). An earlier TypeScript
+attempt stalled after docking; the cause remains uninvestigated.
 
 The reusable player-library quickstart is available at
 [`experimental/player-library/QUICKSTART.md`](../experimental/player-library/QUICKSTART.md).

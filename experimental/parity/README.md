@@ -194,6 +194,47 @@ changed that scan cell to empty, consumed one torpedo and matched all resulting
 reports after echo removal (`logs/parity-sequence/shot-report.json`). This is
 one matching random-dependent event, not general random-stream equivalence.
 
+### Controlled ship encounters
+
+Start fresh, isolated hosts for each capture. This fixture selects tournament
+1729 with Romulans and black holes disabled, joins Yorktown and Wolf, and moves
+Wolf to a friendly base using public observations. Repeated docking restores
+its supplies before both ships take fixed approaches to adjacent firing cells.
+The target is passive. Native setup can take several minutes.
+
+```sh
+node experimental/parity/capture-duel.ts typescript 2424 logs/duel-ts.jsonl
+node experimental/parity/capture-duel.ts pdp10 2031 logs/duel-native.jsonl
+node experimental/parity/review-duel.ts logs/duel-ts.jsonl logs/duel-native.jsonl > logs/duel-report.json
+```
+
+The default encounter fires 180 units of phasers and one torpedo. Append
+`destruction` to both capture commands to lower the target's shields and fire
+up to eight further phaser shots, checking death, removal from USERS and logout.
+Outputs must be new files in an existing directory. A failed setup or cleanup
+produces an incomplete result; it cannot count as parity.
+
+Review reparses raw ship/device reports and total score. It excludes stardate
+from canonical state because target approach lengths differ, while retaining
+raw report comparisons. Only explicit command echo is removed from responses.
+The first observed state/hit divergence is reported even for incomplete runs.
+
+The September 8 two-shot pair matched canonical state and hit output, including
+a 103.8-unit torpedo hit (`logs/parity-duel/supplied/report.json`). A repeat
+matched the visible initial state and phaser result but produced 94.9 on native
+versus 103.8 on TypeScript at the first torpedo. The extended torpedo fixture
+did not kill either target; its report remains incomplete
+(`logs/parity-duel/destruction/report.json`). Matching initial boards and one
+encounter do not establish repeatable combat or hidden random-state equality.
+
+The stationary destruction pair completed both lifecycles: native required
+four follow-up phaser shots, TypeScript five. Both targets reached the reentry
+prompt, disappeared from USERS and completed cleanup. Damage and final scores
+differ, so the report is `differences`, not a parity pass
+(`logs/parity-duel/stationary-retry/report.json`). One earlier TypeScript
+attempt stalled after docking; its timeout evidence is retained separately.
+These runs used native SIMH; Docker remains unverified.
+
 The existing native SIMH environment was restarted and exercised through the
 same PDP-10 adapter. Both full suites completed, including login and logout:
 
