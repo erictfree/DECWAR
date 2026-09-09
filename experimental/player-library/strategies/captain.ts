@@ -11,7 +11,7 @@ class CaptainStrategy implements Strategy {
 }
 
 export type CaptainStrategyOptions = {
-  readonly mode?: 'patrol' | 'resupply' | 'objective' | 'defense';
+  readonly mode?: 'patrol' | 'resupply' | 'objective' | 'defense' | 'siege';
   readonly torpedoes?: boolean;
   readonly torpedoCorridor?: boolean;
 };
@@ -19,7 +19,7 @@ export type CaptainStrategyOptions = {
 export function createCaptainStrategy(options: CaptainStrategyOptions = {}): StrategyDefinition {
   return {
   id: 'austin-captain',
-  version: 'v17',
+  version: 'v18',
   create(session: StrategySession) {
     // Session identity is explicit even though Captain currently only needs team.
     void session.ship;

@@ -19,7 +19,7 @@ const { values } = parseArgs({ options: {
   'torpedo-corridor': { type: 'boolean', default: false },
 } });
 if (values.help) {
-  console.log('Usage: node experimental/automated-player/fresh-fleet.ts [--seconds 600] [--ships 4|6|8|10] [--federation-strategy objective|patrol|balanced] [--empire-strategy objective|patrol|balanced] [--federation-weapons torpedoes|phasers] [--empire-weapons torpedoes|phasers] [--tournament-seed N] [--torpedo-corridor] [--log-dir path]\nStarts a fresh temporary Austin playable host, runs the fleet, stops the host and removes the temporary galaxy.');
+  console.log('Usage: node experimental/automated-player/fresh-fleet.ts [--seconds 600] [--ships 4|6|8|10] [--federation-strategy objective|patrol|balanced|siege] [--empire-strategy objective|patrol|balanced|siege] [--federation-weapons torpedoes|phasers] [--empire-weapons torpedoes|phasers] [--tournament-seed N] [--torpedo-corridor] [--log-dir path]\nStarts a fresh temporary Austin playable host, runs the fleet, stops the host and removes the temporary galaxy.');
   process.exit(0);
 }
 const integer = (value: string, min: number, max: number) => {
@@ -29,7 +29,7 @@ const integer = (value: string, min: number, max: number) => {
 const seconds = integer(values.seconds, 1, 86400), ships = integer(values.ships, 4, 10);
 const tournamentSeed = values['tournament-seed'] === undefined ? undefined : integer(values['tournament-seed'], 0, Number.MAX_SAFE_INTEGER);
 if (ships % 2) throw new Error('Fleet ship count must be even');
-for (const value of [values['federation-strategy'], values['empire-strategy']]) if (value !== 'objective' && value !== 'patrol' && value !== 'balanced') throw new Error(`Invalid strategy: ${value}`);
+for (const value of [values['federation-strategy'], values['empire-strategy']]) if (value !== 'objective' && value !== 'patrol' && value !== 'balanced' && value !== 'siege') throw new Error(`Invalid strategy: ${value}`);
 for (const value of [values['federation-weapons'], values['empire-weapons']]) if (value !== 'torpedoes' && value !== 'phasers') throw new Error(`Invalid weapon policy: ${value}`);
 const root = fileURLToPath(new URL('../../', import.meta.url));
 const directory = resolve(values['log-dir'] ?? join(root, 'logs', `automated-player-fresh-fleet-${Date.now()}`));

@@ -346,6 +346,31 @@ and the source audit passed at this checkpoint.
 node --test experimental/parity/test/*.test.ts
 ```
 
+## Friendly energy transfer and towing
+
+`capture-assistance.ts` runs two Federation clients against a dedicated fresh
+Austin endpoint. It selects tournament 1729, routes Vulcan beside Yorktown using
+public scans, then records sixteen command steps: ENERGY validation and two
+transfers, both tractor shield restrictions, activation, a one-sector tow,
+shield-triggered release, reactivation and explicit OFF. Each step records both
+ships' STATUS before and after, in addition to raw wire traffic. Both clients
+quit during cleanup. Use isolated hosts because setup and towing change the game.
+
+```sh
+node experimental/parity/capture-assistance.ts typescript 2424 logs/assistance-ts.jsonl
+node experimental/parity/capture-assistance.ts pdp10 2031 logs/assistance-pdp.jsonl
+node experimental/parity/review-assistance.ts logs/assistance-ts.jsonl logs/assistance-pdp.jsonl
+```
+
+Output capture files must be new. The reviewer checks sequence/lifecycle
+completeness and compares action bytes after command-echo removal, displayed
+energy changes, shield modes, positions and hull changes. Setup routes and
+starting supplies can differ; it reports those supplies explicitly. A matching
+report covers observed effects only. The second transfer's `energy-capacity`
+label does not establish a capacity clamp unless the recorded supplies show
+one. Recipient notification bytes, inactive/enemy/distant recipients and all
+tractor break causes require additional checks.
+
 ## Isolated heap diagnostics
 
 `node --expose-gc experimental/parity/memory-host.ts NEW_JSONL [RECORD_LIMIT]` starts an isolated

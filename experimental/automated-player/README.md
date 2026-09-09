@@ -37,11 +37,37 @@ of 10,000 decisions, 10 lives and 20 reconnection attempts across the run.
 `--rounds`, `--lives` and `--retries` change those budgets. `--log-dir` chooses
 a new report directory; an existing configuration there is rejected.
 
-`--federation-strategy` and `--empire-strategy` accept `objective`, `patrol` or
-`balanced`. Objective assigns one objective captain and leaves the rest on
+`--federation-strategy` and `--empire-strategy` accept `objective`, `patrol`,
+`balanced` or `siege`. Objective assigns one objective captain and leaves the rest on
 patrol. Patrol assigns every captain to patrol. Balanced assigns one objective
 captain, one defender and the rest to patrol. The default remains objective for
-both sides.
+both sides. Siege assigns one capture/build captain and the rest to installation
+sieges. A siege captain retains its chosen enemy base or developed planet for
+up to five minutes across resupply, drops it on fresh contrary evidence, and
+prioritizes it over distant ship skirmishes. Ships within four sectors still
+trigger ordinary defensive combat. SCAN confirmation remains required to fire;
+LIST and remembered positions authorize navigation only. This policy does not
+coordinate target assignments or solve the ten-base capacity constraint.
+
+For a separate siege evaluation after an existing run finishes:
+
+```sh
+node experimental/automated-player/fresh-fleet.ts --ships 10 --seconds 600 --federation-strategy siege --empire-strategy siege --tournament-seed 1729 --torpedo-corridor
+```
+
+An observed source war banner plus its outcome produces `war-ended` and a
+`war-over` player result with winner `FEDERATION`, `EMPIRE`, or `NEITHER`.
+The transcript retains final output; the supervisor does not reconnect that
+player, and the fleet stops commissioning additional captains. Fleet reports
+include `warResult` when observed. A duration limit or ordinary strategy
+`complete` result is not a war victory. Recognition is tested with terminal
+fixtures, not a demonstrated autonomous win.
+
+Fleet health also reports `strategicStalls` and `strategicallyStalled`: unchanged
+position, energy, shields, hull, torpedoes and stardate for 30 seconds triggers
+an event independently of connection stalls. A changed observation clears it.
+This detects responsive ships waiting without progress; it does not yet request
+rescue or diagnose repeated actions that change those values.
 
 For ten bots, five per faction:
 
@@ -145,6 +171,7 @@ different order.
 | `--mode resupply` | Navigate to a friendly base and finish once restored. |
 | `--mode objective` | Fight immediate threats, capture observed unfortified planets, develop friendly planets and convert the fifth build into a base when capacity permits. |
 | `--mode defense` | Guard developed friendly planets and bases, prioritize visible attackers near those assets, and alternate a short watch with bounded combat sorties. |
+| `--mode siege` | Retain an enemy installation objective through resupply; prefer safe installation attacks over distant ship skirmishes. |
 | `--rounds N` | At most N decision cycles, default 12, maximum 10000. Observation/wait decisions and death/reentry cycles also count. |
 | `--lives N` | Stop after N lost ships, default 3. Earlier losses reenter through Austin's dialogue. |
 | `--interval-ms N` | Pause between cycles, default 500, minimum 100. Server command delays still apply. |

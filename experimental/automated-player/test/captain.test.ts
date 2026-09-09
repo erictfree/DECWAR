@@ -258,3 +258,43 @@ test('Defense captain guards developed planets and prioritizes ships threatening
   assert.equal(new Captain('FEDERATION', 'defense').choose(threat, 1000).command, 'PHASERS ABSOLUTE 180 10 18');
   assert.equal(new Captain('FEDERATION').choose(threat, 1000).command, 'PHASERS ABSOLUTE 180 10 11');
 });
+
+test('Siege prioritizes a confirmed installation over distant ships but defends against nearby threats', () => {
+  const o = observation();
+  cell(o, { v: 15, h: 10 }, ')('); cell(o, { v: 10, h: 17 }, ' W');
+  o.objects = [{ name: 'Emp Base', kind: 'base', faction: 'EMPIRE', position: { v: 15, h: 10 }, observedAt: 1000 }];
+  assert.equal(new Captain('FEDERATION', 'siege').choose(o, 1000).command, 'PHASERS ABSOLUTE 180 15 10');
+  cell(o, { v: 10, h: 17 }, ' .'); cell(o, { v: 10, h: 12 }, ' W');
+  assert.equal(new Captain('FEDERATION', 'siege').choose(o, 1000).targetKind, 'ship');
+});
+
+test('Siege preserves its target across a full resupply and rejects fresh evidence of removal', () => {
+  const captain = new Captain('FEDERATION', 'siege');
+  const o = observation(); cell(o, { v: 15, h: 10 }, ')(');
+  o.objects = [{ name: 'Emp Base', kind: 'base', faction: 'EMPIRE', position: { v: 15, h: 10 }, observedAt: 1000 }];
+  assert.equal(captain.choose(o, 1000).targetKind, 'base');
+  const refill = structuredClone(o); refill.status.position = { v: 10, h: 19 }; refill.status.energy = 2000;
+  assert.equal(captain.choose(refill, 1000).command, 'DOCK');
+  refill.status.energy = 5000; refill.status.docked = true;
+  captain.choose(refill, 1000);
+  const returned = structuredClone(o);
+  cell(returned, { v: 10, h: 15 }, ')(');
+  returned.objects!.unshift({ name: 'Emp Base', kind: 'base', faction: 'EMPIRE', position: { v: 10, h: 15 }, observedAt: 5000 });
+  returned.status.observedAt = returned.scan.observedAt = 5000;
+  returned.objects!.forEach(o => o.observedAt = 5000);
+  assert.equal(captain.choose(returned, 5000).command, 'PHASERS ABSOLUTE 180 15 10');
+  cell(returned, { v: 15, h: 10 }, ' .');
+  returned.objects = returned.objects!.filter(o => o.position?.v !== 15);
+  returned.status.observedAt = returned.scan.observedAt = 9000; returned.objects.forEach(o => o.observedAt = 9000);
+  assert.equal(captain.choose(returned, 9000).command, 'PHASERS ABSOLUTE 180 10 15');
+});
+
+test('Siege uses distant LIST reports only for navigation, and cannot fire on an unconfirmed planet', () => {
+  const o = observation();
+  o.objects = [{ name: 'Emp Planet', kind: 'planet', faction: 'EMPIRE', position: { v: 10, h: 13 }, builds: 4, observedAt: 1000 }];
+  assert.doesNotMatch(new Captain('FEDERATION', 'siege').choose(o, 1000).command ?? '', /^PHASERS/);
+  cell(o, { v: 10, h: 13 }, '@E');
+  assert.equal(new Captain('FEDERATION', 'siege').choose(o, 1000).targetKind, 'planet');
+  o.objects[0].builds = 0;
+  assert.doesNotMatch(new Captain('FEDERATION', 'siege').choose(o, 1000).command ?? '', /^PHASERS/);
+});

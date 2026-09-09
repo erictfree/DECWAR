@@ -5,9 +5,10 @@ import { setTimeout as delay } from 'node:timers/promises';
 import { supervise } from './supervisor.ts';
 import { FleetIntel } from './player.ts';
 import type { Team } from './client.ts';
-import type { TeamPoints } from './observations.ts';
+import type { TeamPoints, ShipStatus } from './observations.ts';
+import { ProgressWatch } from './progress-watch.ts';
 
-type Strategy = 'objective' | 'patrol' | 'balanced';
+type Strategy = 'objective' | 'patrol' | 'balanced' | 'siege';
 
 const { values } = parseArgs({ options: {
   host: { type: 'string', default: '127.0.0.1' }, port: { type: 'string', default: '2423' },
@@ -23,7 +24,7 @@ const { values } = parseArgs({ options: {
   'torpedo-corridor': { type: 'boolean', default: false },
 } });
 if (values.help) {
-  console.log('Usage: node experimental/automated-player/fleet.ts [--port 2423] [--ships 4|6|8|10] [--seconds 3600] [--federation-strategy objective|patrol|balanced] [--empire-strategy objective|patrol|balanced] [--federation-weapons torpedoes|phasers] [--empire-weapons torpedoes|phasers] [--tournament-seed N] [--torpedo-corridor] [--rounds 10000] [--lives 10] [--retries 20] [--log-dir path]\nConnects equal teams to an existing Austin host. The seed selects source TOURNAMENT mode only for a new galaxy. Stops at duration, Ctrl-C, or budgets. Writes health.json, events.jsonl and summary.json.');
+  console.log('Usage: node experimental/automated-player/fleet.ts [--port 2423] [--ships 4|6|8|10] [--seconds 3600] [--federation-strategy objective|patrol|balanced|siege] [--empire-strategy objective|patrol|balanced|siege] [--federation-weapons torpedoes|phasers] [--empire-weapons torpedoes|phasers] [--tournament-seed N] [--torpedo-corridor] [--rounds 10000] [--lives 10] [--retries 20] [--log-dir path]\nConnects equal teams to an existing Austin host. The seed selects source TOURNAMENT mode only for a new galaxy. Stops at duration, Ctrl-C, or budgets. Writes health.json, events.jsonl and summary.json.');
   process.exit(0);
 }
 function integer(value: string, min: number, max: number) {
@@ -34,7 +35,7 @@ const rounds = integer(values.rounds, 1, 1000000), lives = integer(values.lives,
 const tournamentSeed = values['tournament-seed'] === undefined ? undefined : integer(values['tournament-seed'], 0, Number.MAX_SAFE_INTEGER);
 const ships = integer(values.ships, 4, 10); if (ships % 2) throw new Error('Fleet ship count must be even');
 const strategy = (value: string): Strategy => {
-  if (value !== 'objective' && value !== 'patrol' && value !== 'balanced') throw new Error(`Invalid strategy: ${value}`);
+  if (value !== 'objective' && value !== 'patrol' && value !== 'balanced' && value !== 'siege') throw new Error(`Invalid strategy: ${value}`);
   return value;
 };
 const strategies = { FEDERATION: strategy(values['federation-strategy']), EMPIRE: strategy(values['empire-strategy']) };
@@ -43,7 +44,7 @@ const weapons = { FEDERATION: weapon(values['federation-weapons']), EMPIRE: weap
 const directory = resolve(values['log-dir'] ?? `logs/automated-player-fleet-${Date.now()}`);
 // Exclusive manifest prevents two runs writing into the same log directory.
 mkdirSync(directory, { recursive: true });
-writeFileSync(join(directory, 'configuration.json'), JSON.stringify({ ...values, strategies, weapons, policy: 'captain-v8', startedAt: new Date().toISOString() }, null, 2), { flag: 'wx' });
+writeFileSync(join(directory, 'configuration.json'), JSON.stringify({ ...values, strategies, weapons, policy: 'captain-v9', startedAt: new Date().toISOString() }, null, 2), { flag: 'wx' });
 const controller = new AbortController(), started = Date.now();
 const sharedIntel = new FleetIntel();
 const stop = () => controller.abort();
@@ -65,7 +66,7 @@ const roster = fullRoster.slice(0, ships).map(bot => {
   const selected = strategies[bot.team];
   const objective = bot.name === 'Scout' || bot.name === 'Raven';
   const defender = bot.name === 'Wing' || bot.name === 'Shade';
-  const mode = selected !== 'patrol' && objective ? 'objective' as const : selected === 'balanced' && defender ? 'defense' as const : 'patrol' as const;
+  const mode = selected !== 'patrol' && objective ? 'objective' as const : selected === 'balanced' && defender ? 'defense' as const : selected === 'siege' ? 'siege' as const : 'patrol' as const;
   return { ...bot, mode };
 });
 const stats = Object.fromEntries(roster.map(bot => [bot.name, {
@@ -76,8 +77,10 @@ const stats = Object.fromEntries(roster.map(bot => [bot.name, {
   torpedoUnknown: 0, torpedoesRemaining: 10, captureAttempts: 0, buildAttempts: 0,
   capturesConfirmed: 0, buildsConfirmed: 0, basesCreated: 0, scans: 0, lists: 0, targets: 0,
   finalPoints: null as TeamPoints | null,
+  strategicStalls: 0, strategicallyStalled: false,
 }]));
 const record = (event: Record<string, unknown>) => appendFileSync(join(directory, 'events.jsonl'), JSON.stringify({ time: new Date().toISOString(), ...event }) + '\n');
+let warResult: { winner: string; observedBy: string; time: string } | undefined;
 let lastTick = Date.now(), schedulingPauses = 0, missedMs = 0;
 function snapshot() {
   const now = Date.now(), lagMs = now - lastTick - 5000; lastTick = now;
@@ -88,7 +91,7 @@ function snapshot() {
     if (!stalled && s.stalled && s.state === 'playing') record({ event: 'progress-resumed', bot: s.name });
     s.stalled = stalled;
   }
-  const state = { schemaVersion: 2, checkedAt: new Date().toISOString(), elapsedMs: now - started, plannedSeconds: seconds, schedulingPauses, missedMs, bots: stats };
+  const state = { schemaVersion: 2, checkedAt: new Date().toISOString(), elapsedMs: now - started, plannedSeconds: seconds, warResult, schedulingPauses, missedMs, bots: stats };
   writeFileSync(join(directory, 'health.tmp'), JSON.stringify(state, null, 2) + '\n'); renameSync(join(directory, 'health.tmp'), join(directory, 'health.json'));
   return state;
 }
@@ -97,16 +100,17 @@ const tasks: Promise<unknown>[] = [];
 console.log(`Fleet for ${seconds}s on ${values.host}:${port}; reports: ${directory}`);
 try {
   for (const bot of roster) {
-    if (controller.signal.aborted) break;
+    if (controller.signal.aborted || warResult) break;
     // Only the first joined captain initializes a new galaxy. Release the
     // gate on terminal failure too, so a missing host cannot hang startup.
     let ready!: () => void;
     const joined = new Promise<void>(resolve => { ready = resolve; });
     const s = stats[bot.name];
+    let progress = new ProgressWatch();
     tasks.push(supervise({ ...bot, torpedoCorridor: values['torpedo-corridor'], torpedoes: weapons[bot.team] === 'torpedoes', tournamentSeed, sharedIntel, host: values.host, port, rounds, lives, retries, intervalMs: 500, signal: controller.signal,
       record(event) {
         appendFileSync(join(directory, `${bot.name}.jsonl`), JSON.stringify({ time: new Date().toISOString(), ...event }) + '\n');
-        if (event.event === 'joined' || event.event === 'rejoined') { s.state = 'playing'; s.lastProgress = Date.now(); ready(); }
+        if (event.event === 'joined' || event.event === 'rejoined') { s.state = 'playing'; s.lastProgress = Date.now(); progress = new ProgressWatch(); s.strategicallyStalled = false; ready(); }
         if (event.event === 'deadline-grace') s.graces++;
         if (event.event === 'sent' && event.line === 'LIST') s.lists++;
         if (event.event === 'sent' && event.line === 'SCAN 10 WARNING') s.scans++;
@@ -114,6 +118,10 @@ try {
         if (event.event === 'reconnecting') { s.retrySchedules++; s.state = 'reconnecting'; record({ ...event, bot: bot.name }); }
         if (event.event === 'retry-started') s.retryAttempts++;
         if (event.event === 'reconnected') { s.reconnects++; record({ ...event, bot: bot.name }); }
+        if (event.event === 'war-ended') {
+          warResult ??= { winner: String(event.winner), observedBy: bot.name, time: new Date().toISOString() };
+          record({ ...event, bot: bot.name }); ready();
+        }
         if (event.event === 'death') s.deaths++;
         if (event.event === 'decision') {
           s.decisions++; const command = String(event.command ?? '');
@@ -121,6 +129,14 @@ try {
           if (command.startsWith('PHASERS ')) s.shots++;
           if (command.startsWith('TORPEDOES ')) { s.shots++; s.torpedoAttempts++; }
           const status = event.status as { torpedoes?: number } | undefined;
+          if (event.status) {
+            const transition = progress.observe(event.status as ShipStatus, Date.now());
+            if (transition) {
+              s.strategicallyStalled = transition === 'stalled';
+              if (s.strategicallyStalled) s.strategicStalls++;
+              record({ event: `strategic-${transition}`, bot: bot.name, status: event.status, reason: event.reason });
+            }
+          }
           if (status?.torpedoes !== undefined) s.torpedoesRemaining = status.torpedoes;
           if (event.targetKind === 'ship') s.shipShots++;
           if (event.targetKind === 'base') s.baseShots++;

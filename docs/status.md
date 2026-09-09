@@ -130,6 +130,27 @@ Both targets are removed from USERS and both sessions clean up successfully.
 Evidence: logs/parity-torpedo-trace/aligned/report.json. This verifies the
 corrected fixture, not all combat or random-stream behavior.
 
+The friendly-assistance Telnet capture also matches all sixteen action responses
+after command-echo removal and all measured state changes on Austin playable
+and the native reference. It covers ENERGY self/zero/reserve rejection, two
+100-unit transfers (100 spent, 90 received), both tractor shield restrictions,
+activation, one-sector towing, shield-triggered release and explicit OFF.
+Different setup routes left different receiver supplies; comparisons use energy
+changes and preserve starting values. Capacity clamping and all other release
+causes remain unverified by this capture. Evidence:
+`logs/parity-assistance/report.json`; native execution used SIMH, not Docker.
+This is command verification, not a cooperative bot strategy.
+
+The player runner recognizes source war-result messages as a separate `war-over`
+outcome, preserves final text, and avoids reconnecting after an observed result.
+Fleet reports expose the winner and separately flag 30-second unchanged-state
+strategic stalls. An opt-in `siege` policy retains an installation objective
+through resupply and prioritizes it over distant ship skirmishes, with fresh
+SCAN authorization. These are tested runner/policy capabilities, not evidence
+of an autonomous war victory. Team target assignment, rescue and an endgame plan
+for full base capacity remain open. See the
+[player guide](../experimental/automated-player/README.md).
+
 The reusable player-library quickstart is available at
 [`experimental/player-library/QUICKSTART.md`](../experimental/player-library/QUICKSTART.md).
 It documents the current Austin runner facade, public strategy contract,

@@ -4,6 +4,14 @@ This guide shows the smallest external TypeScript player using the experimental
 library. It connects to the Austin Telnet server, receives the standard typed
 reports, chooses one action, and exits after a bounded round.
 
+The built-in captain can also be selected with
+`createCaptainStrategy({ mode: 'siege' })`. It keeps an installation objective
+through resupply and requires fresh scan confirmation before firing. Custom
+strategies still use the same observation/action interface. The runner handles
+terminal war results independently of strategy: `outcome: 'war-over'` includes
+the winning faction or `NEITHER` for mutual loss, and stops reconnection. A normal
+`complete` strategy result only means that strategy's task finished.
+
 ## Prerequisites
 
 - Node.js 24 or newer

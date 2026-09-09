@@ -51,6 +51,7 @@ export class Captain {
   // combat detours. The position is only a navigation objective; capture or
   // build still requires a fresh LIST row and matching SCAN symbol below.
   private objectiveTarget: { position: Position; kind: 'planet'; selectedAt: number } | undefined;
+  private siegeTarget: { position: Position; kind: 'base' | 'planet'; selectedAt: number } | undefined;
   private resupplying = false;
   private patrolIndex = 0;
   private lastFire = -Infinity;
@@ -58,11 +59,11 @@ export class Captain {
   private guardCycles = 0;
   private defenseSortieUntil = -Infinity;
   readonly team: Team;
-  readonly mode: 'patrol' | 'resupply' | 'objective' | 'defense';
+  readonly mode: 'patrol' | 'resupply' | 'objective' | 'defense' | 'siege';
   readonly experimentalNovas: boolean;
   readonly torpedoesEnabled: boolean;
   readonly torpedoCorridorEnabled: boolean;
-  constructor(team: Team, mode: 'patrol' | 'resupply' | 'objective' | 'defense' = 'patrol', experimentalNovas = false, torpedoesEnabled = true, torpedoCorridorEnabled = false) {
+  constructor(team: Team, mode: 'patrol' | 'resupply' | 'objective' | 'defense' | 'siege' = 'patrol', experimentalNovas = false, torpedoesEnabled = true, torpedoCorridorEnabled = false) {
     this.team = team; this.mode = mode; this.experimentalNovas = experimentalNovas; this.torpedoesEnabled = torpedoesEnabled; this.torpedoCorridorEnabled = torpedoCorridorEnabled;
   }
 
@@ -124,6 +125,13 @@ export class Captain {
       if (escape) return this.move(escape, s, d, 'No base route available; seek a traversable escape sector.');
       return this.act('STATUS', 'Surrounded: observe again rather than repeat an obstructed move.');
     }
+    // Siege captains retain installation missions through resupply. Immediate
+    // ship threats still use the ordinary combat path; distant skirmishes do
+    // not displace a safe, observed installation objective.
+    if (this.mode === 'siege' && !enemies.some(e => distance(s.position, e) <= 4)) {
+      const action = this.siege(observation, objects, opposing, now);
+      if (action) return action;
+    }
     // PHACON:2647ff: strength 180 cannot trigger IRAN(100)*strength >18900;
     // displayed energy cost is strength +200 with shields up. The server owns
     // two-bank readiness. Conservative three-second spacing avoids queueing.
@@ -173,7 +181,7 @@ export class Captain {
     if (maxDamage > 0 && !enemies.length) return this.act('REPAIR 30', 'Repair devices between encounters.');
     // Teammate sightings provide a pursuit waypoint only. The local SCAN and
     // TARGETS checks above remain mandatory before any weapon command.
-    if (this.mode !== 'objective' && !enemies.length && sharedEnemies.length && !threat && s.energy >= 2800 && s.shieldPercent >= 75) {
+    if (this.mode !== 'objective' && this.mode !== 'siege' && !enemies.length && sharedEnemies.length && !threat && s.energy >= 2800 && s.shieldPercent >= 75) {
       const sighting = [...sharedEnemies].sort((a, b) => distance(s.position, a.position!) - distance(s.position, b.position!))[0];
       if (distance(s.position, sighting.position!) > 8) {
         const step = route(this.map, s.position, sighting.position!, this.team, now, true, true, 8);
@@ -293,6 +301,34 @@ export class Captain {
     return step ? this.move(step, s, d, 'Patrol through observed free space and look for opponents.') : this.act('STATUS', 'No traversable step; wait for a fresh scan.');
   }
 
+  private siege(observation: Observation, objects: ListedObject[], opposing: Team, now: number): Decision | undefined {
+    const { status: s, scan, devices: d } = observation;
+    const candidates = objects.filter(o => o.faction === opposing && o.position && (o.kind === 'base' || o.kind === 'planet' && (o.builds ?? 0) > 0));
+    const symbol = (kind: 'base' | 'planet') => kind === 'base' ? (opposing === 'EMPIRE' ? ')(' : '<>') : (opposing === 'EMPIRE' ? '@E' : '@F');
+    if (this.siegeTarget) {
+      const target = this.siegeTarget;
+      const cell = scan.cells.find(c => distance(c, target.position) === 0);
+      const listed = objects.find(o => o.position && distance(o.position, target.position) === 0 && o.kind === target.kind);
+      if (now - target.selectedAt > 300000 || cell && cell.symbol !== symbol(target.kind) || listed && (listed.faction !== opposing || target.kind === 'planet' && (listed.builds ?? 0) === 0)) this.siegeTarget = undefined;
+    }
+    if (!this.siegeTarget) {
+      const target = candidates.sort((a, b) => distance(s.position, a.position!) - distance(s.position, b.position!))[0];
+      if (target?.position) this.siegeTarget = { position: { ...target.position }, kind: target.kind as 'base' | 'planet', selectedAt: now };
+    }
+    const target = this.siegeTarget;
+    if (!target || s.energy < 2800 || s.shieldPercent < 75 || d.phasers >= 300) return undefined;
+    const range = target.kind === 'base' ? 5 : 3;
+    const confirmed = scan.cells.some(c => distance(c, target.position) === 0 && c.symbol === symbol(target.kind))
+      && (target.kind === 'base' || candidates.some(o => o.kind === 'planet' && distance(o.position!, target.position) === 0));
+    if (confirmed && distance(s.position, target.position) === range) {
+      if (now - this.lastFire < 3000 + d.phasers * 10) return this.act('STATUS', 'Maintain siege station while the weapon bank recovers.');
+      this.lastFire = now;
+      return this.act(`PHASERS ABSOLUTE 180 ${target.position.v} ${target.position.h}`, 'Continue the installation siege from a fresh SCAN firing position.', target.kind, undefined, 'phasers');
+    }
+    const next = route(this.map, s.position, target.position, this.team, now, false, false, range);
+    if (next && this.map.danger(next, this.team, now) === 0) return this.move(next, s, d, 'Resume the selected installation siege; confirm with SCAN before firing.');
+    return undefined;
+  }
   private act(command: string, reason: string, targetKind?: 'ship' | 'base' | 'planet' | 'star', objectiveAction?: 'capture' | 'build', weapon?: 'phasers' | 'torpedoes'): Decision {
     return { kind: 'act', command, reason, ...(targetKind ? { targetKind } : {}), ...(objectiveAction ? { objectiveAction } : {}), ...(weapon ? { weapon } : {}) };
   }

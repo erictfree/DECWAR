@@ -1,5 +1,6 @@
 import { connect, type Socket } from 'node:net';
 import { ClientTelnet, commandBytes } from './telnet.ts';
+import { warBanner, warWinner, WarFinished } from './war-result.ts';
 
 export type RecordEvent = (event: Record<string, unknown>) => void;
 export type Team = 'FEDERATION' | 'EMPIRE';
@@ -70,7 +71,13 @@ export class PlayerClient {
   close(): void { this.abort(new Error('Client closed')); }
 
   private send(line: string): void {
+    const winner = warWinner(this.buffer);
+    if (winner) {
+      this.record({ event: 'received', text: this.buffer });
+      throw new WarFinished(winner, this.buffer);
+    }
     const bytes = commandBytes(line);
+    if ((this.ended || this.failure) && warBanner.test(this.buffer)) throw new Error('Incomplete war result; inspect terminal evidence');
     if (this.failure) throw this.failure;
     if (this.ended) throw new ConnectionFailure('Connection ended');
     this.record({ event: 'sent', line });
@@ -105,11 +112,23 @@ export class PlayerClient {
       };
       const check = () => {
         clearTimeout(settle);
+        const winner = warWinner(this.buffer);
+        if (winner) {
+          // Drain final POINTS through EOF (live host) or monitor prompt
+          // (native reference), rather than closing at the first banner chunk.
+          if (this.ended || this.failure || /(?:^|\r?\n)\.$/.test(this.buffer)) finish(new WarFinished(winner, this.buffer));
+          return;
+        }
+        if ((this.ended || this.failure) && warBanner.test(this.buffer)) {
+          finish(new Error('Incomplete war result; inspect terminal evidence')); return;
+        }
         if (this.failure) { finish(this.failure); return; }
         if (this.ended) { finish(allowEnd ? undefined : new ConnectionFailure('Connection ended before expected prompt')); return; }
         if (pattern.test(this.buffer)) settle = setTimeout(() => finish(), this.settleMs);
       };
       const expired = () => {
+        const winner = warWinner(this.buffer);
+        if (winner) { finish(new WarFinished(winner, this.buffer)); return; }
         // Sleep or an event-loop stall can expire every client's timer at
         // once. Give pending socket replies one bounded grace interval.
         const lateMs = Date.now() - due;
@@ -211,6 +230,9 @@ export class PlayerClient {
 
   async command(line: string): Promise<string> {
     return this.exclusive(async () => {
+      // An unsolicited endgame may arrive between commands. Drain its final
+      // report instead of sending another command or closing mid-report.
+      if (warWinner(this.buffer)) await this.waitFor(/(?!)/);
       this.send(line);
       let text = await this.waitFor(gameOrCoordinateOrReentry);
       if (coordinateContinuation.test(text)) {

@@ -1,5 +1,6 @@
 import { setTimeout as delay } from 'node:timers/promises';
 import { PlayerClient, ReentryRequired, type RecordEvent, type Team } from './client.ts';
+import { WarFinished, type WarWinner } from './war-result.ts';
 import { classifyTorpedoOutcome, parseDevices, parseFriendlyBases, parseList, parseScan, parseStatus, parseTargets, parseTeamPoints, type ListedObject } from './observations.ts';
 import type { Observation } from './captain.ts';
 import type { StrategyDefinition } from '../player-library/types.ts';
@@ -11,7 +12,7 @@ export type PlayerOptions = {
   romulan?: boolean; blackHoles?: boolean; tournamentSeed?: number;
   stayConnected?: boolean;
   signal?: AbortSignal;
-  mode?: 'patrol' | 'resupply' | 'objective' | 'defense';
+  mode?: 'patrol' | 'resupply' | 'objective' | 'defense' | 'siege';
   torpedoes?: boolean;
   torpedoCorridor?: boolean;
   lives?: number;
@@ -64,7 +65,7 @@ export function objectiveConfirmation(previous: NonNullable<Observation['objects
   return undefined;
 }
 
-export async function play(options: PlayerOptions): Promise<{ rounds: number; deaths: number; outcome: 'complete' | 'blocked' | 'limit' | 'interrupted' | 'dead'; reason: string }> {
+export async function play(options: PlayerOptions): Promise<{ rounds: number; deaths: number; outcome: 'complete' | 'blocked' | 'limit' | 'interrupted' | 'dead' | 'war-over'; reason: string; winner?: WarWinner }> {
   const client = new PlayerClient(options);
   const strategyDefinition = options.strategy ?? createCaptainStrategy({ mode: options.mode, torpedoes: options.torpedoes, torpedoCorridor: options.torpedoCorridor });
   let strategy = strategyDefinition.create({ team: options.team, ship: options.ship });
@@ -135,6 +136,7 @@ export async function play(options: PlayerOptions): Promise<{ rounds: number; de
         const response = await client.command('POINTS FED EMPIRE');
         options.record({ event: 'final-points', points: parseTeamPoints(response) });
       } catch (error) {
+        if (error instanceof WarFinished) throw error;
         options.record({ event: 'final-points-unavailable', error: error instanceof Error ? error.message : String(error) });
       }
     }
@@ -143,6 +145,12 @@ export async function play(options: PlayerOptions): Promise<{ rounds: number; de
     options.record({ event: 'completed', ...result });
     return result;
   } catch (error) {
+    if (error instanceof WarFinished) {
+      const result = { rounds, deaths, outcome: 'war-over' as const, winner: error.winner, reason: error.message };
+      options.record({ event: 'war-ended', ...result, result: error.winner === 'NEITHER' ? 'mutual-loss' : error.winner === options.team ? 'victory' : 'defeat', text: error.text });
+      options.record({ event: 'completed', ...result });
+      return result;
+    }
     options.record({ event: 'failed', error: error instanceof Error ? error.message : String(error) });
     throw error;
   } finally { client.close(); }

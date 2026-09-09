@@ -18,7 +18,7 @@ const { values } = parseArgs({ options: {
 } });
 
 if (values.help) {
-  console.log('Usage: node experimental/automated-player/run.ts [--host 127.0.0.1] [--port 2423] [--name Scout] [--team FEDERATION|EMPIRE] [--ship YORKTOWN] [--mode patrol|resupply|objective|defense] [--rounds 12] [--lives 3] [--interval-ms 500] [--log path] [--romulan] [--black-holes] [--tournament-seed N] [--torpedo-corridor] [--stay-connected]\nAustin playable only. Objective mode captures and develops planets; defense mode guards friendly installations. --tournament-seed selects the source game mode only when this is the first arrival in a new galaxy. --stay-connected keeps observing after the tactic stops; Ctrl-C quits. See experimental/automated-player/README.md.');
+  console.log('Usage: node experimental/automated-player/run.ts [--host 127.0.0.1] [--port 2423] [--name Scout] [--team FEDERATION|EMPIRE] [--ship YORKTOWN] [--mode patrol|resupply|objective|defense|siege] [--rounds 12] [--lives 3] [--interval-ms 500] [--log path] [--romulan] [--black-holes] [--tournament-seed N] [--torpedo-corridor] [--stay-connected]\nAustin playable only. Objective mode captures and develops planets; defense mode guards friendly installations. --tournament-seed selects the source game mode only when this is the first arrival in a new galaxy. --stay-connected keeps observing after the tactic stops; Ctrl-C quits. See experimental/automated-player/README.md.');
 } else {
   const integer = (value: string, min: number, max: number, label: string) => {
     if (!/^\d+$/.test(value) || Number(value) < min || Number(value) > max) throw new Error(`Invalid ${label}`);
@@ -31,7 +31,7 @@ if (values.help) {
   const tournamentSeed = values['tournament-seed'] === undefined ? undefined : integer(values['tournament-seed'], 0, Number.MAX_SAFE_INTEGER, 'tournament seed');
   const team = values.team.toUpperCase();
   if (team !== 'FEDERATION' && team !== 'EMPIRE') throw new Error('Team must be FEDERATION or EMPIRE');
-  if (values.mode !== 'patrol' && values.mode !== 'resupply' && values.mode !== 'objective' && values.mode !== 'defense') throw new Error('Mode must be patrol, resupply, objective or defense');
+  if (values.mode !== 'patrol' && values.mode !== 'resupply' && values.mode !== 'objective' && values.mode !== 'defense' && values.mode !== 'siege') throw new Error('Mode must be patrol, resupply, objective, defense or siege');
   const log = resolve(values.log ?? `logs/automated-player-${new Date().toISOString().replaceAll(':', '-')}-${process.pid}.jsonl`);
   mkdirSync(dirname(log), { recursive: true });
   const record = (event: Record<string, unknown>) => {
