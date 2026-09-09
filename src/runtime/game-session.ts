@@ -56,9 +56,11 @@ function composeLiveSession(terminal:SessionTerminal,mode:'initialize'|'full'='i
   bindSharedSessionRandom(f,function*(raw,scale){if(scale!==0o200n)throw new Error('Unexpected RAN FSC scale');return ranFractionWord(raw);});
   f.tokens.symbols.tenLeftHalf=tokenTenLeftHalf;
   Object.assign(f.tokens.io,createTokenFloating(f.r,function*(){throw new Error('selected token arithmetic transfer');}));
-  const outchr=f.cpu.outchr;
   f.cpu.outchr=function*(byte){
-    yield*outchr(byte);terminal.write(Uint8Array.of(Number(byte&127n)));
+    // The fixture OUTCHR only appends a diagnostic copy of every character.
+    // The live terminal is the output sink; retaining that duplicate forever
+    // makes memory grow with every scan/report on a long-lived connection.
+    terminal.write(Uint8Array.of(Number(byte&127n)));
     // A host TTY write is a scheduling boundary: other jobs and interrupts can
     // run during reports and queued command input, not only at the next HIBER.
     // This is cooperative Node scheduling, not historical baud/CPU timing.

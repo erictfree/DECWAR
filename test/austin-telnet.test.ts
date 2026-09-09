@@ -8,6 +8,7 @@ import { WorldDirectory } from '../src/runtime/world-directory.ts';
 import { createVariantContext,variantDefinitions } from '../src/runtime/variant.ts';
 import { createGameSession } from '../src/runtime/game-session.ts';
 import { reloadableSession,SessionReload } from '../src/runtime/reloadable-session.ts';
+import { constants as K } from '../src/generated/source-data.ts';
 import type { SessionResult } from '../src/runtime/session.ts';
 
 test('Austin Telnet startup, interrupts, ship reuse and eighteen concurrent captains',{timeout:30000},async t=>{
@@ -32,6 +33,28 @@ test('Austin Telnet startup, interrupts, ship reuse and eighteen concurrent capt
     return {socket,request,quit,until,text:()=>text};
   }
   const first=await client('Alpha','YORKTOWN',true,'FEDERATION',true),second=await client('Beta','VULCAN');
+  async function midnightDock(c:Awaited<ReturnType<typeof client>>,id:number,disconnect=false){
+    const r=runtimes.get(id)!,f=r.f,who=Number(f.low.read('who'));
+    let adjacent:number[]|undefined;
+    for(let b=1;b<=K.KNBASE&&!adjacent;b++){
+      const v=Number(f.high.read('base',b,K.KVPOS,1)),h=Number(f.high.read('base',b,K.KHPOS,1));
+      adjacent=[[v,h+1],[v,h-1],[v+1,h],[v-1,h]].find(([sv,sh])=>sv>=1&&sv<=K.KGALV&&sh>=1&&sh<=K.KGALH&&f.views.high.board.disp(sv,sh)===0);
+    }
+    assert.ok(adjacent);
+    f.views.high.board.setdsp(Number(f.high.read('shpcon',who,K.KVPOS)),Number(f.high.read('shpcon',who,K.KHPOS)),0);
+    f.high.write('shpcon',BigInt(adjacent[0]),who,K.KVPOS);f.high.write('shpcon',BigInt(adjacent[1]),who,K.KHPOS);f.views.high.board.setdsp(adjacent[0],adjacent[1],100+who);
+    let wall=86399950,reads=0;const clock=f.wait.io.mstime,now=t.mock.method(Date,'now',()=>wall);
+    f.wait.io.mstime=function*(reg){yield*clock(reg);reads++;if(reg==='t3')wall=50;};
+    try{
+      await c.request('DOCK','DOCKED.');
+      if(disconnect){const gone=once(events,'end:'+id);c.socket.end();await gone;assert.deepEqual(ends.get(id),{reason:'completed'});assert.equal(f.low.read('who'),0n);}
+      else{await c.request('STATUS','Radio  On');assert.equal(f.high.read('docked',who),-1n);}
+      assert.ok(reads>=2,'DOCK crosses the real PAUSE clock boundary');
+      assert.equal(f.wait.operands.length,0);
+    }finally{f.wait.io.mstime=clock;now.mock.restore();}
+  }
+  await midnightDock(first,1);
+
   assert.equal(runtimes.get(1)!.f.low.read('who'),9n);assert.equal(runtimes.get(2)!.f.low.read('who'),8n);
   // WARMAC INLI.: a first ESC repeats the retained line immediately, without LF.
   for(let repeat=0;repeat<2;repeat++){
@@ -58,10 +81,12 @@ test('Austin Telnet startup, interrupts, ship reuse and eighteen concurrent capt
   await first.request('TELL VULCAN; Across Telnet','> ');await second.request('STATUS','Radio  On');await second.request('STATUS','Radio  On');assert.match(second.text(),/Across Telnet/);
   await first.quit();assert.deepEqual(ends.get(1),{reason:'completed'});
   const third=await client('Gamma','YORKTOWN');await third.quit();
-  const gone=once(events,'end:2');second.socket.end();await gone;assert.deepEqual(ends.get(2),{reason:'completed'});
+  await midnightDock(second,2,true);
   assert.equal(runtimes.get(1)!.f.high.read('numply'),0n);assert.equal(worlds.monitor.files.read('DECWAR.STA'),undefined);
+  // Unlike the original zero-action fixture, docking advances the galaxy;
+  // after the last captain leaves, the next login selects a fresh game.
   const fleet:Awaited<ReturnType<typeof client>>[]=[];
-  for(let i=0;i<9;i++)for(const slot of [i,i+9])fleet.push(await client('Captain'+slot,variantDefinitions.austin.ships[slot].name,false,slot<9?'FEDERATION':'EMPIRE'));
+  for(let i=0;i<9;i++)for(const slot of [i,i+9])fleet.push(await client('Captain'+slot,variantDefinitions.austin.ships[slot].name,slot===0,slot<9?'FEDERATION':'EMPIRE'));
   assert.equal(runtimes.get(4)!.f.high.read('numply'),18n);
   for(let round=0;round<3;round++)await Promise.all(fleet.map(c=>c.request('STATUS','Radio  On')));
   await Promise.all(fleet.map(c=>c.quit()));assert.equal(runtimes.get(4)!.f.high.read('numply'),0n);

@@ -12,8 +12,13 @@ import { WorldDirectory } from '../src/runtime/world-directory.ts';
 import { reloadableSession,SessionReload } from '../src/runtime/reloadable-session.ts';
 
 test('Live Telnet connection runs original experience prompt and TYPE startup output',async t=>{
-  const endings:SessionResult[]=[],runtimes:ReturnType<typeof liveSessionRuntime>[]=[];
-  const host=createTelnetServer({createSession(terminal){const runtime=liveSessionRuntime(terminal);runtimes.push(runtime);return runtime.program;},onSessionEnd(_id,result){endings.push(result);}});
+  const endings:SessionResult[]=[],runtimes:ReturnType<typeof liveSessionRuntime>[]=[],application:Buffer[]=[];
+  const host=createTelnetServer({createSession(terminal){
+    // Capture this bounded test's terminal boundary, not a production-lifetime
+    // duplicate transcript retained by the underlying output fixture.
+    const write=terminal.write;terminal.write=bytes=>{application.push(Buffer.from(bytes));write(bytes);};
+    const runtime=liveSessionRuntime(terminal);runtimes.push(runtime);return runtime.program;
+  },onSessionEnd(_id,result){endings.push(result);}});
   t.after(()=>host.close());host.server.listen(0,'127.0.0.1');await once(host.server,'listening');
   const address=host.server.address();assert.ok(address&&typeof address!=='string');
   const socket=connect(address.port,'127.0.0.1'),chunks:Buffer[]=[];t.after(()=>socket.destroy());
@@ -28,7 +33,7 @@ test('Live Telnet connection runs original experience prompt and TYPE startup ou
   assert.deepEqual(runtimes[0].entry.events,['clearLow','startupText','type:1','type:2','summar']);
   assert.deepEqual(endings,[{reason:'completed'}]);
   // Decode negotiation and NVT CR-NUL framing before comparing game bytes.
-  assert.equal(new TelnetCodec().feed(wire).data.toString('latin1'),runtimes[0].f.text());
+  assert.equal(new TelnetCodec().feed(wire).data.toString('latin1'),Buffer.concat(application).toString('latin1'));
 });
 test('Separate live terminal sessions keep their startup preferences private',async t=>{
   const runtimes:ReturnType<typeof liveSessionRuntime>[]=[];

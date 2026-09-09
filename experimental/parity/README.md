@@ -345,3 +345,14 @@ and the source audit passed at this checkpoint.
 ```sh
 node --test experimental/parity/test/*.test.ts
 ```
+
+## Isolated heap diagnostics
+
+`node --expose-gc experimental/parity/memory-host.ts NEW_JSONL` starts an isolated
+Austin playable host on an ephemeral loopback port. Its first JSONL record gives
+the port and process ID. Every ten seconds it records post-GC heap size and the
+largest exposed runtime arrays, inspecting only plain data properties. Run an
+external fleet against that port, then stop this diagnostic host with SIGTERM.
+It writes no persistent galaxy and changes no game rules. Explicit garbage
+collection is measurement instrumentation, not a production repair or a claim
+of historical monitor behavior. See [the testing checkpoint](../../docs/testing-checkpoint.md).

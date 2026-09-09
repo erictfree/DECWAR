@@ -9,6 +9,10 @@ not established. `--strict` selects a diagnostic profile with unresolved paths,
 not a certified fidelity level. The [playable decisions](playable-decisions.md)
 identify the repairs enabled for ordinary play.
 
+The [post-midnight testing checkpoint](testing-checkpoint.md) records the latest
+bounded fleet, both-variant clock/lifecycle and memory checks, including remaining
+diagnostic-record retention limits.
+
 ## What is available
 
 | Area | Current behavior |

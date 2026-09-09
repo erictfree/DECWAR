@@ -50,6 +50,7 @@ test('Live startup preserves RESET terminal width for bare SC and SRSCAN',{timeo
     for(let row=Number(bounds[0]);row<=Number(bounds[1]);row++)assert.match(report,new RegExp('^ *'+row+' .* '+row+'\\r?$','m'));
   }
   assert.equal(f.low.read('terwid'),80n);
+  assert.equal(f.emitted.length,0,'live reports must not retain a duplicate character transcript');
   await game.quit();
 });
 
