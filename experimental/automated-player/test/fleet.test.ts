@@ -2,9 +2,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
-import { readFileSync, appendFileSync } from 'node:fs';
+import { readFileSync, appendFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { createServer } from 'node:net';
+import { setTimeout as delay } from 'node:timers/promises';
 import { scenario } from './scenario-fixture.ts';
 
 for (const ships of [4, 10]) test(`Fleet launches ${ships} ships across both factions and shuts down at its deadline`, { timeout: 50000 }, async t => {
@@ -47,5 +48,31 @@ test('Fleet records terminal victory and stops commissioning captains', { timeou
   assert.equal(summary.bots.Scout.state, 'war-over');
   assert.equal(summary.bots.Scout.deaths, 0); assert.equal(summary.bots.Scout.reconnects, 0);
   assert.equal(summary.durationReached, false); assert.equal(connections, 1);
+  t.diagnostic(directory);
+});
+
+test('Persistent fleet starts five captains per faction and stops only on request', { timeout: 60000 }, async t => {
+  const fixture = await scenario(t); await fixture.client.quit();
+  const directory = resolve(`logs/automated-player-persistent-test-${Date.now()}`);
+  const child = spawn(process.execPath, ['experimental/automated-player/fleet.ts', '--port', String(fixture.port), '--ships', '10', '--keep-going', '--submission-interval-ms', '0', '--federation-strategy', 'aggressive', '--empire-strategy', 'aggressive', '--planet-squad', '2', '--log-dir', directory], { stdio: ['ignore', 'pipe', 'pipe'] });
+  const ended = once(child, 'exit');
+  t.after(() => { if (child.exitCode === null) child.kill('SIGTERM'); });
+  child.stdout.on('data', data => appendFileSync(`${directory}.stdout.log`, data));
+  child.stderr.on('data', data => appendFileSync(`${directory}.stderr.log`, data));
+  let health: { keepGoing: boolean; plannedSeconds: null; bots: Record<string, { team: string; state: string }> } | undefined;
+  for (let attempt = 0; attempt < 150; attempt++) {
+    await delay(200);
+    if (!existsSync(`${directory}/health.json`)) continue;
+    health = JSON.parse(readFileSync(`${directory}/health.json`, 'utf8'));
+    if (Object.values(health!.bots).filter(bot => bot.state === 'playing').length === 10) break;
+  }
+  assert.ok(health); assert.equal(health.keepGoing, true); assert.equal(health.plannedSeconds, null);
+  assert.equal(Object.values(health.bots).filter(bot => bot.team === 'FEDERATION').length, 5);
+  assert.equal(Object.values(health.bots).filter(bot => bot.team === 'EMPIRE').length, 5);
+  assert.equal(Object.values(health.bots).filter(bot => bot.state === 'playing').length, 10);
+  child.kill('SIGTERM'); const [code] = await ended; assert.equal(code, 0);
+  const summary = JSON.parse(readFileSync(`${directory}/summary.json`, 'utf8'));
+  assert.equal(summary.keepGoing, true); assert.equal(summary.durationReached, false);
+  assert.equal(Object.values(summary.bots).filter((bot: any) => bot.state === 'interrupted').length, 10);
   t.diagnostic(directory);
 });

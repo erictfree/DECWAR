@@ -10,6 +10,7 @@
   "scripts": {
     "start": "node tools/run-telnet.ts",
     "dev:telnet": "node tools/run-telnet.ts",
+    "players:ten": "node experimental/automated-player/fleet.ts --ships 10 --keep-going --federation-strategy aggressive --empire-strategy aggressive --planet-squad 2",
     "audit": "node tools/audit.ts",
     "audit:check": "node tools/audit.ts --check",
     "test": "node --test test/*.test.ts",

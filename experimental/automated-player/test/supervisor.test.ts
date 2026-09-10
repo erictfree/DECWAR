@@ -38,6 +38,24 @@ test('Unavailable vessels have bounded retries; cancellation interrupts backoff'
   assert.deepEqual(events, ['reconnecting'], 'Cancelled backoff is not an attempt or successful recovery');
 });
 
+test('Persistent supervision ignores retry and life budgets until explicitly stopped', async () => {
+  const controller = new AbortController();
+  let calls = 0, reconnects = 0;
+  const result = await supervise({ ...options, persistent: true, retries: 1, lives: 1, rounds: 1, signal: controller.signal,
+    record(event) {
+      if (event.event === 'reconnecting' && ++reconnects === 3) controller.abort();
+    },
+  }, async received => {
+    calls++;
+    assert.equal(received.rounds, Number.MAX_SAFE_INTEGER);
+    assert.equal(received.lives, Number.MAX_SAFE_INTEGER);
+    throw new ConnectionFailure('offline');
+  });
+  assert.equal(calls, 3, 'The configured one-retry budget does not stop a persistent player');
+  assert.equal(result.outcome, 'interrupted');
+  assert.equal(result.retries, 3);
+});
+
 test('Real TCP loss reconnects through login and continues with a fresh observation', { timeout: 30000 }, async t => {
   const fixture = await scenario(t);
   await fixture.client.quit();

@@ -8900,3 +8900,24 @@ The one-minute 18-ship aggressive smoke under `logs/aggressive-profile/energy-su
   admission disabled. Their shutdown expectation also includes the previously
   added `session-telemetry` record. The retained first root run has 4,592 passes
   and two timeout cancellations in `root-tests-final.log`.
+
+## 2026-09-10 — persistent five-per-side player setup
+
+- Added the `npm run players:ten -- --host HOST --port PORT` operational entry
+  point. It selects ten alternating Austin vessels, exactly five per faction,
+  the v21 aggressive installation-assault profile and two exploration/objective
+  captains per side.
+- Added fleet `--keep-going`. Persistent supervision removes decision, life,
+  reconnect and wall-clock limits, reenters destroyed ships and retries
+  connection or occupied-vessel failures with capped backoff until Ctrl-C or a
+  source war-ending banner. Persistent slots start independently so one
+  unavailable assigned vessel does not block the remaining slots.
+- Documented remote invocation, the fixed roster, log-directory behavior,
+  clean shutdown and the boundary between Telnet recovery and an external
+  machine-reboot service in the automated-player guide, public-player
+  quickstart and migration handoff.
+- Validation: persistent supervisor/fleet coverage passes 8/8, including a
+  real ten-client temporary host and clean signal shutdown
+  (`logs/persistent-ten-20260910/tests.log`). Experimental and root TypeScript
+  checks pass (`experimental-typecheck.log`, `root-typecheck.log`), and the
+  135-file archive audit passes (`audit.log`) in the same directory.

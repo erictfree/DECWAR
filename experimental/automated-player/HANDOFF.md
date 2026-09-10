@@ -56,6 +56,18 @@ The client waits 550 ms after each completed dialogue before submitting another
 line. Bots run independent asynchronous loops in one client process; there is no
 round-robin fleet barrier.
 
+To maintain five external players on each faction against any reachable Austin
+host, use:
+
+```sh
+npm run players:ten -- --host 192.0.2.10 --port 2423
+```
+
+This is the portable operational entry point. It runs until Ctrl-C or the war
+ends, retries connections and occupied assigned vessels indefinitely, and
+reenters ships after destruction. The automated-player `README.md` lists the
+fixed ten-ship roster, logging, and service-manager notes.
+
 ## Current player architecture
 
 | Area | Primary files | Current behavior |

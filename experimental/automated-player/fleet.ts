@@ -15,6 +15,7 @@ const { values } = parseArgs({ options: {
   seconds: { type: 'string', default: '3600' }, 'log-dir': { type: 'string' },
   rounds: { type: 'string', default: '10000' }, lives: { type: 'string', default: '10' },
   retries: { type: 'string', default: '20' }, help: { type: 'boolean' },
+  'keep-going': { type: 'boolean', default: false },
   'submission-interval-ms': { type: 'string', default: '550' },
   ships: { type: 'string', default: '4' },
   'federation-strategy': { type: 'string', default: 'objective' },
@@ -38,13 +39,14 @@ const { values } = parseArgs({ options: {
   'empire-close-fire': { type: 'boolean', default: false },
 } });
 if (values.help) {
-  console.log('Usage: node experimental/automated-player/fleet.ts [--port 2423] [--ships 4|6|8|10|12|14|16|18] [--seconds 3600] [--submission-interval-ms 550] [--federation-strategy objective|patrol|balanced|siege|aggressive] [--empire-strategy objective|patrol|balanced|siege|aggressive] [--planet-squad 0..9] [--federation-weapons torpedoes|phasers] [--empire-weapons torpedoes|phasers] [--tournament-seed N] [--torpedo-corridor] [--federation-resupply baseline|persistent] [--empire-resupply baseline|persistent] [--rounds 10000] [--lives 10] [--retries 20] [--log-dir path]\nConnects equal teams to an existing Austin host. The seed selects source TOURNAMENT mode only for a new galaxy. Stops at duration, Ctrl-C, or budgets. Writes health.json, events.jsonl and summary.json.');
+  console.log('Usage: node experimental/automated-player/fleet.ts [--port 2423] [--ships 4|6|8|10|12|14|16|18] [--seconds 3600] [--keep-going] [--submission-interval-ms 550] [--federation-strategy objective|patrol|balanced|siege|aggressive] [--empire-strategy objective|patrol|balanced|siege|aggressive] [--planet-squad 0..9] [--federation-weapons torpedoes|phasers] [--empire-weapons torpedoes|phasers] [--tournament-seed N] [--torpedo-corridor] [--federation-resupply baseline|persistent] [--empire-resupply baseline|persistent] [--rounds 10000] [--lives 10] [--retries 20] [--log-dir path]\nConnects equal teams to an existing Austin host. The seed selects source TOURNAMENT mode only for a new galaxy. --keep-going removes duration, life, decision and retry limits; Ctrl-C still stops cleanly. Writes health.json, events.jsonl and summary.json.');
   process.exit(0);
 }
 function integer(value: string, min: number, max: number) {
   const n = Number(value); if (!/^\d+$/.test(value) || !Number.isSafeInteger(n) || n < min || n > max) throw new Error(`Invalid numeric option: ${value}`); return n;
 }
 const port = integer(values.port, 1, 65535), seconds = integer(values.seconds, 1, 86400);
+const keepGoing = values['keep-going'];
 const rounds = integer(values.rounds, 1, 1000000), lives = integer(values.lives, 1, 1000), retries = integer(values.retries, 0, 100);
 const submissionIntervalMs = integer(values['submission-interval-ms'], 0, 60000);
 const tournamentSeed = values['tournament-seed'] === undefined ? undefined : integer(values['tournament-seed'], 0, Number.MAX_SAFE_INTEGER);
@@ -69,7 +71,7 @@ const controller = new AbortController(), started = Date.now();
 const sharedIntel = new FleetIntel();
 const stop = () => controller.abort();
 process.on('SIGINT', stop); process.on('SIGTERM', stop);
-const end = setTimeout(stop, seconds * 1000);
+const end = keepGoing ? undefined : setTimeout(stop, seconds * 1000);
 const fullRoster: { name: string; team: Team; ship: string; mode: 'patrol' | 'objective' }[] = [
   { name: 'Scout', team: 'FEDERATION', ship: 'NIMITZ', mode: 'objective' },
   { name: 'Raven', team: 'EMPIRE', ship: 'WOLF', mode: 'objective' },
@@ -130,13 +132,13 @@ function snapshot() {
     if (!stalled && s.stalled && s.state === 'playing') record({ event: 'progress-resumed', bot: s.name });
     s.stalled = stalled;
   }
-  const state = { schemaVersion: 2, checkedAt: new Date().toISOString(), elapsedMs: now - started, plannedSeconds: seconds, warResult, schedulingPauses, missedMs, bots: stats };
+  const state = { schemaVersion: 2, checkedAt: new Date().toISOString(), elapsedMs: now - started, plannedSeconds: keepGoing ? null : seconds, keepGoing, warResult, schedulingPauses, missedMs, bots: stats };
   writeFileSync(join(directory, 'health.tmp'), JSON.stringify(state, null, 2) + '\n'); renameSync(join(directory, 'health.tmp'), join(directory, 'health.json'));
   return state;
 }
 const monitor = setInterval(snapshot, 5000);
 const tasks: Promise<unknown>[] = [];
-console.log(`Fleet for ${seconds}s on ${values.host}:${port}; reports: ${directory}`);
+console.log(`${keepGoing ? 'Persistent fleet' : `Fleet for ${seconds}s`} on ${values.host}:${port}; reports: ${directory}`);
 try {
   for (const bot of roster) {
     if (controller.signal.aborted || warResult) break;
@@ -147,7 +149,7 @@ try {
     const joined = new Promise<void>(resolve => { ready = resolve; });
     const s = stats[bot.name];
     let progress = new ProgressWatch();
-    tasks.push(supervise({ ...bot, aggressive, explorationPriority: bot.explorationPriority, persistentResupply: aggressive || values[bot.team === 'FEDERATION' ? 'federation-resupply' : 'empire-resupply'] === 'persistent', coordinatedBases: aggressive || values[bot.team === 'FEDERATION' ? 'federation-bases' : 'empire-bases'] === 'coordinated', surveyHandoff: aggressive || values[bot.team === 'FEDERATION' ? 'federation-survey' : 'empire-survey'] === 'handoff', systematicExploration: aggressive || values[bot.team === 'FEDERATION' ? 'federation-exploration' : 'empire-exploration'] === 'systematic', longMoves: aggressive || values[bot.team === 'FEDERATION' ? 'federation-long-moves' : 'empire-long-moves'], preferClosePlanetFire: aggressive || values[bot.team === 'FEDERATION' ? 'federation-close-fire' : 'empire-close-fire'], torpedoCorridor: aggressive || values['torpedo-corridor'], torpedoes: weapons[bot.team] === 'torpedoes', tournamentSeed, sharedIntel, host: values.host, port, rounds, lives, retries, intervalMs: 500, submissionIntervalMs, signal: controller.signal,
+    tasks.push(supervise({ ...bot, aggressive, explorationPriority: bot.explorationPriority, persistent: keepGoing, persistentResupply: aggressive || values[bot.team === 'FEDERATION' ? 'federation-resupply' : 'empire-resupply'] === 'persistent', coordinatedBases: aggressive || values[bot.team === 'FEDERATION' ? 'federation-bases' : 'empire-bases'] === 'coordinated', surveyHandoff: aggressive || values[bot.team === 'FEDERATION' ? 'federation-survey' : 'empire-survey'] === 'handoff', systematicExploration: aggressive || values[bot.team === 'FEDERATION' ? 'federation-exploration' : 'empire-exploration'] === 'systematic', longMoves: aggressive || values[bot.team === 'FEDERATION' ? 'federation-long-moves' : 'empire-long-moves'], preferClosePlanetFire: aggressive || values[bot.team === 'FEDERATION' ? 'federation-close-fire' : 'empire-close-fire'], torpedoCorridor: aggressive || values['torpedo-corridor'], torpedoes: weapons[bot.team] === 'torpedoes', tournamentSeed, sharedIntel, host: values.host, port, rounds, lives, retries, intervalMs: 500, submissionIntervalMs, signal: controller.signal,
       record(event) {
         let stream = botLogs.get(bot.name);
         if (!stream) { stream = createWriteStream(join(directory, `${bot.name}.jsonl`), { flags: 'a' }); botLogs.set(bot.name, stream); }
@@ -211,13 +213,13 @@ try {
     }).then(result => { s.state = result.outcome; record({ event: 'bot-finished', bot: bot.name, result }); })
       .catch(error => { s.state = 'failed'; s.error = String(error); process.exitCode = 1; record({ event: 'bot-failed', bot: bot.name, error: String(error) }); })
       .finally(ready));
-    await joined;
+    if (!keepGoing) await joined;
     if (!controller.signal.aborted) await delay(200);
   }
   await Promise.all(tasks);
 } finally {
-  clearTimeout(end); clearInterval(monitor); controller.abort();
-  const summary = { ...snapshot(), finishedAt: new Date().toISOString(), durationReached: Date.now() - started >= seconds * 1000, strategies, weapons };
+  if (end) clearTimeout(end); clearInterval(monitor); controller.abort();
+  const summary = { ...snapshot(), finishedAt: new Date().toISOString(), durationReached: !keepGoing && Date.now() - started >= seconds * 1000, strategies, weapons };
   writeFileSync(join(directory, 'summary.json'), JSON.stringify(summary, null, 2) + '\n');
   record({ event: 'fleet-finished', summary });
   await new Promise<void>(resolve => eventLog.end(resolve));

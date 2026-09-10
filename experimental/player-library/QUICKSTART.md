@@ -80,6 +80,18 @@ decision cycles, not the submission limit. Programmatic callers can set
 protocol tests). Bots run independent asynchronous loops; one bot's wait does
 not pause the others. They still share one client process.
 
+To run the supplied aggressive captain as a persistent five-versus-five fleet
+instead of writing a strategy, provide the remote host and port:
+
+```sh
+npm run players:ten -- --host game.example.net --port 2423
+```
+
+That command keeps ten fixed vessel slots supervised through deaths, occupied
+ship retries, and Telnet disconnects. It ends on Ctrl-C or a war-ending banner.
+The automated-player [README](../automated-player/README.md) lists the roster
+and operational details.
+
 ## How a strategy works
 
 The runner creates one strategy instance for each ship. It calls `decide`

@@ -98,6 +98,35 @@ For ten bots, five per faction:
 node experimental/automated-player/fleet.ts --port 2423 --ships 10 --seconds 3600
 ```
 
+To keep five players per faction online indefinitely against an existing Austin
+host, supply its IP address or DNS name and port:
+
+```sh
+npm run players:ten -- --host 192.0.2.10 --port 2423
+```
+
+This starts Federation captains in Nimitz, Excalibur, Farragut, Intrepid and
+Lexington, plus Empire captains in Wolf, Demon, Cobra, Goblin and Hawk. All ten
+use the aggressive installation-assault profile, with two capture/build
+explorers per side. The other four vessels per faction remain available.
+
+The underlying `--keep-going` option removes duration, decision, life and
+reconnect limits. Destroyed captains reenter; offline connections and occupied
+assigned vessels retry with capped exponential backoff. Slots start
+independently, so one occupied vessel does not prevent the other nine from
+joining. The process stops on Ctrl-C or a real war-ending banner.
+
+Use a new stable log directory for each service launch:
+
+```sh
+npm run players:ten -- --host game.example.net --port 2423 \
+  --log-dir logs/persistent-ten-20260910
+```
+
+The manifest is created exclusively, so a later launch must use another empty
+directory. A system service can restart the Node process after a machine reboot;
+the player supervisor itself handles ordinary Telnet disconnects without exit.
+
 For a disposable isolated galaxy that shuts down with the fleet:
 
 ```sh
