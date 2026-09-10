@@ -5,7 +5,7 @@ The published document begins with [TITLE.md](TITLE.md).
 1. Introduction
 2. Abstract data types
 3. Lexical structure
-4. Command grammar
+4. Grammar
 5. Semantic framework
 6. World mechanics
 7. Command semantics

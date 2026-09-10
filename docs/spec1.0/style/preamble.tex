@@ -7,6 +7,10 @@
 \usepackage{xcolor}
 \usepackage{fancyhdr}
 \usepackage{titlesec}
+\usepackage{fvextra}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,breakanywhere,commandchars=\\\{\}}
+\fvset{breaklines=true,breakanywhere=true}
+\setlength{\emergencystretch}{3em}
 
 \definecolor{decwarblue}{HTML}{213A5C}
 \definecolor{decwargray}{HTML}{606770}
@@ -39,6 +43,4 @@
   {\normalsize\bfseries}
   {\thesubsubsection}{0.65em}{}
 
-\widowpenalty=10000
-\clubpenalty=10000
-\displaywidowpenalty=10000
+% Draft layout uses ordinary LaTeX page-flow defaults.

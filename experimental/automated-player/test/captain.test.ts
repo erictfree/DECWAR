@@ -2,7 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { parseScan, parseDevices, type Cell, type Position } from '../observations.ts';
 import { Captain, selectSafeNova, type Observation } from '../captain.ts';
+import type { Decision } from '../policy.ts';
 import { ObservedMap, route } from '../navigation.ts';
+import { createCaptainStrategy } from '../../player-library/strategies/captain.ts';
 
 function observation(position = { v: 10, h: 10 }): Observation {
   const cells: Cell[] = [];
@@ -13,6 +15,7 @@ function observation(position = { v: 10, h: 10 }): Observation {
     status: { observedAt: 1000, stardate: 1, position, condition: 'Green', docked: false, energy: 5000, torpedoes: 10, hullDamage: 0, shieldsUp: true, shieldPercent: 100 },
   };
 }
+function action(d: Decision) { assert.equal(d.kind, 'act'); return d; }
 function cell(o: Observation, p: Position, symbol: string): void { o.scan.cells.find(c => c.v === p.v && c.h === p.h)!.symbol = symbol; }
 
 test('Long scan parser preserves black holes, captured planets, warnings and row orientation', () => {
@@ -78,6 +81,107 @@ test('Resupply docks repeatedly until restored; patrol resumes afterward', () =>
   o.status.energy = 5000; o.status.docked = true;
   assert.match(captain.choose(o, 1100).command!, /^MOVE/);
   assert.equal(new Captain('FEDERATION', 'resupply').choose(o, 1100).kind, 'complete');
+});
+
+test('Reusable aggressive profile enables the combined strategy contract', () => {
+  const definition = createCaptainStrategy({ mode: 'siege', aggressive: true });
+  assert.equal(definition.version, 'v21-installation-assault');
+  const strategy = definition.create({ team: 'FEDERATION', ship: { name: 'Test', id: 1 } } as never);
+  assert.equal(typeof strategy.decide, 'function');
+});
+
+test('Aggressive captains switch from foothold work to confirmed installation pressure', () => {
+  const o = observation();
+  o.objects = [
+    { name: 'Home', kind: 'base', faction: 'FEDERATION', position: { v: 10, h: 5 }, observedAt: 1000 },
+    { name: 'P1', kind: 'planet', faction: 'FEDERATION', position: { v: 8, h: 5 }, observedAt: 1000, builds: 2 },
+    { name: 'P2', kind: 'planet', faction: 'FEDERATION', position: { v: 12, h: 5 }, observedAt: 1000, builds: 2 },
+    { name: 'Enemy Base', kind: 'base', faction: 'EMPIRE', position: { v: 10, h: 15 }, observedAt: 1000 },
+  ];
+  cell(o, { v: 10, h: 15 }, ')(');
+  const captain = new Captain('FEDERATION', 'objective', false, true, true, true, true, true, true, true, true);
+  const decision = captain.choose(o, 1000);
+  assert.equal(decision.kind, 'act');
+  if (decision.kind === 'act') assert.equal(decision.targetKind, 'base');
+});
+
+test('Aggressive captains bypass roaming ships but fight ships screening an installation', () => {
+  const o = observation();
+  o.objects = [
+    { name: 'Home', kind: 'base', faction: 'FEDERATION', position: { v: 10, h: 5 }, observedAt: 1000 },
+    { name: 'P1', kind: 'planet', faction: 'FEDERATION', position: { v: 8, h: 5 }, observedAt: 1000, builds: 2 },
+    { name: 'P2', kind: 'planet', faction: 'FEDERATION', position: { v: 12, h: 5 }, observedAt: 1000, builds: 2 },
+    { name: 'Enemy Base', kind: 'base', faction: 'EMPIRE', position: { v: 10, h: 15 }, observedAt: 1000 },
+  ];
+  o.baseMission = { v: 10, h: 15 };
+  cell(o, { v: 10, h: 15 }, ')('); cell(o, { v: 10, h: 20 }, ' W');
+  const assault = new Captain('FEDERATION', 'objective', true, true, true, true, true, true, true, true, true);
+  assert.equal(action(assault.choose(o, 1000)).targetKind, 'base', 'A remote ship does not displace the installation mission');
+  cell(o, { v: 10, h: 20 }, ' .'); cell(o, { v: 10, h: 17 }, ' W');
+  o.targets = [{ name: 'Wolf', kind: 'ship', faction: 'EMPIRE', position: { v: 10, h: 17 }, shieldPercent: 100, observedAt: 5000 }];
+  o.status.observedAt = o.scan.observedAt = 5000; o.objects.forEach(object => object.observedAt = 5000);
+  assert.equal(action(assault.choose(o, 5000)).targetKind, 'ship', 'A ship screening the assigned base is engaged defensively');
+});
+
+test('Exploration-priority aggressive captains attack a discovered hostile planet', () => {
+  const o = observation();
+  o.objects = [
+    { name: 'Home', kind: 'base', faction: 'FEDERATION', position: { v: 10, h: 5 }, observedAt: 1000 },
+    { name: 'P1', kind: 'planet', faction: 'FEDERATION', position: { v: 8, h: 5 }, observedAt: 1000, builds: 2 },
+    { name: 'P2', kind: 'planet', faction: 'FEDERATION', position: { v: 12, h: 5 }, observedAt: 1000, builds: 2 },
+    { name: 'Enemy Planet', kind: 'planet', faction: 'EMPIRE', position: { v: 10, h: 13 }, observedAt: 1000, builds: 1 },
+  ];
+  cell(o, { v: 10, h: 13 }, '@E');
+  const captain = new Captain('FEDERATION', 'patrol', false, true, true, true, true, true, true, true, true, true);
+  const decision = captain.choose(o, 1000);
+  assert.equal(decision.kind, 'act');
+  if (decision.kind === 'act') assert.equal(decision.targetKind, 'planet');
+});
+
+test('Exploration-priority aggressive captains join a reported installation strike', () => {
+  const o = observation();
+  o.objects = [
+    { name: 'Home', kind: 'base', faction: 'FEDERATION', position: { v: 10, h: 5 }, observedAt: 1000 },
+    { name: 'P1', kind: 'planet', faction: 'FEDERATION', position: { v: 8, h: 5 }, observedAt: 1000, builds: 2 },
+    { name: 'P2', kind: 'planet', faction: 'FEDERATION', position: { v: 12, h: 5 }, observedAt: 1000, builds: 2 },
+    { name: 'Enemy Base', kind: 'base', faction: 'EMPIRE', position: { v: 10, h: 15 }, observedAt: 1000 },
+  ];
+  o.radio = [{ kind: 'strike-base', position: { v: 10, h: 15 }, text: 'Enemy base confirmed at 10-15. Strike group converge.' }];
+  cell(o, { v: 10, h: 15 }, ')(');
+  const captain = new Captain('FEDERATION', 'objective', false, true, true, true, true, true, true, true, true, true);
+  const decision = captain.choose(o, 1000);
+  assert.equal(decision.kind, 'act');
+  if (decision.kind === 'act') assert.equal(decision.targetKind, 'base');
+});
+
+test('A supplied captain answers an adjacent teammate resupply request', () => {
+  const o = observation({ v: 10, h: 10 });
+  o.radio = [{ kind: 'resupply', text: 'Low on energy or torpedoes. Falling back to base for supplies.' }];
+  o.objects = [{ name: 'Farragut', kind: 'ship', faction: 'FEDERATION', position: { v: 10, h: 11 }, observedAt: 1000 }];
+  const decision = new Captain('FEDERATION', 'patrol').choose(o, 1000);
+  assert.equal(decision.kind, 'act');
+  if (decision.kind === 'act') assert.equal(decision.command, 'ENERGY Farragut 500');
+});
+
+test('Opt-in survey handoff marks a bounded unproductive mission for reassignment', () => {
+  const o = observation({ v: 10, h: 10 });
+  o.planetMission = { v: 10, h: 15 };
+  o.objects = [{ name: 'Neu planet', kind: 'planet', faction: 'NEUTRAL', position: { v: 10, h: 15 }, observedAt: 1000, builds: 0 }];
+  cell(o, { v: 10, h: 15 }, ' @'); cell(o, { v: 10, h: 14 }, ' *');
+  const captain = new Captain('FEDERATION', 'siege', false, true, true, false, true);
+  let released = false;
+  for (let i = 0; i < 140; i++) {
+    o.status.observedAt = 1000; o.scan.observedAt = 1000;
+    const d = captain.choose(o, 1000);
+    assert.equal(d.kind, 'act');
+    if (d.kind === 'act') {
+      if (d.releasePlanetMission) { released = true; break; }
+      if (d.command.startsWith('MOVE ABSOLUTE')) {
+        const p = d.command.split(' ').slice(-2).map(Number); o.status.position = { v: p[0], h: p[1] };
+      }
+    }
+  }
+  assert.equal(released, true);
 });
 
 test('An observed failed movement temporarily blocks that destination and causes a different route', () => {
@@ -167,20 +271,33 @@ test('Objective captain keeps planet priority over teammate pursuit waypoints', 
 });
 
 test('Nova tactic requires a fully observed star cluster clear of friendlies and planets', () => {
-  const o = observation(); cell(o, { v: 10, h: 13 }, ' *'); cell(o, { v: 10, h: 14 }, ' W');
-  const wolf = { name: 'Wolf', kind: 'ship' as const, faction: 'EMPIRE' as const, observedAt: 1000, position: { v: 10, h: 14 }, shieldPercent: 100 };
-  o.objects = [wolf]; o.targets = [wolf];
-  assert.deepEqual(selectSafeNova(o.scan, o.status, 'FEDERATION', o.targets), { v: 10, h: 13, symbol: ' *', observedAt: 1000 });
+  const o = observation(); cell(o, { v: 10, h: 14 }, ' *'); cell(o, { v: 10, h: 15 }, ')(');
+  const base = { name: 'Emp Base', kind: 'base' as const, faction: 'EMPIRE' as const, observedAt: 1000, position: { v: 10, h: 15 }, shieldPercent: 100 };
+  o.objects = [base]; o.targets = [base];
+  assert.deepEqual(selectSafeNova(o.scan, o.status, 'FEDERATION', o.targets), { v: 10, h: 14, symbol: ' *', observedAt: 1000 });
   const shot = new Captain('FEDERATION', 'patrol', true).choose(o, 1000);
-  assert.equal(shot.command, 'TORPEDOES ABSOLUTE 1 10 13'); assert.equal(shot.targetKind, 'star');
-  assert.equal(new Captain('FEDERATION').choose(o, 1000).command, 'PHASERS ABSOLUTE 180 10 14', 'Default policy does not deliberately trigger novas');
-  cell(o, { v: 9, h: 13 }, ' V');
+  assert.equal(shot.command, 'TORPEDOES ABSOLUTE 1 10 14'); assert.equal(shot.targetKind, 'star');
+  assert.equal(new Captain('FEDERATION').choose(o, 1000).command, 'PHASERS ABSOLUTE 180 10 15', 'Default policy does not deliberately trigger novas');
+  cell(o, { v: 10, h: 12 }, ' V');
+  assert.equal(selectSafeNova(o.scan, o.status, 'FEDERATION', o.targets), undefined, 'A friendly in the possible launch corridor vetoes the nova');
+  cell(o, { v: 10, h: 12 }, ' .');
+  cell(o, { v: 9, h: 14 }, ' V');
   assert.equal(selectSafeNova(o.scan, o.status, 'FEDERATION', o.targets), undefined);
-  cell(o, { v: 9, h: 13 }, ' .'); cell(o, { v: 11, h: 14 }, ' @');
+  cell(o, { v: 9, h: 14 }, ' .'); cell(o, { v: 11, h: 15 }, ' @');
   assert.equal(selectSafeNova(o.scan, o.status, 'FEDERATION', o.targets), undefined);
-  cell(o, { v: 11, h: 14 }, ' .'); cell(o, { v: 10, h: 13 }, ' .'); cell(o, { v: 1, h: 2 }, ' *');
-  wolf.position = { v: 1, h: 3 }; o.targets = [wolf];
+  cell(o, { v: 11, h: 15 }, ' .'); cell(o, { v: 10, h: 14 }, ' .'); cell(o, { v: 1, h: 2 }, ' *');
+  base.position = { v: 1, h: 3 }; o.targets = [base];
   assert.equal(selectSafeNova(o.scan, o.status, 'FEDERATION', o.targets), undefined, 'A scan-edge cluster has an unknown continuation');
+});
+
+test('Installation nova permits an enemy planet but rejects neutral and friendly planets', () => {
+  const o = observation(); cell(o, { v: 10, h: 13 }, ' *'); cell(o, { v: 10, h: 14 }, '@E');
+  const planet = { name: 'Emp planet', kind: 'planet' as const, faction: 'EMPIRE' as const, observedAt: 1000, position: { v: 10, h: 14 }, builds: 2 };
+  assert.equal(selectSafeNova(o.scan, o.status, 'FEDERATION', [planet])?.symbol, ' *');
+  for (const symbol of [' @', '@F']) {
+    cell(o, { v: 10, h: 14 }, symbol);
+    assert.equal(selectSafeNova(o.scan, o.status, 'FEDERATION', [planet]), undefined);
+  }
 });
 
 test('Objective captain captures and develops only freshly scanned planets with safe reserves', () => {
@@ -265,14 +382,14 @@ test('Siege prioritizes a confirmed installation over distant ships but defends 
   o.objects = [{ name: 'Emp Base', kind: 'base', faction: 'EMPIRE', position: { v: 15, h: 10 }, observedAt: 1000 }];
   assert.equal(new Captain('FEDERATION', 'siege').choose(o, 1000).command, 'PHASERS ABSOLUTE 180 15 10');
   cell(o, { v: 10, h: 17 }, ' .'); cell(o, { v: 10, h: 12 }, ' W');
-  assert.equal(new Captain('FEDERATION', 'siege').choose(o, 1000).targetKind, 'ship');
+  assert.equal(action(new Captain('FEDERATION', 'siege').choose(o, 1000)).targetKind, 'ship');
 });
 
 test('Siege preserves its target across a full resupply and rejects fresh evidence of removal', () => {
   const captain = new Captain('FEDERATION', 'siege');
   const o = observation(); cell(o, { v: 15, h: 10 }, ')(');
   o.objects = [{ name: 'Emp Base', kind: 'base', faction: 'EMPIRE', position: { v: 15, h: 10 }, observedAt: 1000 }];
-  assert.equal(captain.choose(o, 1000).targetKind, 'base');
+  assert.equal(action(captain.choose(o, 1000)).targetKind, 'base');
   const refill = structuredClone(o); refill.status.position = { v: 10, h: 19 }; refill.status.energy = 2000;
   assert.equal(captain.choose(refill, 1000).command, 'DOCK');
   refill.status.energy = 5000; refill.status.docked = true;
@@ -294,7 +411,51 @@ test('Siege uses distant LIST reports only for navigation, and cannot fire on an
   o.objects = [{ name: 'Emp Planet', kind: 'planet', faction: 'EMPIRE', position: { v: 10, h: 13 }, builds: 4, observedAt: 1000 }];
   assert.doesNotMatch(new Captain('FEDERATION', 'siege').choose(o, 1000).command ?? '', /^PHASERS/);
   cell(o, { v: 10, h: 13 }, '@E');
-  assert.equal(new Captain('FEDERATION', 'siege').choose(o, 1000).targetKind, 'planet');
+  assert.equal(action(new Captain('FEDERATION', 'siege').choose(o, 1000)).targetKind, 'planet');
   o.objects[0].builds = 0;
   assert.doesNotMatch(new Captain('FEDERATION', 'siege').choose(o, 1000).command ?? '', /^PHASERS/);
+});
+
+test('Siege torpedoes remove unbuilt enemy planets, respect cooldown and resupply ammunition', () => {
+  const o = observation();
+  o.objects = [{ name: 'Emp Planet', kind: 'planet', faction: 'EMPIRE', position: { v: 10, h: 13 }, builds: 0, observedAt: 1000 }];
+  cell(o, { v: 10, h: 13 }, '@E');
+  const captain = new Captain('FEDERATION', 'siege', false, true, true);
+  assert.equal(captain.choose(o, 1000).command, 'TORPEDOES ABSOLUTE 1 10 13');
+  assert.equal(captain.choose(o, 2000).command, 'STATUS');
+  o.status.torpedoes = 2;
+  assert.match(captain.choose(o, 2500).reason, /supplies/);
+});
+
+test('Planetary torpedoes require fresh hostile evidence and honor weapon policy', () => {
+  const o = observation();
+  o.objects = [{ name: 'Emp Planet', kind: 'planet', faction: 'EMPIRE', position: { v: 10, h: 13 }, builds: 4, observedAt: 1000 }];
+  const choose = () => new Captain('FEDERATION', 'siege').choose(o, 1000);
+  assert.notEqual(('weapon' in choose() ? action(choose()).weapon : undefined), 'torpedoes');
+  cell(o, { v: 10, h: 13 }, '@E');
+  assert.equal(('weapon' in choose() ? action(choose()).weapon : undefined), 'torpedoes');
+  assert.equal(action(new Captain('FEDERATION', 'siege', false, false).choose(o, 1000)).weapon, 'phasers');
+  o.devices.torpedoes = 300;
+  assert.notEqual(('weapon' in choose() ? action(choose()).weapon : undefined), 'torpedoes');
+  o.devices.torpedoes = 0; cell(o, { v: 10, h: 13 }, '@F'); o.objects[0].faction = 'FEDERATION';
+  assert.notEqual(('weapon' in choose() ? action(choose()).weapon : undefined), 'torpedoes');
+});
+
+test('Siege destroys neutral planets but withdraws a firing solution after friendly capture', () => {
+  const o = observation();
+  o.objects = [{ name: 'Neu Planet', kind: 'planet', faction: 'NEUTRAL', position: { v: 10, h: 13 }, builds: 0, observedAt: 1000 }];
+  cell(o, { v: 10, h: 13 }, ' @');
+  const captain = new Captain('FEDERATION', 'siege', false, true, true);
+  assert.equal(captain.choose(o, 1000).command, 'TORPEDOES ABSOLUTE 1 10 13');
+  o.objects[0].faction = 'FEDERATION'; cell(o, { v: 10, h: 13 }, '@F');
+  assert.doesNotMatch(captain.choose(o, 5000).command ?? '', /^TORPEDOES/);
+  o.objects[0].faction = 'NEUTRAL'; cell(o, { v: 10, h: 13 }, ' @');
+  assert.doesNotMatch(new Captain('FEDERATION', 'siege', false, false).choose(o, 1000).command ?? '', /^TORPEDOES|^PHASERS/);
+});
+
+test('Neutral planet firing requires SCAN and LIST ownership agreement', () => {
+  const o = observation();
+  o.objects = [{ name: 'Neu Planet', kind: 'planet', faction: 'NEUTRAL', position: { v: 10, h: 13 }, builds: 0, observedAt: 1000 }];
+  cell(o, { v: 10, h: 13 }, '@E');
+  assert.doesNotMatch(new Captain('FEDERATION', 'siege').choose(o, 1000).command ?? '', /^TORPEDOES/);
 });

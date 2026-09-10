@@ -1,13 +1,14 @@
 import { createServer } from 'node:net';
 import type { Server,Socket } from 'node:net';
 import { GameSession } from '../runtime/session.ts';
-import type { SessionTerminal,SessionProgram,SessionResult } from '../runtime/session.ts';
+import type { SessionTerminal,SessionProgram,SessionResult,SessionTelemetry } from '../runtime/session.ts';
 import { TelnetCodec,TelnetEncoder } from './telnet.ts';
 
 export type TelnetSessionFactory=(terminal:SessionTerminal,connection:{id:number;remoteAddress:string|undefined})=>SessionProgram;
 export type TelnetServerOptions={
   createSession:TelnetSessionFactory;
   onSessionEnd?:(id:number,result:SessionResult)=>void;
+  onTelemetry?:(event:{id:number;steps:number;stepWallMs:number;stepCpuMs:number;maxStepWallMs:number;outputBytes:number;outputBackpressure:number})=>void;
 };
 // Wire negotiation uses the project's documented D-003 boundary policy.
 // No banners, prompts or exception messages are injected into game output.
@@ -16,11 +17,13 @@ export function createTelnetServer(options:TelnetServerOptions):{server:Server;c
   const sessions=new Map<number,GameSession>(),sockets=new Set<Socket>();
   const server=createServer({allowHalfOpen:true},socket=>{
     const id=nextId++,decoder=new TelnetCodec(true),encoder=new TelnetEncoder();
+    const metrics={steps:0,stepWallMs:0,stepCpuMs:0,maxStepWallMs:0,outputBytes:0,outputBackpressure:0};
     sockets.add(socket);socket.setNoDelay(true);
     socket.write(decoder.begin());
     const write=(bytes:Uint8Array)=>{
-      const data=encoder.encode(bytes);if(data.length&&!socket.destroyed)socket.write(data);
+      const data=encoder.encode(bytes);if(data.length&&!socket.destroyed){metrics.outputBytes+=data.length;if(!socket.write(data))metrics.outputBackpressure++;}
     };
+    const telemetry:SessionTelemetry={step(event){metrics.steps++;metrics.stepWallMs+=event.wallMs;metrics.stepCpuMs+=event.cpuMs;metrics.maxStepWallMs=Math.max(metrics.maxStepWallMs,event.wallMs);}};
     let session:GameSession;
     try{
       session=new GameSession(terminal=>{
@@ -42,7 +45,7 @@ export function createTelnetServer(options:TelnetServerOptions):{server:Server;c
         const clear=terminal.clearInput;
         terminal.clearInput=()=>{characters=0;clear();};
         return options.createSession(terminal,{id,remoteAddress:socket.remoteAddress});
-      },write);
+      },write,undefined,telemetry);
     }catch(error){options.onSessionEnd?.(id,{reason:'failed',error});socket.destroy();sockets.delete(socket);return;}
     sessions.set(id,session);
     socket.on('data',bytes=>{
@@ -62,6 +65,7 @@ export function createTelnetServer(options:TelnetServerOptions):{server:Server;c
       sessions.delete(id);
       if(!socket.destroyed){const tail=encoder.flush();if(tail.length)socket.write(tail);socket.end();}
       options.onSessionEnd?.(id,result);
+      options.onTelemetry?.({id,...metrics});
     });
   });
   return {server,sessions,async close(){

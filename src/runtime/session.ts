@@ -15,6 +15,7 @@ export interface SessionTerminal{
   echoAllowed?:()=>boolean;
 }
 export type SessionResult={reason:'completed'}|{reason:'failed';error:unknown}|{reason:'cancelled'};
+export type SessionTelemetry={step?(event:{wallMs:number;cpuMs:number;waitType:SessionWait['type']|undefined}):void};
 // A deliberate source MONRT/monitor exit is completion, not a host fault.
 // Only the bound monitor service should emit this control transfer.
 export class SessionExit extends Error{
@@ -40,9 +41,11 @@ export class GameSession{
   private cpuElapsed=0n;
   private cpuStarted:bigint|undefined;
   private cpuMicroseconds:()=>bigint;
+  private telemetry:SessionTelemetry|undefined;
 
-  constructor(create:(terminal:SessionTerminal)=>SessionProgram,write:(bytes:Uint8Array)=>void,cpuMicroseconds:()=>bigint=()=>{const usage=process.cpuUsage();return BigInt(usage.user)+BigInt(usage.system);}){
+  constructor(create:(terminal:SessionTerminal)=>SessionProgram,write:(bytes:Uint8Array)=>void,cpuMicroseconds:()=>bigint=()=>{const usage=process.cpuUsage();return BigInt(usage.user)+BigInt(usage.system);},telemetry?:SessionTelemetry){
     this.cpuMicroseconds=cpuMicroseconds;
+    this.telemetry=telemetry;
     this.done=new Promise(resolve=>{this.resolve=resolve;});
     const session=this;
     this.terminal={
@@ -127,7 +130,8 @@ export class GameSession{
       for(;;){
         if(this.controlFailed)throw this.controlError;
         if(this.cancelled){for(const control of this.controls)this.measured(()=>control.return());this.controls.length=0;this.measured(()=>this.program.run.return());result={reason:'cancelled'};break;}
-        const control=this.controls[0],step=this.measured(()=>(control??this.program.run).next());
+        const control=this.controls[0],wallStarted=process.hrtime.bigint(),cpuStarted=this.cpuMicroseconds(),step=this.measured(()=>(control??this.program.run).next());
+        if(this.telemetry?.step)this.telemetry.step({wallMs:Number(process.hrtime.bigint()-wallStarted)/1e6,cpuMs:Number(this.cpuMicroseconds()-cpuStarted)/1000,waitType:step.done?undefined:step.value.type});
         if(control&&step.done){this.controls.shift();continue;}
         if(step.done){result={reason:'completed'};break;}
         await this.wait(step.value);

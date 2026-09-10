@@ -38,7 +38,7 @@ of 10,000 decisions, 10 lives and 20 reconnection attempts across the run.
 a new report directory; an existing configuration there is rejected.
 
 `--federation-strategy` and `--empire-strategy` accept `objective`, `patrol`,
-`balanced` or `siege`. Objective assigns one objective captain and leaves the rest on
+`balanced`, `siege` or `aggressive`. Objective assigns one objective captain and leaves the rest on
 patrol. Patrol assigns every captain to patrol. Balanced assigns one objective
 captain, one defender and the rest to patrol. The default remains objective for
 both sides. Siege assigns one capture/build captain and the rest to installation
@@ -48,6 +48,29 @@ prioritizes it over distant ship skirmishes. Ships within four sectors still
 trigger ordinary defensive combat. SCAN confirmation remains required to fire;
 LIST and remembered positions authorize navigation only. This policy does not
 coordinate target assignments or solve the ten-base capacity constraint.
+
+`aggressive` is an explicit combined profile for war-length experiments. It
+uses objective mode so ships can capture and develop planets while enabling
+persistent resupply routes, coordinated base assignments and last-base defense, deliberate frontier exploration, bounded
+survey handoff, longer verified moves, close planetary firing positions, and
+the torpedo corridor filter. Aggressive captains now preserve installation
+missions when unrelated enemy ships appear. They fight ships only in immediate
+self-defense, near friendly installations, or when the ship screens an assigned
+assault objective. Conservative deliberate novas are also enabled when a fresh
+scan proves the possible torpedo corridor and chained blast area safe from the
+shooter, friendly assets and neutral planets, and an enemy base or planet is in
+the blast area. The individual flags remain available for
+isolated comparisons; aggressive does not change the default strategy.
+
+Use `--planet-squad N` with the aggressive profile to reserve N ships per
+faction for exploration, capture and building (default 3, range 0–9). The
+remaining aggressive ships retain installation pressure. This makes the
+planet-versus-base allocation explicit and reproducible in run logs.
+
+Aggressive coordination uses native `TELL FEDERATION` or `TELL EMPIRE`
+recipient groups, so tactical strike and resupply traffic stays on the
+originating side. Incoming messages are deduplicated per observation cycle;
+SCAN/LIST confirmation still gates any weapon command.
 
 For a separate siege evaluation after an existing run finishes:
 
@@ -85,10 +108,9 @@ The wrapper launches the public Austin host on an ephemeral port, delegates to
 the same fleet process, retains host/fleet evidence, stops the host and removes
 only its newly created temporary galaxy.
 
-`--ships` accepts 4, 6, 8 or 10. The larger roster adds Federation
-Lancer/Farragut, Ranger/Intrepid and Archer/Lexington, and Empire Fang/Cobra,
-Wraith/Goblin and Talon/Hawk. Vulcan is not assigned to a bot. Requested ships
-must be available; the launcher never takes over an occupied vessel.
+`--ships` accepts any even count from 4 through 18. The full roster uses all
+nine vessels on each side. Requested ships must be available; the launcher
+never takes over an occupied vessel.
 
 Every five seconds, `health.json` records progress, shots, docking, repairs,
 deaths, retries and stalls. `events.jsonl` records state changes;
@@ -174,7 +196,7 @@ different order.
 | `--mode siege` | Retain an enemy installation objective through resupply; prefer safe installation attacks over distant ship skirmishes. |
 | `--rounds N` | At most N decision cycles, default 12, maximum 10000. Observation/wait decisions and death/reentry cycles also count. |
 | `--lives N` | Stop after N lost ships, default 3. Earlier losses reenter through Austin's dialogue. |
-| `--interval-ms N` | Pause between cycles, default 500, minimum 100. Server command delays still apply. |
+| `--interval-ms N` | Additional pause between cycles, default 500, minimum 100. Each client also waits 550 ms after responses before submitting another line. Server command delays still apply. |
 | `--stay-connected` | After normal policy completion/blocking or the cycle limit, remain visible and read STATUS at intervals of at least five seconds. This is observation, not patrol. The life limit ends the run. |
 | `--log path` | Choose a JSONL transcript path instead of the timestamped default. |
 | `--host`, `--port` | Default to 127.0.0.1:2423. Port numbers do not select a variant. |
@@ -230,7 +252,28 @@ Enemy bases are approached to range five, outside their four-sector defenses.
 Enemy planets with reported builds are approached to range three, outside
 their two-sector defenses. Strength-180 phasers cannot reduce planet builds
 beyond four sectors, so the bot does not waste long-range shots on them.
-Neutral/friendly planets and enemy planets with zero builds are not attacked.
+Outside siege mode, neutral/friendly planets and enemy planets with zero builds are not attacked.
+
+The v14 siege policy instead fires single torpedoes at freshly confirmed enemy
+or neutral planets, including zero-build planets, from range three to eight. A hit can
+reduce builds below zero and destroy the planet (Austin DECWAR.FOR:4383–4398);
+not every hit reduces builds. It always checks the observed torpedo corridor,
+allowing only the selected enemy or neutral planet through the planet exclusion.
+Friendly planets, other planets, stars and unknown cells veto that shot.
+A fresh friendly capture cancels the firing solution. Neutral demolition reduces
+the remaining planet count without waiting for base capacity.
+Captains reposition for a clear shot and resupply with two torpedoes remaining.
+The explicit phasers-only policy retains installation damage behavior.
+Fleet siege captains lease separate planet missions within each faction. Leases
+renew during travel/resupply and expire after 30 seconds without renewal.
+They retain a planned firing destination across multiple moves, surveying another
+approach if none is known. The survey fallback chooses a distinct waypoint
+around the planet, including when already at range three, and favors unvisited
+positions instead of repeatedly scanning in place. Ships inside range three can
+move strictly outward through range two, subject to the same fresh terrain and
+danger checks. Remembered terrain guides routes; firing still requires
+a fully fresh clear corridor. Friendly capture or observed removal releases the
+mission. Immediate threats and supply needs can still interrupt travel.
 
 The v5 fleet assigns one objective captain per faction. With at least
 3,500 energy and 75% shields, it approaches an observed neutral or unfortified
@@ -250,7 +293,7 @@ loop found in the first four-match evaluation. The corrected defender remains
 experimental: it led one of four 60-second comparison matches against the
 objective strategy and had a wide 95% lead-rate interval.
 
-Captain v7 introduced `TARGETS` in every observation cycle and requires its ship
+Captain v7 originally introduced `TARGETS` in every observation cycle and requires its ship
 location to agree with the fresh long SCAN before either weapon fires. It uses
 single torpedoes only below 85% reported enemy shields, keeps four rounds in
 reserve, and rejects damaged tube/computer shots. Torpedo responses are reported
@@ -425,3 +468,60 @@ Fleet report schema 2 separates `retrySchedules` (backoff scheduled),
 (successfully joined again after an earlier connection). Reports without a
 schema version used `reconnects` for scheduled retries; do not interpret those
 historical counts as successful recovery.
+
+
+### Experimental persistent resupply
+
+Resupply remains `baseline` by default. Use `--federation-resupply persistent`
+or `--empire-resupply persistent` with `fleet.ts` or `fresh-fleet.ts` to enable
+route-cost selection and a retained refuge for one faction. The other faction
+can retain the v14 baseline for comparison. Manifests record both selections.
+
+The planner retains a reachable refuge unless fresh observations increase danger.
+It reselects if the refuge disappears from BASES, becomes unreachable, or needs
+a danger reassessment. Selection compares A* route preference costs; these are
+not game energy or elapsed time. Each executed step still requires fresh observed
+terrain. Existing retreat thresholds, docking behavior and restoration targets
+are unchanged. Decision records include `refuge.destination`, `refuge.cost`, and
+`refuge.reason` for route review. No improvement in win rate is established yet.
+
+Library users can pass `persistentResupply: true` to `createCaptainStrategy`.
+
+### Experimental survey handoff and exploration
+
+Siege captains keep `baseline` survey behavior unless `--federation-survey
+handoff` or `--empire-survey handoff` is selected. After a bounded run of
+unproductive survey moves, the captain releases its planet lease so another
+captain can try a different approach. This is an experiment; it does not
+claim a win-rate improvement.
+
+Patrol captains can similarly use `--federation-exploration systematic` or
+`--empire-exploration systematic`. The policy targets a least-visited mapped
+sector bordering unknown space, with the ordinary danger and fresh-step checks
+still applied. Library users can pass `surveyHandoff: true` or
+`systematicExploration: true` to `createCaptainStrategy`.
+
+For movement experiments, `--federation-long-moves` and
+`--empire-long-moves` enable bounded multi-sector `MOVE` commands only when
+the complete direct route is freshly observed, clear and safe. The default is
+off; library users can pass `longMoves: true`.
+
+### Selective observation and submission pacing
+
+The current runner refreshes LIST, SCAN and STATUS every cycle. TARGETS is
+requested only when the fresh scan shows a hostile ship or Romulan contact;
+old target rows are never reused. BASES and DAMAGES are cached for at most
+15 seconds, with relevant actions or worsening ship condition triggering earlier
+refreshes. Thus a quiet cycle usually needs three reports rather than six.
+These are bot observation policies, not changes to the game.
+
+Each client independently waits 550 ms after a response before its next submitted
+line, including dialogue answers. The cycle interval adds a separate pause after
+actions. Programmatic `submissionIntervalMs` can match a different host policy;
+zero is available for isolated tests. Fleet commands expose the same setting as
+`--submission-interval-ms` and default it to 550. The fleet remains asynchronous in one
+process, with no turn-taking barrier between bots. See the
+[player quickstart](../player-library/QUICKSTART.md) for the observation contract.
+
+For the current implementation checkpoint, reproducible commands, test evidence
+and migration notes, see [the automated-player handoff](HANDOFF.md).

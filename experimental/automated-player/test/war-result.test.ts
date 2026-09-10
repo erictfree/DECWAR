@@ -13,6 +13,8 @@ const empire = 'The Klingon Empire is VICTORIOUS!!\r\n\r\n';
 const mutual = 'The entire known galaxy has been depopulated.\r\n\r\nBOTH sides lose!!\r\n';
 test('Source endgame messages distinguish winner, mutual loss and unrelated text', () => {
   assert.equal(warWinner(banner + federation), 'FEDERATION');
+  assert.equal(warWinner('\r[DECWAR high segment removed from swapper]' + banner + federation), 'FEDERATION');
+  assert.equal(warWinner('Yorktown says: \r' + banner + federation), undefined);
   assert.equal(warWinner(banner + empire), 'EMPIRE');
   assert.equal(warWinner(banner + mutual + empire + federation), 'NEITHER');
   for (const text of [banner, federation, 'Yorktown says: ' + banner + federation, 'Total points: 1000.0 0.0']) assert.equal(warWinner(text), undefined);

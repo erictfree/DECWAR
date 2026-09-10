@@ -132,6 +132,11 @@ the sum of those eight values. Points may be negative. Score changes may be
 pending until turn completion, so a `Ship` holds both committed and pending
 scores.
 
+`Points` uses the units displayed by POINTS. Event categories hold points,
+not event counts: one planet capture adds 100 points to PLANET_CAPTURE,
+not one. Construction awards depend on the completed stage, as defined by
+BUILD. Categories are summed without further weighting.
+
 > **Reviewer note — pending score:** The reconstructed game accumulates score
 > changes temporarily and commits them when the turn completes. No gameplay or
 > output rule has yet been found that observes the temporary value. If none
@@ -325,6 +330,7 @@ interface Planet {
   position: Position;
   allegiance: Team | "NEUTRAL";
   construction: number;
+  knownTo: Set<Team>;
 }
 ```
 
@@ -344,6 +350,7 @@ interface Base {
   team: Team;
   position: Position;
   strength: Percentage;
+  knownTo: Set<Team>;
 }
 ```
 
@@ -363,6 +370,17 @@ The `strength` property of a `Base` is its remaining defensive strength.
 Attacks reduce it, and autonomous rebuilding may restore it, up to 100%. A base
 reduced to zero is destroyed and removed from the galaxy. The combat and
 autonomous-process chapters define those transitions.
+
+The `knownTo` property of each `Planet` and `Base` contains the factions that
+have discovered that object. Knowledge is distinct from allegiance and current
+scan visibility. A scan can add the scanning ship's faction; report commands
+use knowledge to distinguish previously discovered objects. Conversion of a
+planet into a base preserves this set. Destroying the object removes its set
+with it; knowledge is not a permanent mark on that sector.
+
+> **Reviewer note — discovery lifecycle:** Initial knowledge and discoveries
+> caused by operations other than scans still need their own rules. Do not
+> assume ownership automatically establishes the full discovery history.
 
 ### Stars and black holes
 
@@ -400,13 +418,36 @@ interface Romulan {
 
 type RomulanState =
   | { enabled: false }
-  | { enabled: true; vessel: Romulan | null };
+  | { enabled: true; vessel: Romulan | null; statistics: RomulanStatistics;
+      elapsedTriggers: number };
 ```
 
 When `RomulanState.enabled` is `false`, Romulan activity is disabled. When it is
 `true`, `RomulanState.vessel` is the current Romulan or `null` while none is
 present. A Romulan is not a captain, a roster ship, or a member of either
 faction.
+
+`RomulanState.elapsedTriggers` is a nonnegative integer counting activity
+triggers since the most recent reset. It begins at zero. Section 8 defines
+its increments and resets; it is not elapsed wall-clock time or the cumulative
+activity count used by POINTS.
+
+Romulan statistics persist across vessel destruction and reappearance. They
+are not properties of an individual Romulan vessel:
+
+```typescript
+interface RomulanStatistics {
+  score: Score;
+  appearances: number;
+  activityCount: number;
+}
+```
+
+`appearances` counts vessels introduced into the galaxy. `activityCount` counts
+eligible autonomous activity cycles, including a cycle with no vessel present
+that does not produce an appearance. Both are nonnegative integers. `score`
+accumulates Romulan awards and penalties across appearances. POINTS uses these
+statistics; the scheduling and score-changing operations define their updates.
 
 ### Communication
 
@@ -440,20 +481,143 @@ order of `CommunicationState.messages` is delivery order. Radio damage, radio
 enablement, and gagging affect acceptance or delivery as specified by the
 communication rules; they do not change the message text.
 
+### Notifications
+
+Tractor changes and energy transfers produce notices that can be delivered
+after the operation. They are not subspace-radio messages: they have structured
+event facts, no player-authored text, and their own delivery rules. A tractor
+notice records both participating ships and whether the link was activated or
+released. An energy notice records the sender, recipient, and energy delivered,
+not the sender's expenditure including transfer loss. Base distress and
+destruction notices retain the base's faction and position. Torpedo outcomes
+retain the firing ship, burst ordinal, outcome, and reported sector. A Romulan
+appearance notice retains its appearance position, independently of subsequent
+movement or destruction.
+
+Hit reports retain the source and target as they are to be reported, not as
+references to the live objects. The following snapshot distinguishes ship
+shields, base strength, planet construction, and Romulan energy rather than
+placing their different quantities in an untyped strength field. A destroyed
+object can still be described by a snapshot.
+
+```typescript
+type CombatObjectSnapshot =
+  | { kind: "SHIP"; name: ShipName; position: Position; shields: Shields }
+  | { kind: "BASE"; team: Team; position: Position; strength: Percentage }
+  | { kind: "PLANET"; allegiance: Team | "NEUTRAL"; position: Position;
+      construction: number }
+  | { kind: "ROMULAN"; position: Position; energy: Energy }
+  | { kind: "STAR"; position: Position };
+```
+
+The hit facts record the report's action, damage and consequences. The target
+position is its reported position after displacement, when displacement occurs.
+It is not necessarily the center used to select recipients; Section 10.5
+distinguishes torpedo impacts from nova displacement for that purpose.
+`reportedDamage` is the damage shown by the hit rule, not a later subtraction
+of live hull values. `critical.damage` is the recorded critical-device damage
+increment from this hit, not the device's accumulated damage or damage inferred
+from the device when the report is delivered.
+
+```typescript
+interface CombatHitFacts {
+  action: "PHASER" | "TORPEDO" | "DEFLECTED" | "NOVA";
+  source: CombatObjectSnapshot;
+  target: CombatObjectSnapshot;
+  reportedDamage: Damage;
+  displaced: boolean;
+  death: "NONE" | "HIT" | "BLACK_HOLE";
+  critical: { device: Device; damage: Damage } | null;
+  baseEmergency: boolean;
+}
+```
+
+`death` distinguishes survival, destruction by the hit, and destruction by
+displacement into a black hole. `critical` is null when there is no device
+detail; only a ship target can have such detail. `baseEmergency` applies only
+to a base target. It records emergency-shield processing, not whether the base
+still needs repair. Section 10.7 defines which facts each recipient sees;
+recording critical detail does not expose it to bystanders.
+
+The notification union combines these reports with the simpler notices above.
+STAR_EVENT reports a star's explosion or survival without a hit target; a
+nova's separate damage reports use HIT with action NOVA.
+
+```typescript
+type NotificationFacts =
+  | { kind: "TRACTOR"; ships: [ShipName, ShipName]; active: boolean }
+  | { kind: "ENERGY_TRANSFER"; sender: ShipName; recipient: ShipName;
+      delivered: Energy }
+  | { kind: "BASE_NOTICE"; team: Team; position: Position; destroyed: boolean }
+  | { kind: "TORPEDO_OUTCOME"; shooter: ShipName; torpedo: number;
+      outcome: "MISS" | "BLACK_HOLE" | "NEUTRALIZED"; position: Position }
+  | { kind: "ROMULAN_APPEARANCE"; position: Position }
+  | { kind: "HIT"; hit: CombatHitFacts }
+  | { kind: "STAR_EVENT"; position: Position; outcome: "NOVA" | "UNAFFECTED" };
+
+interface PendingNotification {
+  facts: NotificationFacts;
+  recipients: Set<ShipName>;
+  pendingRecipients: Set<ShipName>;
+}
+```
+
+The facts and original recipients are retained when the operation occurs.
+Subsequent link or energy changes do not rewrite the notice. For a tractor
+notice the two ship names are distinct and the recipient set contains both;
+their order in the pair assigns no lead or towed role. For an energy-transfer
+notice, the recipient set contains only the receiving ship. `delivered` is
+nonnegative; zero is valid for a successful capacity-limited transfer.
+
+For TORPEDO_OUTCOME, `torpedo` is a positive integer identifying the shot's
+one-based position in its burst. `position` is the last accepted sector for a
+miss and the obstructing sector for absorption or neutralization. The only
+recipient is the firing ship. A base notice's `destroyed` distinguishes
+destruction from distress; it does not refer to a still-existing Base object.
+Recipient selection for base and Romulan notices is defined by their producing
+operations, rather than inferred from these facts at delivery.
+
+`pendingRecipients` is a subset of `recipients`, initially equal to it.
+Delivery or discard removes that ship from the pending set; no later ship is
+added. Once the set is empty, the notice is removed. Distinct operations remain
+distinct notices even when all their recorded facts are equal. Rendering uses
+each recipient's preferences at delivery, as specified in Section 9.5.
+
+> Reviewer note — notification contracts: These declarations account for the
+> event categories, not every producer's complete transition. Exact hit snapshot
+> timing, numeric precision, and exceptional nova facts retain the producer
+> rules and open questions in Chapters 6–8.
+> C-023 governs pending-notice ordering and loss; an array does not choose a
+> delivery policy or impose a capacity limit.
+
 ### Faction state
 
-Each faction has a score shared by all ships belonging to that faction. This
-score is represented by `TeamState`:
+Each faction retains shared scores and cumulative participation statistics
+across individual commissions. These are represented by `TeamState`:
 
 ```typescript
 interface TeamState {
   score: Score;
+  admissions: number;
+  completedTurns: number;
 }
 ```
 
 The `score` property of a `TeamState` is distinct from the `score` and
 `pendingScore` properties of every `Ship`. Each scoring rule identifies the
 properties it changes.
+
+`admissions` counts entries into the faction's ship-selection process, including
+accepted re-entry to a previously held vessel. It is not a count of vessels
+currently present or necessarily of successful commissions. `completedTurns`
+counts player turn completions for the faction. Both are nonnegative integers
+and remain accumulated when a player departs. POINTS presents `admissions`
+under its historical “Number of ships” label.
+
+> Reviewer note — admission accounting: Admission can be counted before ship
+> selection finishes. The entry and cancellation rules must define that boundary
+> explicitly; do not replace this counter with successful commissions or the
+> current roster population without reviewing the observable score averages.
 
 ## Galaxy
 
@@ -468,9 +632,21 @@ interface Galaxy {
   blackHoles: BlackHoleState;
   romulan: RomulanState;
   communication: CommunicationState;
+  notifications: PendingNotification[];
   teams: Record<Team, TeamState>;
+  worldActivityProgress: number;
 }
 ```
+
+`Galaxy.worldActivityProgress` is a nonnegative integer counting completed
+player turns since the most recent completion-triggered world-activity cycle.
+It is shared by all players, not a separate count for each ship or faction.
+Section 9.1 defines when a completed turn triggers a cycle and resets this count.
+
+`Galaxy.notifications` retains pending structured notifications.
+Its entries describe separate occurrences, not current tractor links or a
+history of every transfer. Notices disappear after all recipients have received
+or discarded them.
 
 `Galaxy` stores its contents in the properties above rather than in a separate
 sector board. Sector occupancy is derived from their positions:
@@ -483,6 +659,33 @@ sector board. Sector occupancy is derived from their positions:
   `Galaxy.blackHoles.positions` is occupied by a black hole.
 - When `Galaxy.romulan` is enabled and its `vessel` is not `null`, that
   `Romulan` occupies its `position`.
+
+## Player preferences
+
+A player's preferences control input interpretation and presentation; they do
+not belong to the ship or change the galaxy. Numeric input defaults to absolute
+or relative coordinates. Output may show either convention or both. Message
+length, scan length, and command-prompt style are independent choices.
+
+```typescript
+interface PlayerPreferences {
+  coordinateInput: "ABSOLUTE" | "RELATIVE";
+  coordinateOutput: "ABSOLUTE" | "RELATIVE" | "BOTH";
+  outputLength: "SHORT" | "MEDIUM" | "LONG";
+  scanLength: "SHORT" | "LONG";
+  promptStyle: "NORMAL" | "INFORMATIVE";
+}
+```
+
+Each player has one `PlayerPreferences` value. `SET` changes a preference;
+`TYPE OUTPUT` reports it. Individual output rules state when they override a
+preference, rather than assuming all output uses every preference.
+
+> **Reviewer note — player interaction:** The relationship between a player,
+> their display name, commissioning, and reentry still needs its own definition.
+> Initial preferences and persistence across reentry also require review.
+> These declarations do not add terminal types or historical account identifiers
+> to the game model. Prompt rendering and scan layout belong to their output rules.
 
 ## Galaxy invariants
 
@@ -522,3 +725,34 @@ constraints.
 - The `recipients` property of every `RadioMessage` is nonempty.
 - For every `RadioMessage`, `pendingRecipients` is a subset of `recipients`.
   The sets may be equal, and `pendingRecipients` may be empty.
+
+### Pending notifications
+
+- Each retained member of `Galaxy.notifications` has a nonempty `recipients`
+  set and a nonempty `pendingRecipients` set. The latter is a subset of the
+  former. Removal of the last pending recipient removes the notification.
+- Every pending recipient is commissioned or destroyed but unreleased.
+  An original recipient need not remain commissioned: release removes its
+  pending copy, not its name from the notification's original audience.
+- A TRACTOR notification names two distinct ships of the same faction and
+  addresses exactly those two ships. It need not match their current links:
+  an activation notice can remain pending after the link is released.
+- An ENERGY_TRANSFER notification has distinct sender and recipient names
+  from the same faction, a nonnegative delivered amount, and exactly its
+  receiving ship in `recipients`. Neither ship's current energy need equal
+  its energy immediately after the transfer.
+- A TORPEDO_OUTCOME notification has a positive integer `torpedo` ordinal
+  and exactly its `shooter` in `recipients`.
+- A HIT notification's target is not a STAR snapshot. Star survival and
+  explosion reports use STAR_EVENT; damage caused by an exploding star uses
+  HIT with action NOVA and a STAR source.
+- Non-null critical-device detail requires a SHIP target. A true base-emergency
+  indication requires a BASE target. Neither field by itself determines
+  survival; the hit's `death` property records that separately.
+
+Snapshots are historical report facts, not additional occupants of the galaxy.
+A base-destruction notice remains valid after that base is removed, and a hit
+snapshot need not equal any current Ship, Base, Planet, or Romulan. Live-object
+invariants such as positive active-base strength must not be used to discard
+a destruction report. C-023's unresolved order and loss policy does not permit
+altering the facts or adding new recipients to an already created notification.

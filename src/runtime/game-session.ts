@@ -1,3 +1,4 @@
+import { InputAdmission } from './input-admission.ts';
 import { austinDecini } from '../compat/austin-decini.ts';
 import { currentVariant, withVariant, variantGenerator } from '../runtime/variant-execution.ts';
 import { createVariantContext } from '../runtime/variant.ts';
@@ -31,15 +32,38 @@ import { bindLiveWait } from './live-wait.ts';
 // Shared host/test session factory. Statement binders are being migrated from
 // test/fixtures; their synthetic compiler scratch and modern monitor services
 // remain documented bindings, not recovered PDP-10 instruction addresses.
-export function createGameSession(terminal:SessionTerminal,mode:'initialize'|'full'='initialize',world?:SharedGameWorld,job=1,options:{promptForName?:boolean;playable?:boolean;diagnosticLimit?:number;lifecycle?:{removeHighSegment():void;run():never}}={}){
+export function createGameSession(terminal:SessionTerminal,mode:'initialize'|'full'='initialize',world?:SharedGameWorld,job=1,options:{promptForName?:boolean;playable?:boolean;diagnosticLimit?:number;inputIntervalMs?:number;onInputRejected?:()=>void;lifecycle?:{removeHighSegment():void;run():never}}={}){
   const context=world?.variant??createVariantContext('compuserve',options.playable?'playable':'historical-diagnostic');
   return withVariant(context,()=>withDiagnosticRecords(options.diagnosticLimit??0,()=>composeLiveSession(terminal,mode,world,job,options)));
 }
-function composeLiveSession(terminal:SessionTerminal,mode:'initialize'|'full'='initialize',world?:SharedGameWorld,job=1,options:{promptForName?:boolean;playable?:boolean;diagnosticLimit?:number;lifecycle?:{removeHighSegment():void;run():never}}={}){
+function composeLiveSession(terminal:SessionTerminal,mode:'initialize'|'full'='initialize',world?:SharedGameWorld,job=1,options:{promptForName?:boolean;playable?:boolean;diagnosticLimit?:number;inputIntervalMs?:number;onInputRejected?:()=>void;lifecycle?:{removeHighSegment():void;run():never}}={}){
   const f=pregameRuntimeFixture([]),main=bindMainLoopRuntime(f),entry=bindEntryRuntime(f,main);
   for(let a=f.high.address('hfz');a<=f.high.address('hlz');a++)f.m.write(a,0n);
   f.high.write('tim0',-1n);f.editor.bytes.length=0;f.input.pointer=-1n;
   terminal.echoAllowed=()=>f.editor.state.echflg>=0n;
+  if(options.playable && (options.inputIntervalMs??0)>0){
+    const admission=new InputAdmission(options.inputIntervalMs!);
+    const originalRun=f.editor.run, originalRead=f.editor.io.ichr;
+    let terminator=0;
+    f.editor.io.ichr=function*(){yield*originalRead();terminator=Number(f.r.c);};
+    f.editor.run=function*(){
+      // Save the previous INLI buffer, including its terminator. A rejected
+      // line must not become the next ESC repeat (Austin WARMAC INLI:1551ff).
+      const {linbuf,maxcnt}=f.editor.symbols;
+      const previous=Array.from({length:Number(maxcnt)+1},(_,i)=>f.m.read(linbuf+BigInt(i)));
+      const state=f.editor.state;
+      const saved={chrcnt:state.chrcnt,rptflg:state.rptflg,bufptr:state.bufptr};
+      for(;;){
+        yield*originalRun();
+        if(state.iniflg<0n || state.hungup!==0n || f.low.read('ccflg')!==0n || admission.accept(terminator))return;
+        previous.forEach((word,i)=>f.m.write(linbuf+BigInt(i),word));
+        Object.assign(state,saved);
+        options.onInputRejected?.();
+        yield*f.cpu.outchr(7n);
+      }
+    };
+  }
+
   // WARMAC RESET:1137-1138 initializes TERWID before FORTRAN entry. It lies
   // beyond LLZ (LOWSEG.FOR:27-28), so entry's BLKSET must preserve it.
   f.low.write('terwid',80n);

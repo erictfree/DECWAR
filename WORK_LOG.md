@@ -1,5 +1,1226 @@
 # DECWAR implementation work log
 
+## 2026-09-09 — Comparison-driver quality classification
+
+Extended `experimental/automated-player/compare-improvements.py` to retain
+compact fleet metrics from each completed case: terminal war result, elapsed
+time, scheduling pauses, missed time, decisions, deaths, stalls and bot
+states. Each result is now marked `usable` or `contended`; runs with more than
+five percent missed time or failed/interrupted/blocked bots cannot be mistaken
+for strategy evidence. Validation: Python bytecode compilation and `--help`.
+Added `summarize-improvements.py` to group those artifacts by improvement and
+report usable/contended counts and terminal winners. Validation: bytecode
+compilation and a read-only run against the retained resupply diagnostic.
+
+## 2026-09-08 — Narrative pass for Chapters 5 and 6; MOVE syntax alignment
+
+Reframed Chapter 5 around the reader's interaction path: command versus
+response, prompt consumption, confirmation, effects/completion, then shared
+destination and weapon input. Replaced the abstract “interaction currently
+awaiting it” opening with a concrete TRACTOR/WOLF example. Reframed Chapter 6
+with a progression from impact to damage, displacement, traversal, Romulan
+effects, nova propagation and port loss, adding transitions at each boundary.
+Updated MOVE's syntax paragraph to explain ABSOLUTE, RELATIVE, default
+coordinate mode (Section 4.3), COMPUTED, and prompted responses in terms of
+the displayed forms. No game rules or reviewer decisions changed. Diff check:
+logs/spec1.0-nova/chapters-5-6-narrative-diff.log.
+
+## 2026-09-08 — Latest specification PDF
+
+Rebuilt all eleven chapters on request, preserving review flags and ordinary
+draft page flow. Updated title date to September 8. PDF visual QA found
+unbounded Markdown tables; added a Pandoc column-width filter so prose wraps.
+Enabled code wrapping and corrected a hard-wrapped numeral parsed as a list.
+Split the long TYPE OPTION escaped transcript across display lines with an
+explicit note preserving output bytes. Build logs: latest-pdf-build.log,
+latest-pdf-wrapped-build.log, latest-pdf-final-build.log and
+latest-pdf-delivery-build.log under logs/spec1.0-nova. Output:
+output/pdf/decwar-specification-austin-core.pdf. Rendered QA intermediates are
+under tmp/pdfs/latest-review. No game behavior decisions adopted.
+
+## 2026-09-08 — Shared-reference audit and review handoff
+
+Checked singular numbered Section references against headings across all
+eleven current chapters: no missing targets. Log:
+logs/spec1.0-nova/chapter-reference-audit.log. This mechanical check excludes
+plural/range references and does not prove semantic completeness. Read the
+shared input and timing boundaries: raw editing/replay, event ordering,
+readiness durations and content selection remain explicitly unresolved, not
+definitions hidden behind valid links. Corrected Section 5.3's count of its
+covered confirmation cases from two to three. No additional example/helper
+can select those policies; command completion still needs author review and
+then integration of the selected rules. No choices adopted. Diff check:
+logs/spec1.0-nova/shared-reference-review-diff.log.
+
+## 2026-09-08 — Reconcile completion ledger with bounded reviews
+
+Removed stale requests for generic MOVE/CAPTURE transactions and unnamed
+LIST-family combinations from ledger rows after their prose reviews. Added
+an explicit completion boundary distinguishing drafted commands from missing
+choice-dependent input, timing/concurrency, output datasets and state rules.
+Corrected TORPEDOES's blanket “scoring/recipient sets unfinished” note to name
+the actual exceptional dependencies rather than hide existing definitions.
+The goal remains incomplete; no policy was selected and no broad verification
+claim follows from ordinary examples. Documentation check:
+logs/spec1.0-nova/completion-boundary-review-diff.log.
+
+## 2026-09-08 — Movement review: linked completion and placement conflict
+
+Made the towing-position conflict concrete in Section 7.1 and CHARACTER C-006:
+truncation before versus after subtraction gives different sectors. Added the
+previously unstated issuing-player-only turn rule, plus blocked linked MOVE
+and IMPULSE scenarios through costs, repair, stardates and world trigger.
+Reviewed Austin MOVE and its caller; evidence/07-move.md records the scope.
+No towed-placement or readiness choice adopted. No executable changes.
+Diff check: logs/spec1.0-nova/movement-linked-review-diff.log.
+
+## 2026-09-08 — Bound the LIST-family review and remove obsolete gap claims
+
+Compared Section 4.9's parameter families with Section 7.10's general rules,
+Section 10.9's output assembly and existing report-group/selection/assembly
+checks. Added a finite coverage map to COMMAND-REVIEW.md, naming unresolved
+exceptions instead of the open-ended “remaining combinations” task. Corrected
+Section 7.10's obsolete claim that ordering, empty diagnostics, qualifiers and
+spacing are all undefined: those rules and examples now exist. Preserved
+C-004/C-010/C-017/C-028 and shared input/precision choices. This is a rule
+coverage audit, not exhaustive interpreter or historical parity verification.
+No new helper or test. Diff check: logs/spec1.0-nova/report-coverage-review-diff.log.
+
+## 2026-09-08 — Weapon entries through completion and delivery
+
+Moved the already-checked noncritical PHASERS sequence into the self-contained
+command entry, with ordered samples, damage, energy, score commitment,
+unchanged target stardate, no automatic repair and recipient-specific output.
+Extended TORPEDOES's neutralized misfire scenario through one-turn completion,
+with exact ammunition and population accounting. Verified attacker-only
+neutralization recipients against Austin DECWAR.FOR:4334–4341 and Section 10.5.
+Updated the ledger to close missing ordinary completion examples rather than
+request another interpreter. Timing, precision and exceptional lifecycle
+choices remain explicit. No helper, test, runtime/archive or PDF edits.
+Documentation check: logs/spec1.0-nova/weapon-completion-review-diff.log.
+
+## 2026-09-08 — Port-command completion prose and decision boundaries
+
+Added the missing fifth-stage BUILD-through-completion scenario: exact
+announcement, resulting objects/discovery, 500-point award, automatic repair,
+world trigger and score commitment. Explicitly separates agreeing fixture
+conditions from unresolved timing, ordering and ending policies. Added
+CAPTURE's former-owner docking divergence and BUILD's final-planet ending
+divergence directly to their command entries. Source review: Austin
+DECWAR.FOR BUILD/CAPTUR/PLNRMV; evidence/07-capture-build.md records scope.
+Updated completion ledger to remove the request for another executable port
+transaction as a prose-completion prerequisite. No tests or helpers added;
+no runtime, archive, PDF or policy changes. Documentation whitespace check:
+logs/spec1.0-nova/port-command-review-diff.log.
+
+## 2026-09-08 — HELP lookup review and grammar correction
+
+Closed the ordinary HELP lookup/list/error explanation review. Found and
+corrected a substantive false example: IN matches INTRO and INPUT; INP
+selects INPUT. Added source-reviewed command-shadowing, additional-topic,
+ambiguity and continuation cases. Changed the grammar's canonical additional
+topic from INTRODUCTION to INTRO; documented historical acceptance of the
+longer spelling under unresolved C-008 in both the chapter and CHARACTER.md.
+Evidence: DECWAR.FOR:471–480 and WARMAC.MAC HELP/SLST/EQUAL; detailed note
+in evidence/07-help-news.md. Updated ledger to remove finished information
+explanations from the drafting queue while retaining corpus/visibility/input
+and host-column decisions. Full companion check exited 0:
+logs/spec1.0-nova/help-topic-review-check.log. Diff whitespace check:
+logs/spec1.0-nova/help-topic-review-diff.log. No new helper, runtime/archive
+edits, PDF or adopted behavior choice.
+
+## 2026-09-08 — Close USERS historical-format prose gap
+
+Changed course after the user's loop concern: completed a bounded missing
+explanation instead of adding another formatter. Section 7.24 now specifies
+historical row fields, padding, radix, privileged suffix and an exact
+supplied-field example. Evidence: Austin WARMAC.MAC STAT/OSIX/ONUM and
+DECWAR.FOR USERS; detailed references in evidence/07-time-users.md. The ledger
+now identifies USERS's remaining column/name and shared input choices rather
+than an unwritten historical report. No decision, runtime, archive or PDF
+change. Checked the previously running PHASERS scenario check: terminal exit
+0; all 275 checks pass in logs/spec1.0-nova/phaser-shot-sequence-check.log.
+That fixture composes one noncritical shot; it is not a complete PHASERS
+implementation or resolution of timing/precision/delivery choices.
+
+## 2026-09-08 — SUMMARY category/allegiance matrix
+
+Added19 written ordinary SUMMARY queries across all three lengths, checking
+independent exact count rows, singular/plural labels, category separators and
+unchanged whole Galaxy. Includes defaults, faction filters, all object categories
+and ordered neutral/captured PORTS forms. Romulan-disabled fixture avoids rather
+than resolves the faction/Romulan decision. Updated ledger's generic combination
+gap to the remaining mixed-group/decision cases. Check:
+logs/spec1.0-nova/summary-category-matrix-check.log. No runtime/archive changes.
+
+## 2026-09-08 — POINTS written subject subsets
+
+Checked all15 nonempty subject subsets from written mixed-case aliases, comma
+separation and repeated selection to independently expected fixed columns and
+score/total/average rows. Pending999 points remain excluded; absent but enabled
+Romulan statistics remain reportable; Galaxy stays unchanged. Updated ledger
+to close the generic subject-combination gap while retaining numeric/policy
+and statistic-update work. Check: logs/spec1.0-nova/points-written-subsets-check.log,
+273 passing tests. No runtime/archive/PDF or decision changes.
+
+## 2026-09-08 — Written STATUS/DAMAGES selector coverage
+
+Connected179 legal written inputs through lexer/recognizer and report selection
+to exact short output:49 STATUS pairs under two separators and81 device-code
+pairs. Includes duplicate/reversed order, mixed case and state preservation.
+Updated ledger to name the checked domain rather than generic raw-input gaps.
+Check: logs/spec1.0-nova/report-written-selectors-check.log. No recovery policy
+choice, runtime/archive/PDF edits or whole-domain conformance claim.
+
+## 2026-09-08 — Completion ledger separates decisions from actionable work
+
+Reconciled the ledger with recent command work, corrected its stale fatal
+movement shorthand and already-existing report-model requirement. Added an
+author-decision dependency map and five concrete remaining drafting/verification
+work groups. Explicitly excluded a second runtime or a helper-per-sentence
+criterion from specification completion. All31 entries remain drafted but
+unsigned; no decision is adopted by passing a narrow example. Check:
+logs/spec1.0-nova/command-ledger-audit-diff.log.
+
+## 2026-09-08 — TORPEDOES ordered preflight
+
+Added supplied-count/resolved-target validation companion and document matrix:
+device/supply precedence, nonpositive cancellation, count versus supply limits,
+last-target repetition and target-order rejection. Tests preserve ammunition
+and distinguish self-target review from ordinary rejection without deciding
+completion. Docking does not bypass supply validation. Source DECWAR.FOR4235–4284
+and4417–4423. Check: logs/spec1.0-nova/torpedo-preflight-check.log. No input
+dispatcher, burst implementation, runtime/archive changes or policy adoption.
+
+## 2026-09-08 — TORPEDOES issuer destruction during a burst
+
+Reviewed per-launch rechecks and found no issuer-survival test following a
+torpedo-triggered nova. Added C-029, a two-launch consequence example and
+explicit preservation-versus-stop alternatives in Section7.20. Existing first
+launch effects are retained in both alternatives; completion still needs an
+explicit rule with the choice. Source: evidence/07-torpedo-issuer-destruction.md.
+Updated ledger; no behavior policy or runtime change. Documentation check:
+logs/spec1.0-nova/torpedo-issuer-destruction-diff.log.
+
+## 2026-09-08 — Shared-reference audit and phaser bank semantics
+
+Corrected stale command/output claims that completion and release/lifetime
+rules were wholly unwritten. Expanded PHASERS bank selection, unchanged other
+bank, wait-before-energy-validation, rejection without cooldown update and
+overheating participation in future readiness. Symbolic-time example states
+earliest eligibility rather than fixed alternation without choosing C-007
+durations or a clock. Source DECWAR.FOR2662–2686/2750–2754. No new bank
+architecture or model initialization is adopted. Documentation check:
+logs/spec1.0-nova/phaser-bank-diff.log.
+
+## 2026-09-08 — Written IMPULSE exhaustion sequence
+
+Added a checked clear/blocked axis movement sequence from written input through
+destination resolution, cost, repair, below-threshold world trigger, turn/score
+commitment, fatal-acquisition guard, final report and release. Pending50 points
+and warp damage300 expose premature-release and wrong-device-gating errors.
+Expanded Section9.1 consequences and ledger scope. Fixture composition is not
+a general movement dispatcher or native parity claim. Check:
+logs/spec1.0-nova/impulse-exhaustion-check.log, 269 passing tests. No runtime,
+archive, PDF or deferred-policy changes.
+
+## 2026-09-08 — Movement completion boundary precision
+
+Rechecked post-MOVE/IMPULS ALIVE branch against movement debit and GETCMD fatal
+checks. Clarified that energy exhaustion alone does not bypass completion;
+already-marked destruction does. Added exact-energy IMPULSE example through
+repair/stardate/world trigger and later exhaustion report. Replaced stale
+movement notes saying shared completion is unwritten with Section9.1 and actual
+timing/concurrency gaps. Source details: evidence/09-release.md. Documentation
+check: logs/spec1.0-nova/movement-completion-diff.log. No runtime changes.
+
+## 2026-09-08 — NEWS text and stopping boundaries
+
+Defined no-wrapper text output, literal initial/consecutive periods, boundary
+characters, continuation reset and post-boundary interruption before prompting.
+Added supplied-text presentation checks for waiting, decline, restart and
+interruption. Source WARMAC.MAC3818–3849. Updated NEWS ledger and evidence;
+the actual Austin Core corpus and raw input remain unresolved. Check:
+logs/spec1.0-nova/news-display-check.log. No runtime/archive/PDF changes.
+
+## 2026-09-08 — BUILD eligibility and conversion information
+
+Verified DECWAR.FOR528–575: distance, object, allegiance and stage-4 base-limit
+checks precede construction; discovery transfers on conversion. Added resolved
+destination validation and ordered-rejection checks, including ten-base earlier
+stage acceptance. Expanded human-readable conversion example connecting copied
+knowledge to LIST's different planet/base detail visibility. Stage5 lifecycle,
+base enumeration and readiness remain open; this is not a full BUILD dispatcher.
+Check: logs/spec1.0-nova/build-validation-check.log. No runtime/archive changes.
+
+## 2026-09-08 — HELP lookup failures and interruption correction
+
+Source review of WARMAC HELP/SLST/SHLP distinguished unknown input, recognized
+but missing topic text, and resource failure. Added ordered lookup-error and
+RED examples. Corrected a blanket interruption claim: topic cleanup can allow
+later requested topics while outer-loop interruption stops them. Documented
+uniform-cancel alternative in Section7.21/C-010 without adopting it. Historical
+corpus/resource scope remains C-011. Evidence: evidence/07-help-news.md.
+Documentation-only check: logs/spec1.0-nova/help-boundaries-diff.log.
+
+## 2026-09-08 — TIME historical report presentation
+
+Completed full historical in-game/pre-game output examples and a supplied-value
+presentation companion. Verified exact labels/order/newlines, omission rather
+than blank ship fields, fractional-second truncation and non-wrapping duration
+formatting. Kept clock generation, processor-field adoption, signed and large
+durations explicitly unresolved; no host APIs or Galaxy clock fields added.
+Source: DECWAR.FOR4066–4083, MSG.MAC330–339, WARMAC.MAC1747–1765.
+Check: logs/spec1.0-nova/time-report-check.log. Updated TIME ledger coverage;
+no runtime/archive/PDF changes.
+
+## 2026-09-08 — Empty aggregate report output
+
+Defined the full no-results diagnostic in Section7.10 from LSTFLG/LSTUPD and
+MSG.MAC: prefix, knowledge/allegiance/category and range suffix. Explained the
+no-candidate `in game` default even with an explicit radius and `known` without
+a discovered candidate. Added five parsed report scenarios across all three
+output lengths, preserving the whole Galaxy. Evidence and check log:
+docs/spec1.0/evidence/07-galaxy-reports.md;
+logs/spec1.0-nova/report-empty-diagnostics-check.log. No policy choice or
+runtime/archive change.
+
+## 2026-09-08 — LIST special-sector branch review
+
+Traced empty/star/black-hole coordinate output through LSTFLG and LSTOBJ:
+DECWAR.FOR1767–1777/2100–2106 and WARMAC object codes/names. These contents
+fall into Romulan detail, potentially displaying unrelated energy or retained
+out-of-range context. Added C-028 and in-chapter alternatives without adopting
+a correction. Defined unaffected ten-sector/non-LIST diagnostics and checked
+all three contents across output lengths, including unchanged discovery and
+explicit nearby LIST guard. Updated command ledger and provenance.
+Check: logs/spec1.0-nova/report-sector-content-check.log. No runtime/archive/PDF
+changes or claim of native-executable parity.
+
+## 2026-09-08 — ENERGY state and delayed-notice scenario
+
+Expanded Section7.12 with a complete exact transfer and full-recipient case:
+ordered validation, immediate two-ship energy changes, unchanged docking/RED,
+recipient-only notification, delivery-time output length and no radio filtering.
+Companion scenario composes validation and notification consumption with
+fixture arithmetic on which both discussed precision alternatives agree. It
+is explicitly not a general transfer implementation or adopted rounding rule.
+Check: logs/spec1.0-nova/energy-sequence-check.log. Updated ledger; no runtime,
+archive, PDF or deferred-policy changes.
+
+## 2026-09-08 — QUIT fresh confirmation composition
+
+Connected fresh response tokenization to final reporting and ship release in
+the specification companion. Added document cases and checks for prior inline
+or slash YES not confirming, empty/negative responses, affirmative prefixes,
+first-token precedence and RED. The operation starts after command recognition;
+it does not implement editing, interruption, concurrency or re-entry. Updated
+the command ledger and release evidence coverage. Verification:
+logs/spec1.0-nova/quit-confirmation-check.log. No runtime or archive edits.
+
+## 2026-09-08 — Sequential ship release and QUIT report boundary
+
+Added the abstract Section9.2 release operation and two scenario checks:
+final committed report precedes release; reciprocal tractor removal retains
+the partner's notice; departing delivery copies are discarded without recalling
+outgoing radio; last-copy messages disappear; replacement stars survive destroyed
+ship release; repeated release is inert. State checks preserve scores, pending
+awards and world progress. Corrected stale lifecycle reviewer notes and QUIT
+ledger coverage. Existing provenance: docs/spec1.0/evidence/09-release.md.
+Check: logs/spec1.0-nova/ship-release-check.log, 258 passing tests. This is a
+sequential composition, not confirmation-input, concurrency, admission or
+whole-command conformance. No runtime, archive or PDF changes.
+
+## 2026-09-08 — Remaining-work reference audit
+
+Confirmed Section9.1 already states timing alternatives; avoided duplicating
+them. Replaced stale missing-definition claims for Romulan pursuit/output and
+sequential completion with precise cross-references and actual remaining
+timing/exception gaps. Updated TRACTOR and DOCK coverage in the command ledger.
+No command marked complete and no deferred policy adopted. Check:
+logs/spec1.0-nova/remaining-work-audit-diff.log.
+
+## 2026-09-08 — TRACTOR written-input and prompt composition
+
+Added tokenized TRACTOR dialogue connected to the working lexer/recognizer,
+link operation and typed notification. Checks distinguish absent response from
+cancellation, preserve a link on prompted cancellation, and terminate unknown
+words after non-word retries. Trailing input remains guarded; slash dispatch
+and interruption are not claimed implemented. Initial assertion used the wrong
+recognizer tag field; failure retained in tractor-input-initial-failed.log.
+Checks: logs/spec1.0-nova/tractor-input-check.log and tractor-input-diff.log.
+
+## 2026-09-08 — TRACTOR typed occurrence and consumption
+
+Connected normalized TRACTOR's actual success path to PendingNotification,
+retaining no occurrence on prompt/rejection. Added two checks for partial
+delivery, link release before another copy renders, current output preference,
+alternative departure discard and failure/prompt absence. No global ordering
+or complete commission-release claim. Checks:
+logs/spec1.0-nova/tractor-notification-check.log and tractor-notification-diff.log.
+
+## 2026-09-08 — Selected notification consumption
+
+Specified one-recipient consumption and release discard independently of C-023
+event ordering. Added a companion linking typed rendering to pending-set
+removal, preserving original audiences and retiring the last copy. Three tests
+cover partial delivery, filtered-base retirement and nonpending-recipient guard.
+No dispatcher, event ordering or recommissioning implementation claimed. Checks:
+logs/spec1.0-nova/notification-consumption-check.log and notification-consumption-diff.log.
+
+## 2026-09-07 — Typed notification facts to output
+
+Connected abstract NotificationFacts to existing output companions, deriving
+names, signed shield values and device labels at rendering. Added three tests
+covering non-hit categories, base radio filtering/exact300 threshold and
+target-only critical detail without local radio filtering. No live source or
+target lookup, recipient selection, consumption or C-023 scheduling added.
+Checks: logs/spec1.0-nova/typed-notification-check.log (248 passing) and
+typed-notification-diff.log. Runtime and archives unchanged.
+
+## 2026-09-07 — Nova notification reset consequences
+
+Traced explicit MAKHIT clearing to establish ordinary Romulan nova reported
+damage0. Found and corrected the draft's full-base nova example: distress
+creation clears the local hit's damage amount, while awarded damage200.1 and
+strength loss20 remain unchanged. Added C-027 rather than silently fixing the
+report. Check: logs/spec1.0-nova/nova-report-reset-diff.log. Runtime unchanged.
+
+## 2026-09-07 — Romulan nova branch and unresolved boundaries
+
+Documented displacement-before-halving, remaining-energy scoring, blocked and
+black-hole cases with exact20-unit examples. Added C-026 for present-zero-energy
+conflict, omitted hit-damage assignment and overwritten black-hole report
+position. No historical value or repaired policy invented. Check:
+logs/spec1.0-nova/romulan-nova-doc-diff.log. Runtime/archives unchanged.
+
+## 2026-09-07 — Torpedo impact audience versus destination snapshot
+
+Specified the source-confirmed ordering: damage/displacement, audience around
+original impact, reported displaced destination. Added opposing distance10/11
+observer cases and linked the distinction from the snapshot ADT. No redundant
+position field or delivery-time reselection introduced; nova center and C-018
+remain separate. Check: logs/spec1.0-nova/impact-snapshot-doc-diff.log.
+
+## 2026-09-07 — Notification cross-field invariants
+
+Added endpoint/audience constraints, pending-recipient lifecycle requirements,
+positive burst ordinals and hit-detail compatibility. Distinguished retained
+snapshots from live entities so base removal or changed tractor links cannot
+invalidate an earlier report. Existing invariant-completeness reviewer note
+remains; no C-023 ordering/loss choice adopted. Documentation check:
+logs/spec1.0-nova/notification-invariants-diff.log. Runtime/archives unchanged.
+
+## 2026-09-07 — Romulan appearance output
+
+Added the missing complete appearance notice templates, including compact
+double spacing, long-only detected wording and recorded-position/current-
+preference distinction. A rendering companion checks three verbosity forms
+and relative/both coordinates; it does not implement recipient selection or
+delivery scheduling. Checks: logs/spec1.0-nova/appearance-notice-check.log and
+appearance-notice-diff.log. Runtime/archives unchanged.
+
+## 2026-09-07 — Critical-device report amount
+
+Verified the reported critical-device amount is this hit's increment, not total
+device damage. Clarified ADT/output prose and added a case separating initial80,
+increment360, total440 and repaired410 from the unchanged report360. Checks:
+logs/spec1.0-nova/critical-snapshot-check.log and critical-snapshot-diff.log.
+
+## 2026-09-07 — Hit and star-event snapshots
+
+Added object-specific combat snapshots and hit facts to pending notifications,
+including reported damage, displacement/death, critical device detail and base
+emergency indication. Star events distinguish explosion from unaffected stars.
+The book explains every declaration independently of formatter code. Producer
+snapshot correctness, precision and exceptional nova facts remain open; this
+does not claim an implemented delivery algorithm. Checks:
+logs/spec1.0-nova/hit-snapshot-model-check.log and hit-snapshot-model-diff.log.
+
+## 2026-09-07 — Base, torpedo and appearance notification facts
+
+Extended the pending-notice model to base distress/destruction, nondamaging
+torpedo outcomes and Romulan appearance. Renamed the nascent shared types to
+NotificationFacts/PendingNotification and Galaxy.notifications rather than
+creating separate collections for each command. Defined snapshot positions,
+shot ordinals and recipient constraints; delivery order remains C-023 and hit
+facts remain unfinished. Checks: logs/spec1.0-nova/notification-facts-check.log
+and notification-facts-diff.log. No producers or delivery scheduler implemented.
+
+## 2026-09-07 — Pending tractor and energy notice data
+
+Added self-contained ShipNoticeFacts/PendingShipNotice declarations and
+Galaxy.shipNotices for tractor and energy-transfer occurrences. Facts remain
+snapshots; recipient sets track delivery/discard without selecting C-023 order
+or capacity. Hit/base/torpedo/appearance facts remain explicitly unfinished.
+Mirrored TypeScript notation and updated two Galaxy fixtures. No producer or
+delivery algorithm is claimed implemented by this data-only change. Checks:
+logs/spec1.0-nova/ship-notice-model-check.log and ship-notice-model-diff.log.
+
+## 2026-09-07 — Nested defense recipient context
+
+Reviewed Romulan-triggered base reports: their extended audience retains the
+originating player's faction, even when both base factions fire. Documented
+the observable observer difference and alternatives as C-025, without adopting
+a recipient repair. Distinguished planet/base-on-Romulan scopes; replaced a
+stale restoration gap with its existing Section8.7 definition. Check:
+logs/spec1.0-nova/nested-defense-doc-diff.log. Runtime/archives unchanged.
+
+## 2026-09-07 — Romulan dialogue and communication collision
+
+Defined appearance/post-attack speech probabilities, draw order and complete
+active phrase vocabulary. Recorded shared TELL side effects and the non-roster
+delivery gag index as C-024, with a nonmutating recipient/header alternative
+explicitly unadopted. This advances autonomous completion semantics without
+importing a player identity or storage accident. Check:
+logs/spec1.0-nova/romulan-dialogue-doc-diff.log. Runtime/archives unchanged.
+
+## 2026-09-07 — Romulan appearance placement
+
+Closed the missing placement distribution from PLACE: independent vertical then
+horizontal draws, retry both on occupancy, no player-territory exclusion, and
+energy selection only after successful placement. Added an explicit rejected-
+pair example and retained the full-galaxy outcome as unfinished. No architecture
+or retry cap imported. Check:
+logs/spec1.0-nova/romulan-placement-doc-diff.log. Runtime/archives unchanged.
+
+## 2026-09-07 — RADIO response-state and suffix review
+
+Defined retained GAG/UNGAG action during name input, cancellation without
+reception enablement, and exact RA/GAG/WOLF prompt output. Recorded five
+historical suffix outcomes and strict-rejection alternative without selecting
+a C-010 policy. Updated stale delivery-gap wording and ledger. Check:
+logs/spec1.0-nova/radio-response-doc-diff.log. No runtime/archive changes.
+
+## 2026-09-07 — SHIELDS action, amount and confirmation states
+
+Specified prompted action with amount versus the integer-only amount response,
+their distinct cancellation behavior, slash-segment consumption and suffix
+discussion. Added six unchanged-state scenarios that avoid unresolved transfer
+arithmetic. Provenance and command ledger updated. Documentation check:
+logs/spec1.0-nova/shields-dialogue-doc-diff.log. No runtime/archive changes.
+
+## 2026-09-07 — TRACTOR replacement-input contract
+
+Expanded the prompt dialogue from source: word-versus-non-word retry, one
+initial newline, bare-linked release versus empty-response cancellation, OFF
+precedence after prompting, unknown-word termination, and slash response
+consumption. Added six interaction cases; retained malformed/trailing-input
+choices under C-010. Documentation check:
+logs/spec1.0-nova/tractor-dialogue-doc-diff.log. No runtime or archive changes.
+
+## 2026-09-07 — DOCK with a due enemy-base cycle
+
+Added a concrete due-cycle scenario: service and STATUS, device repair, enemy
+base damage720, direct Empire scoring, friendly-planet skip, base restoration
+50→52.5, and critical-but-docked life support. Later STATUS differs from the
+earlier report; docking remains true. Added a fixture-selected composition test,
+not a general autonomous dispatcher or delivery test. Checks:
+logs/spec1.0-nova/dock-due-cycle-check.log and dock-due-cycle-diff.log.
+
+## 2026-09-07 — DOCK completion with an established world trigger
+
+Replaced the quiet-world assumption in the DOCK completion scenario with an
+explicit two-player population and progress0→1, below the cycle threshold.
+The existing companion now checks that trigger before turn accounting,
+life support and score commitment. Updated stale completion wording; due-cycle
+effects and readiness remain separate gaps. Checks:
+logs/spec1.0-nova/dock-trigger-check.log and dock-trigger-diff.log.
+No running-game or archive changes.
+
+## 2026-09-07 — USERS population and lifecycle cases
+
+Separated settled player selection from the unresolved host-column layout.
+Documented self-inclusion, fixed roster order, destroyed/unreleased exclusion,
+recommissioning, and independence from radio/sensor state. Added six row-order
+scenarios including empty and single-faction populations. These source-derived
+cases do not verify the unselected literal report layout. Documentation check:
+logs/spec1.0-nova/users-population-doc-diff.log. Runtime and archives unchanged.
+
+## 2026-09-07 — NEWS continuation input
+
+Closed the continuation-input source gap: NEWS consumes the next available
+segment rather than clearing it as QUIT does. Linked the shared affirmative
+rule and added a two-section fixture with affirmative, negative, empty and
+extra-token cases. The fixture does not select a new news corpus; the preserved
+payload has no continuation markers. Source derivation recorded in
+evidence/07-help-news.md; interrupted-input restoration remains open.
+Documentation check: logs/spec1.0-nova/news-continuation-doc-diff.log.
+No runtime, archive or PDF changes.
+
+## 2026-09-07 — TYPE option-report completeness
+
+Confirmed OPTION has exactly a banner and two enablement lines, independent
+of verbosity and current object presence. Added the literal historical full
+report and explicit banner/terminal alternatives to Section7.5; neither scope
+decision is silently adopted. Updated provenance and narrowed the completion
+ledger's TYPE gap. Documentation-only check:
+logs/spec1.0-nova/type-option-doc-diff.log. No runtime, archive or PDF changes.
+
+## 2026-09-07 — TELL recipient dialogue
+
+Specified the single recipient prompt, response-level inline text, no retry on
+invalid names, and the distinction between cancelling recipient input and
+submitting empty message text. Added six ordered interaction scenarios and
+source provenance in evidence/07-tell.md. These are source-derived specification
+cases, not executable whole-command verification. Editing/replay and concurrent
+input remain open. No runtime or archive changes. Checks recorded under
+logs/spec1.0-nova/tell-recipient-dialogue-check.log and
+tell-recipient-dialogue-diff.log.
+
+## 2026-09-07 — Numeric overflow rule and completion-audit clarification
+
+Closed fixed-width field overflow from WARMAC.MAC:1891–1967: preserve sign,
+asterisk integer positions, retain decimal suffix, and leave width0 unbounded.
+Added scalar and STATUS/DAMAGES integration checks; finer-than-tenth conversion
+remains open. Updated stale delivery/departure notes to refer to Section9.5
+and their actual remaining decisions. Clarified the ledger's distinction among
+unwritten rules, documented author decisions and verification gaps; a generic
+interpreter is not the specification deliverable. Checks:
+logs/spec1.0-nova/numeric-overflow-check.log (242 passing) and
+numeric-overflow-diff.log. The initial fixture Set type error is retained in
+numeric-overflow-typecheck-failed.log. No runtime, archive or PDF changes.
+
+## 2026-09-07 — Shared destination input to resolved positions
+
+Connected lexical token classes and ordinary recognition to the single-
+destination resolver for MOVE, IMPULSE, CAPTURE and BUILD. Added seven tests
+for numeric modes and precedence, initial omission versus response cancellation,
+computer threshold, target presence and snapshot semantics. Unreviewed
+COMPUTED operand shapes remain guarded. Internal exact integer calculations
+do not prescribe an implementation representation. Existing Section5.5 is
+self-contained; provenance/scope updated in evidence/05-interaction.md and the
+command ledger. Checks: logs/spec1.0-nova/destination-check.log (240 passing)
+and destination-diff.log. This closes an input-resolution dependency, not whole
+movement/capture/build transactions. No runtime, archive or PDF changes.
+
+## 2026-09-07 — Ordinary command recognition linked to written scenarios
+
+Added complete ordinary vocabulary recognition under the working full-spelling
+rule, deduplicated torpedo aliases and exact unknown/ambiguous diagnostics.
+Tested every documented minimum and longer canonical prefix, ambiguous initials,
+aliases and lexical classes. Chapter11 scenarios now verify command recognition
+instead of matching a supplied literal abbreviation; operand dispatch remains
+scenario-specific. Sources: Section4.1; DECWAR.FOR:1240–1255;
+MSG.MAC:7,92,372. Checks: logs/spec1.0-nova/command-recognition-check.log
+(233 passing) and command-recognition-diff.log. No runtime, archive or PDF
+changes; C-008 full-word policy is not newly resolved.
+
+## 2026-09-07 — Working lexical segments connected to conformance inputs
+
+Added the Chapter3 lexical companion with full token spellings, separate
+integer/decimal classes, preserved slash/semicolon remainder and explicit
+guards for unresolved empty comma/slash cases. Numeric spelling is not forced
+into JavaScript's numeric range. Added five tests and changed the three tested
+Chapter11 sequences to begin with their written command lines; dispatch is
+still fixture-directed, not a full grammar recognizer. Evidence:
+docs/spec1.0/evidence/03-lexical-companion.md. Checks:
+logs/spec1.0-nova/lexical-segments-check.log (228 passing) and
+lexical-segments-diff.log. Asked one asynchronous C-023 ordering/loss question;
+no answer or approval has been presumed. No runtime, archive or PDF changes.
+
+## 2026-09-07 — Acquisition alert transition and capture/build trace
+
+Defined the missing GETCMD low-energy assignment (<=1000 sets YELLOW even
+from RED), retained-condition behavior above the threshold and four-BEL
+warning before ending/prompt checks. Added three boundary/composition tests.
+Extended Chapter11 through capture and four builds, with scores, radio repair,
+shared cadence and the intervening alert update. Source: DECWAR.FOR:523–581,
+605–668,1204–1212; evidence/09-completion.md and evidence/11-conformance.md.
+Checks: logs/spec1.0-nova/acquisition-alert-check.log (223 passing),
+acquisition-alert-diff.log and capture-build-trace-check.log. The trace still
+does not claim a full CAPTURE/BUILD executable or resolve final conversion.
+No runtime, archive or PDF changes.
+
+## 2026-09-07 — Initial conformance chapter and cross-command cases
+
+Created Chapter11 with a fully specified eighteen-ship fixture and three
+cross-command scenarios: SET/STATUS presentation independence, RADIO/TELL
+acceptance then delivery, and failed/successful LIST output and discovery.
+Added three semantic composition tests comparing exact output and complete
+resulting Galaxy values; raw acquisition, prompts and scheduler behavior are
+explicitly outside their coverage. Updated README, command ledger and future
+PDF input list. Evidence: docs/spec1.0/evidence/11-conformance.md. Checks:
+logs/spec1.0-nova/conformance-sequences-check.log (220 passing),
+conformance-sequences-diff.log and conformance-build-syntax.log. No runtime,
+archive or PDF changes.
+
+## 2026-09-07 — LIST mixed-selector branch review
+
+Documented thirteen mixed named/coordinate/aggregate cases in Section7.10,
+including ineffective trailing range/CLOSEST, order-dependent rejection,
+Romulan precedence and current-group suppression after a later syntax error.
+Expanded C-010 and linked the grammar discussion. Identified the singular
+SHIP/plural SHIPS duplicate-check mismatch without choosing its incidental
+value or a replacement duplicate policy. Source: DECWAR.FOR:1555–1747,
+1764–1835,1922–1958; PARAM.FOR:95–123. These are source-derived branch cases,
+not an original-executable transcript. Existing companion guards remain for
+unadopted mixed inputs. Checks: logs/spec1.0-nova/report-direct-review-check.log
+and report-direct-review-diff.log. No runtime, archive or PDF changes.
+
+## 2026-09-07 — Notification delivery context and ordering collision
+
+Added Section9.5: recorded event facts versus delivery-time preferences/origin,
+kind-specific filtering, combat-before-radio priority, radio relative order,
+and direct QUIT/fatal-movement discard behavior. Source review found combat
+retrieval follows reusable storage positions rather than creation order; added
+C-023 and in-chapter alternatives for reordering and capacity loss without
+adopting either historical storage or a chronological replacement. Source:
+WARMAC.MAC:2598–2708,2771–2951,3034–3069; DECWAR.FOR:291–309,1129–1135,
+1193–1206,2404–2595,3078–3098. Added one event-context formatting test.
+Checks: logs/spec1.0-nova/delivery-context-check.log and
+delivery-context-diff.log. No runtime, source archive or PDF changes.
+
+## 2026-09-07 — Shared completion cadence and fatal-command routing
+
+Corrected Chapter 8's erroneous every-completion world activation. Added
+Galaxy.worldActivityProgress and the population-dependent cycle rule, separated
+from individual stardates and score commitment. Documented all noncompletion
+commands and the fatal MOVE/IMPULSE versus CAPTURE distinction. Source:
+DECWAR.FOR:61–253,291–309,658–668; HISEG.FOR:9,77. Added two cadence tests and
+updated the Galaxy fixture. Initial expected missing-property failure retained
+in logs/spec1.0-nova/world-trigger-initial-typecheck.log; final checks in
+world-trigger-check.log and world-trigger-diff.log in the same directory.
+Added a Romulan-gating composition test and paired CAPTURE traces through
+completion (energy1000/300 becomes640/-60; both commit the capture award).
+Arithmetic check: logs/spec1.0-nova/capture-trace-check.log. These documented
+traces are not a full CAPTURE implementation or original-executable comparison.
+Initialization, concurrent ordering and complete autonomous-cycle integration
+remain open. No runtime, archive or PDF changes.
+
+## 2026-09-07 — REPAIR input-to-report composition
+
+Connected typed amount/default/ALL and DAMAGE operands to immediate repair and
+report selection. Added three tests and documented default repairs on unmatched
+input as C-010 discussion. Existing negative/undamaged-ALL guards remain; no
+completion timing was selected. Source: DECWAR.FOR:3190–3227; evidence in
+07-repair-dock.md. Checks: logs/spec1.0-nova/repair-input-check.log and
+repair-input-diff.log. No runtime, archive or PDF changes.
+
+## 2026-09-07 — POINTS selection-to-report composition
+
+Connected tokenized POINTS subjects to committed ship/faction/Romulan statistics
+and report formatting. Added four tests for defaults, deduplicated aliases,
+unknown/non-word distinction and enabled-but-absent Romulan reporting. Documented
+non-word stopping as a C-010 review behavior, not a universal parser policy.
+Source: DECWAR.FOR:2893–2943. Checks:
+logs/spec1.0-nova/points-selection-check.log and points-selection-diff.log.
+Zero denominators, raw input and cumulative update boundaries remain open.
+No runtime, archive or PDF changes.
+
+## 2026-09-07 — SCAN interruption and narrow-label discussion
+
+Defined row-boundary interruption, omitted bottom labels, and preserved discovery;
+added two composition tests. Expanded the one-column short-label decision with
+literal output and alternatives, retaining its companion guard. Source:
+WARMAC.MAC:2483–2530. Checks: logs/spec1.0-nova/scan-interruption-check.log
+and scan-interruption-diff.log. No runtime, archive or PDF changes.
+
+## 2026-09-07 — SCAN explicit-input composition
+
+Connected typed directions/ranges/final WARNING to bounds and the existing
+worked-grid scenario. Added three tests for accepted combinations, invalid
+placement/count/types and explicit-zero versus omitted ranges. Documented that
+parameter errors precede discovery. Default width remains a distinct unresolved
+result; narrow short labels and raw input are not claimed complete. Source and
+scope: evidence/07-scan-research.md. Checks: logs/spec1.0-nova/scan-input-check.log
+and scan-input-diff.log. No runtime, archive or PDF changes.
+
+## 2026-09-07 — SET preference dialogue
+
+Connected ordinary setting lookup and value prompts to the five defined
+preferences. Added four tests and documented setting-pair versus value-only
+responses, numeric retries and unknown-word no-op termination. NAME/TTYTYPE
+remain explicit companion guards; no privileged or host semantics were invented.
+Sources: DECWAR.FOR:3624–3718 and MSG.MAC prompts. Checks:
+logs/spec1.0-nova/set-dialogue-check.log and set-dialogue-diff.log.
+No runtime, archive or PDF changes.
+
+## 2026-09-07 — TYPE selection dialogue
+
+Added first-token TYPE selection and four tests for ordinary prefixes,
+ambiguity/cancellation, malformed retries and prompted preference reporting.
+Expanded the command entry with selection examples and exact newline ordering.
+Evidence: DECWAR.FOR:4540–4559 and MSG.MAC; companion scope is explicit.
+Checks: logs/spec1.0-nova/type-dialogue-check.log and type-dialogue-diff.log.
+Terminal suffix and version-banner decisions remain open; no runtime, archive
+or PDF changes.
+
+## 2026-09-07 — DAMAGES typed selectors and STATUS alias correction
+
+Connected DAMAGES token recovery to report output, documenting its first-
+non-word default and later termination versus STATUS. Added three DAMAGES
+tests and a STATUS alias test; fixed missing TORPEDOS recognition in the new
+STATUS companion to match Section 4.7. This changes no running game code.
+Evidence: DAMAGE at DECWAR.FOR:783–836; evidence/07-preferences-and-reports.md.
+Checks: logs/spec1.0-nova/damages-selection-check.log and damages-selection-diff.log.
+Recovery decisions remain open. No runtime, archive or PDF changes.
+
+## 2026-09-07 — STATUS selector-to-output recovery
+
+Connected typed STATUS selectors to the existing formatter, preserving input
+order, repetitions, unknown-word partial output and non-word termination in an
+explicit C-010 review companion. Added exact recovery outputs to the chapter
+and clarified that appended STATUS errors follow DOCK service. Source:
+DECWAR.FOR:3860–3905 and DOCK:935–937. Three new tests; logs:
+logs/spec1.0-nova/status-selection-check.log and status-selection-diff.log.
+Raw parsing, five-character recognition and final recovery policy remain open.
+No runtime, archive or PDF changes.
+
+## 2026-09-07 — Weapon input quantities and error precedence
+
+Added Section 5.6 and linked weapon entries: quantity operands remain unshifted,
+count/type/bounds ordering precedes weapon-specific checks, and target-only
+responses reset coordinate mode. Added six diagnostic cases and documented
+computed names' reverse error precedence for C-010 discussion without changing
+launch order. Evidence: LOCATE, PHACON and TORP in evidence/05-interaction.md.
+Checks: logs/spec1.0-nova/weapon-input-check.log and weapon-input-diff.log.
+No runtime, archive or PDF changes; malformed computed/retry cases remain open.
+
+## 2026-09-07 — Single-destination validation order
+
+Added Section 5.5 for MOVE/IMPULSE/BUILD/CAPTURE numeric and ordinary COMPUTED
+resolution, diagnostics and boundary examples. Clarified integer-token checks
+before bounds, X/Y message meanings, computer-before-missing-name behavior and
+fresh default-mode resolution per response. Kept weapon cardinality and
+malformed computed/retry exceptions separate. Source: LOCATE/RELOC and MSG.MAC;
+evidence/05-interaction.md. Checks: logs/spec1.0-nova/coordinate-review-check.log
+and coordinate-review-diff.log. No runtime, archive or PDF changes.
+
+## 2026-09-07 — DOCK report and completion composition
+
+Added a checkpoint scenario and test composing docking/STATUS with ordinary
+repair, stardate/faction-turn updates, life support and score commitment. World
+activity is explicitly stipulated unchanged, not simulated or verified absent.
+Confirmed report snapshots remain unchanged after later repair and docked
+critical life support retains reserve 5. Check log:
+logs/spec1.0-nova/dock-completion-check.log; whitespace: dock-completion-diff.log.
+No runtime, archive or PDF changes; full timing/scheduling remains open.
+
+## 2026-09-07 — ENERGY prompt-to-validation composition
+
+Connected typed-token input/retry/cancellation to existing ordered validation,
+stopping explicitly before unresolved transfer arithmetic. Added four tests
+and command-dialogue examples; recorded trailing operands as discussion rather
+than imposing strict rejection. Source: DECWAR.FOR:1014–1025 and GTKN segment
+handling; evidence/07-energy.md states scope. Checks:
+logs/spec1.0-nova/energy-dialogue-check.log and energy-dialogue-diff.log.
+No runtime, archive or PDF changes.
+
+## 2026-09-07 — Shared confirmation and interaction chapter
+
+Started Section 5 with command-versus-response interpretation, affirmative
+prefixes/first-token behavior, and SHIELDS chained confirmation versus QUIT's
+fresh input. Connected grammar and reading order; added the chapter to the
+future PDF build without generating a PDF. Source evidence and remaining scope
+are in spec1.0/evidence/05-interaction.md. Existing spec checks:
+logs/spec1.0-nova/interaction-check.log; whitespace: interaction-diff.log.
+No runtime or archive changes. Remaining prompted-input families and raw editing
+are not implied complete by this shared framework.
+
+## 2026-09-07 — TIME and USERS concrete boundary proposals
+
+Defined ordinary-range TIME rendering and documented its historical ±12-hour
+elapsed-clock adjustment. Added explicit, unadopted core-only TIME/USERS report
+examples. USERS now states the literal historical header and empty-roster output.
+Evidence: spec1.0/evidence/07-time-users.md. Checks are retained in
+logs/spec1.0-nova/time-users-check.log and time-users-diff.log. Clock/host column
+choices remain unresolved; no host architecture was added to the game model.
+No runtime, archive or PDF changes.
+
+## 2026-09-07 — QUIT sequencing and weapon-completion correction
+
+Expanded QUIT with declined-response behavior, selected final reports, linked
+ship/radio release scenario and pre-game distinction. Sources: DECWAR.FOR:135–141,
+293–309 and SETUP.FOR:76–140. Full release remains unverified pending its event
+model and lifecycle decisions.
+
+Corrected an erroneous TORPEDOES discussion example introduced in the burst
+draft: a normal weapon return bypasses automatic repair (main TORP dispatch
+to label 3500). The revised example uses life-support/stardate effects; CHARACTER
+was corrected consistently. Existing final-report checks and whitespace check:
+logs/spec1.0-nova/quit-review-check.log and quit-review-diff.log.
+No runtime, archive or PDF changes.
+
+## 2026-09-07 — GRIPE line-collection semantics
+
+Defined exact prompt/warnings and feedback-body newline rules, including blank
+submissions, cancellation and Ctrl-Z-before-warning boundaries. Added an abstract
+edited-line collector and six focused tests; no file/destination mechanism was
+introduced. Evidence: WARMAC.MAC:3856–3910 and 4050–4060, with scope in
+spec1.0/evidence/07-gripe.md. Checks: logs/spec1.0-nova/gripe-check.log and
+gripe-diff.log. Destination, raw editing and information visibility remain open.
+No runtime, archive or PDF changes.
+
+## 2026-09-07 — HELP listing, diagnostics and content boundary
+
+Defined complete ordinary command/general HELP lists with seven ten-character
+fields per row, diagnostic punctuation and lookup order. Documented the
+selectable INTRO versus missing marked section and the unselectable DECINI/
+CTL-T sections. Reproduced the NEWS content candidate in the actual chapter
+for self-contained review; no corpus choice adopted. Sources: DECWAR.FOR:437–480,
+WARMAC.MAC HELP/SLST/OLST; evidence/07-help-news.md records scope.
+Checks: logs/spec1.0-nova/help-listing-check.log and help-listing-diff.log.
+No runtime, archive or PDF changes.
+
+## 2026-09-07 — TORPEDOES burst sequencing
+
+Specified whole-burst preflight validation, fixed aim sectors versus current
+launch position, mid-burst zero-displacement termination, and conditional
+misfire processing. Added direct planet/star score effects and three connected
+burst scenarios, with notice creation distinguished from delivery. Evidence:
+Austin DECWAR.FOR:4228–4435; details in spec1.0/evidence/07-weapons.md.
+Focused composition and whitespace checks are retained in
+`logs/spec1.0-nova/torpedo-scenarios-check.log` and
+`logs/spec1.0-nova/torpedo-scenarios-diff.log`. Timing, input exceptions and
+full delivery remain open; no runtime, archive or PDF changes.
+
+## 2026-09-07 — PHASERS ordered shot and boundary scenarios
+
+Expanded Section 7.19 with the ordered shot stages, notice-creation versus
+delivery distinction, three concrete planet-shot scenarios and five validation
+precedence cases. Source: Austin DECWAR.FOR:2647–2763 and MSG.MAC:195–208;
+provenance remains in evidence/07-weapons.md. Explicitly scoped the examples
+before turn completion and preserved unresolved precision/readiness choices.
+Checks: `logs/spec1.0-nova/phaser-scenarios-check.log` and
+`logs/spec1.0-nova/phaser-scenarios-diff.log`. No runtime, archive or PDF edits.
+
+## 2026-09-07 — Concrete transfer arithmetic discussions
+
+Expanded SHIELDS and ENERGY discussion sections with explicit displayed-unit
+equations and checked boundary tables. Explained resource creation from small
+shield withdrawals, capacity-limited lossless inter-ship transfers, and the
+independence of quantization versus overdraw decisions. No candidate rule was
+adopted. Arithmetic table check: `logs/spec1.0-nova/transfer-discussion-check.log`.
+Source references are in the corresponding evidence files. No runtime or PDF
+changes.
+
+## 2026-09-07 — SHIELDS mode operations and tractor release
+
+Connected UP/DOWN to damage validation, energy charge, mode change, reciprocal
+tractor release and ordered output. Extracted the shared release transition
+without importing TRACTOR's command prefix. Added a complete zero-energy
+example and three tests for boundary300/300.1, repeated UP and unrestricted
+DOWN. Transfer/timing discussions remain open without blocking draft work.
+All 175 tests pass: `logs/spec1.0-nova/shield-mode-check.log`. No runtime,
+archive or PDF changes.
+
+## 2026-09-07 — Romulan report value and full TARGETS summary
+
+Reconciled EROM/OFLT with the existing abstract Romulan.energy definition:
+reports use the energy value with a historical percent suffix, not normalized
+strength. Added that explanation to Section10.4 and implemented near/remote
+Romulan rows. A full TARGETS SUMMARY scenario checks four opposing objects,
+the separate Romulan line, unknown-base counting and unchanged discovery.
+All 172 tests pass: `logs/spec1.0-nova/report-romulan-check.log`; initial
+fixture nullability failure retained in `logs/spec1.0-nova/report-romulan-typecheck-failed.log`.
+No runtime/archive/PDF changes.
+
+## 2026-09-07 — CLOSEST report integration
+
+Connected ordered CLOSEST parsing and unique-candidate reporting to mixed
+reports. Checked self exclusion, output-modifier conflicts in both orders,
+immediate row ordering and no discovery. Added practical C/CL abbreviation
+examples and full closest/no-candidate output to Section7.10. Ties remain
+explicitly unresolved; no arbitrary base order adopted. All 170 tests pass:
+`logs/spec1.0-nova/report-closest-check.log`. No runtime/archive/PDF changes.
+
+## 2026-09-07 — Mixed report execution and partial-output scenarios
+
+Connected normalized groups to direct output, deferred aggregate rendering and
+discovery. Four scenarios verify ordering, later-error preservation, no
+discovery on aggregate abort, continuing empty selections and merged counts.
+Added complete mixed-group examples to Section7.10. Source inspection found
+the separate Romulan summary counts repeated group visits; recorded as C-010
+discussion and excluded from companion claims. Other raw/mixed-within-group
+and CLOSEST integration gaps remain explicit. Checks:
+`logs/spec1.0-nova/report-mixed-check.log` and
+`logs/spec1.0-nova/report-mixed-diff.log`. No runtime/archive/PDF changes.
+
+## 2026-09-07 — Direct reports and CLOSEST eligibility
+
+Added resolved named/coordinate reports and closest-candidate selection. Split
+pure row formatting from aggregate discovery; tests show direct reports do not
+discover. Corrected the broad distant-coordinate explanation: PLANETS/TARGETS
+retain radius10, while LIST/BASES can use distant knowledge. Added exact named
+and coordinate output examples, disabled Romulan wording and CLOSEST's lack of
+discovery. Ties and C-017 exceptions remain discussions, not adopted fixes.
+All 164 tests pass: `logs/spec1.0-nova/report-direct-check.log`. No runtime,
+archive or PDF changes.
+
+## 2026-09-07 — Ordered report groups and detail/discovery integration
+
+Added ordered aggregate parsing for all five report commands, retaining distinct
+defaults, lookup precedence, parameter conflicts and PORTS interactions. Linked
+parsed queries through Galaxy selection to SUMMARY output and PLANETS/BASES
+individual rows with discovery checks. Added complete examples to Section7.10.
+Explicit faction names retaining Romulan selection is now documented for
+discussion under C-010. Direct groups, CLOSEST, raw lexing, base ties and Romulan
+detail remain open; no discussion choice adopted. All 160 tests pass in
+`logs/spec1.0-nova/report-groups-check.log`. No runtime/archive/PDF changes.
+
+## 2026-09-07 — LIST-family aggregate selection and worked summaries
+
+Added Galaxy-to-resolved-group selection with visibility, independent detail/
+summary merging and excluded-candidate qualifiers. Expanded Section7.10 with
+complete base-summary text, numeric80 versus whole-game scope and a concrete
+qualifier example. Traced empty selections through LIST's alternate return:
+they continue groups, unlike syntax errors; corrected an initial interpretation
+before documenting the rule. Five tests cover these cases and selection without
+discovery. Raw group parsing, detail/discovery integration and deferred choices
+remain open. Logs: `logs/spec1.0-nova/report-selection-check.log` (152 tests)
+and `logs/spec1.0-nova/report-selection-diff.log`. No runtime/PDF changes.
+
+## 2026-09-07 — Timing choices documented for discussion
+
+At the user's request, added an explicitly unresolved discussion to Section
+9.1: duration basis, delay start event and REPAIR completion criterion, with
+alternatives, consequences and a concrete repair example. Linked MOVE/REPAIR
+notes and CHARACTER entries. Replaced the plan's immediate author-review gate
+with deferred discussion; local AGENTS now distinguishes deferred decisions
+from drafting blockers. No timing policy was adopted. Whitespace check:
+`logs/spec1.0-nova/timing-discussion-diff.log`. No code or PDF changes.
+
+## 2026-09-07 — Timing integration author-review gate
+
+Reviewed the completion ledger and shared C-007/C-016 dependencies. Added an
+explicit author-review gate to SEMANTICS-PLAN: whether prompt/output duration
+may affect readiness or REPAIR turn completion. The proposed game-time rule
+is not adopted, and supplies no invented delays. This separates a required
+semantic choice from remaining implementation/testing work and avoids treating
+additional helper tests as completion. No normative/runtime/PDF changes.
+
+## 2026-09-07 — ENERGY validation coverage
+
+Added ordered validation scenarios for every ENERGY rejection, including
+presence-before-faction, unlike TRACTOR, and strict requested-energy reserve
+checking even for a full recipient. Corrected the syntax paragraph to admit
+signed integers and leave positivity/self-target rejection to semantics.
+Transfer precision remains unresolved, so this is not yet a complete transfer
+transaction. Source DECWAR.FOR:1009–1062. All 147 spec tests pass in
+`logs/spec1.0-nova/energy-validation-check.log`. No runtime/archive/PDF changes.
+
+## 2026-09-07 — HELP and NEWS corpus provenance
+
+Mapped all 39 named HELP sections, including INPUT/BASES markers following
+form feeds, and the complete 370-byte NEWS payload with no continuation
+markers. HLP.COM identifies the supplied help as the system-comment edition;
+NEWS contains Version 2.2 host-maintenance claims. Recorded this content and
+the ordinary-versus-historical editorial decision under C-011; did not import
+host claims into the normative spec. Inventory:
+`logs/spec1.0-nova/help-news-inventory.log`. Source files remain unchanged.
+
+## 2026-09-07 — Final POINTS state selection
+
+Connected the final score report to ship, faction and enabled Romulan
+statistics. Section 9.3 now identifies every source property and distinguishes
+cumulative statistics from currently present actors. Added a complete short
+report case proving that pending awards are not committed and a Romulan
+enabled/absent case. Confirmation/release integration and C-013 remain open.
+Evidence: DECWAR.FOR POINTS and FREE references in evidence/09-release.md.
+All 145 spec tests pass in `logs/spec1.0-nova/final-points-check.log`.
+No runtime/archive/PDF changes.
+
+## 2026-09-07 — TRACTOR immediate operation scenarios
+
+Connected normalized TRACTOR operands to validation, reciprocal activation/
+release and endpoint notice recipients. Added precedence examples to Section
+7.3 and four tests for state preservation, unrestricted release, ordered
+rejections and prompting. No transport representation or global delivery order
+adopted. C-012 device eligibility and C-010 recovery remain open. Evidence:
+DECWAR.FOR:4432–4510 and spec evidence/07-tractor.md. All 143 spec checks pass:
+`logs/spec1.0-nova/tractor-operation-check.log`. No runtime/archive/PDF changes.
+
+## 2026-09-07 — REPAIR report exception confirmed in TypeScript port
+
+Answered the user's original-versus-port question with a read-only probe of
+the existing statement-runtime fixture. With all devices undamaged, ALL DAMAGE
+emits nothing; numeric-zero DAMAGE and bare DAMAGE emit the all-functional
+report. Both port repair implementations retain the source branch. Recorded
+the distinction in spec evidence; no runtime changes or new fidelity claim.
+Probe: `logs/spec1.0-nova/repair-port-probe.log`. The specification's C-010
+choice remains unresolved.
+
+## 2026-09-07 — Explicit REPAIR state and report sequence
+
+Connected resolved nonnegative REPAIR requests to all-device changes and the
+appended DAMAGES report. Four tests cover docking defaults, maximum caps,
+selector independence, zero requests, unchanged unrelated state and report
+ordering before automatic repair. Source DECWAR.FOR:3190–3227 also reveals
+that undamaged REPAIR ALL DAMAGE skips its report; documented this separately
+under C-010 rather than silently normalizing it. Negative amounts and timing
+remain C-016 decisions. Updated command completion ledger. Checks: 139 tests
+pass in `logs/spec1.0-nova/explicit-repair-check.log`; whitespace check in
+`logs/spec1.0-nova/explicit-repair-diff.log`. No runtime/archive/PDF changes.
+
+## 2026-09-07 — Ordered PORTS and ALL report semantics
+
+Closed the previously flagged TARGETS PORTS interaction and documented the
+different LIST/SUMMARY orderings of PORTS and ALL. Added NEUTRAL/CAPTURED-before-
+PORTS behavior and rejected reverse orders to the grammar/command explanations.
+Removed conflicting generic narrowing language. Added focused resolved-modifier
+tests; evidence/07-galaxy-reports.md cites LSTSCN and SIDMSK definitions. Logs:
+`logs/spec1.0-nova/port-selection-check.log` (135 passing tests) and
+`logs/spec1.0-nova/port-selection-diff.log`. Full report parsing/selection remains
+open; no runtime/archive/PDF changes.
+
+## 2026-09-07 — CAPTURE sequence and audience correction
+
+Expanded CAPTURE with exact rejection/success/fatal text, direct former-owner
+damage/kill credit and retaliation even after capture expenditure exhausts energy.
+Resolved PRIDIS flags: post-attack selection replaces the preliminary audience;
+only capturing-faction radius10 and all-faction radius4 around the ship remain.
+Corrected the earlier evidence note and added a boundary test distinguishing
+planet versus ship centers. Logs: `logs/spec1.0-nova/capture-sequence-check.log`
+and `logs/spec1.0-nova/capture-sequence-diff.log`. Full retaliation precision,
+fatal completion and delivery remain open. No runtime/archive/PDF changes.
+
+## 2026-09-07 — Command prompt language
+
+Added Section10.10 defining NORMAL and INFORMATIVE prompts, indicator order,
+inclusive thresholds, reserve-zero display and trailing space. Linked SET
+PROMPT to the definition. Added exhaustive indicator-combination tests and a
+SET-to-prompt scenario. Source evidence: evidence/10-command-prompt.md; executable
+comparisons take precedence over contradictory strict-threshold comments.
+Logs: `logs/spec1.0-nova/command-prompt-check.log` and
+`logs/spec1.0-nova/command-prompt-diff.log`. Rendering is not command-acquisition
+or readiness conformance. No runtime/archive/PDF changes.
+
+## 2026-09-07 — TELL selection and RADIO-to-delivery scenarios
+
+Connected normalized TELL recipient selection and completed text to sender
+radio state, message creation and single-recipient delivery. Six tests cover
+damage-first refusal, explicit/group absence differences, diagnostic order,
+deduplication, cancellation side effects, later RADIO OFF/damage and later GAG.
+Updated TELL's ledger evidence while retaining raw input/prompt/replay and global
+ordering gaps. Source/evidence: evidence/07-tell.md. Logs:
+`logs/spec1.0-nova/tell-check.log` and `logs/spec1.0-nova/tell-diff.log`.
+No runtime/archive/PDF changes.
+
+## 2026-09-07 — Normal war-ending predicate and output
+
+Added Section9.4's stable-state ending condition and single-victor announcement
+sequence, with tests across all legal faction base-count pairs. Traced BUILD's
+call through PLNRMV to ENDGAM and opened C-022 for interruption of an unfinished
+conversion and contradictory mutual-destruction wording. No counter/storage
+representation or post-operation timing policy was adopted. Source and scope:
+evidence/09-war-ending.md. Logs: `logs/spec1.0-nova/war-ending-check.log` and
+`logs/spec1.0-nova/war-ending-diff.log`. Full ending integration, final score
+ordering and administrative ending remain open. No runtime/archive/PDF changes.
+
+## 2026-09-07 — BUILD output and conversion dependencies
+
+Defined exact BUILD stage/conversion/capacity/nonplanet/nonadjacency output,
+including outcome-specific newlines and compact base pluralization. Added two
+output tests. Confirmed stable order of remaining planets through PLNRMV and
+exposed its port-loss/game-end calls as required conversion dependencies;
+updated the completion ledger rather than claiming replacement alone completes
+BUILD. Evidence: evidence/07-capture-build.md. Logs:
+`logs/spec1.0-nova/build-output-check.log` and
+`logs/spec1.0-nova/build-output-diff.log`. No runtime/archive/PDF changes.
+
+## 2026-09-07 — DOCK immediate transaction scenarios
+
+Added a DOCK companion connecting friendly port contributions to complete
+immediate ship state and optional STATUS output. Four tests cover aggregation,
+caps, repeated hull service, failed docking and STATUS-before-automatic-repair.
+Added the radio-threshold ordering example to the command and updated its
+completion ledger row. Evidence: evidence/07-repair-dock.md; source
+DECWAR.FOR:893–940. Logs: `logs/spec1.0-nova/docking-check.log` and
+`logs/spec1.0-nova/docking-diff.log`. Autonomous completion, raw input and
+readiness remain open; no runtime/archive/PDF changes.
+
+## 2026-09-07 — RADIO dialogue and state scenarios
+
+Added a normalized-token RADIO dialogue companion and four tests linking
+actions/replies to exact output and radio state. Covered retries, cancellation,
+unknown/self names, repeated actions, gag preservation and enablement independence.
+Updated the command ledger and replaced a stale RADIO delivery note with the
+defined TELL cross-reference. Source and test scope: evidence/07-radio.md.
+Logs: `logs/spec1.0-nova/radio-command-check.log` (116 passing tests) and
+`logs/spec1.0-nova/radio-command-diff.log`. Raw lexical/suffix behavior,
+interruptions and pending delivery remain open. No runtime/archive/PDF changes.
+
+## 2026-09-07 — Command completion audit and ENERGY notice correction
+
+Added COMMAND-REVIEW.md with one row per ordinary command, existing component
+evidence and concrete remaining completion requirements. No command is promoted
+to complete from grammar coverage or helper tests. Linked the ledger from README.
+Rechecked ENERGY's transaction source and corrected recipient-notice whitespace:
+ODISP requests a trailing space after both names, adding an omitted space before
+the long-form verb and before the final newline. Added literal template tests.
+Transfer precision, validation transactions and delivery remain open.
+Logs: `logs/spec1.0-nova/energy-notice-check.log` and
+`logs/spec1.0-nova/energy-notice-diff.log`. No PDF/runtime/archive changes.
+
+## 2026-09-07 — Explicit-range SCAN verification
+
+Added explicit scan-bounds, discovery and output companions with tests for
+negative/CORNER ranges, direction, edge clipping, the published worked grid,
+discovery beyond the grid, and empty-only warnings preserving stars/black holes.
+Added the corner-of-galaxy clipping example. Source: DECWAR.FOR SCAN and
+WARMAC.MAC SETSCN/MARK/SHWSCN/LABL; evidence/07-scan-research.md records scope.
+Logs: `logs/spec1.0-nova/scan-check.log` (111 tests pass) and
+`logs/spec1.0-nova/scan-diff.log`. Defaults, narrow short labels, concealment,
+parser and interruption remain open; no claim of full SCAN conformance.
+No runtime/archive/PDF changes.
+
+## 2026-09-07 — Game-facing SET and TYPE preferences
+
+Expanded SET's property table with all permitted values and distinguished
+setting lookup from value lookup. Added preference transition/report companions
+and tests for every value prefix, preservation of unrelated properties,
+unrecognized words and SET-to-TYPE output. Corrected TYPE's stale Romulan-state
+reviewer note while retaining unresolved terminal/banner scope. Evidence:
+evidence/07-preferences-and-reports.md. Check log:
+`logs/spec1.0-nova/preferences-check.log` (108 passing tests); whitespace log:
+`logs/spec1.0-nova/preferences-diff.log`. This does not complete prompted input
+or host-facing forms. No runtime, archive or PDF changes.
+
+## 2026-09-07 — Report-recovery decision evidence
+
+Rechecked STATUS and DAMAGES malformed-operand paths. Recorded six exact
+source-derived traces showing unknown-word continuation, later non-word stop,
+and the important first-non-word difference between the commands. These are
+not original-executable transcripts. Added DAMAGES' missing recovery reviewer
+note and a focused C-010 choice; asked the user whether to preserve partial
+output or reject the whole malformed report. Did not assume approval or change
+the accepted grammar. Corrected the STATUS LOCATION source lines to3919–3920.
+Whitespace check: `logs/spec1.0-nova/report-recovery-diff.log`.
+
+## 2026-09-07 — STATUS and DAMAGES report cases
+
+Added self-contained STATUS location and signed-zero rules, narrowed stale
+formatting notes and included a full short report example. Added ship-report
+companions and five tests covering full and selected reports, field ordering,
+literal separators, radio damage at 300, repeated device selections and the
+all-functional shortcut. Rechecked DECWAR.FOR:783–838,3860–3979 and WARMAC.MAC
+OSFLT/OCOND plus MSG.MAC labels; evidence/07-preferences-and-reports.md records
+scope. Logs: `logs/spec1.0-nova/ship-reports-check.log` (105 tests passed) and
+`logs/spec1.0-nova/ship-reports-diff.log`. Numeric and malformed-input boundaries
+remain open; no claim of complete command conformance. No PDF or runtime edits.
+
+## 2026-09-07 — Readable command syntax and report assembly
+
+At the user's request, moved all ordinary command-specific EBNF unchanged
+from Section 7 into Section 4.15. Replaced command-entry grammar blocks with
+readable syntax forms, distinguishing coordinate operands from COMPUTED vessel
+operands. Updated local AGENTS.md, outline, README, plan and cross-references
+to supersede the earlier command-local EBNF decision. Grammar checks now
+require centralized productions and a readable form for every ordinary command;
+they check structure and coverage, not exhaustive equivalence of the summaries.
+
+Also completed the interrupted report-assembly increment: Section 10.9 defines
+category separators and immediate/aggregate output order, with three focused
+assembly tests. Source evidence is in evidence/07-galaxy-reports.md. Tests use
+resolved parts, so full parser-to-report transactions remain open.
+
+Checks: `logs/spec1.0-nova/report-assembly-check.log` and
+`logs/spec1.0-nova/readable-command-syntax-check.log`; whitespace check:
+`logs/spec1.0-nova/readable-command-syntax-diff.log`. Some initial patches
+failed context validation and were reapplied without changing their intended
+scope. PDF remains deferred; no running game or preserved source changes.
+
 Created 2026-09-05T14:00:22+00:00. This is the persistent record of observable work: source study,
 code changes, checks, outcomes, decisions and outstanding tasks. It is not a
 verbatim transcript of all prior conversations or an internal reasoning trace.
@@ -6012,6 +7233,29 @@ The JSON evidence is at
 summary script incorrectly treated the object wrapper as an array and failed;
 the corrected summary reported the counts above. No player code was changed.
 
+## 2026-09-07 — MOVE grammar alignment and command-semantics plan
+
+Revisited Specification 1.0's MOVE entry against the complete Section 4
+grammar. Separated operand forms from state-dependent validation, documented
+numeric/computed destination checks and warp-limit diagnostic order, clarified
+modifier-only responses and unresolved retry behavior, and added range-error,
+prompt, and cancellation examples. Source checks used Austin DECWAR.FOR
+1396–1515 and 2138–2203, plus MSG.MAC 78–87. Updated the separate MOVE evidence
+record; no C-005 through C-010 decisions were silently resolved.
+
+Added `docs/spec1.0/SEMANTICS-PLAN.md`: eight command families, all 31 ordinary
+commands exactly once, MOVE's shared semantic dependencies first, explicit
+per-entry completion criteria, cross-command cases, and separate entry/admin
+scope review. The plan is editorial and not included in the normative PDF.
+
+Validation: specification typecheck and four existing tests passed; source
+audit passed; plan-coverage check confirmed all 31 commands; diff whitespace
+check passed. Logs are under `logs/spec1.0-move-review/`. These tests do not
+verify MOVE behavior. Rebuilt the 30-page PDF and visually inspected all five
+MOVE pages. No executable game code or preserved sources were changed by this
+work. Next: review the plan and resolve the focused MOVE dependencies before
+calling the entry conformance-ready.
+
 ## 2026-09-07 — v17 opt-in torpedo corridor experiment
 
 Resumed after the requested model switch. Runnable milestone: a public-SCAN
@@ -6071,6 +7315,17 @@ captains with no errors. Evidence: logs/automated-player-v17-opt-in-live.txt
 and logs/automated-player-v17-opt-in-cli-smoke/. The unguarded default is
 explicitly covered by the final corridor unit test.
 
+## 2026-09-07 — plan single-home command grammars
+
+Updated `docs/spec1.0/SEMANTICS-PLAN.md` to place command-specific grammar in
+each command entry and retain reusable productions and top-level references
+in Section 4, to be titled Shared grammar. Recorded incremental migration,
+preservation of restrictions/review notes, and cross-chapter duplicate and
+reference checks. Removed the conflicting direction that all grammar
+corrections belong in Section 4. This change updates the plan only; no grammar
+productions or PDF were changed. Whitespace validation is recorded in
+`logs/spec1.0-move-review/grammar-plan-diff-check.log`.
+
 ## 2026-09-07 — player library initial design review
 
 Reviewed the current external player's client, parsers, captain, play loop,
@@ -6101,6 +7356,612 @@ No runtime code changed and no gameplay tests were repeated for this design.
 Initial design review is complete. Next model recommendation: Luna medium for
 M0-M2 implementation, Astra medium for the final migration review; source,
 protocol or concurrency ambiguities need focused review before behavior changes.
+
+## 2026-09-07 — migrate MOVE grammar to its command entry
+
+Moved the unchanged `move-command` production from Section 4 to Section 7.1,
+replacing the informal duplicated forms. Shortened Syntax to shared-production
+references and prompted-input meaning. Renamed Section 4 Shared grammar and
+moved `coordinate-mode` beside the destination productions. Updated the
+outline, introduction, README, evidence note, plan status, and local authoring
+instructions. Other command productions remain in Section 4 pending their
+entries; no input behavior or unresolved character decision changed.
+
+Added cross-chapter grammar tests for duplicate definitions, unresolved
+references, the 31-command top-level production, and MOVE's single home and
+unchanged form. Typecheck and all six tests passed. Rebuilt the PDF and
+visually checked the shared-grammar opening and all MOVE pages. Validation
+logs are under `logs/spec1.0-move-grammar/`. These structural tests do not
+validate command semantics. No runtime code or historical sources changed.
+
+## 2026-09-07 — IMPULSE specification slice
+
+Added Section 7.2 IMPULSE with its authoritative grammar, one-sector Chebyshev
+limit, impulse-device check, energy multipliers, exact range diagnostics, and
+seven immediate-outcome examples. Reuses MOVE's destination, path, obstruction,
+towing, and interaction rules without adopting its warp limits or overheating.
+Migrated the production out of Section 4 and recorded separate evidence in
+`docs/spec1.0/evidence/07-impulse.md`, chiefly Austin DECWAR.FOR 2138–2254 and
+MSG.MAC 95,131–145. Extended C-005 to identify rejected IMPULSE's same historical
+undocking/condition effects; other shared decisions remain unresolved.
+
+Updated README, plan status, and grammar ownership tests. Typecheck, all seven
+tests, source audit, and whitespace checks passed. Built the 32-page PDF and
+visually checked the two IMPULSE pages. Logs: `logs/spec1.0-impulse/`.
+Structural checks do not prove movement semantics or original-executable
+equivalence. No runtime or preserved source edits. Next command: TRACTOR.
+
+## 2026-09-07 — player library M0–M1 seam
+
+Started the reusable player library in `experimental/player-library/` after
+the reviewed design checkpoint. Added public strategy contracts, a captain
+compatibility adapter that preserves mode, torpedo and corridor configuration,
+typed fixture evaluation, and an independently authored status strategy
+example. Injected the strategy definition into the existing player loop; the
+default CLI path still constructs the current captain behavior, and reentry
+creates a fresh strategy instance.
+
+Validation: `npx tsc -p experimental/automated-player/tsconfig.json --noEmit`
+and the three player-library seam tests passed. The extraction of transport,
+observations and runner remains M2 work. No legacy or user specification files
+were changed by this checkpoint.
+
+## 2026-09-07 — player library M2 public action seam
+
+Added reusable public actions (`MOVE`, `IMPULSE`, `PHASERS`, `TORPEDOES`,
+`DOCK`, `CAPTURE`, and `BUILD`) with coordinate and energy validation. Added
+`runPlayer` as a transitional public facade over the tested Austin runner, and
+extended library tests to cover builders and malformed inputs. Validation is
+saved under `logs/player-library-m2/validation.txt`; typecheck, five library
+tests, and source audit passed. Deeper transport and observation extraction
+remains the next M2 step.
+
+## 2026-09-07 — TRACTOR specification slice
+
+Added Section 7.3 TRACTOR with authoritative command/response grammar, ordered
+eligibility checks, reciprocal linking and release, no energy/turn cost,
+diagnostics, two-player notices, and six examples. Evidence is recorded in
+`docs/spec1.0/evidence/07-tractor.md`, chiefly Austin DECWAR.FOR 4432–4510,
+dispatch 201–206, OUTHIT 2404–2415/2587–2595, and MSG.MAC/WARMAC.MAC output.
+Removed the duplicate grammar from Section 4. C-012 marks the absent
+tractor-device damage check; notification delivery and towing remain open.
+
+Updated plan, README, and grammar ownership tests. Typecheck, all eight tests,
+and source audit passed; logs are in `logs/spec1.0-tractor/`. PDF visual review
+identified clipped diagnostics in a table, replaced with a wrapping list.
+Structural checks do not establish command-semantic or historical equivalence.
+No runtime or preserved source edits. Next family: SET and TYPE.
+
+## 2026-09-07 — player library public observation facade
+
+Exposed the existing Austin report parsers and readonly report types through
+`experimental/player-library/observations.ts`, keeping one parser
+implementation during extraction. Added a public-facade parser test; six
+player-library tests and the scoped TypeScript check passed. Commit `eb6f9c1`
+was pushed to `main`. Transport and runner internals remain transitional.
+
+## 2026-09-07 — player library quickstart
+
+Added `experimental/player-library/QUICKSTART.md` with prerequisites, server
+startup, a complete custom strategy example, bounded execution, public action
+builders, observation handling, and current Austin-only limitations. Linked it
+from the library README and `docs/status.md`. Validation output is saved under
+`logs/player-library-quickstart/validation.txt`; six library tests, scoped
+TypeScript checking, and `npm run audit:check` passed.
+
+Expanded the quickstart with strategy lifecycle, decision outcomes, report
+fields and freshness, offline testing guidance, and live smoke-test advice.
+Validation output is saved under `logs/player-library-quickstart/expanded-validation.txt`.
+
+## 2026-09-07 — preferences and observation specification drafts
+
+Added PlayerPreferences to the self-contained ADT chapter and notation types.
+Drafted SET, TYPE, DAMAGES, STATUS, and POINTS as Sections 7.4–7.8 and migrated
+their command-specific grammar. Preserved silent SET word rejection versus
+non-word prompting, damage-selector ordering/duplicates, STATUS absolute
+location and radio-damage precedence, and POINTS committed-score selection.
+Evidence is in `docs/spec1.0/evidence/07-preferences-and-reports.md`.
+
+Kept name/terminal/admin scope, initialization, report numeric/location/layout
+details, and cumulative statistics explicit as unfinished dependencies. C-013
+records zero-denominator averages. Began scan research and found terminal-width
+dependent defaults (C-014) and faction-knowledge updates missing from the ADTs;
+recorded these in `evidence/07-scan-research.md` before drafting scan semantics.
+The next decision is whether SCAN/SRSCAN defaults become width-independent.
+
+Typecheck, nine specification tests, source audit, and whitespace checks passed.
+Logs: `logs/spec1.0-preferences-reports/`. Built and visually reviewed the new
+PDF sections, correcting a split two-line SET prompt. An initial patch attempt
+failed context matching and made no changes; retried with the exact current
+text. Tests check notation/grammar structure, not full command semantics or
+historical transcript equivalence. No runtime or preserved source edits.
+
+## 2026-09-07 — scans and galaxy-report specification drafts
+
+Drafted SCAN/SRSCAN and LIST/SUMMARY/BASES/PLANETS/TARGETS in Sections 7.9–7.10,
+migrating their command productions from the shared grammar. Added faction
+discovery sets to planets and bases. Recorded source evidence separately in
+`docs/spec1.0/evidence/07-scan-research.md` and `07-galaxy-reports.md`.
+Defaults, selection, visibility, discovery effects, and scan rendering now
+have working descriptions; summary accumulation, report formatting, selector
+interactions, ordering, and C-014 remain explicitly incomplete.
+
+Typecheck and eleven specification tests passed, as did source audit and
+whitespace checks. Logs: `logs/spec1.0-scans-reports/`. Built the 49-page PDF
+and visually inspected the new scan/report pages and discovery declarations;
+no clipping or overlap found. These checks do not establish full semantic
+conformance or original-executable equivalence.
+
+Began SHIELDS evidence review at Austin DECWAR.FOR:3739–3803. Recorded C-015
+for transfer quantization and confirmed energy overdraw; neither is silently
+normalized. Next: complete dispatch/output/exhaustion research and draft the
+SHIELDS entry. No game runtime or preserved source edits.
+
+## 2026-09-07 — SHIELDS specification draft
+
+Added Section 7.11 and migrated SHIELDS/action grammar. Defined prompted input,
+UP/DOWN checks and costs, exact local output, capacity/confirmation rules, and
+unaffected examples. Preserved the strictly-greater-than-300 damage check and
+repeat-UP cost. Transfer arithmetic remains explicitly incomplete under C-015;
+shared exhaustion and notification delivery remain dependencies.
+
+Evidence: Austin DECWAR.FOR:3739–3803 and command dispatcher, PARAM.FOR:28,
+MSG.MAC:280–289. Typecheck and twelve specification tests passed; whitespace
+check passed. Logs: `logs/spec1.0-shields/`. PDF has not yet been rebuilt for
+this entry. No runtime changes. Next command: ENERGY.
+
+## 2026-09-07 — ENERGY specification draft
+
+Added Section 7.12 and migrated ENERGY grammar. Defined whole-pair prompting,
+ordered validation, strict sender reserve, recipient capacity, zero-delivery
+success, immediate energy mutation, and recipient notification shape. Preserved
+the distinction between requested, delivered, and debited energy. Precision and
+notification lifecycle remain explicit shared dependencies, not assumed rules.
+Evidence is recorded in `docs/spec1.0/evidence/07-energy.md`.
+
+Typecheck and thirteen specification tests passed; whitespace checks passed.
+Logs: `logs/spec1.0-energy/`. Updated README to state that the PDF currently
+covers through 7.10 rather than falsely claiming it includes the new entries.
+No runtime or preserved source changes. Next: REPAIR and DOCK.
+
+## 2026-09-07 — REPAIR and DOCK specification drafts
+
+Added Sections 7.13–7.14 and migrated their grammar. Defined nonnegative
+per-device repair, report selection versus repair scope, aggregate friendly-port
+service, replenishment equations, repeat docking hull repair, life-support
+reset, and report-before-completion ordering. C-016 flags negative repair and
+output-duration-dependent turn completion. Evidence: `07-repair-dock.md`.
+
+Typecheck and fourteen structural specification tests passed; whitespace checks
+passed. Logs: `logs/spec1.0-repair-dock/`. Mathematical examples are illustrative,
+not executable semantic tests; full conformance remains incomplete. PDF rebuild
+still pending for Sections 7.11 onward. No runtime or source archive edits.
+Next entries: CAPTURE and BUILD.
+
+## 2026-09-07 — planet commands and observation expansion
+
+Drafted CAPTURE and BUILD (7.15–7.16), migrated grammar, and recorded evidence
+in `07-capture-build.md`. Ownership change, construction reset/replacement,
+retaliation power, and capacity checks are described; scoring units, shared
+combat, timing, and output remain incomplete. Fifteen structural checks pass;
+logs: `logs/spec1.0-capture-build/`.
+
+At user request, paused new command drafting to deepen observation entries.
+Added an explicit-range scan grid and explanation, report parameter matrix,
+group construction rules, visibility table, and worked selections contrasting
+whole-game versus finite-range summaries and discovery. Rechecked Austin
+LSTSCN and LSTUPD. Flagged TARGETS PORTS rather than assuming enemy-only ports.
+Typecheck and fifteen structural tests pass; whitespace passes. Logs:
+`logs/spec1.0-observation-expansion/`. PDF remains stale and is labeled so in
+README. Exact transcripts and parser combination cases remain unfinished.
+
+## 2026-09-07 — direct report queries and summary correction
+
+Expanded coordinate/name queries and malformed-input diagnostics, including an
+empty-coordinate transcript and partial-output behavior. Added C-017 for direct
+coordinate filter exceptions and discovery differences. Reviewed LSTSUM's
+argument reset: removed the suspected cross-kind counter carryover as an open
+issue; multi-group qualifier merging remains open. Evidence references are in
+`07-galaxy-reports.md`. Two patch attempts failed context matching without
+changes and were retried with exact current text.
+
+Validation logs: `logs/spec1.0-report-direct/`. PDF rebuild remains pending.
+
+## 2026-09-07 — RADIO specification draft
+
+Added Section 7.17, migrated action grammar, and recorded `07-radio.md` evidence.
+Separated reception enablement, gag membership, and device damage; specified
+prompt loops, silent self-gag, inactive/enemy roster targets, and idempotent
+acknowledgements. Pending-message effects remain for TELL/delivery research.
+Validation logs: `logs/spec1.0-radio/`. No runtime or archive edits; PDF pending.
+
+## 2026-09-07 — TELL specification draft
+
+Added Section 7.18 and migrated grammar. Defined sender radio enablement,
+recipient union and ordered exclusions, sender-side ungagging, text separation,
+and delivery-time gagging. Message length/short-input handling and delivery
+scheduling remain explicit. Evidence in `07-tell.md`. Validation logs:
+`logs/spec1.0-tell/`. No runtime or archived-source changes; PDF still pending.
+
+## 2026-09-07 — close radio delivery eligibility gap
+
+Traced GETCMD:1183–1230 through OUTMSG. Defined that pending radio copies are
+delivered despite subsequent OFF or critical damage, but can be discarded by
+current gagging. Added delivery-after-combat ordering and ship-release discard.
+Replaced the speculative caller-check note with these evidence-backed rules.
+Shared interrupted-input and simultaneous-event scheduling remains incomplete.
+Validation: `logs/spec1.0-tell-delivery/`; no runtime/archive changes.
+
+## 2026-09-07 — PHASERS draft and weapon research
+
+Added 7.19 with migrated grammar, ordered checks, shield surcharge, reserve
+behavior, overheating threshold, and planetary construction effects. Shared
+damage, readiness, scoring, and combat output remain incomplete. Evidence in
+`07-weapons.md`; TORP and shared PHADAM/TORDAM source reviewed for next work.
+Initial patch failed context matching without changes; retried. Validation
+logs: `logs/spec1.0-phasers/`. No runtime/archive edits; PDF pending.
+
+## 2026-09-07 — TORPEDOES working entry
+
+Added 7.20 with authoritative grammar, target reuse, validation, docked supply
+rules, misfire continuation/truncation, and per-object impact distinctions.
+Shared paths, damage, random distributions, scores, nova/displacement, and
+timing remain explicit dependencies. Six ordinary command entries remain
+undrafted, in addition to completion gaps across existing entries.
+Validation logs: `logs/spec1.0-torpedoes/`. No runtime/archive changes.
+
+## 2026-09-07 — shared output specificity
+
+Recorded user's all-command specificity requirement in spec AGENTS.md, including
+conditions for defining a command as a specialization. Added Section 10 with
+source-backed report names, integer/decimal signs and widths, position output,
+and individual LIST row layout/examples. Linked the report family and added
+the chapter to the PDF build inputs. Evidence: `10-output.md`.
+Typecheck and nineteen structural tests pass; whitespace passes. Logs:
+`logs/spec1.0-output-fields/`. PDF not rebuilt yet. Finer-value rounding,
+overflow, report assembly, and semantic conformance tests remain unfinished.
+
+## 2026-09-07 — HELP and NEWS interaction drafts
+
+Added 7.21–7.22 and migrated grammar. Documented RED HELP refusal, ordered topic
+lookup, general-help text, NEWS continuation and restart, and their different
+information-activity behavior. Explicit output-corpus work remains; archived
+help files are evidence, not a substitute for self-contained definitions.
+Evidence: `07-help-news.md`. Validation: `logs/spec1.0-help-news/`.
+No runtime/archive changes. Four ordinary entries remain undrafted.
+
+## 2026-09-07 — remaining ordinary command drafts
+
+Added TIME, USERS, GRIPE, QUIT (7.23–7.26); migrated their grammar and recorded
+`07-information-departure.md`. All ordinary command entries now exist, but
+many are partial and this does not satisfy the full goal. Host/core fields,
+corpora, shared combat/execution, character decisions, lifecycle and exact
+transcripts remain. Typecheck and21 structural tests pass; whitespace passes.
+Logs: `logs/spec1.0-information-departure/`. PDF rebuild and semantic tests
+remain pending. No runtime/archive changes.
+
+## 2026-09-07 — resolve capture/construction score units
+
+Traced POINTS through OFLT and replaced deferred capture/build awards with
+displayed-unit rules: capture100, build50*stage plus250 on conversion. Clarified
+that Score categories contain points, not counts, and total without weighting.
+Added a small executable scoring companion and focused award tests; it is not
+a complete command simulator. Validation: `logs/spec1.0-score-awards/`.
+No game runtime/archive changes; shared combat and completion gaps remain.
+
+## 2026-09-07 — shared turn-completion phases
+
+Added Section9 defining ordered completion, automatic-repair eligibility,
+life-support warning and zero boundary, and category-wise score commitment.
+Confirmed weapon turns bypass automatic repair, unlike surviving movement and
+service/construction commands. Added companion helpers and focused tests for
+repair, reserve boundaries, and exactly-once positive/negative score commitment.
+Evidence: `09-completion.md`. Logs: `logs/spec1.0-completion/`.
+World scheduling, lifecycle ordering and unresolved command exceptions remain;
+this is not a complete execution chapter. No runtime/archive changes.
+
+## 2026-09-07 — executable output-field checks
+
+Added a bounded companion for Section10 integer/decimal/position formatting
+and five focused tests, including composition checked against the document's
+three literal Excalibur rows. Out-of-scope precision and overflow throw rather
+than selecting an unapproved rule. Typecheck and34 tests pass; logs:
+`logs/spec1.0-output-tests/`. These tests cover fields, not full command output.
+Asked user asynchronously about fixed scan radii and repair sign/completion
+choices; no decision is assumed while awaiting answers. No runtime changes.
+
+## 2026-09-07 — torpedo flight quantities
+
+Closed deferred deflection, random travel extent, and misfire tube-damage
+equations in7.20. Added companion calculations and boundary/distribution tests;
+extent probabilities are1/8,1/2,1/4,1/8 for7,8,9,10. Exact sector traversal
+remains open, separate from these inputs. Logs: `logs/spec1.0-torpedo-flight/`.
+No runtime/archive changes or claim of historical random-generator parity.
+Initial boundary test caught a mistaken interval endpoint at u=0.125: the
+expression is exactly-1 before truncation, so extent is7, not8. Corrected
+the table and test; retained the failed run as diagnostic evidence.
+
+## 2026-09-07 — shield combat and draft layout
+
+Added Section 6 initial weapon-damage and shield equations, with separate
+Austin evidence and four focused companion tests. Critical hits, final damage,
+destruction, and precision decisions remain unfinished. Typecheck and all 42
+tests pass; logs: `logs/spec1.0-shield-combat/`. No runtime/archive changes.
+
+At the user's request, deferred PDF work until content is ready and removed
+forced chapter/section breaks, keep-together blocks, and elevated widow/orphan
+penalties. Retained only the title-page break. A source search confirms that
+it is the only remaining explicit page break. The interim PDF build recorded
+in `logs/spec1.0-full-draft-pdf/build.log` predates these layout changes and
+has not received visual QA; it is not a reviewed delivery.
+
+## 2026-09-07 — critical-hit resolution
+
+Added Section 6.2: critical threshold including equality, separate device and
+hull damage, shield lowering, ship destruction predicate, player damage/kill
+awards, and the base emergency branch. Evidence: DECWAR.FOR:4124–4166 and
+4212–4229. Direct base emergency processing bypasses ordinary damage scoring;
+the zero-strength branch retains it. Three focused tests cover these paths
+and the documented examples. Typecheck and 45 tests pass; output retained at
+`logs/spec1.0-shield-combat/critical-check.log`.
+
+Linked weapon entries to Section 6 and refreshed README coverage/PDF status.
+State-write precision, displacement, lifecycle effects and combat output remain
+open. These tests do not establish complete command or historical parity.
+
+## 2026-09-07 — displacement semantics
+
+Added Section 6.3 with incoming-step derivation, summed-coordinate truncation,
+one-neighbor and galaxy checks, occupied-sector rejection, undocking, and
+black-hole destruction. Distinguished player ships, bases and Romulan torpedo
+displacement eligibility. Evidence: DECWAR.FOR:699–755, 1283–1341, 4156–4166,
+4374–4375; recorded in evidence/06-displacement.md. Added C-018 for the
+observable positive/negative-slope asymmetry rather than silently normalizing
+it. Four focused tests bring the passing suite to 49; typecheck also passes.
+Logs: `logs/spec1.0-displacement/check.log`. Attack output, release, exact path
+traversal and nova propagation remain incomplete. No runtime/archive changes.
+
+## 2026-09-07 — shared sector traversal
+
+Added Section 6.4 from Austin CHECK/CHKPNT (DECWAR.FOR:699–778): dominant-axis
+stepping, hundredths candidate band, ordered obstacle checks, conditional
+random selection, continuous-coordinate accumulation and boundary termination.
+Replaced MOVE's duplicate construction with the shared operation and retained
+its C-006 reviewer decision. Added five focused tests; all 54 tests and typecheck
+pass. Evidence: evidence/06-sector-path.md. Logs:
+`logs/spec1.0-displacement/path-check.log`. This closes the mathematical path
+description, not the open character decision or full command conformance.
+
+## 2026-09-07 — incoming Romulan weapon damage
+
+Added Section 6.5 and linked PHASERS/TORPEDOES to it. Defined distinct reported
+damage and energy loss, explicit truncation, the nonuniform torpedo cap,
+surviving displacement, removal and pending ROMULAN awards. Evidence:
+DECWAR.FOR:3382–3396, 2711–2714, 4374–4377; OFLT output scaling checked in
+WARMAC.MAC:1955. Three tests include enumeration of all 4000 torpedo rolls;
+all 57 tests and typecheck pass. Logs: `logs/spec1.0-romulan-damage/check.log`.
+Combat output and autonomous behavior remain unfinished. No runtime/archive
+changes or original-executable parity claim.
+
+## 2026-09-07 — nova per-target damage
+
+Added Section 6.6 for ships, bases and planets from NOVA, including the blast
+factor discontinuity, independent device damage, separate energy loss, shield
+lowering order, displacement, friendly damage penalties and direct faction
+ship-kill awards. Three focused tests bring the passing suite to 60; typecheck
+passes. Evidence: evidence/06-nova.md; logs: `logs/spec1.0-nova/check.log`.
+Chain ordering/capacity and Romulan zero-energy survival remain explicit gaps,
+as do output and docking consequences. No runtime/archive changes.
+
+## 2026-09-07 — nova propagation ordering
+
+Added Section 6.7 with neighborhood enumeration, immediate selected-star
+removal, reverse target-position processing, newest-pending-first explosions
+and per-star penalties. Added C-019 and asked whether to remove the historical
+29-pending-star constraint; no approval assumed. Three ordering/enumeration
+tests bring the passing suite to 63, with typecheck passing. The companion
+refuses capacity-boundary cases and is not a full chain simulator. Logs:
+`logs/spec1.0-nova/order-check.log`. Romulan effects, output, docking and the
+capacity decision remain open. No runtime/archive changes.
+
+## 2026-09-07 — combat notification selection
+
+Added Section 10.4's recipient rules and event table, grounded in PRIDIS,
+weapon callers, NOVA and MAKHIT/GETHIT. Distinguished destroyed-but-unreleased
+recipients, local radio-independent reports and radio-filtered faction base
+notices; documented pre/post-displacement selection centers. Evidence:
+evidence/10-combat-recipients.md. Full text, retrieval order and lifetime remain
+open; this is source-backed selection documentation, not full output testing.
+No runtime/archive changes.
+
+## 2026-09-07 — Weapon boundaries and aggregate report summaries
+
+Added focused Romulan readiness-equality and 26-outcome planetary-hit tests;
+explicitly flagged selection of a future-ready torpedo at phaser equality as
+an unresolved timing boundary, not an approved simplification. Check log:
+`logs/spec1.0-nova/romulan-weapon-tests.log` (95 tests passed).
+
+Expanded Section 7.10 with overlapping aggregate selection, unique counts,
+summary line fields, category ordering, merged scope precedence and TARGETS'
+combined enemy count. Evidence: DECWAR.FOR LSTUPD/LSTOUT/LSTSUM:1920–2080;
+details in evidence/07-galaxy-reports.md. Added a resolved-summary formatting
+companion; complete report transactions remain unverified. Initial patch
+attempts failed context validation without applying changes; reapplied with
+matching contexts. Final check and whitespace logs:
+`logs/spec1.0-nova/report-summary-check.log` and
+`logs/spec1.0-nova/report-summary-diff.log`. No PDF, runtime or archive changes.
+
+## 2026-09-07 — torpedo outcome and base-notice text
+
+Added exact long/medium/short templates for misses, absorption, neutralization,
+base distress and base destruction. Traced delivery-time radio suppression:
+damage exactly 300 passes, greater damage or radio off suppresses the notice;
+long output's initial newline precedes that check. Added three literal/boundary
+tests; typecheck and all 66 tests pass. Logs: `logs/spec1.0-nova/notice-check.log`.
+Corrected duplicate Section 10.4 numbering: recipients are 10.5, notices 10.6.
+Full combat-hit text and pending-event ordering remain open.
+
+## 2026-09-07 — main hit-report assembly
+
+Added Section 10.7's source/action/target assembly, critical-device vocabulary,
+base emergency dialogue, displacement and destruction suffixes. Preserved
+literal spaces, signed strengths, target-position marker behavior and the
+game's conditional long-output line break. Source: OUTHIT:2415–2533 plus
+MSG and ODEV fragments; evidence extended in evidence/10-combat-recipients.md.
+This is source-backed text specification; full formatter/transcript combination
+tests and delivery semantics remain open. No runtime/archive changes.
+
+## 2026-09-07 — executable hit-report checks
+
+Added an event-fact formatter companion for Section 10.7 and eight literal
+tests: short damage/deflection, star announcements, target-only critical detail,
+black-hole death, long target wrapping, relative markers and both base emergency
+outcomes. The companion takes recorded facts and does not replace Galaxy types.
+Typecheck and tests are recorded in `logs/spec1.0-nova/hit-report-check.log`
+and `hit-report-expanded-check.log`. Full event production/delivery and broader
+format combinations remain incomplete; these are not original transcripts.
+
+## 2026-09-07 — phaser overheating and completion work plan
+
+Specified the previously unnamed overheating damage increment, distinct draw,
+strict threshold and same-shot target-specific effects. Two focused tests bring
+the passing suite to76, with typecheck passing; logs:
+`logs/spec1.0-nova/phaser-overheat-check.log`. Precision remains explicit.
+Added a current dependency-based completion plan and labeled the old drafting
+sequence as historical. It retains all command scope and deferred PDF status;
+test totals are not a completion gate. No runtime/archive changes.
+
+## 2026-09-07 — ship release effects
+
+Added Section 9.2 and connected QUIT: distinguish destruction from release,
+break reciprocal tractors, discard incoming combat/radio deliveries without
+recalling outgoing messages, clear position/energy/player association and retain
+roster identity. Defined no implicit repair/score commit. Source: FREE1082–1139;
+evidence/09-release.md. C-020 flags stale-sector clearing rather than silently
+claiming the vessel-specific removal proposal is historical parity. Admission,
+re-entry, final reporting and pending combat data remain incomplete.
+
+## 2026-09-07 — final reports and fatal acquisition checks
+
+Added Section 9.3: final POINTS selects individual and faction columns, reads
+committed scores without an implicit commit, and precedes release. Specified
+normal acquisition's combat/radio/readiness/fatal-check ordering and hull-before-
+energy diagnostic precedence. Connected QUIT and narrowed its reviewer gaps.
+Evidence: GETCMD, POINTS and departure caller references in evidence/09-release.md.
+Immediate fatal exits, full POINTS output, zero denominators and input races
+remain open. No executable end-to-end departure verification is claimed.
+
+## 2026-09-07 — POINTS report assembly
+
+Expanded POINTS with exact header starts, subject header fragments, label
+padding, numeric widths, optional blank personal cells and newline sequencing.
+Source: POINTS2893–3046 and MSG209–247. Preserved uneven historical layout
+instead of inferring a generic table. Full-name casing, complete transcript
+tests and quotient/zero-denominator decisions remain flagged. No runtime changes.
+
+## 2026-09-07 — persistent POINTS statistics
+
+Added faction admissions/completedTurns and persistent Romulan score,
+appearances/activityCount to ADTs and companion types; connected POINTS to
+those precise properties. Source showed admissions precede completed ship
+selection and Romulan activity can count without appearance; retained both
+distinctions with update boundaries flagged. Evidence:
+evidence/07-points-statistics.md. Typecheck and76 tests pass; logs:
+`logs/spec1.0-nova/statistics-check.log`. Admission/autonomous rules remain
+unfinished, so this is not complete statistical behavior verification.
+
+## 2026-09-07 — POINTS quotient precision
+
+Defined truncation toward zero to tenths for positive-denominator score
+averages, including negative and sub-unit examples. Added focused arithmetic,
+format and unsupported-domain tests. Asked about the C-013 unavailable marker;
+did not choose a zero-denominator result. Logs:
+`logs/spec1.0-nova/points-average-check.log`. An initial patch failed on stale
+context without editing files; corrected and reapplied. No runtime changes.
+
+## 2026-09-07 — docking after port loss
+
+Traced BASKIL and capture/destruction callers. Added Section 6.8 with the
+no-planets exception, pre-transfer capture check, and missing surviving-base-
+displacement trigger. Added C-021 and asked whether to adopt post-change
+adjacency checking. Evidence: evidence/06-port-loss.md. No new invariant or
+simplification is silently adopted. This closes the evidence gap but leaves
+the user-facing semantic choice open; no runtime changes.
+
+## 2026-09-07 — TELL text boundaries
+
+Defined minimum two-character input, whitespace preservation, 75 retained
+characters, silent truncation and cancellation notice. Derived the boundary
+from MAKMSG's actual counter and terminator replacement, not its buffer-size
+comment. Added two focused tests; logs: `logs/spec1.0-nova/radio-text-check.log`.
+Editing/replay and complete radio header/output remain open. No runtime changes.
+
+## 2026-09-07 — player radio-message output
+
+Added Section10.8 with original-recipient header order, space-plus-initial
+fields, sender abbreviation, preserved text and two ending newlines. Two
+literal tests added; logs: `logs/spec1.0-nova/radio-output-check.log`.
+Resolved POINTS personal heading case and ten-character padding from the same
+name data. Input editing/replay and nonplayer message producers remain open.
+
+## 2026-09-07 — executable POINTS report assembly
+
+Added the Section7.8 formatter companion for resolved subject selections,
+category omission, fixed order, widths, statistics and literal newlines. Tests
+check full personal-short and two-faction-medium transcripts plus explicit
+refusal of unresolved zero denominators. Typecheck and86 tests pass; logs:
+`logs/spec1.0-nova/points-report-check.log`. Long/mixed-subject exhaustive
+coverage, parsing, statistical updates and C-013 remain unfinished.
+
+## 2026-09-07 — player-triggered base activity
+
+Started Section8 with base defense/restoration required by command completion:
+targets, power, direct faction scores, recipients and restoration increments.
+Flagged unresolved base ordering rather than importing numbered slot identity.
+Added evidence/08-base-activity.md and included the chapter in future builds;
+no PDF rebuild, per user. Romulan triggers, planetary activity and scheduler
+remain incomplete. No game runtime/archive changes.
+
+## 2026-09-07 — player-triggered planetary defense
+
+Added Section8.3 with per-planet neutral activation, target/faction/range
+selection, scaled player versus unscaled Romulan power, direct faction scores
+and recipient differences from base defense. Added two focused tests; logs:
+`logs/spec1.0-nova/planet-defense-check.log`. Romulan-triggered scheduling,
+concealment and full-cycle transcripts remain open. No runtime/archive changes.
+
+## 2026-09-07 — Romulan eligibility and appearance gates
+
+Added Section8.4 and explicit elapsedTriggers state: distinct activity/appearance
+thresholds, failed appearance retry, initial displayed energy, counter updates
+and reset points. Added threshold test; logs:
+`logs/spec1.0-nova/romulan-eligibility-check.log`. Full target/movement/readiness,
+placement and no-player scheduling remain incomplete. No runtime/archive edits.
+
+## 2026-09-07 — Romulan pursuit selection
+
+Defined squared-Euclidean pursuit versus Chebyshev range and sequential
+four-group tie selection. Added metric and exhaustive three-coin-choice tests.
+Logs: `logs/spec1.0-nova/romulan-target-check.log`. Base-order, empty search,
+historical distance sentinel and stale-position cases remain open; no new
+fallback behavior was inferred. No runtime/archive changes.
+
+## 2026-09-07 — Romulan pursuit movement
+
+Added Section8.6: shortened aim/original extent, shared traversal, directionally
+ordered obstruction fallback, no-path-check relocation, unchanged original
+position on failure and target reselection. Two focused tests added; logs:
+`logs/spec1.0-nova/romulan-movement-check.log`. Readiness and exceptional target
+states remain open. No runtime/archive changes.
+
+## 2026-09-07 — Romulan weapon cycle
+
+Added Section8.7: readiness comparison boundaries, phasers, torpedo/star
+targeting, burst misfire/retarget behavior, distinct26% planet effect, score
+and output differences, and nested defense/restoration. Evidence:
+evidence/08-romulan-weapons.md. Timing policy, dialogue, nova self-effects and
+exceptional states remain explicit; this is not complete autonomous conformance.
+No runtime/archive changes.
 
 ## 2026-09-08 — paired Telnet parity harness
 
@@ -6377,3 +8238,665 @@ User requested the next checks. Added tractor-edges mode to the public assistanc
 Both TypeScript and native SIMH completed nine ordered actions, recipient quit and survivor movement. Report logs/parity-tractor-edges/report.json is matched-tractor-edges. Moving Vulcan from 7-3 to 8-3 tows Yorktown from 7-2 to 7-3 and debits Vulcan twelve displayed energy units. Raising recipient shields debits 100 and breaks the beam; both notices match. Bare TRACTOR after reattachment releases it on both engines. After a final attachment, recipient quit releases/notifies Yorktown and removes Vulcan from USERS; Yorktown's next solo move to8-2 costs four units. Exact selected activation/release notice bytes match for both captains, as do all nine action responses after command-echo removal. Setup supplies differ and are preserved; energy deltas are compared. Nova, weapon-hit and destruction release remain untested here. No native Docker or complete historical-parity claim.
 
 Validation: 23 parity tests pass (parity-tests-final.txt), including rejection of matching-but-wrong reciprocal movement, missing recipient notices, omitted survivor movement and incomplete cleanup. Strict scoped typecheck passes (typecheck-corrected.txt); initial test-fixture optional-property narrowing errors retained in typecheck-final.txt. Source audit passes (audit.txt). Intermediate incomplete report retained in report-progress.json. Raw captures, final report, host diagnostics and native console are under logs/parity-tractor-edges/. Both clients clean up on each backend; isolated TS PID72761/port54825 stopped after ownership verification, native clone2031 stopped at SIMH prompt and quit. User2423 and original2030 preserved. Current parity guide/status updated. Siege heartbeat remains paused after its final review; no additional fleet launched.
+
+## 2026-09-08 — game-to-completion attempt started
+
+User explicitly requested a game taken to completion rather than another short strategy evaluation. Started ten-ship siege-versus-siege seed1729, torpedo corridor, on isolated port55085, exec session71855. Six-hour guard (21600 seconds); one million decisions and 1000 lives per captain prevent the old short-run budgets from stopping the attempt prematurely. All ten ships verified playing; fleet configuration confirms supplied limits. Evidence logs/endgame-completion/run/ and console.txt. No existing fleet was running before launch; user2423/reference2030 preserved.
+
+Exposed existing fleet rounds/lives controls through fresh-fleet.ts, validating the same bounds and recording/forwarding them. Corrected its manifest policy label from captain-v8 to captain-v9 to match delivered fleet policy. Scoped TypeScript check passes (logs/endgame-completion/typecheck.txt), CLI help saved, actual downstream configuration verifies propagation. This is launcher plumbing, not game-rule or strategy changes.
+
+Reactivated existing heartbeat through the app as Monitor DECWAR completion run, every five minutes, quiet during ordinary unchanged progress. It monitors installation/planet progress, persistent strategic stalls, real terminal warResult and final launcher outcome. Must not restart this galaxy or duplicate it. Actual victory/loss must be distinguished from the six-hour guard timeout; pause after final review. User asked for completion, but no autonomous victory is claimed yet. No further parity host or fleet launched alongside it this turn.
+
+## 2026-09-08 — ENERGY notifications versus radio preferences verified
+
+User requested continued parity testing while the completion game runs. Added energy-notices capture mode and a source-contract module/reviewer. Restore Vulcan at7-3, spend48 units on six known-safe moves, then request ten units four times: normal radio, RADIO OFF, donor gagged, donor ungagged. Include the four intervening RADIO control commands. Source: ENERGY IWHAT12 and OUTHIT label6900, contrasted with NOMSG filtering at label6000; MSG.MAC:180–181 and RADIO.FOR:35–84. No original or port game code changed.
+
+Final logs/parity-energy-notices/report.json reports matched-energy-notices across all eight ordered steps, exact radio-control action responses after echo removal, exact recipient notice bytes, radio On/Off display, energy totals and unchanged non-energy supplies/positions. Each request debits10, delivers9; Yorktown's notice to Vulcan remains visible with radio off and donor gagged. This is ENERGY event behavior, not evidence of TELL filtering or damaged-radio semantics. Native execution is the isolated SIMH reference, not Docker.
+
+Retained setup failures: typescript.jsonl stopped before test commands because its recipient spawn had no safe observed route. Both clients cleaned up. typescript-retry.jsonl then rejected a retained galaxy at the initial fresh-seed guard; logout alone had not replaced that world. Stopped only that isolated TS host PID73446/55262, launched a fresh host PID73656/55430, and completed typescript-fresh.jsonl. Native pdp10.jsonl completed normally. Do not disguise failed setup as a parity match; only the two complete captures are compared. Guide now explicitly requires a fresh host for such retries.
+
+Validation:25 parity tests passed (parity-tests.txt); strict scoped TypeScript check passed (typecheck-final.txt); source audit passed (audit.txt). Notice tests reject suppression, duplicate/altered text, incorrect recipient direction and wrong energy totals. Raw captures, host logs, native console and report retained under logs/parity-energy-notices/. Native clone2031 quit after capture, final TS host stopped after ownership verification and cleanup. Completion game55085, user2423 and original reference2030 untouched. Persistent completion monitor remains active; no extra fleet launched. Current guide/status updated.
+
+## 2026-09-08 — completion attempt fifteen-minute milestone
+
+Heartbeat at approximately03:04 UTC: all ten captains active;3467 decisions,one death,138 base-shot attempts,11 planet-shot attempts,three captures,ten build increments,zero conversions,zero transport or strategic stalls. Recent friendly base lists show Federation2/Empire8. Raw evidence confirms ten unique base destructions (eight Federation,two Empire); eleven action-result frames contain destruction text because Scout also received the destruction at18-42 during MOVE. Deduplicate observer copies before counting events. Evidence and last public observations saved in logs/endgame-completion/review-15min.json.
+
+First recorded planet attacks are meaningful new progress, but no planet removal or conversion demonstrated in this interval. Scout's latest LIST includes18 planet rows; public visibility differs by captain, so this is not a certified global remaining-planet count. Both sides now have base capacity; lack of conversion is no longer explained solely by full base slots. Objective captains' latest decisions were resupply travel (Scout) and closing on a ship (Raven), consistent with tactical interruptions. No terminal war result. Keep the existing game unchanged and monitor whether objective work resumes; no new match or rule/strategy change performed.
+
+## 2026-09-08 — completion attempt resumes planet conversion
+
+Heartbeat at03:10 UTC (~21 minutes):4683 decisions,one death,165 base-shot attempts,16 planet-shot attempts,nine captures,30 build increments,five confirmed conversions; all ten captains active with no transport/strategic stalls and no warResult. Since the previous review Scout converted four planets (55-62,57-74,41-72,38-74) and Raven converted14-32. Recent friendly base counts Federation5/Empire7. This resolves the earlier concern that objective work was not resuming after combat/resupply detours: actual planet conversion has resumed. Evidence logs/endgame-completion/review-21min.json contains conversion records and latest public base counts. Continue unchanged; no new match, rule change or process restart.
+
+## 2026-09-08 — completion attempt twelve-conversion milestone
+
+Heartbeat at03:21 UTC (~32 minutes):6932 decisions,one death,223 base-shot attempts,20 planet-shot attempts,14 captures,62 build increments and12 confirmed planet-to-base conversions (Scout7,Raven5). Latest public base counts Federation6/Empire9; both remain below ten-base capacity. All ten captains active, zero transport/strategic stalls, no terminal war evidence or launcher result. Conversion events and health totals retained in logs/endgame-completion/review-32min.json. These are conversions, not planets destroyed by weapons; public visibility does not certify a global remaining-planet count. Existing game and monitor continue unchanged.
+
+## 2026-09-08 — restarted completion attempt with planetary torpedoes
+
+User explicitly authorized stopping and restarting after identifying missing planetary torpedo attacks. Paused the old heartbeat, verified wrapper73217 and its owned fleet73219/host73218 at55085, then stopped only the wrapper through its cleanup handler. Old logs/endgame-completion/run/launcher-result.json records exit0 at03:25:14 UTC; this was operator cancellation, not war completion. Existing transcripts retained. Conversion could satisfy planet removal, so the previous approach was not logically impossible; torpedoes add the missing direct-destruction strategy.
+
+Runnable milestone: captain-v10 ten-ship completion attempt. Siege now targets enemy planets even at zero builds and fires single torpedoes at range3–8 with three-second spacing, fresh SCAN/LIST agreement, working devices and ammunition. Source Austin DECWAR.FOR:4383–4398 decrements planet builds on IRAN(4)==4, removes planets below zero; source and runtime game rules unchanged. Corridor guard explicitly exempts only the selected hostile planet; other planets/stars/friendlies/unknown cells still veto shots. Reposition to an observed safe firing neighbor if available. Siege resupplies at two torpedoes; phasers-only policy retains prior behavior. Objective captains still capture/build.
+
+Validation:124 player/library/parity regression tests pass (logs/endgame-torpedo-completion/suite.txt),32 focused policy/corridor tests pass (policy-tests-final.txt), strict scoped typecheck passes(typecheck-pass.txt), source audit passes(audit.txt). Initial test typing failures retained; narrowed Decision assertions in existing and new tests. Documentation and policy manifests updated.
+
+Restarted ten captains on a fresh isolated Austin host, seed1729, six-hour guard, one million decisions/1000 lives each; logs/endgame-torpedo-completion/run/, exec session69398. Updated existing five-minute heartbeat to this run and resumed it. Do not restart again automatically; verify actual planet destruction and war-ending text, not shot counts or timeout. User2423 and reference2030 preserved; no push or unrelated specification edits.
+
+## 2026-09-08 — TypeScript torpedo-to-war-ending verification
+
+Kept ten-ship torpedo game57100 unchanged. Added test-only verify-planet-ending.ts: stages one zero-build hostile planet three sectors from a docked shooter, then issues real Telnet TORPEDOES commands with unchanged production random draws/timing. Both-bases-present case verifies actual planet removal, continued command availability and source docked ammunition preservation. Enemy-base-absent case verifies natural TORP→PLNRMV→ENDGAM, Federation winner and final points. Source Austin DECWAR.FOR:4383–4398 and ENDGAM970–1004. Not a paired reference capture or autonomous victory.
+
+Initial capture removed the first planet after six shots; the final-planet shot in second fixture printed actual war/final-points text but client returned ConnectionFailure. Raw output began with lone CR before exact high-segment notice; warBanner only admitted start/newline. Narrowly accept initial CR padding, retain exact notice/outcome checks and reject quoted player text. Initial failure retained in logs/planet-ending-typescript/console.txt and capture/report.json plus referenced raw logs. Successful retry removed each planet in two shots; both cases pass, Federation victory/final text retained in retry/report.json. Eight war-result regressions pass(war-result-tests.txt), strict typecheck passes(typecheck-final.txt), source audit passes(audit.txt). No game rules changed.
+
+The running fleet predates the parser fix and is not hot-reloaded. Monitor must inspect raw victory/points even if its old runner misclassifies closure; do not restart this galaxy simply to load the reporting fix. Updated monitor instructions accordingly. Public status records exact TypeScript-only scope; PDP-10 planetary destruction/war-ending comparison remains open.
+
+## 2026-09-08 — restarted torpedo fleet eleven-minute milestone
+
+Heartbeat03:38 UTC:2583 decisions,one ship death,139 base-shot attempts,ten confirmed base-destruction weapon responses (six Empire,four Federation),two planet-to-base conversions andfour captures. Latest public base counts6/6 reconcile with20 initial bases minus10 destroyed plus2 converted. Zero planetary shots so far, so the new torpedo strategy has not yet demonstrated a planetary firing decision in this live run. No transport/strategic stalls or war-ending text. Evidence logs/endgame-torpedo-completion/review-11min.json preserves raw destruction frames (including observer duplicates separately) and counters. Keep the same game unchanged; the isolated TypeScript destruction/endgame success is not substituted for live fleet results.
+
+## 2026-09-08 — live planetary targeting follow-up
+
+User asked to keep going. At03:39 UTC,2937 decisions,three conversions,one death andzero planet-shot attempts/stalls. Latest Federation siege reports have no known enemy planets; Empire sees one distant zero-build Federation planet at58-39. Most siege captains are genuinely returning from base attacks: last30 decisions show22–30 distinct positions and decreasing nearest-base distance (Wing31→2,Lancer35→6,Wraith28→1,Talon31→7). Shade has already resupplied and resumed siege. This snapshot supports travel/resupply and limited hostile-planet visibility, not a demonstrated torpedo refusal or route loop. Objective captains are currently pursuing ships. Saved compact evidence in logs/endgame-torpedo-completion/strategy-review-13min.json. Continue existing game and active heartbeat unchanged; watch whether first planetary engagements occur after resupply.
+
+## 2026-09-08 — torpedo fleet seven-conversion milestone
+
+Heartbeat03:45 UTC (~18 minutes):4260 decisions,one death,167 base-shot attempts,nine captures andseven confirmed planet-to-base conversions (Raven5,Scout2), up fromthree at prior user check. Latest base countsFederation7/Empire8, belowcapacity; zero transport/strategic stalls andno war text. No planetary torpedo firing decisions yet. Raw conversion events preserved in logs/endgame-torpedo-completion/review-18min.json. The previously visible hostile planet58-39 was converted byScout at03:44:26; conversion can remove a potential torpedo target before siege arrives. Continue unchanged, retaining the distinction between conversions and weapon destruction.
+
+## 2026-09-08 — torpedo fleet eleven-conversion milestone and neutral remainder
+
+Heartbeat04:01 UTC(~34 minutes):7856 decisions,one death,231 base shots,eleven conversions,zero planet shots andzero transport/strategic stalls. Latest basesFederation9/Empire6. No final war text or launcher result. All planets in latest captain observations are neutral, explaining why enemy-only planetary torpedo eligibility currently yields no targets. Federation reports nine neutral coordinates, consistent with20 initial planets minus11 conversions, but public observations remain visibility-limited. Evidence review-34min.json and planet-observations-34min.json under logs/endgame-torpedo-completion/. Current strategy reserves neutral planets for objective capture/build, so torpedoes will not remove this remainder while neutral. Near-capacity Federation9/10 may constrain conversions; Empire6/10 still has capacity. Continue the authorized run unchanged; a neutral-planet demolition policy would be a separate strategy decision, not a runtime/parity repair.
+
+## 2026-09-08 — neutral-planet demolition corrected and fleet restarted
+
+User corrected the enemy-only strategy restriction and authorized another restart. This was a bot policy gap, not a game rule: Austin TORP1800 (DECWAR.FOR:4383–4398) skips friendly planets but can remove neutral or enemy planets when builds become negative. Paused monitor, verified wrapper75859/fleet75862/host75861 at57100, stopped only its owned experiment. Previous launcher records operator-requested exit0 at04:03:52 UTC; no war victory. Logs retained.
+
+Captain-v11 siege admits neutral planets with torpedoes enabled, including zero builds. LIST and fresh SCAN must agree on target ownership; a friendly capture/removal cancels the retained firing solution. Corridor exception allows only the selected neutral/enemy planet; other planets and friendly objects stay protected. Phasers-only policy still excludes neutral demolition. Existing one objective captain per side remains for capture/build. Manifests and current guide/status updated.
+
+Validation:34 focused policy/corridor tests and126 player/library/parity regression tests pass. Strict scoped typecheck and source audit pass. Real production-Telnet neutral-planet fixture removes the planet in one shot with both bases remaining (war continues), and two shots with no Empire bases (Federation victory/final points). Geometry staged only; no random/timing overrides. Evidence logs/endgame-neutral-completion/{policy-tests.txt,suite.txt,typecheck.txt,audit.txt,neutral-verification/report.json}; not original-executable parity or autonomous victory.
+
+Launched fresh ten-ship Austin seed1729 run under logs/endgame-neutral-completion/run/, same six-hour/one-million-decision/1000-life guards, corridor enabled; now also loads the corrected lone-CR war-result parser. Previous galaxies not resumed. User2423/reference2030 untouched; no push or unrelated spec edits. Monitor follows the replacement only.
+
+Startup verification:all ten captains playing at04:05:55 UTC, endpoint59263, exec session83712. Raw torpedo responses confirm neutral planets25-27(Demon/Shade,04:05:50) and75-4(Hawk/Talon,04:05:54) DESTROYED. This is actual autonomous planetary demolition in the new run, not an isolated fixture or conversion. Evidence logs/endgame-neutral-completion/startup-review.json.
+
+## 2026-09-08 — neutral demolition fleet nine-destruction milestone
+
+Heartbeat04:17 UTC(~11.5 minutes):2680 decisions,one ship death,92 base-shot attempts,31 planetary torpedo attempts,nine distinct planets confirmed DESTROYED in weapon responses andtwo planet-to-base conversions. Thus nine planets remain by recorded removal accounting (20−9−2). Latest public base countsFederation8/Empire7. No transport/strategic stalls or war-ending text/launcher exit. Raw destruction evidence retained in logs/endgame-neutral-completion/review-12min.json; count distinct coordinates to exclude observer duplication. Existing run continues unchanged.
+
+## 2026-09-08 — neutral fleet down to three planets by removal accounting
+
+Heartbeat04:24 UTC(~19 minutes):14 distinct planets confirmed destroyed,three conversions,leavingthree of20 by recorded removals. Latest base countsFederation6/Empire7,two ship deaths,57 planet-shot attempts,zero transport/strategic stalls,no war result or launcher exit. Evidence logs/endgame-neutral-completion/review-19min.json. User requested minute-by-minute updates; existing monitor now runs every minute with explicit updates even when unchanged. Continue same galaxy.
+
+## 2026-09-08 — remaining planets located; bases five per side
+
+Heartbeat04:31 UTC(~25.6 minutes):bases5/5,two deaths,14 destroyed planets/three conversions unchanged,no detected stalls or war text. Latest Empire public LIST shows the three remaining coordinates:Fed planet16-21(builds2),neutral39-26 and39-23. Federation reports only16-21, so knowledge is asymmetric. Recent captains continue resupply/siege/patrol; Wraith is near the neutral pair but has not fired. Evidence logs/endgame-neutral-completion/review-26min.json preserves recent reasons,positions,supplies andpublic planet rows. Keep run unchanged; investigate corridor/approach constraints if the neutral pair persists.
+
+## 2026-09-08 — remaining-planet delay diagnosis
+
+User asked what holds up progress. Reconstructed fresh SCAN preceding recent decisions and evaluated the corridor for Empire captains near remaining planets. Wraith at31-18,04:33:52, had4420 energy/full shields and both neutral planets within8, but corridors included stars37-24/39-25, the other neutral planet, and some unobserved cells; it then chose a different installation and pursued a ship. Current planetary reposition logic checks only immediate neighbors, then returns undefined if no clear firing step, allowing unrelated objectives to take over. This is a limited approach planner, not proof planets cannot be reached. Extra shots alone do not solve that exclusion. Recent Talon/Shade approaches to16-21 were interrupted by resupply; fleet coordination/ship-combat interruptions also consume time.
+
+Evidence logs/endgame-neutral-completion/planet-delay-diagnosis.json: corridor analysis uses Empire perspective, so only Empire captain clearance fields support conclusions (Scout rows are position/action evidence only). By04:35:26 Scout completed the fourth total conversion, resolving16-21 and leavingtwo by removal accounting. Recommended remedy is a persistent route to a viable firing position with fresh revalidation, plus assignment of remaining planets; retain friendly protection. No live policy changed or restart performed.
+
+## 2026-09-08 — persistent planetary firing routes and fleet assignments
+
+User authorized the proposed strategy improvement. Added planet-firing-route.ts: searches remembered observed terrain for a viable firing destination3–8 sectors from target, preserves that destination across moves and replans when blocked. Existing A* returns only a fresh observed first step. Historical terrain is planning evidence only; normal torpedo clearance still requires fresh whole-corridor observations. If no firing destination is known, retain mission and survey toward it instead of falling through to unrelated patrol/installation goals. Supply and immediate combat guards remain.
+
+Added PlanetMissions: fleet-local per-faction single-captain leases based on public planet reports, renewed through resupply,30-second expiry, friendly ownership/observed removal invalidation. PlayerOptions sharedIntel optional assignment method annotates observations only for torpedo-enabled siege captains; standalone policies remain compatible. Assigned planets take priority over other installations; unassigned fleet captains leave claimed planets to their owner. Manifests identify captain-v12.
+
+Evidence logs/planet-missions/:129 player/library/parity tests pass(suite.txt), focused lease/route tests pass(focused-final.txt), scoped typecheck passes(typecheck-final.txt), source audit passes(audit.txt). Tests cover split assignments,faction isolation,resupply renewal,expiry,friendly capture,multi-move firing approach andblocked-destination replanning. Saved Wraith04:33:52 observations still contain no fully observed clear firing position for either remaining planet(saved-observation-review.json); this validates the need for further surveying, not a claim that the new planner already solves that exact geometry. Actual autonomous completion remains unverified.
+
+The existing captain-v11 run at59263 is untouched and still monitored. Source changes are available for the next launch; running Node captains do not hot-reload. No restart, extra match, game-rule change, push or specification edits performed this turn.
+
+## 2026-09-08 — live v11 fleet down to one planet
+
+Heartbeat04:50 UTC(45 minutes):14 confirmed torpedo planet destructions plusfive conversions leaveone planet by removal accounting. Federation now6 bases,Empire3;two deaths,zero transport/strategic stalls,no war banner or launcher exit. Evidence logs/endgame-neutral-completion/review-45min.json. This is progress by the unchanged v11 run; implemented v12 mission/route improvements have not been loaded. Continue current game.
+
+## 2026-09-08 — user correction: deploy v12 through requested restart
+
+User clarified they expected the old game to end and the code fix to be deployed. Prior acknowledgment did not execute the promised stop; carried it out now. Paused old monitor, verified wrapper78946/fleet78948/host78947 at59263, stopped wrapper through normal cleanup. Prior logs/endgame-neutral-completion retained; operator cancellation is not war victory. Verified129 tests/scoped typecheck from logs/planet-missions andv12 manifests/assignment integration before launch.
+
+Started new ten-captain Austin seed1729 siege game with persistent firing routes, per-faction planet leases, neutral demolition andcorrect war parser; logs/endgame-missions-completion/run/, exec session98790. Same six-hour guard/million rounds/1000 lives andcorridor checks. Updated minute monitor to the replacement, preserving requests for explicit updates. Existing user2423/reference2030 left alone. No extra code change beyond current-status wording; no push/spec edits.
+
+## 2026-09-08 — v12 live approach regression identified
+
+Heartbeat04:58 UTC(~2 minutes):two confirmed planet destructions(24-2,74-43),zero conversions,18 remaining by removal accounting,bases10/10,zero deaths. Three currently strategically stalled captains(Shade,Lancer,Fang),four cumulative stall events,no transport stalls/war result. Evidence logs/endgame-missions-completion/review-2min.json andstall-2min.json.
+
+Concrete v12 regression: all three stalled captains are exactly range3 from assigned planets,fully supplied,repeating SCAN10 with unchanged stardate/position. When no fully mapped firing destination exists, fallback route uses stopRange3; at range3 it immediately returns no step, so the retained-mission fallback scans forever and renews the lease. Needed remedy: an actual bounded lateral/orbit surveying destination beyond the current stop radius, with progress/lease escape handling; test this precise no-known-vantage/range3 case. Existing tests validated multi-step paths where a mapped vantage exists but missed this fallback. Per monitor instructions diagnosed read-only; no live code modification,restart or additional match.
+
+## 2026-09-09 — v12 seven-minute progress with persistent Lancer stall
+
+Heartbeat05:03 UTC(~7 minutes):nine distinct planets confirmed destroyed,no conversions,11 remaining by removal accounting,bases10/10,no ship deaths or war result. Lancer remains strategically stalled; Archer andWing resumed,so individual stall recovery does not establish that the range-three fallback regression is fixed. Evidence logs/endgame-missions-completion/review-7min.json. Existing run unchanged; lateral-survey remedy remains unimplemented.
+
+## 2026-09-09 — v12 stalls widen at fifteen minutes
+
+Heartbeat05:11 UTC:10 planets destroyed,zero conversions,10 remaining by removal accounting;Federation9/Empire10 bases,zero deaths,no war/launcher completion. Four captains currently strategically stalled(Wing,Ranger,Archer,Talon),up fromthree. Latest decisions retained in logs/endgame-missions-completion/stall-15min.json; counters in review-15min.json. The known v12 approach fallback remains uncorrected and now materially reduces active fleet participation. Monitor remains read-only under its explicit instructions; no restart/strategy mutation performed.
+
+## 2026-09-09 — range-three survey fallback fixed and v13 restarted
+
+User explicitly asked to fix and restart. Paused monitor, verified wrapper83745/fleet83748 for old61934 run, stopped through owned cleanup; launcher exit0 at05:16:44 UTC was cancellation,not victory. Preserved all old logs.
+
+Added planetSurveyRoute: chooses a distinct waypoint in range3–8 around assigned planet, favors unvisited sectors, retains waypoint until reached, and executes only a fresh passable first step outside known installation danger. It does not interpret range3 as arrival. No firing safety relaxation or runtime game-rule changes. Captain retains survey target/waypoint; source manifests v13, current guides updated.
+
+Five focused tests pass, including12 successive survey moves with at least8 distinct positions andno movement through blocked immediate cells.131 player/library/parity regressions pass, strict scoped typecheck and source audit pass. Evidence logs/planet-survey-fix/{focused-tests.txt,suite.txt,typecheck.txt,audit.txt}. All four real stalled snapshots(Wing,Ranger,Archer,Talon at05:11 UTC) with accumulated public scan memory now choose MOVE instead ofSCAN10; recorded-snapshots.json preserves exact old/new actions. A slower whole-history decision replay was superseded and stopped(PID86142); its empty recorded-positions.json is not a passing result. Snapshot checks verify decisions, not full endgame success.
+
+Launched fresh ten-captain Austin seed1729 siege run withv13 under logs/endgame-survey-completion/run/,exec57103,same6h/million-round/1000-life guards. Minute monitor updated to newrun; previous experiments deliberately stopped. User2423/reference2030 untouched,no push/spec edits.
+
+## 2026-09-09 — v13 first live checkpoint without stalls
+
+Heartbeat05:20 UTC(~2.2 minutes):eight distinct planets confirmed destroyed in torpedo responses,zero conversions,12 remaining by removal accounting,bases10/10,zero deaths,current transport/strategic stall flags clear,no war/launcher exit. Evidence logs/endgame-survey-completion/review-2min.json. Current result belongs to newv13 run; early absence of stalls is not proof all navigation/endgame gaps are closed. Continue unchanged.
+
+## 2026-09-09 — v13 eighteen-minute review reveals near-planet escape gap
+
+Counts unchanged at13 destroyed/no conversions/seven remaining,Federation7/Empire10,zero deaths. Health flags no stalls, but deeper last80-decision review shows Wing at54-62 adjacent to assigned planet55-62:72 repeated retain-mission scans andeight docking decisions,one distinct position. Docking/state changes can prevent the unchanged-state detector flagging this operational stall. planetSurveyRoute rejects first steps at distance<3; fromdistance1 every adjacent step is at most2, so no escape step is admitted even toward a valid outer waypoint. Need a monotonic outward escape allowance when starting inside the firing ring, retaining terrain/danger checks; not implemented during read-only monitoring. Other ships are travelling/surveying/resupplying; Ranger visited80 distinct positions,so movement alone does not establish objective progress. Evidence review-18min.json andprogress-18min.json under logs/endgame-survey-completion/. No live edits/restart.
+
+
+## 2026-09-09 — adjacent-planet escape fixed and v14 restarted
+
+User explicitly authorized fix and restart. Runnable milestone: restore survey movement from inside the torpedo firing ring. planetSurveyRoute now admits strictly outward steps while starting within range3, keeping the range>=3 restriction once outside. Fresh observed passability and zero-danger checks remain. No game-rule/source semantics change. Added Wing54-62/planet55-62 regression verifying range1→2→3, plus blocked/stale/unknown/dangerous first-step rejection. Existing lateral survey and mission tests retained.
+
+Evidence logs/planet-escape-fix/: focused.txt seven passes; suite.txt133 player/library/parity tests pass; audit.txt passes; typecheck-es2023.txt passes. Initial typecheck invocations omitted Node types or used ESNext rather than repository ES2023 and failed; their output is retained in typecheck.txt/typecheck-final.txt. Corrected invocation uses --ignoreConfig --target es2023 --module nodenext --strict --types node --allowImportingTsExtensions --skipLibCheck --noEmit on automated-player sources/tests.
+
+Paused monitor, stopped identified old wrapper86282 via SIGTERM; owned fleet/server exited at05:49:43UTC, launcher-result retained under logs/endgame-survey-completion/run. Operator cancellation is not victory. Started ten-ship captain-v14 game under logs/endgame-escape-completion/run with same seed1729, siege both sides, corridor checks, six-hour/million-round/1000-life guards. Updated minute monitor to replacement and explicitly watch operational scan/dock loops even without health flags. User2423/reference2030 preserved. Guides updated; no push or specification edits. Full autonomous victory remains unverified.
+
+
+## 2026-09-09 — v14 first live destruction checkpoint
+
+At05:53UTC(~1.8minutes), three distinct planets confirmed destroyed by torpedoes(16-21,21-23,25-27), zero conversions,17 remaining by removal accounting. Bases10/10,zero deaths,health stall flags clear,no war/launcher result. Recent captain decisions and mission annotations retained in logs/endgame-escape-completion/review-2min.json. Early progress does not establish full endgame completion or freedom from later operational loops. Continue unchanged.
+
+
+## 2026-09-09 — v14 seven-minute checkpoint
+
+At05:58UTC(7.3minutes), Federation10 bases/Empire8, six confirmed planet destructions plusone conversion leave13 by removal accounting. Zero ship deaths, no health stall flags or war/launcher result. Recent survey captains show distinct movement; Talon remains at one firing position issuing torpedoes with recovery waits, so stationary position alone is not a stall. Evidence logs/endgame-escape-completion/review-7min.json. Continue unchanged.
+
+
+## 2026-09-09 — v14 twelve-minute installation progress
+
+At06:03:40UTC(12.3minutes), nine confirmed planet destructions andthree conversions leaveeight by removal accounting; Federation8 bases/Empire9,zero ship deaths,no health stall flags or war/launcher result. Planet55-62, associated with the prior run adjacent escape problem, is now confirmed destroyed by torpedoes; this is outcome evidence for this run, not proof that the identical prior ship path was exercised. Shade continues surveying29-69 across39 distinct recent positions without resolving it; movement is not itself objective completion. Evidence logs/endgame-escape-completion/review-12min.json. Continue unchanged.
+
+
+## 2026-09-09 — v14 twenty-five-minute base-capacity constraint
+
+At06:16UTC(24.8minutes), Federation10/Empire5 bases,nine destroyed planets/nine conversions,two remaining by removal accounting,zero deaths,no health stalls or war/launcher result. Latest Federation public LIST exposes friendly75-4 atfour builds; Federation is at theten-base cap,so conversion must wait for capacity andfriendly siege captains exclude it. Empire recent LIST rows show no planets, demonstrating incomplete/asymmetric public knowledge; do not equate this with actualzero planets. Recent40-decision samples show27–40 distinct positions per captain,largely resupply/installation approaches. Evidence logs/endgame-escape-completion/review-25min.json. No code/rule changes or restart.
+
+
+## 2026-09-09 — v14 remaining-planet accounting reconciliation
+
+At06:25UTC(34minutes), Federation10/Empire5 bases,nine confirmed torpedo destructions/ten distinct raw BUILD conversions,one remaining by initial20 removal accounting,zero deaths,no health stalls/war. Reviewed all captain decision LIST objects:19 distinct planet coordinates have ever appeared,andall19 are accounted for bythe nine destructions andten conversions. No known-but-unremoved LIST planet remains. Thus the remainder may be undiscovered; this is public-observation evidence,not server-wide confirmation of its existence/location. Checked destruction responses including observer notifications; one MOVE response repeats41-72 destruction andmust not be double-counted. Evidence logs/endgame-escape-completion/review-34min.json preserves coordinates andraw responses. Continue same galaxy; no injected knowledge or live policy changes.
+
+
+## 2026-09-09 — v14 final planet discovered in public LIST
+
+At06:33UTC(42.4minutes), Empire captains now report neutral planet74-43,zero builds; Raven is approaching for capture. This resolves the previously unexplained one-planet removal remainder through public observations,without injecting server knowledge. Nine destroyed/ten converted/one remaining,Federation9 bases/Empire4,one ship death,health stall flags clear,no war/launcher result. Evidence logs/endgame-escape-completion/review-42min.json. Continue unchanged.
+
+
+## 2026-09-09 — v14 all twenty planets removed through autonomous play
+
+At06:35UTC(44.4minutes), nine distinct torpedo destructions pluseleven raw-confirmed conversions account for all20 originalplanets. Raven converted finalplanet74-43 intoan Empirebase; evidence logs/endgame-escape-completion/final-planet-conversion.json andreview-44min.json. Federation9 bases/Empire5,one death,health stall flags clear,no warbanner/launcherresult. This closes planetary removal in this autonomous run,not warcompletion: a faction must stilllose allbases. Continue unchanged towardsource warresult.
+
+
+## 2026-09-09 — minute monitor singular base-count correction
+
+At06:50UTC(59.3minutes), fresh text reports Federation1 base/Empire2. Earlier monitor regex required plural bases andretained a stale Federation2 count from06:48:51 when singularoutput began. Corrected checkpoint parser to bases? andresaved logs/endgame-escape-completion/review-59min.json. Apply singular/plural matching to future checks. This is monitoring correction,not game/policy edit. Zero planets bynine destructions/eleven conversions,one shipdeath,health flagsclear,no warresult.
+
+
+## 2026-09-09 — v14 autonomous game completed: Empire victory
+
+At06:52:03.497UTC,about60.7minutes after05:51:18.985 launch,Raven/Wolf phaser hit destroyed final Federationbase39-26. Raw transcript includes THE WAR IS OVER!!,The Klingon Empire is VICTORIOUS!!,andfinalpoints Federation78863.1/Empire83809.0. Nine planets destroyed/eleven converted accountfor all20;one shipdeath(Talon),finalbases Federation0/Empire2(lastpubliccount1/2 followedby finalFederationbasekill). Runner reportswar-over andwrapperexited0 at06:52:05.365,notguardtimeout. Evidence logs/endgame-escape-completion/victory-transcript.txt,victory-review.json,review-62min.json,andrun/fleet/summary.json. Minute monitor paused oncompletion. Autonomous TypeScript Austin playable completion verified for thisrun;notnativeparity orgeneralstrategy guarantee. Raw finalpoints preserved; per-bot summary finalPoints fields are null,so structuredscore extraction remainsa reportinggap. No restart,push,game-rulechanges orspecificationedits.
+
+
+## 2026-09-09 — completed-game strategy optimization study
+
+User requested study of gameplay/winning improvements. Reviewed v14 raw decisions/results,summary and captain/navigation/mission/corridor implementation. Saved reproducible analysis under logs/gameplay-study-v14/{analyze.py,metrics.json,analysis-output.txt,case-studies.json,validation.txt,REPORT.md}. Reconciled12946 decisions,9365 one-sector moves,92 planet shots and20 distinct planet removals tosummary. Resupply35.2% ofdecisions; Archer9.86-minute resupply sequence; Shade287 survey moves/192positions on29-69 withoutplanetshots; finalplanet firstLIST41.224min,conversion43.576min. Empire203baseattacks versusFederation159; samepolicy/onegame meansno causalwin-rate inference.
+
+Ranked persistent cost-aware resupply,coordinated baseassault/finalbase defense,coverage exploration,progress-basedsurvey handoff,validatedlongertravel andbetterfiringpositions. Report includes baseline-v14 five-seed/faction-swapped10-match screening plan,actualvictory metrics andseparation fromnative parity. No policy/runtime change,newrun,push orspecificationedit. Runnable milestone already achieved: autonomous warcompletion; thisround delivers evidence/prioritizedexperiments to improve repeatability andcompetitiveness.
+
+
+## 2026-09-09 — opt-in persistent resupply and paired evaluation
+
+User approved proceeding with gameplay study recommendations. Implemented first bounded experiment: ResupplyRoute chooses a refuge by A* preference cost and destination risk,retains it while reachable andrisk doesnotincrease,reassesses when unavailable orthreatened,andclears afterrestoration. navigation.route now wraps routePlan preservingfirststep semantics. No game-rule/numeric/random/timingchanges; existingretreat/fullrestore thresholdsandfreshfirst-step constraints unchanged. This isroute-selection persistence,notcachedwholepaths ormission-progress leaseexpiry. Optional constructor/library/player option; fleetandfresh-fleet expose per-faction --federation-resupply/--empire-resupply baseline|persistent(defaultbaseline). Refugedestination,costandreasonappearindecisionlogs. Baseline branchpreservesv14 decisions;manifestsrecordexperimentselection.
+
+Evidence logs/resupply-route-fix/:fivefocusedtests and138player/library/paritytests pass,strictES2023 scopedtypecheckandauditpass. FirsttypecheckcaughtDecisionunionannotationerror;retainedtypecheck.txt,correctedhelperreturntypesandtypecheck-final.txtpassed. replay.ts/archer-snapshot.json reconstructpublicscanmemory atoldArcher23.4minresupplystart;bothpolicieschoosesamefirststep,newpolicyselects39-26withcost59. Thisisnotproofshorterresupply;livecomparisonneeded. Guides/statusupdatedincludingpreviousverifiedwarcompletion.
+
+Startedsequentialtwo-matchscreening via logs/resupply-route-fix/run-pair.py,exec1836,logs/resupply-comparison/:seed1729-fed-persistent thenseed1729-emp-persistent,sideswapped,same10captains/siege/corridor/seed,two-hourguardperm atch,millionrounds/1000lives. Driverownsbothlaunchesandstopsaftererror. Existingheartbeatupdatedtocomparisonwithminuteupdatesandread-onlydiagnosis;noautomaticduplicateorrestart. Preserveoldvictory,user2423/reference2030,no push/spec edits. Two matches screen efficiency andoutcomes,notstablewin-rateevidence;broaderseedsfollowonlyafterreview.
+
+
+## 2026-09-09 — base-assignment experiment prepared behind opt-in
+
+While the resupply pair remains live, added BaseMissions and baseMission observation plumbing as the next isolated improvement. Same-team siege captains lease distinct fresh public enemy bases for30seconds,renew while visible,expire on disappearance/stale evidence,andinvalidate on a changed base symbol; factions remain isolated. Siege candidate selection honors an assigned base when present; baseline remains undefined. Added three lease tests and a captain filtering test; nine focused resupply/base tests, scoped ES2023 typecheck and audit pass. Fleet flags --federation-bases/--empire-bases baseline|coordinated are validated and default baseline; no live run enables them yet. This module is prepared, not evidence of upside.
+
+
+## 2026-09-09 — six-improvement experiment queue recorded
+
+Added logs/gameplay-study-v14/EXPERIMENT-PLAN.md. It freezes completed v14 as baseline and records one-policy-at-a-time evaluation for persistent refuge selection(R), coordinated base leases(B), unexplored-region coverage(E), survey handoff(S), verified longer travel(M), and firing-position refinement(T). Each planned complete evaluation uses three seeds and faction-swapped assignments; victory requires raw war banner/faction outcome/final points, while timeouts and ordinary completion remain separate. Current R pair is sequential and active; B is implemented/tests-only pending R results.
+
+
+## 2026-09-09 — bounded survey handoff prepared behind opt-in
+
+Added opt-in surveyHandoff through Captain, FleetIntel.releasePlanet and per-faction --federation-survey/--empire-survey baseline|handoff flags. A siege captain with handoff marks releasePlanetMission after120 survey moves, while retaining the movement/freshness/danger checks; PlanetMissions then assigns another public planet. Baseline remains unchanged. Added focused test proving bounded reassignment signal; captain suite29 tests passes. This addresses Shade-style movement without objective progress but threshold upside is unverified until a swapped live evaluation.
+
+## 2026-09-09 — systematic exploration prepared behind opt-in
+
+Added unexploredFrontier selection. It chooses the least-visited mapped sector bordering unknown space, routes there using the existing danger and fresh-first-step rules, and falls back to the existing patrol when no safe frontier is available. Added per-faction --federation-exploration/--empire-exploration baseline|systematic flags to fleet and fresh-fleet; baseline remains unchanged. Focused survey/exploration/base/resupply tests pass; output is retained at logs/resupply-route-fix/survey-exploration-tests.txt, with strict scoped typecheck also passing. Live upside is still unverified and will be evaluated separately after the active resupply pair.
+
+## 2026-09-09 — bounded longer moves prepared behind opt-in
+
+Added clearDirectRoute and per-faction --federation-long-moves/--empire-long-moves flags. A multi-sector MOVE is allowed only across freshly observed passable sectors with no known danger and a maximum span of seven; otherwise the existing one-sector route remains in force. Focused tests pass and the implementation is unverified in live combat until its isolated swapped evaluation.
+
+## 2026-09-09 — last-base defense prepared with coordinated siege
+
+Added BaseDefense to the coordinated-bases path. When public reports show exactly one fresh friendly base and a nearby fresh enemy ship, one siege captain leases that base and routes to reinforce it; additional captains remain unassigned. The lease releases when multiple bases or no nearby enemy are reported. Added two focused tests; base/captain suite and strict scoped typecheck pass. This remains opt-in and has no live upside evidence yet.
+
+Exposed the torpedo-position refinement through per-faction --federation-close-fire/--empire-close-fire flags and PlayerOptions, completing the live experiment plumbing. Strict scoped typecheck passes; no policy is enabled in the active resupply pair.
+
+## 2026-09-09 — reproducible six-policy comparison driver
+
+Added experimental/automated-player/compare-improvements.py. It runs each of the six opt-in policies one at a time against the frozen baseline, across seeds 42, 1729 and 8675309, with Federation/Empire assignments swapped. Each case records its exact command, stdout/stderr tail, launcher result and progress manifest under the requested evidence root. Python syntax and CLI help validation pass; live execution remains queued behind the active long control pair.
+
+The first live resupply pair for seed 42 completed with fleet exit code 0 on both sides. Federation-improved finished in 10.04 minutes with 0.09 minutes missed scheduling time; Empire-improved was contaminated by host scheduling contention, taking 44.28 minutes with 41.61 minutes missed and only 539 total decisions (10 stalls). The latter is retained under logs/gameplay-study-v14/live-matrix/resupply-seed42-escalated/ as diagnostic evidence and is not treated as a policy result. The long control's first match likewise ended interrupted after 13 scheduling pauses and 42.2 minutes missed; its side-swapped match remains live.
+## 2026-09-09 — explicit baseline runs added to improvement harness
+
+Updated `experimental/automated-player/compare-improvements.py` so every requested seed first runs a both-baseline match with all six policies explicitly disabled. Improvement matches remain one-policy-at-a-time with Federation/Empire assignments swapped. Result collection is shared, and baseline plus policy outcomes retain the same scheduling-quality and terminal metrics. Python bytecode compilation, CLI help, and scoped diff checks pass. The active resupply match remains untouched while this harness change is validated.
+## 2026-09-09 — resupply experiment live behavior checkpoint
+
+At about 35 minutes, the seed-1729 Empire-improved resupply match remains live and uncontended enough for observation: 7,429 decision records, 2,116 route-around-supplies decisions, 404 adjacent-base replenishment decisions, zero deaths and zero stalls. This is process evidence for the persistent route path, not an upside or win-rate claim; terminal outcome remains pending. The raw fleet transcripts under `logs/resupply-comparison/seed1729-emp-persistent/run/fleet/` retain the counts.
+## 2026-09-09 — experimental launcher help now exposes all policy controls
+
+Updated `fresh-fleet.ts --help` to list the six improvement families and both faction-specific flags, including coordinated bases, survey handoff, systematic exploration, longer moves and close-fire positioning. The parser already accepted these options; this makes the reproducible experiment commands discoverable. `node experimental/automated-player/fresh-fleet.ts --help` and `git diff --check` pass.
+## 2026-09-09 — policy-focused validation passes; socket suite remains sandbox-limited
+
+Ran the six policy-focused test files and recorded `logs/gameplay-study-v14/policy-focused-tests.txt`: 22/22 passed, covering resupply, base coordination/defense, exploration, survey handoff, longer moves and planet firing routes. A full automated-player test run is retained at `logs/gameplay-study-v14/all-automated-player-tests.txt`: 86 passed and 32 failed immediately with `listen EPERM` from the restricted environment's local-socket policy. Those failures are environment diagnostics, not gameplay assertions; the live match remains separate and healthy.
+## 2026-09-09 — comparison summary separates baseline and policy-side signals
+
+Extended `summarize-improvements.py` to report explicit baseline runs, usable/contended counts, wins by faction, and wins by the faction carrying the improvement. The last field is an opportunity signal only; it is not presented as causal win-rate evidence. Python compilation, read-only summarization of retained diagnostic results, and diff checks pass.
+## 2026-09-09 — resupply match planet-progress checkpoint
+
+At about 38 minutes, raw fleet transcripts contain destruction confirmations for 16 distinct planet coordinates in the Empire-improved resupply match. Health remains `playing` with 8,096 decisions, zero deaths and zero strategic stalls. This is a progress checkpoint only; captures/conversions and the war outcome still require structured terminal evidence. Coordinates remain in the raw JSONL transcripts under `logs/resupply-comparison/seed1729-emp-persistent/run/fleet/`.
+## 2026-09-09 — bounded-duration runs classified as usable
+
+The first five-minute seed-42 baseline exited cleanly with `durationReached: true`, but the comparison harness initially marked it contended because normal deadline shutdown leaves bot state `interrupted`. Updated `compare-improvements.py` so deadline interruption is usable when `durationReached` is true; failed/blocked states, unexpected interruption and excess missed scheduling time remain contended. Reclassified the existing baseline artifact as usable. The matrix continues sequentially with no policy result changed.
+## 2026-09-09 — seed-42 matrix progress and quality repair
+
+The short controlled matrix is live at `logs/gameplay-study-v14/matrix-seed42-short/`: 4 of 13 matches have completed (explicit baseline, both resupply assignments, and Federation-improved coordinated bases). All completed matches exited with code 0, reached their five-minute deadline, and recorded zero deaths and zero stalls; none produced a war result, so they are stability/screening evidence only. Reclassified the three completed artifacts produced before the deadline-quality fix using the corrected `durationReached` rule; the baseline and those policy screens are now `usable`. The remaining side-swapped policy cases continue sequentially.
+## 2026-09-09 — coordinated-base pair completed in seed-42 screen
+
+The explicit baseline, both resupply assignments, and both coordinated-base assignments have now completed in `logs/gameplay-study-v14/matrix-seed42-short/` (5/13 total). All five reached the normal five-minute deadline with clean launcher exits, zero deaths, zero stalls and no war result. Corrected result artifacts classify all five as usable; the progress manifest retains pre-fix labels for historical process state. The matrix has not yet established upside for either policy.
+## 2026-09-09 — deliberate-exploration Federation screen completed
+
+Seed-42 deliberate-exploration with Federation improved completed at the normal five-minute deadline. It exited cleanly with 854 decisions, zero deaths, zero stalls and no war result; the corrected artifact is classified usable. The Empire-side exploration match is next; no upside claim is made from this single screen.
+## 2026-09-09 — exploration pair completed in seed-42 screen
+
+Both deliberate-exploration assignments have completed in the seed-42 matrix (7/13 total). The Empire-side screen reached the normal deadline with a clean exit, zero deaths and zero stalls and no war result; corrected result artifacts classify both exploration screens as usable. The next policy case has started, with Federation carrying the survey-handoff improvement.
+## 2026-09-09 — survey-handoff Federation screen completed
+
+The Federation-side survey-handoff screen completed normally in the seed-42 matrix (8/13 total). It reached the five-minute deadline with a clean exit, zero deaths, zero stalls and no war result; the corrected artifact is usable. The Empire-side survey-handoff run is next, followed by longer-move and close-fire cases.
+## 2026-09-09 — survey-handoff pair completed in seed-42 screen
+
+Both survey-handoff assignments have completed in the seed-42 matrix (9/13 total). The Empire-side screen reached the normal deadline with a clean exit, zero deaths, zero stalls and no war result; its corrected artifact is usable. The matrix has moved to longer-move testing.
+## 2026-09-09 — longer-move Federation screen exposed protocol failure
+
+The seed-42 Federation longer-move match is not a usable policy result. The launcher exited 1 after three scheduling pauses and 18.65 seconds missed time; five Federation bots failed at the same timestamp while waiting for the command prompt (`terminal tail: "\\r\\r\\nCommand: "`). The fleet reached the five-minute deadline with 752 decisions, zero deaths and zero strategic stalls, but bot states included `failed`; the raw evidence is retained under `logs/gameplay-study-v14/matrix-seed42-short/long-moves-seed42-federation/`. This requires protocol/concurrency debugging before ranking longer moves or accepting the side-swapped result.
+## 2026-09-09 — longer-move pair screened with one invalid side
+
+The seed-42 Empire-side longer-move screen completed normally with 1,066 decisions, zero deaths, zero stalls and no war result; its corrected artifact is usable. The Federation-side counterpart is retained as contended diagnostic evidence because shared prompt timeouts produced bot `failed` states and a nonzero launcher exit. The failure coincided with scheduling pauses and affected both factions, while recorded commands remained ordinary single-sector moves, so it is not evidence against the long-move policy itself. Close-fire cases remain to run; the Federation longer-move side needs a clean rerun before final ranking.
+## 2026-09-09 — three-seed candidate screening complete
+
+Completed side-swapped one-minute matrices for seeds 1729 and 8675309, in addition to the five-minute seed-42 matrix. Across all six policies, each seed has Federation and Empire assignments; the clean supplemental seed-42 longer-move rerun replaces its scheduling-contended screen. The aggregate artifact `logs/gameplay-study-v14/cross-seed-summary.json` reports 36 usable policy screens across three seeds, zero deaths/stalls in usable runs, and zero war wins. This establishes repeatable bounded stability and side coverage, but no causal upside or winning candidate. The next phase is an explicitly aggressive profile and longer war-length tests, kept separate from the one-variable evidence.
+## 2026-09-09 — cross-seed report generated
+
+Fixed `summarize-improvements.py` to handle bounded runs whose `warResult` is null, then generated per-seed reports and `logs/gameplay-study-v14/cross-seed-summary.json`. `git diff --check` passes. Across seeds 42, 1729 and 8675309, each policy has six usable side-swapped screens (36 policy screens total), with zero war wins, zero deaths and zero stalls in usable evidence. This is the final bounded candidate-screening checkpoint; any aggressive-tempo profile or war-length run is a follow-on experiment, not a retroactive change to the one-variable results.
+## 2026-09-09 — authorized resupply pair reviewed
+
+The heartbeat-authorized pair under `logs/resupply-comparison/` is complete (`pair-result.json` records both launches with exit code 0). In `seed1729-fed-persistent`, the persistent Federation captains produced 2,017 refuge annotations across 11 destinations and 93 destination switches; the longest contiguous annotated resupply streak was 57 decisions. Final observed friendly-base counts were 6 Federation and 1 Empire; capture confirmations were Federation 6 / Empire 2, and unique planet-destruction coordinates were 13. The run recorded 2 Empire deaths and 10 strategic stalls, had no `THE WAR IS OVER!!` result, and preserved final points of Federation 95,420.9 versus Empire 62,448.2.
+
+In `seed1729-emp-persistent`, the persistent Empire captains produced 2,004 refuge annotations across 12 destinations and 69 destination switches; the longest contiguous annotated streak was 79 decisions. Final observed friendly-base counts were 2 Federation and 3 Empire; capture confirmations were Federation 6 / Empire 3, and unique planet-destruction coordinates were 13. The run recorded zero deaths and zero strategic stalls, had no war banner, and finalPoints remained null. These are efficiency and progress observations only; neither match is a verified victory or win-rate result.
+
+## 2026-09-09 — combined aggressive profile started
+
+Added an explicit `aggressive` strategy to the automated fleet and reusable player library. It selects siege targeting while enabling persistent resupply, coordinated base assignments and last-base defense, deliberate exploration, bounded survey handoff, longer verified moves, close planetary firing positions, and the torpedo-corridor filter. Individual policy flags remain available for isolated experiments, and the default strategy is unchanged. Added a focused profile-plumbing regression test; TypeScript typecheck and the captain test file pass. A 20-second smoke run completed cleanly after fixing per-ship aggressive flag scope. An initial 30-minute screening was stopped after the profile was corrected to preserve capture/build behavior; its pre-correction evidence remains under `logs/aggressive-profile/seed1729-fed-aggressive-rerun/`. A corrected 120-second validation under `logs/aggressive-profile/seed1729-fed-aggressive-objective2/` recorded 3 Federation captures and 11 builds with no deaths.
+
+## 2026-09-09 — aggressive integration checkpoint complete
+
+The corrected ten-ship, 600-second Austin run with both factions using `aggressive` reached its planned deadline and exited cleanly (`logs/aggressive-profile/seed1729-both-aggressive/`). Federation recorded 6 captures, 22 builds, 9 torpedo attempts/6 hits; Empire recorded 3 captures, 12 builds, 5 attempts/4 hits. Both sides had zero deaths and zero strategic stalls. No war-ending banner occurred in this bounded checkpoint, so it is evidence that the combined profile is active and productive, not a victory claim.
+
+## 2026-09-09 — aggressive strike phase added
+
+Aggressive captains now use objective mode until their observed foothold reaches three friendly assets; once a confirmed enemy base or developed planet is visible, they skip additional capture/build loops and route into installation pressure. This preserves the early territorial economy while making the later phase pursue war-ending targets. Added a fixture covering the transition to a confirmed enemy base attack. Typecheck and all 31 captain tests pass.
+
+## 2026-09-09 — strike-phase live check complete
+
+The updated aggressive profile completed a fresh 180-second ten-ship run under `logs/aggressive-profile/seed1729-strike-check-rerun/`. Federation recorded 55 base attacks and Empire 24; torpedo attempts were issued on both sides, with Empire recording two hits. There were zero deaths or strategic stalls and no war-ending banner in this short check. This confirms the post-foothold installation-targeting phase is active in the live protocol.
+
+## 2026-09-09 — full 18-ship aggressive run complete
+
+Expanded the experimental roster and validation bounds from ten to all 18 Austin named ships (nine per faction: `observations.ts` ship roster). The 600-second run under `logs/aggressive-profile/seed1729-18ships/` reached its deadline and exited cleanly. Federation recorded 76 base attacks, 6 torpedo attempts/4 hits and one death; Empire recorded 68 base attacks, 42 attempts/23 hits and zero deaths. No strategic stalls or war-ending banner occurred. The seed revealed strong early base fixation and no planet attacks, so the next tuning pass should reserve a subset of aggressive captains for exploration and planet targeting while the remainder pressure bases.
+
+## 2026-09-09 — team exploration intel sharing
+
+Extended FleetIntel to retain fresh public LIST observations alongside TARGETS sightings, and merged that team-shared data into each captain's object view. Ships still require their own fresh SCAN before firing, capture or build authorization; shared LIST data now guides discovery and routing for every ship on the faction. Typecheck and all 31 captain tests pass.
+
+## 2026-09-09 — human-readable radio vocabulary added
+
+Added experimental `radio-coordination.ts` with natural DECWAR-style messages for exploration, resupply, support, base strikes and planet strikes, plus tolerant intent parsing and `TELL ALL` formatting. Unknown human traffic remains unknown. This is message vocabulary/parsing only; native delivery scheduling and phase-trigger integration remain the next step. Typecheck and 33 focused tests pass.
+
+## 2026-09-09 — radio inbox integrated
+
+Connected native TELL coordination to the strategy loop. Captains now extract delivered radio text from ordinary command responses, expose a bounded radio inbox in observations, and use teammate strike coordinates to rank locally confirmed installations. TELL remains human-readable and throttled; local SCAN still authorizes all combat actions. The 30-second live radio-inbox smoke completed cleanly. Typecheck and 34 focused tests pass.
+
+## 2026-09-09 — radio-guided 18-ship run complete
+
+The five-minute 18-ship aggressive run with native radio coordination completed at its deadline under `logs/aggressive-profile/seed1729-18ships-radio-five-min/`. Federation recorded 27 base attacks and 18 torpedo hits from 24 attempts; Empire recorded 29 base attacks and 13 hits from 21 attempts. There were two Empire deaths and no strategic stalls. No war-ending banner appeared. This confirms radio delivery and consumption coexist with full-fleet operation; planet-target distribution remains the next tuning target.
+
+## 2026-09-09 — exploration role now attacks discovered planets
+
+Adjusted aggressive exploration-priority captains so they bypass base targets while traveling, but immediately attack a locally confirmed hostile planet when one is discovered. Added a focused fixture for that behavior. Typecheck and all 32 captain tests pass.
+
+## 2026-09-09 — planet rotation live check
+
+A one-minute 18-ship run under `logs/aggressive-profile/planet-rotation-check/` completed cleanly after the exploration-role adjustment. Both factions remained active with no strategic stalls; this checkpoint is retained for target-distribution follow-up.
+
+## 2026-09-09 — foothold rotation validated
+
+Changed the aggressive strike gate so exploration-priority ships retain capture/build responsibility even when the initial base roster is already visible. A two-minute 18-ship seed-42 rerun completed cleanly: Federation confirmed 1 capture and 4 builds while recording 12 base attacks; Empire recorded 20 base attacks. Both factions had zero deaths and strategic stalls. No planet was exposed in this bounded window, so planet-destruction behavior remains queued for a longer or more favorable seed.
+
+## 2026-09-09 — ten-minute planet-rotation run complete
+
+The full 18-ship seed-8675309 run under `logs/aggressive-profile/seed8675309-18ships-planet-rotation/` reached its 600-second deadline cleanly. The fleet confirmed 12 captures and 47 builds, produced 96 base attacks, and recorded zero deaths or strategic stalls. No planet shots or war-ending banner occurred; this seed exposed neutral planets for capture but no hostile developed planets in the observed windows.
+
+## 2026-09-09 — asymmetric planet-destruction run complete
+
+The 300-second 18-ship asymmetric run under `logs/aggressive-profile/seed1729-aggressive-vs-siege-planet-test/` completed at its deadline without stalls. Aggressive Federation confirmed 2 captures and 7 builds while making 37 base attacks. Siege Empire made 11 planet attacks and 1 base attack. There were zero deaths and no war-ending banner. This provides live evidence that the installation path can destroy hostile planets while the aggressive side maintains the territorial foothold.
+
+## 2026-09-09 — 15-minute war-length check complete
+
+The 900-second 18-ship asymmetric run under `logs/aggressive-profile/seed1729-18ships-15min-war-test/` reached its deadline and exited cleanly. Federation aggressive recorded 6 captures, 24 builds, 51 base attacks, 12 torpedo attempts/8 hits and zero deaths. Empire siege recorded 116 planet attacks, 10 base attacks, 155 torpedo attempts/105 hits and zero deaths. No strategic stalls or war-ending banner occurred. This is the strongest live evidence so far that the combined fleet can sustain territorial expansion and hostile-planet destruction; the remaining gap is converting that pressure into a terminal war result.
+
+## 2026-09-09 — persistent aggressive strike check complete
+
+Aggressive strike captains now reuse the persistent siege-target path, holding a selected installation instead of retargeting every observation. The three-minute 18-ship asymmetric run under `logs/aggressive-profile/seed1729-persistent-strike-check/` completed cleanly: Federation produced 7 planet and 16 base attacks with 8/10 torpedo hits; Empire produced 12 planet attacks with 22/29 hits. No deaths occurred; one Federation strategic stall was recorded. No war-ending banner appeared.
+
+## 2026-09-09 — war-ending run base-count evidence
+
+The active 30-minute all-aggressive run under `logs/aggressive-profile/seed1729-18ships-30min-war-ending/` has been monitored past five minutes. Live BASES responses show Empire base count reduced from 10 to 9 and holding; fleet health remains clean with zero deaths, stalls, scheduling pauses or missed time. The run remains active for the full terminal-condition checkpoint.
+
+## 2026-09-09 — long run stopped for low-energy diagnostic
+
+The 30-minute all-aggressive run was intentionally stopped after roughly eight minutes once Scout repeatedly fell into a low-energy `STATUS` fallback with no safe base route. Before stopping, the fleet recorded 83 base attacks, 38 planet attacks, 8 captures, 28 builds, one death and one strategic stall; live BASES evidence showed Empire at 9 bases. This is a real support gap rather than a masked success: ENERGY teammate transfer is the next improvement needed for ships stranded between installations.
+
+## 2026-09-09 — radio-assisted ENERGY support added
+
+Added documented teammate resupply behavior. A captain that falls below the energy reserve now announces a human-readable radio request; an adjacent healthy teammate that receives it can issue `ENERGY <ship> 500`, leaving transfer validation and loss arithmetic to the Austin server. Added a focused support fixture. Typecheck and 36 focused tests pass. A live stress check remains appropriate once a depleted adjacent pair is observed.
+
+## 2026-09-09 — ENERGY support smoke complete
+
+The one-minute 18-ship aggressive smoke under `logs/aggressive-profile/energy-support-smoke/` reached its deadline cleanly with zero deaths and strategic stalls. No ENERGY transfer was triggered because no depleted adjacent pair occurred; the focused fixture remains the direct semantic check.
+
+## 2026-09-09 — repository gate after radio and ENERGY support
+
+- Milestone: verify the experimental player/library changes without modifying the game runtime.
+- Checks: `npm run audit:check` passed (135 file hashes, 83 FORTRAN declarations, 33 game commands, 16 pre-game commands, 324 ASCIZ strings; Austin and CompuServe inventories verified).
+- `npm run --silent typecheck` passed.
+- Full `npm test` reached 4,589 tests: 4,588 passed and one Austin live movement fixture failed while its randomized staging search found no qualifying three-sector location. The focused rerun passed all five Austin live tests, including movement, CAPTURE, BUILD and DOCK; this is recorded as a flaky fixture result rather than a runtime change.
+- Durable output: [logs/validation/npm-test-20260909.txt](/Users/ericfreeman/Documents/Decwar Astra/logs/validation/npm-test-20260909.txt) and [logs/validation/austin-movement-rerun-20260909.txt](/Users/ericfreeman/Documents/Decwar Astra/logs/validation/austin-movement-rerun-20260909.txt).
+- Next: continue bounded experimental fleet checks, with coordinated installation pressure and war-ending evidence; retain historical parity work separately.
+
+## 2026-09-09 — coordinated aggressive base pressure check
+
+- Milestone: verify that aggressive objective-mode ships consume shared base assignments while exploration-priority ships retain capture/build duties.
+- The first 120-second attempt was rejected by the sandbox with `connect EPERM`; it made zero gameplay decisions and is retained at `logs/aggressive-profile/seed1729-coordinated-base-check/`.
+- The escalated 60-second run joined the Austin host successfully: Federation 185 decisions, 12 base shots and 2 planet shots; Empire 179 decisions, 7 base shots, 1 planet shot and 1 confirmed capture. No deaths or strategic stalls occurred.
+- This is a plumbing/smoke result, not evidence of a completed war or parity. Durable result: `logs/aggressive-profile/seed1729-coordinated-base-check-escalated/summary.json` and `events.jsonl`.
+
+## 2026-09-09 — long coordinated aggressive game started
+
+- Started a requested 30-minute, 18-ship Austin game with both factions on the aggressive profile, torpedoes, radio coordination and shared base assignments.
+- At the first 90 seconds of live telemetry: Federation 12 base shots, 16 planet shots; Empire 12 base shots and 1 confirmed build; no deaths or strategic stalls; no war result yet.
+- Run remains active at `logs/aggressive-profile/seed1729-coordinated-base-long/`; final outcome and communication evidence will be recorded when it ends.
+
+## 2026-09-09 — communication audit during coordinated runs
+
+- Fleet-level `events.jsonl` intentionally contains only aggregate lifecycle events; per-ship JSONL contains decision and radio records.
+- Audited the five-minute coordinated run: 40 `radio-sent` records total (16 strike-planet, 15 resupply, 9 strike-base), with 16 Federation senders and 24 Empire senders. Communication was active on both sides; the earlier apparent absence was a log-scope mistake, not a transport failure.
+- The 30-minute run remains active and will provide the longer strategy result.
+
+## 2026-09-09 — long-game interim telemetry
+
+- At approximately 4.5 minutes, the long game had no war result, deaths or strategic stalls.
+- Federation had 35 base shots and 26 planet shots; Empire had 19 base shots and 3 planet shots.
+- Per-ship logs contained 42 radio transmissions (15 strike-base, 7 strike-planet, 20 resupply), sent by 26 Federation and 16 Empire entries. The run is still active.
+
+## 2026-09-09 — radio reception telemetry
+
+- Added optional receive-event recording to `observe()`: every parsed incoming radio message now emits a per-ship `radio-received` event with kind, text and coordinates. Existing callers remain compatible; this does not alter decisions or command output.
+- Validation: typecheck passed; pure captain/radio tests passed; the live target suite passed 8/8 with socket access enabled. The non-escalated live invocation’s EPERM failures were environmental.
+- The long coordinated game remains active; its earlier transmissions can now be compared against delivered-message records in future runs.
+
+## 2026-09-09 — radio-driven assault handoff
+
+- Aggressive exploration-priority captains can now join a reported installation strike when a fresh radio strike call arrives and at least three friendly assets are visible. The captain still requires local SCAN/LIST confirmation before firing; without a call it keeps exploration priority.
+- Added focused coverage for the handoff. Typecheck and 37 focused captain/radio tests pass.
+- The long game was started before this change, so it continues using the prior loaded code; the next run should measure this handoff directly.
+
+## 2026-09-09 — long-game progress checkpoint
+
+- At approximately 9.6 minutes, the long run remained active with no war result, deaths or strategic stalls.
+- Federation: 60 base shots, 30 planet shots, 23 torpedo hits, one base created. Empire: 38 base shots, 3 planet shots, 7 torpedo hits, two bases created.
+- Per-ship telemetry recorded 67 sent radio messages (24 strike-base, 9 strike-planet, 34 resupply). The run predates `radio-received` instrumentation, so delivery consumption will be measured on the next run.
+
+## 2026-09-09 — transient freshness block recovery
+
+- The long game exposed four ships exiting with `outcome: blocked` after the host delayed a full 18-ship observation cycle beyond the five-second freshness guard. This was a runner lifecycle bug: the safety gate was treated as terminal.
+- The player loop now records `observation-blocked`, waits briefly, and retries a fresh observation. It does not relax SCAN/LIST freshness or issue an action from stale data.
+- Typecheck and 41 focused captain/radio/base tests pass. The already-running long game retains the old behavior; the next fleet run will verify that ships remain active under the same load.
+
+## 2026-09-09 — long-game checkpoint after runner diagnosis
+
+- At approximately 13 minutes, the pre-fix long run remains active with 14 playing ships and four ships already exited on the old transient-freshness behavior. No war result or deaths; scheduling pauses have accumulated under the 18-ship load.
+- Federation has 66 base shots and 31 planet shots; Empire has 39 base shots and 3 planet shots. Empire has confirmed three builds in this interval.
+- This run is retained as diagnostic evidence; the post-fix validation must use a new game so observation-blocked retries can be measured.
+
+## 2026-09-09 — post-fix 18-ship freshness validation
+
+- Completed a fresh five-minute Austin run with all 18 aggressive ships after the transient-block recovery change.
+- All 18 ships remained active until the duration limit; there were zero `observation-blocked` exits, zero deaths on Federation, one Empire death, and zero strategic stalls. Two scheduler pauses were observed but no fleet attrition from stale observations.
+- Federation recorded 667 decisions, 18 base shots and 11 torpedo attempts (4 hits). Empire recorded 652 decisions, 18 base shots and 10 torpedo attempts (8 hits).
+- Per-ship logs recorded 54 radio sends and 761 received radio messages, with both factions represented. No war result occurred in five minutes and no planet shots were selected in this seed.
+- Durable result: `logs/aggressive-profile/seed1729-post-fix-freshness-5min/summary.json` and per-ship JSONL files.
+
+## 2026-09-09 — radio inbox deduplication
+
+- Radio traffic was not excessive at the transport level: the five-minute run sent 54 broadcasts. The 761 receives were inflated because one broadcast appeared in multiple command responses and was counted once per recipient/response.
+- `observe()` now deduplicates identical kind/coordinate/text intents within a STATUS/SCAN observation cycle before exposing them to strategy or `radio-received` telemetry. It preserves the original Telnet messages and existing send throttles.
+- Typecheck and 37 focused captain/radio tests pass. The active ten-minute run predates this change; the next run will measure the reduced receive count.
+
+## 2026-09-09 — human-paced radio throttles
+
+- Reduced per-ship broadcast cooldowns in the experimental player: strike reports now repeat no more than once per 60 seconds per ship/category; resupply reports no more than once per 90 seconds. This keeps urgent local actions immediate while avoiding machine-like repeated chatter.
+- Typecheck and 37 focused captain/radio tests pass.
+- The active ten-minute run predates this throttle; its current five-minute checkpoint has all 18 ships playing and two scheduler pauses. A later run will measure communication effectiveness at the slower cadence.
+
+## 2026-09-09 — post-throttle radio validation
+
+- Fresh five-minute 18-ship run completed with the 60-second strike / 90-second resupply throttles.
+- All 18 ships remained active until the duration limit; one death per faction, zero strategic stalls, and three scheduler pauses. Federation made 685 decisions (15 base shots, 9 torpedo hits); Empire made 652 decisions (14 base shots, 1 torpedo hit). No war result or planet shots occurred in this seed.
+- Radio traffic fell to 26 sends and 325 deduplicated receives, versus 54 sends and 761 receives in the prior five-minute run. Both factions generated telemetry. This supports the slower, human-paced cadence without suppressing fleet activity.
+- Durable result: `logs/aggressive-profile/seed1729-post-throttle-5min/summary.json` and per-ship JSONL files.
+
+## 2026-09-09 — seeded planet-focused run complete
+
+- Completed the fresh seeded ten-minute 18-ship run after radio throttling and freshness recovery.
+- All ships reached the duration limit; three scheduler pauses, one Federation death, zero strategic stalls, and no war result. Federation made 12 base shots and 8 torpedo attempts (6 hits); Empire made 9 base shots and 13 torpedo attempts (7 hits).
+- This seed/profile produced zero planet shots, captures or builds despite the planet-focused intent. Radio telemetry recorded 54 sends and 625 receives. The next experiment should assign a dedicated objective/planet squad or verify tournament initialization before judging planet tactics.
+- Durable result: `logs/aggressive-profile/seed8675309-post-throttle-planet-10min/summary.json` and per-ship JSONL files.
+
+## 2026-09-09 — objective-profile planet comparison started
+
+- Started a fresh seeded ten-minute 18-ship objective-vs-objective run after aggressive profiles produced no planet actions.
+- At approximately 75 seconds, Federation had one confirmed capture and one build; all 18 ships were active with no scheduler pauses. At approximately 3.25 minutes, Federation had one capture/three builds and Empire had no confirmed objectives; two Federation and three Empire deaths had been recovered by reentry.
+- This confirms planet work is available in the same seeded galaxy and is being suppressed by the aggressive allocation mix rather than missing map data. Run remains active for the full comparison.
+
+## 2026-09-09 — objective-profile planet comparison complete
+
+- The seeded ten-minute objective-vs-objective run completed with all 18 ships reaching the duration limit and zero scheduler pauses or strategic stalls. Four deaths per faction were recovered by normal reentry; no war result occurred.
+- Federation confirmed one capture and three builds; Empire confirmed none. Both teams made extensive ship torpedo attacks but zero base or planet weapon shots in this profile.
+- This establishes that planet actions are available but the current objective allocation is too narrow/asymmetric for reliable fleet-wide planet progress. The next strategy iteration should make the objective squad size/configuration explicit rather than relying on the fixed roster rotation.
+- Durable result: `logs/objective-profile/seed8675309-18ships-10min/summary.json` and per-ship JSONL files.
+
+## 2026-09-10 — configurable planet squad smoke
+
+- Added `--planet-squad N` to the fleet runner, default 3 per faction, range 0–9. The roster now computes each ship’s team rank rather than using the hidden global every-third rule; the chosen value is persisted in `configuration.json`.
+- Updated the automated-player quickstart with the allocation semantics. Typecheck and CLI help validation pass.
+- A 60-second four-ship smoke run with `--planet-squad 1` assigned Scout and Raven as exploration-priority ships and confirmed objective activity: Scout 1 capture/2 builds, Raven 1 capture/4 builds; the other two remained installation ships.
+- Durable result: `logs/aggressive-profile/planet-squad-1-smoke/summary.json` and `configuration.json`.
+
+## 2026-09-10 — live destruction audit and telemetry
+
+- Audited the active 16-bot plus human-slot game at `logs/aggressive-profile/seed1729-human-slot-16ships-team-radio/`; weapon hits are not being counted as destruction.
+- The server responses contain explicit destruction notices: seven distinct planet-target destruction records (four neutral, two Federation, one Empire), two distinct Empire base coordinates destroyed (13-18 and 65-15; repeated notices are fleet-wide echoes), and repeated Yorktown destruction notices after reentry. The run also has seven captures, 27 builds, and one base created. No `war-ended` event has been recorded.
+- Added `classifyDestruction()` and `destruction-confirmed` telemetry so future summaries distinguish confirmed server destruction from hits, captures, and builds. Fleet stats now expose `shipsDestroyed`, `basesDestroyed`, and `planetsDestroyed`.
+- Typecheck passes. Existing logs remain unchanged; the new counters apply to subsequent runs.
+
+## 2026-09-10 — 30-minute human-slot run complete
+
+- The 16-bot plus one human slot per side run reached its 30-minute duration without a war-ending result.
+- Final POINTS: Federation **46,372.2**, Empire **41,685.3**; Federation led by **4,686.9**.
+- Breakdown: Federation / Empire damage to enemies 26,254.9 / 29,491.7; enemies destroyed 500 / 1,500; base damage 13,467.3 / 7,993.6; planets captured 1,000 / 400; bases built 5,500 / 3,000.
+- The run recorded 7 captures, 28 builds, 3 bases created, and 1 ship death. It reached the time limit, with 39 scheduler pauses totaling 134.3 seconds; this is useful evidence that longer runs need scheduler-load reduction before treating the score as a clean tournament result.
+- Durable result: `logs/aggressive-profile/seed1729-human-slot-16ships-team-radio/summary.json` and per-ship JSONL logs.
+
+## 2026-09-10 — extended run started
+
+- Started a new 60-minute run on port 2423 with 16 aggressive bots, four reserved planet-squad ships per side, torpedoes, and the same tournament seed. The 16-bot configuration leaves one human slot open per faction.
+- Durable output will be written to `logs/aggressive-profile/seed1729-human-slot-16ships-team-radio-60min/`; this run is intended to determine whether the strategy converts its early destruction and objective progress into a war ending.
+- The first launch attempt was retained as diagnostic evidence but could not connect because the sandbox denied localhost sockets. It was stopped and relaunched with the required local-network permission under `logs/aggressive-profile/seed1729-human-slot-16ships-team-radio-60min-run2/`.
+- The second extended run was stopped at about 29.4 minutes after 14/16 bots failed with Telnet prompt timeouts and only two remained active. Scheduler pauses totaled about 583 seconds across 63 pauses. Before failure, the fleet still recorded Federation 8 / Empire 4 confirmed planet destructions, 3 / 1 base destructions, 4 / 7 captures, and 17 / 29 builds. Retain this as host-load diagnostic evidence; it is not a valid 60-minute strategy result.
+- Root cause evidence: the failed client buffers ended with `\r\r\nCommand: `, while the prompt matcher accepted only a single optional carriage return (`\r?\n`). Under the overloaded multi-ship run, the server's extra CR caused valid prompts to be treated as missing until the 15-second timeout. The client now accepts repeated CR bytes without altering recorded wire text. Typecheck passes and all 10 client tests pass with local socket access.
+
+## 2026-09-10 — fixed-parser extended validation started
+
+- Started a clean 60-minute run under `logs/aggressive-profile/seed1729-human-slot-16ships-team-radio-60min-run3/` with the repeated-CR prompt fix, 16 aggressive bots, four planet-squad ships per side, torpedoes, and one open human slot per faction.
+- The run was immediately stopped when the user clarified that the initiating message belonged to another window; retain its short startup log only as diagnostic evidence.
+
+## 2026-09-10 — fixed-parser completion run started
+
+- Started run 4 with the parser fix, 16 aggressive bots, torpedo weapons, four planet-squad ships per side, one open human slot per faction, and a 60-minute completion window. The fleet will be monitored for prompt failures, scheduler pauses, destruction, and war-ending output.
+
+## 2026-09-10 — base-pressure adjustment
+
+- Stopped run 4 after its early checkpoint showed only 5 Federation and 1 Empire base shots, with no base destructions, while planet work dominated.
+- Started run 5 under `logs/aggressive-profile/seed1729-human-slot-16ships-team-radio-60min-run5-base-pressure/` with `--planet-squad 2`, leaving more aggressive captains on installation pressure while retaining two dedicated planet ships per faction.
+
+## 2026-09-10 — buffered-log validation started
+
+- Replaced per-event synchronous append writes with ordered write streams to prevent fleet telemetry from blocking the Node event loop.
+- Started run 6 under `logs/aggressive-profile/seed1729-human-slot-16ships-team-radio-60min-run6-buffered-logs/` with the two-ship planet squad and 60-minute window.
+
+## 2026-09-10 — buffered-log run complete
+
+- Run 6 reached its 60-minute limit with all 16 bot sessions alive until the runner interrupted them; no client prompt failures or ship deaths were recorded.
+- Final POINTS: Empire **50,486.5**, Federation **47,573.7**. Empire led by **2,912.8**.
+- Federation recorded 105 base shots / 15 confirmed base destructions and 20 planet shots / 7 planet destructions. Empire recorded 115 base shots / 13 confirmed base destructions and 25 planet shots / 5 planet destructions. Captures/builds were Federation 5 / 20 and Empire 4 / 13.
+- The run still accumulated 104 scheduler pauses and 1,181.9 seconds of measured delay, so buffered logging removed client failure but not the underlying server throughput cost. No war-ending event occurred.
+
+## 2026-09-10 — server telemetry instrumentation
+
+- Added optional server telemetry for per-session synchronous step wall/CPU time, step counts, encoded output bytes, and `socket.write(false)` backpressure signals. `tools/run-telnet.ts` records these as `session-telemetry` events in the host log.
+- This is measurement only; it does not change command ordering, world state, or socket behavior. Typecheck passes and the session/Telnet server suite passes 22/22 with local socket access.
+
+## 2026-09-10 — telemetry host restart
+
+- Restarted the existing Austin playable host on port 2423 with telemetry enabled, preserving its `data/automated-player-experiment` data directory.
+- New host log: `logs/server-telemetry-restart/server.jsonl`. The listening record confirms the telemetry-enabled server is ready for the next attached player or fleet run.
+- Started telemetry validation run 7 under `logs/aggressive-profile/seed1729-telemetry-16ships-run7/` with 16 aggressive bots, two planet-squad ships per side, torpedoes, and one open human slot per faction.
+
+## 2026-09-10 — report and slow-client benchmark
+
+- Stopped the fleet load before the isolation test. On the telemetry host, a single joined player measured `LIST BASES ENEMY` at 38.14 ms median / 44.65 ms max and `SCAN 10 WARNING` at 97.79 ms median / 179.78 ms max across ten samples.
+- A second session paused its socket reader and sent 200 queued scans. A separate fast session still completed ten `LIST BASES ENEMY` commands at 33.98 ms median / 41.0 ms max. This shows a slow reader did not materially stall another session; server telemetry observed one backpressure event on the slow session.
+- Durable result: `logs/validation/report-benchmark-20260910.json`.
+
+## 2026-09-10 — playable input admission (Astra)
+
+- Runnable milestone: playable Telnet host defaults to 500 ms between completed ordinary editor submissions; excess lines are discarded with BEL rather than deferred. User approved this policy and switched to Astra for the editor integration.
+- Added `src/runtime/input-admission.ts`, wrapped live INLI in `src/runtime/game-session.ts`, and added launcher `--input-interval-ms` (0 disables, strict always disabled). Listening telemetry records the effective interval; rejection events omit player input.
+- Preserved ESC repeat/termination, slash tokenization, retained input on rejection, and initialization-file execution. Source: Austin WARMAC.MAC:1551ff; CompuServe WARMAC.MAC:1860–1915. Legacy archives unchanged. Documented the intentional host difference in D-173 and current operating guides.
+- Important scope: admission timestamps editor completion rather than socket arrival; queued input can pass if consumed slowly. ESC is exempt, so this is not complete flood protection. Raw name input is outside this editor. No live host restart or galaxy reset was performed in this round.
+- Checks: `npm run audit:check` passed (`logs/input-admission-20260910/audit.log`); `npm run typecheck` passed (`typecheck-final.log` in that directory); 5 focused admission checks passed (`focused-final.log`). The selected editor/session/Telnet suite passed 97/97 with `--test-concurrency=1` (`regression-serial.log`).
+- Retained failed evidence: initial socket suite lacked sandbox localhost permission (`regression.log`); authorized parallel run passed 94/95 but an existing 25 ms delay assertion failed under test load (`regression-local.log`). Serial rerun passed without modifying that scheduler test. These checks are not native differential parity evidence.
+- Next: activate on the next authorized host restart and pace automated clients to the configured interval, accounting for interactive answers.
+
+## 2026-09-10 — selective bot observations and independent submission pacing
+
+- Runnable milestone: clients accommodate the playable host's half-second admission policy while reducing repetitive report traffic. Fleet bots retain independent asynchronous loops in the existing single client process; no round-robin turn barrier or worker-process conversion was introduced.
+- `PlayerClient` now awaits 550 ms after the prior completed dialogue before each submission, including login, reentry, interactive exchanges and quit confirmation. The response timeout starts after transmission. Ctrl-C recovery and Telnet negotiation remain immediate. Programmatic `submissionIntervalMs` supports other host intervals or zero for isolated protocol tests.
+- Added a per-life `ObservationReader`: refresh LIST/SCAN/STATUS each cycle; request TARGETS on fresh hostile ship/Romulan scan contacts; cache BASES/DAMAGES for 15 seconds with action/condition invalidation. Never reuse a previous TARGETS result or retimestamp cached sensors. Quiet-cycle test requests three reports instead of the previous six.
+- Relevant source-backed report/command bindings remain unchanged (Austin LSTSCN/LSTOBJ, STATUS and DAMAGES references in observations.ts). This round changes experimental clients only, not game logic or server scheduling. Updated player quickstart and experimental guide. Fixed an existing RadioIntent type-narrowing error exposed by experimental typecheck without changing the radio decision condition.
+- Validation in progress under `logs/client-observation-20260910/`. Preserved first run's failure: the isolated reference dialogue test's five-second budget was shorter than nine newly paced submissions; it now explicitly selects zero pacing. Live-host coverage retains the default pacing and has an assertion against host input-rejection events. Bounded the baseline smoke test to three decisions; it tests dialogue/runner operation rather than reaching a random distant base.
+- Final validation: 57/57 selected client, observation, captain, parser and live-host tests passed (`logs/client-observation-20260910/tests-final.log`). Experimental typecheck passed (`typecheck-final.log`); source audit passed (`audit.log`). First suite retained 56 passes plus one timeout cancellation (`tests.log`).
+- Final disposable-host transcript: `logs/automated-player-live-1789057450000/`. Tested login, occupied-vessel rejection, both factions, three baseline decisions, score/quit, CLI holding mode, SIGTERM cleanup and ship reuse with default host limiter. Host log contained zero `input-rejected` events. Client independence is additionally checked with two simultaneous socket clients while one waits for its submission timer.
+- No persistent game was restarted and no long fleet run was launched. Next run can use these updated clients; observation reduction is verified, while its effect on war duration remains unmeasured.
+
+## 2026-09-10 — selective-observation eight-bot smoke game
+
+- Ran a fresh, disposable Austin tournament-seed-1729 game for five minutes
+  with eight independently scheduled aggressive bots and all current navigation,
+  coordination, resupply and torpedo options. The existing persistent galaxy was
+  not touched. Evidence: `logs/selective-observation-smoke-20260910/`; the fleet
+  summary is `fleet/summary.json` and host events are in `host.jsonl`.
+- The fleet completed 411 decisions: 317 moves, 46 weapon actions, 8 capture
+  attempts (8 confirmed), 27 build attempts (27 confirmed), 11 docks and two
+  confirmed planet destructions. Final displayed score was Federation 3432.5,
+  Empire 5810.2. The duration bound ended the game; it was not a war completion.
+- Selective reports behaved as designed: LIST/SCAN/STATUS each ran 411 times,
+  while BASES ran 148 times, DAMAGES 191 times and TARGETS 103 times. That is
+  1,675 observation commands instead of 2,466 under the previous fixed six-report
+  cycle, a 32.1% reduction. TARGETS alone fell 75% relative to every-cycle use.
+- Host input admission rejected zero submissions. The fleet recorded zero client
+  errors, reconnects, stalls, deaths, scheduler pauses or missed scheduler time.
+  All eight bots progressed at differing rates, confirming independent async
+  play rather than a fleet round-robin barrier. The run sent 2,185 total lines,
+  including login, preferences, actions, reports, score collection and quit.
+- This bounded run validates operational behavior and traffic reduction. It does
+  not measure war-completion time or establish historical/native parity.
+
+## 2026-09-10 — installation-first v21 and portable handoff
+
+- Stopped the first 18-bot selective-observation completion attempt at 1,986.4
+  seconds so strategy work could proceed. It had completed more than 5,000
+  decisions without a client failure or strategic stall. Aggregate latest LIST
+  observations showed 10 Federation bases, 8 Empire bases, 1 Federation planet,
+  2 Empire planets and 2 neutral planets. Its 7 base and 15 planet destruction
+  counters are received notices and can repeat across captains; they are not
+  unique kills. Evidence: `logs/full-game-selective-observation-20260910/`.
+- Added the `v21-installation-assault` aggressive policy. Aggressive captains now
+  continue assigned base/planet missions past unrelated roaming ships while
+  engaging ships that threaten the captain, a friendly installation or the
+  assigned assault objective. Non-aggressive captain behavior remains selected
+  through its existing modes.
+- Deliberate nova selection now requires a confirmed enemy base or planet in the
+  possible blast component and fresh observed safety for the launch corridor,
+  connected stars and blast rim. It rejects the shooter, friendly assets,
+  neutral planets, black holes and unknown cells. Source basis remains Austin
+  `DECWAR.FOR` TORPEDOES, SNOVA and NOVA; this is a conservative tactical policy,
+  not a prediction of random draws.
+- Added `--submission-interval-ms` to both fleet CLIs, default 550 ms, and made
+  isolated synthetic tests explicitly select zero pacing. Corrected the fleet
+  test's siege-mode expectation. The full automated-player and player-library
+  suite passes 137/137 in
+  `logs/installation-assault-20260910/full-tests-final.log`; final typecheck and
+  archive audit pass in `typecheck-final.log` and `audit-final.log`.
+- Ran an isolated five-minute, 18-bot v21 smoke game at
+  `logs/installation-assault-smoke-20260910/`: 767 decisions, 629 moves and 83
+  weapon actions, split into 26 base, 38 planet and 17 defensive ship targets,
+  with two nova outcomes. The fleet confirmed 7 captures, 28 builds and one new
+  base, with no client failures. All 18 captains were playing by 155 seconds;
+  staggered enrollment reduces the useful play window for the last four in this
+  short run. The duration bound ended the run; it was not a war completion.
+- Added `experimental/automated-player/HANDOFF.md` and linked it from the guide.
+  It records runtime requirements, preservation boundaries, what to copy for a
+  machine move, verification commands, architecture, current strategy, source
+  evidence, durable run paths, caveats and the exact long-game resume command.
+- Root regression validation passes 4,594/4,594 in
+  `logs/installation-assault-20260910/root-tests-final-2.log`. Two development
+  host fixtures initially timed out because their raw scripted input intentionally
+  bypasses dialogue pacing; they now launch their isolated hosts with input
+  admission disabled. Their shutdown expectation also includes the previously
+  added `session-telemetry` record. The retained first root run has 4,592 passes
+  and two timeout cancellations in `root-tests-final.log`.

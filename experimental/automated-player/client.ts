@@ -1,3 +1,4 @@
+import { setTimeout as delay } from 'node:timers/promises';
 import { connect, type Socket } from 'node:net';
 import { ClientTelnet, commandBytes } from './telnet.ts';
 import { warBanner, warWinner, WarFinished } from './war-result.ts';
@@ -9,9 +10,12 @@ export class VesselUnavailable extends Error {}
 // Source: Austin DECWAR.FOR PROMPT:3102-3131, MSG.MAC comlin:38.
 // Input-clearing/alert paths (DECWAR.FOR:776,1208) emit BELs before the prompt.
 // Recognize those control bytes without stripping them from the transcript.
-const prompt = /(?:^|\r?\n)\x07*(?:Command: |(?:\d+L)?S?D?E?> )$/;
+// Some live Austin paths emit an extra carriage return before LF (\r\r\n),
+// especially after queued combat notices. Accept repeated CR bytes while
+// preserving the exact bytes in the recorded transcript.
+const prompt = /(?:^|\r*\n)\x07*(?:Command: |(?:\d+L)?S?D?E?> )$/;
 const startup = /(?:Your name please: |line: |Regular or Tournament game\? \(Regular\) |Is the Romulan Empire involved in this conflict\? \(yes\) |Do you want black holes\? \(no\) |\(Federation or Empire\) |Which vessel do you desire\? )$/;
-const gameOrReentry = /(?:^|\r?\n)\x07*(?:Command: |(?:\d+L)?S?D?E?> |Enter HELp, PREgame, or blank\r\nline: )$/;
+const gameOrReentry = /(?:^|\r*\n)\x07*(?:Command: |(?:\d+L)?S?D?E?> |Enter HELp, PREgame, or blank\r*\nline: )$/;
 // MSG.MAC coord1:39. A target can become the ship's current location while
 // MOVE is waiting on game timing, which enters LOCATE's coordinate retry.
 const coordinateContinuation = /(?:^|\r?\n)Coordinates: $/;
@@ -35,12 +39,16 @@ export class PlayerClient {
   private readonly timeoutMs: number;
   private readonly settleMs: number;
   private readonly recordWire: boolean;
+  private readonly submissionIntervalMs: number;
+  private lastDialogueAt = -Infinity;
 
-  constructor(options: { host: string; port: number; record?: RecordEvent; timeoutMs?: number; settleMs?: number; recordWire?: boolean }) {
+  constructor(options: { host: string; port: number; record?: RecordEvent; timeoutMs?: number; settleMs?: number; recordWire?: boolean; submissionIntervalMs?: number }) {
     this.record = options.record ?? (() => {});
     this.timeoutMs = options.timeoutMs ?? 15000;
     this.settleMs = options.settleMs ?? 40;
     this.recordWire = options.recordWire ?? false;
+    this.submissionIntervalMs = options.submissionIntervalMs ?? 550;
+    if (!Number.isFinite(this.submissionIntervalMs) || this.submissionIntervalMs < 0) throw new Error('Invalid submission interval');
     this.socket = connect({ host: options.host, port: options.port });
     this.socket.setNoDelay(true);
     this.socket.on('data', bytes => {
@@ -70,7 +78,12 @@ export class PlayerClient {
 
   close(): void { this.abort(new Error('Client closed')); }
 
-  private send(line: string): void {
+  private async send(line: string): Promise<void> {
+    // Pace after the previous completed dialogue, not just the socket write:
+    // the host admits input when its editor consumes it. Network waits overlap
+    // across clients; this timer never blocks another captain.
+    const remaining = this.submissionIntervalMs - (performance.now() - this.lastDialogueAt);
+    if (remaining > 0) await delay(remaining);
     const winner = warWinner(this.buffer);
     if (winner) {
       this.record({ event: 'received', text: this.buffer });
@@ -83,6 +96,7 @@ export class PlayerClient {
     this.record({ event: 'sent', line });
     if (this.recordWire) this.record({ event: 'wire-sent', base64: bytes.toString('base64'), negotiation: false });
     this.socket.write(bytes);
+    this.lastDialogueAt = performance.now();
   }
 
   private interrupt(): void {
@@ -108,7 +122,7 @@ export class PlayerClient {
         clearTimeout(deadline); clearTimeout(settle); this.wake = undefined;
         if (this.buffer) this.record({ event: 'received', text: this.buffer });
         if (error) { reject(error); return; }
-        const result = this.buffer; this.buffer = ''; resolve(result);
+        const result = this.buffer; this.buffer = ''; this.lastDialogueAt = performance.now(); resolve(result);
       };
       const check = () => {
         clearTimeout(settle);
@@ -166,21 +180,21 @@ export class PlayerClient {
     if (!/^[A-Z]+$/i.test(options.ship)) throw new Error('Invalid ship name');
     if (options.tournamentSeed !== undefined && (!Number.isSafeInteger(options.tournamentSeed) || options.tournamentSeed < 0)) throw new Error('Tournament seed must be a nonnegative safe integer');
     await this.exclusive(async () => {
-      if (this.reentry) { this.reentry = false; this.send(''); }
+      if (this.reentry) { this.reentry = false; await this.send(''); }
       let selectedShip = false;
       for (let step = 0; step < 16; step++) {
         const text = await this.waitFor(loginResponse);
         // SETUP can automatically reuse the previous vessel after death.
         if (prompt.test(text)) return;
-        if (text.endsWith('Your name please: ')) this.send(options.name);
-        else if (text.endsWith('line: ')) this.send('');
-        else if (text.endsWith('(Regular) ')) this.send(options.tournamentSeed === undefined ? '' : `TOURNAMENT ${options.tournamentSeed}`);
-        else if (text.endsWith('conflict? (yes) ')) this.send(options.romulan ? 'YES' : 'NO');
-        else if (text.endsWith('black holes? (no) ')) this.send(options.blackHoles ? 'YES' : 'NO');
-        else if (text.endsWith('(Federation or Empire) ')) this.send(options.team);
+        if (text.endsWith('Your name please: ')) await this.send(options.name);
+        else if (text.endsWith('line: ')) await this.send('');
+        else if (text.endsWith('(Regular) ')) await this.send(options.tournamentSeed === undefined ? '' : `TOURNAMENT ${options.tournamentSeed}`);
+        else if (text.endsWith('conflict? (yes) ')) await this.send(options.romulan ? 'YES' : 'NO');
+        else if (text.endsWith('black holes? (no) ')) await this.send(options.blackHoles ? 'YES' : 'NO');
+        else if (text.endsWith('(Federation or Empire) ')) await this.send(options.team);
         else if (text.endsWith('Which vessel do you desire? ')) {
           if (selectedShip) throw new VesselUnavailable(`Requested vessel ${options.ship} is unavailable`);
-          this.send(options.ship); selectedShip = true;
+          await this.send(options.ship); selectedShip = true;
         }
         else throw new Error('Unrecognized Austin login dialogue');
       }
@@ -200,24 +214,24 @@ export class PlayerClient {
     await this.exclusive(async () => {
       const greeting = await this.waitFor(/(?:^|\r?\n)\.$/);
       if (!greeting.includes('Please LOGIN')) throw new Error('Reference terminal is already logged in; use a clean test terminal');
-      this.send('login decwar');
+      await this.send('login decwar');
       const login = await this.waitFor(/(?:^|\r?\n)\.$/);
       if (/(?:^|[\r\n])\?/.test(login)) throw new Error('Reference login rejected; inspect the captured monitor response before reusing an existing session');
       this.referenceLoggedIn = true;
-      this.send('r gam:decwar');
+      await this.send('r gam:decwar');
     });
   }
 
   async quitReference(): Promise<void> {
     if (!this.referenceLoggedIn) throw new Error('This client did not establish the reference account');
     await this.exclusive(async () => {
-      this.send('QUIT');
+      await this.send('QUIT');
       await this.waitFor(/Do you really want to quit\? $/);
-      this.send('YES');
+      await this.send('YES');
       await this.waitFor(/(?:^|\r?\n)\.$/);
       // Preserved build-console.txt:106–111,276–281: K/F logs out the
       // current TOPS-10 job. Never issue it for an inherited monitor session.
-      this.send('K/F');
+      await this.send('K/F');
       const logout = await this.waitFor(/(?:^|\r?\n)\.$/, true);
       if (!logout.includes('Logged-off')) throw new Error('Reference logout was not confirmed');
       this.referenceLoggedIn = false;
@@ -225,7 +239,7 @@ export class PlayerClient {
   }
 
   async exchange(line: string, expected: RegExp): Promise<string> {
-    return this.exclusive(async () => { this.send(line); return this.waitFor(expected); });
+    return this.exclusive(async () => { await this.send(line); return this.waitFor(expected); });
   }
 
   async command(line: string): Promise<string> {
@@ -233,7 +247,7 @@ export class PlayerClient {
       // An unsolicited endgame may arrive between commands. Drain its final
       // report instead of sending another command or closing mid-report.
       if (warWinner(this.buffer)) await this.waitFor(/(?!)/);
-      this.send(line);
+      await this.send(line);
       let text = await this.waitFor(gameOrCoordinateOrReentry);
       if (coordinateContinuation.test(text)) {
         this.interrupt();
@@ -249,9 +263,9 @@ export class PlayerClient {
   async quit(): Promise<void> {
     if (this.reentry) { this.close(); return; }
     await this.exclusive(async () => {
-      this.send('QUIT');
+      await this.send('QUIT');
       await this.waitFor(/Do you really want to quit\? $/);
-      this.send('YES');
+      await this.send('YES');
       await this.waitFor(/(?!)/, true);
     });
   }

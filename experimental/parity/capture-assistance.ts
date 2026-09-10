@@ -6,8 +6,8 @@ import { ObservedMap } from '../automated-player/navigation.ts';
 import { duelRoute } from './duel-route.ts';
 
 const [backend, port, output, mode = 'standard'] = process.argv.slice(2);
-if (!['typescript', 'pdp10'].includes(backend) || !/^\d+$/.test(port) || +port < 1 || +port > 65535 || !output) throw Error('Usage: capture-assistance.ts typescript|pdp10 PORT NEW_JSONL [standard|energy-edges|tractor-edges]');
-if (!['standard', 'energy-edges', 'tractor-edges'].includes(mode)) throw Error('Unknown assistance mode');
+if (!['typescript', 'pdp10'].includes(backend) || !/^\d+$/.test(port) || +port < 1 || +port > 65535 || !output) throw Error('Usage: capture-assistance.ts typescript|pdp10 PORT NEW_JSONL [standard|energy-edges|tractor-edges|energy-notices]');
+if (!['standard', 'energy-edges', 'tractor-edges', 'energy-notices'].includes(mode)) throw Error('Unknown assistance mode');
 writeFileSync(output, '', { flag: 'wx' });
 const record = (e: object) => appendFileSync(output, JSON.stringify({ time: new Date().toISOString(), ...e }) + '\n');
 const clients: { client: PlayerClient; role: string; joined: boolean }[] = [];
@@ -70,6 +70,28 @@ try {
     await step('energy-negative', 'ENERGY VULCAN -1');
     await join('Opponent', 'WOLF', 'EMPIRE');
     await step('energy-enemy', 'ENERGY WOLF 100');
+  } else if (mode === 'energy-notices') {
+    for (let attempt = 0; attempt < 5; attempt++) {
+      record({ event: 'restore', response: await receiver.command('DOCK') });
+      if ((await sample(receiver)).status.energy === 5000) break;
+    }
+    const ready = (await sample(receiver)).status;
+    if (ready.energy !== 5000 || !ready.shieldsUp || ready.hullDamage) throw Error('Notification fixture not restored');
+    const scan = parseScan(await receiver.command('SCAN 10'));
+    if (!scan.cells.some(c => c.v === 8 && c.h === 3 && c.symbol === ' .')) throw Error('Notification fixture movement cell unavailable');
+    for (let n = 0; n < 3; n++) {
+      await receiver.command('MOVE ABSOLUTE 8 3');
+      await receiver.command('MOVE ABSOLUTE 7 3');
+    }
+    if ((await sample(receiver)).status.energy !== 4952) throw Error('Notification transfer capacity missing');
+    await step('normal-transfer', 'ENERGY VULCAN 10');
+    await step('radio-off', 'RADIO OFF', receiver);
+    await step('radio-off-transfer', 'ENERGY VULCAN 10');
+    await step('radio-on', 'RADIO ON', receiver);
+    await step('gag-donor', 'RADIO GAG YORKTOWN', receiver);
+    await step('gagged-transfer', 'ENERGY VULCAN 10');
+    await step('ungag-donor', 'RADIO UNGAG YORKTOWN', receiver);
+    await step('restored-transfer', 'ENERGY VULCAN 10');
   } else if (mode === 'tractor-edges') {
     const scan = parseScan(await receiver.command('SCAN 10'));
     if (!scan.cells.some(c => c.v === 8 && c.h === 3 && c.symbol === ' .') || !scan.cells.some(c => c.v === 8 && c.h === 2 && c.symbol === ' .')) throw Error('Tractor movement fixture unavailable');

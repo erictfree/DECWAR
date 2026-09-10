@@ -23,6 +23,7 @@ by default and offers a bounded recent-history option; 4589 runtime tests pass.
 | Gameplay | Command parsing/abbreviations, scans and reports, movement, phasers/torpedoes, shields, repair, energy, tractor beams, radio/messages, capture, construction, docking and scoring are connected to the session runtime. |
 | Multiplayer lifecycle | Shared galaxies, full-galaxy rollover, normal quit, death, disconnect cleanup, ship reuse and game-over. |
 | Terminal | Streaming Telnet adapter, negotiated character delivery and echo, immediate ESC repeat, source application output, raw Ctrl-C and Telnet IP handling. See terminal fidelity limits below. |
+| Input admission | Playable Telnet launch defaults to 500 ms between completed editor submissions; excess lines are discarded with BEL. ESC and initialization input are exempt; strict mode disables this modern policy. See [running instructions](running.md). |
 | Storage | Separate default directories and variant/format markers; CompuServe word-file statistics and GRIPE persistence. Live galaxies are not saved across host restart. |
 | Source evidence | Both supplied archives, independent generated variant data, and a pinned native Austin reference build are preserved. |
 
@@ -155,15 +156,41 @@ survivor, whose next solo move costs four units rather than twelve while towing.
 Evidence: `logs/parity-tractor-edges/report.json`. Nova, weapon-hit and destruction
 release remain outside this capture; no game-code repair was required.
 
+Eight ENERGY notification/radio steps also match on both engines. Four ten-unit
+requests each debit ten and deliver nine; the exact recipient notice remains
+visible with RADIO OFF and with the donor gagged. RADIO ON and UNGAG restore the
+tested preferences without changing supplies. Evidence:
+`logs/parity-energy-notices/report.json`. This verifies ENERGY notices, not TELL
+filtering or damaged-radio behavior. Failed setup attempts are retained beside
+the successful fresh-world captures; no game-code change was needed.
+
 The player runner recognizes source war-result messages as a separate `war-over`
 outcome, preserves final text, and avoids reconnecting after an observed result.
 Fleet reports expose the winner and separately flag 30-second unchanged-state
 strategic stalls. An opt-in `siege` policy retains an installation objective
 through resupply and prioritizes it over distant ship skirmishes, with fresh
-SCAN authorization. These are tested runner/policy capabilities, not evidence
-of an autonomous war victory. Team target assignment, rescue and an endgame plan
-for full base capacity remain open. See the
+SCAN authorization. Siege captains now use corridor-checked single torpedoes
+against enemy and neutral planets, including zero-build planets, and resupply ammunition;
+phasers-only mode retains its prior behavior. A ten-captain Austin playable evaluation completed an autonomous Empire victory
+on 2026-09-09 after about 61 minutes: nine planets destroyed, eleven converted,
+with final war text and points preserved in
+`logs/endgame-escape-completion/victory-review.json`. This is TypeScript execution
+evidence for one run, not native differential parity. Fleet planet assignments and persistent firing-position routes are implemented
+and tested; the completed v14 evaluation loaded both improvements plus a lateral survey fallback
+for blocked shots at range three and outward escape from adjacent positions. Rescue
+and broader team combat coordination remain open. See the
 [player guide](../experimental/automated-player/README.md).
+
+An isolated TypeScript production-Telnet exercise now verifies torpedo removal
+of the last planet: the war continues while both factions retain bases, and
+reports Federation victory plus final points when Empire has no bases. Geometry
+was staged in a test fixture; command processing, randomness and timing were
+unchanged. It exposed and fixed recognition of a leading lone CR before the
+high-segment/war banner. Evidence: `logs/planet-ending-typescript/retry/report.json`;
+the initial failed capture is retained. This is not native differential parity
+or evidence that the autonomous fleet has completed a war. The neutral-planet
+variant also passed both cases, retaining the winner/final points:
+`logs/endgame-neutral-completion/neutral-verification/report.json`.
 
 The reusable player-library quickstart is available at
 [`experimental/player-library/QUICKSTART.md`](../experimental/player-library/QUICKSTART.md).
@@ -291,3 +318,10 @@ and [decision record](decisions.md) began with CompuServe and retain chronologic
 entries. Their scope notes identify the current documents that supersede old
 integration-status statements. They remain useful evidence, not an alternate
 current-status page.
+
+
+An opt-in persistent resupply policy retains a reachable refuge and compares
+route costs when choosing or reassessing it. Per-faction runner options support
+comparison against baseline v14 behavior; safety and restoration thresholds
+remain unchanged. Win-rate and travel-efficiency improvements are unverified.
+See the player guide's experimental persistent resupply section.

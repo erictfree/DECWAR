@@ -113,12 +113,14 @@ export interface Base {
   team: Team;
   position: Position;
   strength: Percentage;
+  knownTo: Set<Team>;
 }
 
 export interface Planet {
   position: Position;
   allegiance: Team | "NEUTRAL";
   construction: number;
+  knownTo: Set<Team>;
 }
 
 export interface Romulan {
@@ -128,7 +130,14 @@ export interface Romulan {
 
 export type RomulanState =
   | { enabled: false }
-  | { enabled: true; vessel: Romulan | null };
+  | { enabled: true; vessel: Romulan | null; statistics: RomulanStatistics;
+      elapsedTriggers: number };
+
+export interface RomulanStatistics {
+  score: Score;
+  appearances: number;
+  activityCount: number;
+}
 
 export type MessageSender = ShipName | "ROMULAN" | "SYSTEM";
 
@@ -143,6 +152,40 @@ export interface CommunicationState {
   messages: RadioMessage[];
 }
 
+export type CombatObjectSnapshot =
+  | { kind: "SHIP"; name: ShipName; position: Position; shields: Shields }
+  | { kind: "BASE"; team: Team; position: Position; strength: Percentage }
+  | { kind: "PLANET"; allegiance: Team | "NEUTRAL"; position: Position; construction: number }
+  | { kind: "ROMULAN"; position: Position; energy: Energy }
+  | { kind: "STAR"; position: Position };
+
+export interface CombatHitFacts {
+  action: "PHASER" | "TORPEDO" | "DEFLECTED" | "NOVA";
+  source: CombatObjectSnapshot;
+  target: CombatObjectSnapshot;
+  reportedDamage: Damage;
+  displaced: boolean;
+  death: "NONE" | "HIT" | "BLACK_HOLE";
+  critical: { device: Device; damage: Damage } | null;
+  baseEmergency: boolean;
+}
+
+export type NotificationFacts =
+  | { kind: "TRACTOR"; ships: [ShipName, ShipName]; active: boolean }
+  | { kind: "ENERGY_TRANSFER"; sender: ShipName; recipient: ShipName; delivered: Energy }
+  | { kind: "BASE_NOTICE"; team: Team; position: Position; destroyed: boolean }
+  | { kind: "TORPEDO_OUTCOME"; shooter: ShipName; torpedo: number;
+      outcome: "MISS" | "BLACK_HOLE" | "NEUTRALIZED"; position: Position }
+  | { kind: "ROMULAN_APPEARANCE"; position: Position }
+  | { kind: "HIT"; hit: CombatHitFacts }
+  | { kind: "STAR_EVENT"; position: Position; outcome: "NOVA" | "UNAFFECTED" };
+
+export interface PendingNotification {
+  facts: NotificationFacts;
+  recipients: Set<ShipName>;
+  pendingRecipients: Set<ShipName>;
+}
+
 export type ScoreCategory =
   | "ENEMY_DAMAGE"
   | "ENEMY_KILLS"
@@ -155,8 +198,18 @@ export type ScoreCategory =
 
 export type Score = Record<ScoreCategory, Points>;
 
+export interface PlayerPreferences {
+  coordinateInput: "ABSOLUTE" | "RELATIVE";
+  coordinateOutput: "ABSOLUTE" | "RELATIVE" | "BOTH";
+  outputLength: "SHORT" | "MEDIUM" | "LONG";
+  scanLength: "SHORT" | "LONG";
+  promptStyle: "NORMAL" | "INFORMATIVE";
+}
+
 export interface TeamState {
   score: Score;
+  admissions: number;
+  completedTurns: number;
 }
 
 export type BlackHoleState =
@@ -177,5 +230,7 @@ export interface Galaxy {
   blackHoles: BlackHoleState;
   romulan: RomulanState;
   communication: CommunicationState;
+  notifications: PendingNotification[];
   teams: Record<Team, TeamState>;
+  worldActivityProgress: number;
 }

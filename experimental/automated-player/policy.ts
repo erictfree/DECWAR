@@ -1,7 +1,7 @@
 import { distance, type Position, type ShipStatus } from './observations.ts';
 
 export type Decision =
-  | { kind: 'act'; command: string; reason: string; targetKind?: 'ship' | 'base' | 'planet' | 'star'; weapon?: 'phasers' | 'torpedoes'; objectiveAction?: 'capture' | 'build' }
+  | { kind: 'act'; command: string; reason: string; refuge?: { destination: Position; cost: number; reason: string }; releasePlanetMission?: boolean; targetKind?: 'ship' | 'base' | 'planet' | 'star'; weapon?: 'phasers' | 'torpedoes'; objectiveAction?: 'capture' | 'build' }
   | { kind: 'complete' | 'blocked'; command?: never; reason: string };
 export type NavigationMemory = { previousPosition?: Position; failedMoves: number };
 

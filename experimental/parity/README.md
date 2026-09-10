@@ -406,6 +406,24 @@ four-unit solo movement costs, shield changes, and exact activation/release
 notices received by both captains. Setup supplies can differ; comparison uses
 energy changes. This does not exercise nova, weapon-hit or destruction release.
 
+`energy-notices` isolates ENERGY recipient notices from radio preferences. It
+restores the recipient, creates a 48-unit capacity gap, then makes four ten-unit
+requests with normal radio, RADIO OFF, donor gagged, and donor ungagged. The
+receiver's exact notice must report nine units each time, including while radio
+is off or the donor is gagged. The reviewer also checks the visible radio mode,
+both energy totals and unchanged positions/non-energy supplies.
+
+```sh
+node experimental/parity/capture-assistance.ts typescript 2424 logs/notices-ts.jsonl energy-notices
+node experimental/parity/capture-assistance.ts pdp10 2031 logs/notices-pdp.jsonl energy-notices
+node experimental/parity/review-energy-notices.ts logs/notices-ts.jsonl logs/notices-pdp.jsonl
+```
+
+These scenarios require a fresh dedicated galaxy. A failed safe-route setup is
+retained as incomplete evidence; client logout alone does not guarantee that a
+host discarded its galaxy. Start a new isolated host for a fresh seeded retry.
+Notification checks do not establish TELL filtering or damaged-radio behavior.
+
 ## Isolated heap diagnostics
 
 `node --expose-gc experimental/parity/memory-host.ts NEW_JSONL [RECORD_LIMIT]` starts an isolated

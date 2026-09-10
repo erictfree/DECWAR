@@ -61,10 +61,24 @@ Run it from the repository root:
 node experimental/player-library/examples/my-player.ts
 ```
 
-The runner performs login, the ordered `BASES`, `DAMAGES`, `LIST`, `TARGETS`,
-`SCAN`, and `STATUS` observation cycle, one action, final score collection,
+The runner performs login, selective report gathering, one action per cycle, final score collection,
 and normal quit. Increase `rounds` for a longer bounded run. Set `lives` to
 control reentry after a ship is lost.
+
+Every cycle refreshes `LIST`, `SCAN`, and `STATUS`. `TARGETS` is requested when
+SCAN shows an enemy ship or Romulan contact; otherwise the target list is empty.
+Friendly base and device reports are cached for up to 15 seconds. Docking,
+capture/build, weapon use, repairs, and worsening ship condition invalidate the
+relevant cache. A new life starts with empty caches. Sensors keep their actual
+observation timestamps; cached reports do not become fresh firing evidence.
+
+Each client waits 550 ms after a completed response before submitting another
+line, including login and confirmation answers. This accommodates the playable
+host's default 500 ms input limit. `intervalMs` is an additional pause between
+decision cycles, not the submission limit. Programmatic callers can set
+`submissionIntervalMs` to match another host (zero disables pacing for isolated
+protocol tests). Bots run independent asynchronous loops; one bot's wait does
+not pause the others. They still share one client process.
 
 ## How a strategy works
 

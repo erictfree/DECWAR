@@ -46,6 +46,20 @@ export function neighbors(position: Position): Position[] {
   return result;
 }
 
+// A bounded direct move is eligible only when every sector along the line is
+// freshly observed, traversable and outside known danger. The caller still
+// supplies the normal energy and movement command checks.
+export function clearDirectRoute(map: ObservedMap, from: Position, to: Position, team: Team, now: number, maxDistance = 7): boolean {
+  const length = distance(from, to);
+  if (length < 2 || length > maxDistance) return false;
+  for (let i = 1; i <= length; i++) {
+    const p = { v: from.v + Math.round((to.v - from.v) * i / length), h: from.h + Math.round((to.h - from.h) * i / length) };
+    const cell = map.cell(p, now);
+    if (!cell || now - cell.observedAt > 5000 || !map.passable(p, now) || map.danger(p, team, now, true) > 0) return false;
+  }
+  return true;
+}
+
 type Entry = { p: Position; g: number; f: number; first?: Position };
 class Frontier {
   private entries: Entry[] = [];
@@ -74,12 +88,17 @@ class Frontier {
 // prefer mapped routes, and discount repeated visits. Only the first step is
 // executed, and that step MUST be freshly observed empty/warning space.
 export function route(map: ObservedMap, start: Position, goal: Position, team: Team, now: number, adjacent = false, avoidShips = false, stopRange = adjacent ? 1 : 0): Position | undefined {
+  return routePlan(map, start, goal, team, now, adjacent, avoidShips, stopRange)?.next;
+}
+
+// The cost is a navigation preference, not game energy or elapsed time.
+export function routePlan(map: ObservedMap, start: Position, goal: Position, team: Team, now: number, adjacent = false, avoidShips = false, stopRange = adjacent ? 1 : 0): { next?: Position; cost: number } | undefined {
   const frontier = new Frontier(), costs = new Map<string, number>();
   frontier.push({ p: start, g: 0, f: distance(start, goal) }); costs.set(positionKey(start), 0);
   for (let count = 0; count < 30000; count++) {
     const current = frontier.pop(); if (!current) return undefined;
     if (current.g !== costs.get(positionKey(current.p))) continue;
-    if (distance(current.p, goal) <= stopRange) return current.first;
+    if (distance(current.p, goal) <= stopRange) return { next: current.first, cost: current.g };
     for (const next of neighbors(current.p)) {
       if (!map.passable(next, now)) continue;
       const cell = map.cell(next, now);

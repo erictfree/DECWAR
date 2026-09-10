@@ -107,6 +107,7 @@ test('One objective captain in a four-ship game captures, builds and converts a 
   await client.quit();
   const events: Record<string, unknown>[] = [];
   const result = await play({ host: '127.0.0.1', port, name: 'Scout', team: 'FEDERATION', ship: 'YORKTOWN', mode: 'objective', rounds: 7, lives: 1, intervalMs: 10,
+    submissionIntervalMs: 0,
     record(event) {
       events.push(event); record({ ...event, captain: 'objective' });
       if (event.event === 'joined') {

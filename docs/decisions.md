@@ -4339,3 +4339,32 @@ and logs/escape-real-client-check.json. The full audit/typecheck/4565-test suite
 passed before the final echo-suppression refinement; the final 31 focused tests
 and typecheck passed afterward.
 Existing live servers require a restart to adopt the new adapter.
+
+## D-173 — Playable host input admission
+
+The playable Telnet launcher applies a modern 500 ms minimum interval between
+ordinary completed editor submissions in each runtime session. This is an
+operator policy, not source timing. Austin WARMAC.MAC:1551ff and CompuServe
+WARMAC.MAC:1860–1915 implement INLI's retained buffer, first-character repeat,
+and line editing; those routines remain unchanged.
+
+`src/runtime/game-session.ts` wraps the editor before callers receive its result.
+A rejected line restores the previous LINBUF, character count, repeat flag and
+buffer pointer, emits BEL (byte 7), and reads another line without returning to
+the command parser. Rejection does not extend the interval. ESC remains exempt
+both for repeat and for terminating new input. Slash-separated commands are
+one line; this policy does not limit command execution independently. Source
+initialization input and the separate raw name prompt are excluded. The editor's
+80-character automatic completion is also a submission.
+
+Admission uses monotonic time at editor completion, not socket arrival; queued
+lines consumed sufficiently far apart can pass. This reduces rapid ordinary
+submissions but is not comprehensive flood control, particularly with exempt ESC.
+No game arithmetic, random draws or action delays are changed. Strict mode is
+unwrapped. Library callers opt in with `inputIntervalMs`; the launcher defaults
+to 500 and accepts `--input-interval-ms 0` to disable it.
+
+`test/input-admission.test.ts` checks the 499/500 ms boundary, independent gates,
+ESC exemption, rejected-line restoration in both live variant editors, source
+initialization input, strict mode and explicit disablement. These are modern
+runtime tests, not original-executable differential verification.

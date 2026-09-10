@@ -99,6 +99,16 @@ test('Combat alarm bells before normal and informative prompts do not stall the 
   assert.match(await client.command('STATUS'), /\x07{4}3LSDE> $/);
 });
 
+test('Accepts Austin prompts with repeated carriage returns', { timeout: 5000 }, async t => {
+  const host = createServer(socket => socket.on('data', () => socket.write('\r\r\nCommand: ')));
+  host.listen(0, '127.0.0.1'); await once(host, 'listening');
+  t.after(() => host.close());
+  const address = host.address(); assert.ok(address && typeof address !== 'string');
+  const client = new PlayerClient({ host: '127.0.0.1', port: address.port, timeoutMs: 200 });
+  t.after(() => client.close());
+  assert.match(await client.command('STATUS'), /Command: $/);
+});
+
 test('A late deadline grants one grace interval for a pending socket response', { timeout: 5000 }, async t => {
   const realNow = Date.now; let clockJump = 0, graces = 0;
   t.mock.method(Date, 'now', () => realNow() + clockJump);
@@ -170,7 +180,7 @@ test('Reference startup preserves modes and raw bytes through interactive exchan
   host.listen(0, '127.0.0.1'); await once(host, 'listening');
   t.after(async () => { for (const s of sockets) s.destroy(); await new Promise<void>(r => host.close(() => r())); });
   const address = host.address(); assert.ok(address && typeof address !== 'string');
-  const client = new PlayerClient({ host: '127.0.0.1', port: address.port, settleMs: 5, recordWire: true, record: e => events.push(e) });
+  const client = new PlayerClient({ host: '127.0.0.1', port: address.port, settleMs: 5, submissionIntervalMs: 0, recordWire: true, record: e => events.push(e) });
   t.after(() => client.close());
   await client.startReference();
   await client.join({ name: 'Iocheck', team: 'FEDERATION', ship: 'YORKTOWN', preserveModes: true });
@@ -200,4 +210,25 @@ test('An inherited reference monitor is rejected without sending login, launch o
   await assert.rejects(client.startReference(), /already logged in/);
   await assert.rejects(client.quitReference(), /did not establish/);
   assert.equal(sent, '');
+});
+
+test('default submission pacing is per client and includes dialogue answers', {timeout:5000}, async t => {
+  const sockets = new Set<Socket>();
+  const arrivals:number[][]=[];
+  const host=createServer(socket=>{
+    sockets.add(socket);const times:number[]=[];arrivals.push(times);
+    socket.on('data',()=>{times.push(performance.now());socket.write('\r\nCommand: ');});
+  });
+  host.listen(0,'127.0.0.1');await once(host,'listening');
+  t.after(async()=>{for(const socket of sockets)socket.destroy();await new Promise<void>(resolve=>host.close(()=>resolve()));});
+  const address=host.address();assert.ok(address&&typeof address!=='string');
+  const a=new PlayerClient({host:'127.0.0.1',port:address.port,settleMs:1});
+  const b=new PlayerClient({host:'127.0.0.1',port:address.port,settleMs:1});
+  t.after(()=>{a.close();b.close();});
+  await a.command('STATUS');
+  const next=a.exchange('YES',/Command: $/);
+  await b.command('SCAN');
+  assert.equal(arrivals[0].length,1,'second client progresses while first client waits');
+  await next;
+  assert.ok(arrivals[0][1]-arrivals[0][0]>=500);
 });

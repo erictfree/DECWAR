@@ -55,7 +55,7 @@ test('External Austin captains join, read reports, run the baseline, quit and re
   parseStatus(await other.command('STATUS'));
   await first.quit();
   const events: Record<string, unknown>[] = [];
-  const result = await play({ host: '127.0.0.1', port, name: 'Scout', team: 'FEDERATION', ship: 'YORKTOWN', mode: 'resupply', rounds: 40, intervalMs: 100, record(event) { events.push(event); record('baseline')(event); } });
+  const result = await play({ host: '127.0.0.1', port, name: 'Scout', team: 'FEDERATION', ship: 'YORKTOWN', mode: 'resupply', rounds: 3, intervalMs: 100, record(event) { events.push(event); record('baseline')(event); } });
   assert.ok(events.some(event => event.event === 'decision'));
   assert.ok(events.some(event => event.event === 'action-result'), 'Baseline should take an action');
   assert.ok(events.some(event => event.event === 'completed'));
@@ -65,7 +65,7 @@ test('External Austin captains join, read reports, run the baseline, quit and re
   cli.stdout.on('data', bytes => appendFileSync(join(logs, 'cli.stdout.log'), bytes));
   cli.stderr.on('data', bytes => appendFileSync(join(logs, 'cli.stderr.log'), bytes));
   const cliExit = once(cli, 'exit');
-  const deadline = Date.now() + 15000;
+  const deadline = Date.now() + 30000;
   let holding = false;
   while (Date.now() < deadline && cli.exitCode === null) {
     try { holding = readFileSync(cliLog, 'utf8').includes('"event":"holding-status"'); } catch {}
@@ -82,5 +82,6 @@ test('External Austin captains join, read reports, run the baseline, quit and re
   assert.ok(cliEvents.some(event => event.event === 'completed' && ['complete', 'blocked', 'limit'].includes(event.outcome)));
   assert.doesNotMatch(await other.command('USERS'), /Pilot/i, 'SIGTERM quits and releases the held ship');
   await other.quit();
+  assert.doesNotMatch(readFileSync(join(logs, 'host.jsonl'), 'utf8'), /"event":"input-rejected"/, 'Paced clients must not lose submissions to the host limiter');
   t.diagnostic(JSON.stringify({ logs, initial, bases, result, actions: events.filter(e => e.event === 'action-result').map(e => e.command) }));
 });

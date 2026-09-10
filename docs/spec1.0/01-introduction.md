@@ -64,6 +64,6 @@ unresolved editorial or semantic question and is not itself a game rule.
 ## Organization
 
 Section 2 defines the abstract game state. Subsequent sections define lexical
-structure, command grammar, the semantic framework, world mechanics, command
+structure, shared grammar, the semantic framework, world mechanics, command
 semantics, autonomous processes, execution order, output, and conformance
 scenarios.

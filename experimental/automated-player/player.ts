@@ -1,39 +1,62 @@
 import { setTimeout as delay } from 'node:timers/promises';
 import { PlayerClient, ReentryRequired, type RecordEvent, type Team } from './client.ts';
 import { WarFinished, type WarWinner } from './war-result.ts';
-import { classifyTorpedoOutcome, parseDevices, parseFriendlyBases, parseList, parseScan, parseStatus, parseTargets, parseTeamPoints, type ListedObject } from './observations.ts';
+import { classifyDestruction, classifyTorpedoOutcome, parseDevices, parseFriendlyBases, parseList, parseScan, parseStatus, parseTargets, parseTeamPoints, fleetSymbols, type ListedObject } from './observations.ts';
+import { PlanetMissions } from './planet-missions.ts';
+import { BaseMissions } from './base-missions.ts';
+import { BaseDefense } from './base-defense.ts';
 import type { Observation } from './captain.ts';
 import type { StrategyDefinition } from '../player-library/types.ts';
 import { createCaptainStrategy } from '../player-library/strategies/captain.ts';
+import { extractRadioMessages, radioMessage } from './radio-coordination.ts';
 
 export type PlayerOptions = {
   host: string; port: number; name: string; team: Team; ship: string;
   rounds: number; intervalMs: number; record: RecordEvent;
+  submissionIntervalMs?: number;
   romulan?: boolean; blackHoles?: boolean; tournamentSeed?: number;
   stayConnected?: boolean;
   signal?: AbortSignal;
   mode?: 'patrol' | 'resupply' | 'objective' | 'defense' | 'siege';
   torpedoes?: boolean;
   torpedoCorridor?: boolean;
+  coordinatedBases?: boolean;
+  persistentResupply?: boolean;
+  surveyHandoff?: boolean;
+  systematicExploration?: boolean;
+  longMoves?: boolean;
+  preferClosePlanetFire?: boolean;
+  aggressive?: boolean;
+  radioCoordination?: boolean;
+  explorationPriority?: boolean;
   lives?: number;
   sharedIntel?: SharedIntel;
   strategy?: StrategyDefinition;
 };
 
 export interface SharedIntel {
+  assignPlanet?(team: Team, captain: string, observation: Observation, now: number): import('./observations.ts').Position | null;
+  releasePlanet?(team: Team, captain: string, position?: import('./observations.ts').Position): void;
+  assignBase?(team: Team, captain: string, observation: Observation, now: number): import('./observations.ts').Position | null;
+  assignBaseDefense?(team: Team, captain: string, observation: Observation, now: number): import('./observations.ts').Position | null;
   publish(team: Team, targets: ListedObject[]): void;
   snapshot(team: Team, now: number): ListedObject[];
 }
 
-// Fleet-local coordination memory. It contains only public TARGETS sightings
-// and expires them after five seconds; it never exposes runtime state.
+// Fleet-local coordination memory. It contains only public TARGETS/LIST
+// observations and expires them after five seconds; it never exposes runtime state.
 export class FleetIntel implements SharedIntel {
+  private readonly missions = new PlanetMissions();
+  private readonly bases = new BaseMissions();
+  private readonly defense = new BaseDefense();
+  assignPlanet(team: Team, captain: string, observation: Observation, now: number) { return this.missions.assign(team, captain, observation, now); }
+  releasePlanet(team: Team, captain: string, position?: import('./observations.ts').Position) { this.missions.release(team, captain, position); }
+  assignBase(team: Team, captain: string, observation: Observation, now: number) { return this.bases.assign(team, captain, observation, now); }
+  assignBaseDefense(team: Team, captain: string, observation: Observation, now: number) { return this.defense.assign(team, captain, observation, now); }
   private readonly sightings = new Map<string, ListedObject>();
   publish(team: Team, targets: ListedObject[]): void {
     const now = Date.now();
-    for (const target of targets) if (target.kind === 'ship' && target.position) {
-      this.sightings.set(`${team}:${target.name}`, { ...target, observedAt: now });
-    }
+    for (const target of targets) if (target.position) this.sightings.set(`${team}:${target.kind}:${target.name}:${target.position.v},${target.position.h}`, { ...target, observedAt: now });
   }
   snapshot(team: Team, now: number): ListedObject[] {
     const opposing = team === 'FEDERATION' ? 'EMPIRE' : 'FEDERATION';
@@ -42,14 +65,50 @@ export class FleetIntel implements SharedIntel {
   }
 }
 
-export async function observe(client: PlayerClient, team: Team): Promise<Observation> {
-  const bases = parseFriendlyBases(await client.command('BASES'), team);
-  const devices = parseDevices(await client.command('DAMAGES'));
-  const objects = parseList(await client.command('LIST'));
-  const targets = parseTargets(await client.command('TARGETS'));
-  const scan = parseScan(await client.command('SCAN 10 WARNING'));
-  const status = parseStatus(await client.command('STATUS'));
-  return { bases, devices, scan, status, objects, targets };
+export class ObservationReader {
+  private bases: Observation['bases'] | undefined;
+  private devices: Observation['devices'] | undefined;
+  private basesAt = -Infinity;
+  private devicesAt = -Infinity;
+  private previousStatus: Observation['status'] | undefined;
+  afterAction(command: string): void {
+    if (/^(DOCK|CAPTURE|BUILD)\b/i.test(command)) this.basesAt = -Infinity;
+    if (/^(DOCK|REPAIR|PHASERS|TORPEDOES)\b/i.test(command)) this.devicesAt = -Infinity;
+  }
+  async observe(client: Pick<PlayerClient, 'command'>, team: Team, onRadio?: (intent: import('./radio-coordination.ts').RadioIntent) => void): Promise<Observation> {
+  const radio = [] as import('./radio-coordination.ts').RadioIntent[];
+  const seenRadio = new Set<string>();
+  const read = async (line: string) => {
+    const response = await client.command(line);
+    for (const intent of extractRadioMessages(response)) {
+      const position = 'position' in intent && intent.position ? `${intent.position.v},${intent.position.h}` : '';
+      const key = `${intent.kind}|${position}|${intent.text}`;
+      if (seenRadio.has(key)) continue;
+      seenRadio.add(key); radio.push(intent); onRadio?.(intent);
+    }
+    return response;
+  };
+  if (!this.bases || Date.now() - this.basesAt >= 15000) {
+    this.bases = parseFriendlyBases(await read('BASES'), team); this.basesAt = Date.now();
+  }
+  const objects = parseList(await read('LIST'));
+  const scan = parseScan(await read('SCAN 10 WARNING'));
+  const hostileSymbols = fleetSymbols[team === 'FEDERATION' ? 'EMPIRE' : 'FEDERATION'];
+  const contact = scan.cells.some(cell => cell.symbol === '??' || (cell.symbol.trim().length === 1 && hostileSymbols.includes(cell.symbol.trim())));
+  const targets = contact ? parseTargets(await read('TARGETS')) : [];
+  const status = parseStatus(await read('STATUS'));
+  if (!this.devices || Date.now() - this.devicesAt >= 15000 || (this.previousStatus && (status.hullDamage > this.previousStatus.hullDamage || status.shieldPercent < this.previousStatus.shieldPercent || status.condition === 'Red'))) {
+    this.devices = parseDevices(await read('DAMAGES')); this.devicesAt = Date.now();
+  }
+  this.previousStatus = status;
+  return { bases: this.bases, devices: this.devices, scan, status, objects, targets, radio };
+  }
+}
+
+// One-shot callers receive a complete first observation. The play loop retains
+// one reader per life so static reports can be reused without aging sensor data.
+export async function observe(client: Pick<PlayerClient, 'command'>, team: Team, onRadio?: (intent: import('./radio-coordination.ts').RadioIntent) => void): Promise<Observation> {
+  return new ObservationReader().observe(client, team, onRadio);
 }
 
 export function objectiveConfirmation(previous: NonNullable<Observation['objects']>, current: NonNullable<Observation['objects']>, team: Team,
@@ -67,9 +126,19 @@ export function objectiveConfirmation(previous: NonNullable<Observation['objects
 
 export async function play(options: PlayerOptions): Promise<{ rounds: number; deaths: number; outcome: 'complete' | 'blocked' | 'limit' | 'interrupted' | 'dead' | 'war-over'; reason: string; winner?: WarWinner }> {
   const client = new PlayerClient(options);
-  const strategyDefinition = options.strategy ?? createCaptainStrategy({ mode: options.mode, torpedoes: options.torpedoes, torpedoCorridor: options.torpedoCorridor });
+  const strategyDefinition = options.strategy ?? createCaptainStrategy({ mode: options.mode, torpedoes: options.torpedoes, torpedoCorridor: options.torpedoCorridor, persistentResupply: options.persistentResupply, coordinatedBases: options.coordinatedBases, surveyHandoff: options.surveyHandoff, systematicExploration: options.systematicExploration, longMoves: options.longMoves, preferClosePlanetFire: options.preferClosePlanetFire, aggressive: options.aggressive, explorationPriority: options.explorationPriority });
   let strategy = strategyDefinition.create({ team: options.team, ship: options.ship });
+  let observer = new ObservationReader();
   let rounds = 0, deaths = 0, reason = 'Configured round limit reached.';
+  let lastRadio = { kind: '', at: -Infinity };
+  const announce = async (kind: string, message: string, now: number) => {
+    const cooldown = kind === 'resupply' ? 90000 : 60000;
+    if (!(options.radioCoordination ?? options.aggressive) || (lastRadio.kind === kind && now - lastRadio.at < cooldown)) return;
+    const recipient = options.team === 'FEDERATION' ? 'FEDERATION' : 'EMPIRE';
+    const response = await client.command(`TELL ${recipient}; ${message}`);
+    lastRadio = { kind, at: now };
+    options.record({ event: 'radio-sent', recipient, kind, message, response });
+  };
   let outcome: 'complete' | 'blocked' | 'limit' | 'interrupted' | 'dead' = 'limit';
   let previousObjects: Observation['objects'];
   let pendingObjective: { action: 'capture' | 'build'; position: { v: number; h: number } } | undefined;
@@ -82,11 +151,20 @@ export async function play(options: PlayerOptions): Promise<{ rounds: number; de
     options.record({ event: 'joined', name: options.name, team: options.team, ship: options.ship });
     for (; rounds < options.rounds && !options.signal?.aborted; rounds++) {
       try {
-        // STATUS comes last so the ship observation is fresh after reports.
-        const observation = await observe(client, options.team);
+        // Keep navigation and combat reports fresh; reuse only bounded base/device caches.
+        const observation = await observer.observe(client, options.team, intent => options.record({ event: 'radio-received', kind: intent.kind, text: intent.text, position: 'position' in intent ? intent.position : undefined }));
         if (options.sharedIntel) {
-          options.sharedIntel.publish(options.team, observation.targets ?? []);
+          options.sharedIntel.publish(options.team, [...(observation.targets ?? []), ...(observation.objects ?? [])]);
           observation.intel = options.sharedIntel.snapshot(options.team, Date.now());
+          if (options.mode === 'siege' && options.torpedoes !== false && options.sharedIntel.assignPlanet) observation.planetMission = options.sharedIntel.assignPlanet(options.team, options.name, observation, Date.now());
+          // Aggressive captains run the objective-mode loop so a fraction of
+          // the fleet can keep capturing/building. They still need the siege
+          // fleet's shared base assignment to concentrate fire on one
+          // installation at a time; exploration-priority ships remain on the
+          // objective path and do not consume base missions.
+          const coordinatedSiege = options.mode === 'siege' || options.aggressive;
+          if (coordinatedSiege && options.coordinatedBases && options.sharedIntel.assignBase) observation.baseMission = options.sharedIntel.assignBase(options.team, options.name, observation, Date.now());
+          if (coordinatedSiege && options.coordinatedBases && options.sharedIntel.assignBaseDefense) observation.baseDefense = options.sharedIntel.assignBaseDefense(options.team, options.name, observation, Date.now());
         }
         if (previousObjects && pendingObjective) {
           const confirmation = objectiveConfirmation(previousObjects, observation.objects ?? [], options.team, pendingObjective);
@@ -95,13 +173,35 @@ export async function play(options: PlayerOptions): Promise<{ rounds: number; de
         }
         previousObjects = observation.objects;
         const decision = strategy.decide({ observation, now: Date.now() });
+        const decisionNow = Date.now();
+        if (decision.kind === 'act' && decision.targetKind === 'base') {
+          const m = /ABSOLUTE (\d+) (\d+)$/.exec(decision.command);
+          await announce('strike-base', radioMessage({ kind: 'strike-base', position: m ? { v: Number(m[1]), h: Number(m[2]) } : undefined, text: '' }), decisionNow);
+        } else if (decision.kind === 'act' && decision.targetKind === 'planet') {
+          const m = /ABSOLUTE (\d+) (\d+)$/.exec(decision.command);
+          await announce('strike-planet', radioMessage({ kind: 'strike-planet', position: m ? { v: Number(m[1]), h: Number(m[2]) } : undefined, text: '' }), decisionNow);
+        }
+        if (decision.kind === 'act' && observation.status.energy < 2400 && /suppl|energy/i.test(decision.reason)) {
+          await announce('resupply', radioMessage({ kind: 'resupply', text: '' }), decisionNow);
+        }
+        if (decision.kind === 'act' && decision.releasePlanetMission && options.sharedIntel?.releasePlanet && observation.planetMission) options.sharedIntel.releasePlanet(options.team, options.name, observation.planetMission);
         // Raw terminal frames already preserve the full scan without a second
         // copy of hundreds of parsed cells in long-running decision logs.
         const { scan, ...reports } = observation;
         options.record({ event: 'decision', round: rounds + 1, ...reports, scanObservedAt: scan.observedAt, ...decision });
+        if (decision.kind === 'blocked') {
+          // Freshness is a safety gate, not a terminal strategy result. Large
+          // fleets can exceed the five-second observation window while other
+          // captains are using the host; retry with a new STATUS/SCAN cycle.
+          options.record({ event: 'observation-blocked', reason: decision.reason });
+          await pause(Math.max(options.intervalMs, 250));
+          continue;
+        }
         if (decision.kind !== 'act') { reason = decision.reason; outcome = decision.kind; break; }
         const response = await client.command(decision.command);
+        observer.afterAction(decision.command);
         options.record({ event: 'action-result', command: decision.command, response });
+        for (const kind of classifyDestruction(response)) options.record({ event: 'destruction-confirmed', kind, command: decision.command });
         if (decision.weapon === 'torpedoes') options.record({ event: 'torpedo-result', command: decision.command, outcome: classifyTorpedoOutcome(response), response });
         if (decision.objectiveAction) {
           const location = / ABSOLUTE (\d+) (\d+)$/.exec(decision.command);
@@ -116,6 +216,7 @@ export async function play(options: PlayerOptions): Promise<{ rounds: number; de
         if (options.signal?.aborted) break;
         await client.join(options);
         strategy = strategyDefinition.create({ team: options.team, ship: options.ship });
+        observer = new ObservationReader();
         options.record({ event: 'rejoined', deaths, ship: options.ship });
       }
     }

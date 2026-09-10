@@ -3,7 +3,7 @@
 export type WarWinner = 'FEDERATION' | 'EMPIRE' | 'NEITHER';
 // The live high-segment lifecycle notice is emitted without a trailing CRLF.
 // Permit that exact prefix, not arbitrary player/chat text before the banner.
-export const warBanner = /(?:^|\r?\n)(?:\[DECWAR high segment removed from swapper\])?THE WAR IS OVER!!\r?\n/;
+export const warBanner = /(?:^\r*|\r?\n)(?:\[DECWAR high segment removed from swapper\])?THE WAR IS OVER!!\r?\n/;
 export function warWinner(text: string): WarWinner | undefined {
   const banner = warBanner.exec(text);
   if (!banner) return undefined;

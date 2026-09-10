@@ -29,9 +29,9 @@ export async function scenario(t: ScenarioLifecycle, enemy = false) {
   } });
   t.after(() => host.close()); host.server.listen(0, '127.0.0.1'); await once(host.server, 'listening');
   const address = host.server.address(); assert.ok(address && typeof address !== 'string');
-  const client = new PlayerClient({ host: '127.0.0.1', port: address.port, record }); t.after(() => client.close());
+  const client = new PlayerClient({ host: '127.0.0.1', port: address.port, record, submissionIntervalMs: 0 }); t.after(() => client.close());
   await client.join({ name: 'Scout', team: 'FEDERATION', ship: 'YORKTOWN' });
-  const opponent = enemy ? new PlayerClient({ host: '127.0.0.1', port: address.port, record: event => record({ ...event, captain: 'enemy' }) }) : undefined;
+  const opponent = enemy ? new PlayerClient({ host: '127.0.0.1', port: address.port, record: event => record({ ...event, captain: 'enemy' }), submissionIntervalMs: 0 }) : undefined;
   if (opponent) { t.after(() => opponent.close()); await opponent.join({ name: 'Target', team: 'EMPIRE', ship: 'WOLF' }); }
   const f = runtimes.get(1)!.f, K = variantDefinitions.austin.constants;
   for (let v = 1; v <= 75; v++) for (let h = 1; h <= 75; h++) f.views.high.board.setdsp(v, h, 0);

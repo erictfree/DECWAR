@@ -12,7 +12,7 @@ test('Explicit CompuServe development entry serves source STATUS and logs forced
   const directory=await mkdtemp(join(tmpdir(),'decwar-host-')),log=join(directory,'host.log');
   t.after(()=>rm(directory,{recursive:true,force:true}));
   const data=join(directory,'data');
-  const child=spawn(process.execPath,['tools/run-telnet.ts','--variant','compuserve','--port','0','--data',data,'--log',log],{stdio:['ignore','pipe','pipe']});
+  const child=spawn(process.execPath,['tools/run-telnet.ts','--variant','compuserve','--port','0','--input-interval-ms','0','--data',data,'--log',log],{stdio:['ignore','pipe','pipe']});
   const exit=once(child,'exit');let stdout='',stderr='';
   t.after(async()=>{if(child.exitCode===null&&child.signalCode===null)child.kill('SIGKILL');await exit;});
   child.stderr.on('data',bytes=>{stderr+=bytes.toString();});
@@ -28,7 +28,7 @@ test('Explicit CompuServe development entry serves source STATUS and logs forced
   assert.equal(output.split('Your name please: ').length-1,1);
   child.kill('SIGTERM');assert.deepEqual(await exit,[0,null]);assert.equal(stderr,'');
   const records=(await readFile(log,'utf8')).trim().split('\n').map(line=>JSON.parse(line));
-  assert.deepEqual(records.map(record=>record.event),['listening','session-start','shutdown','session-end','stopped']);
+  assert.deepEqual(records.map(record=>record.event),['listening','session-start','shutdown','session-end','session-telemetry','stopped']);
   assert.equal(records[3].reason,'cancelled');assert.equal(records[0].profile,'playable');
   assert.equal(records[0].variant,'compuserve');
   assert.equal(records[0].data,data);await access(join(data,'DECWAR.STA.words'));
@@ -38,7 +38,7 @@ test('Explicit CompuServe development entry serves source STATUS and logs forced
 test('Omitted variant starts Austin, executes its INI and quits without CompuServe statistics',{timeout:15000},async t=>{
   const directory=await mkdtemp(join(tmpdir(),'decwar-austin-host-')),log=join(directory,'host.log'),data=join(directory,'data');
   t.after(()=>rm(directory,{recursive:true,force:true}));
-  const child=spawn(process.execPath,['tools/run-telnet.ts','--port','0','--data',data,'--log',log],{stdio:['ignore','pipe','pipe']});
+  const child=spawn(process.execPath,['tools/run-telnet.ts','--port','0','--input-interval-ms','0','--data',data,'--log',log],{stdio:['ignore','pipe','pipe']});
   const exit=once(child,'exit');let stdout='',stderr='';
   t.after(async()=>{if(child.exitCode===null&&child.signalCode===null)child.kill('SIGKILL');await exit;});
   child.stderr.on('data',bytes=>{stderr+=bytes.toString();});

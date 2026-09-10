@@ -31,18 +31,20 @@ export function torpedoCorridor(from: Position, target: Position): Position[] {
   return result;
 }
 
-export function clearTorpedoCorridor(scan: Scan, from: Position, target: Position, team: Team, now: number): boolean {
-  if (now - scan.observedAt > 5000 || scan.observedAt > now) return false;
+export function clearTorpedoCorridor(scan: Scan, from: Position, target: Position, team: Team, now: number, planetTarget = false, maxAgeMs = 5000): boolean {
+  if (now - scan.observedAt > maxAgeMs || scan.observedAt > now) return false;
   const corridor = torpedoCorridor(from, target);
   if (!corridor.length) return false;
   const cells = new Map(scan.cells.map(cell => [positionKey(cell), cell]));
   const enemy = team === 'FEDERATION' ? 'EMPIRE' : 'FEDERATION';
   return corridor.every(position => {
     const cell = cells.get(positionKey(position));
-    if (!cell || now - cell.observedAt > 5000 || cell.observedAt > now) return false;
+    if (!cell || now - cell.observedAt > maxAgeMs || cell.observedAt > now) return false;
     // Unknown symbols, stars, black holes, all planets and friendly objects
-    // veto the shot. Enemy ships/bases and observed open/warning space pass.
-    return cell.symbol === ' .' || cell.symbol === ' !'
+    // veto the shot, except the explicitly selected enemy or neutral planet.
+    // Enemy ships/bases and observed open/warning space pass.
+    return planetTarget && positionKey(position) === positionKey(target) && (cell.symbol === ' @' || cell.symbol === (enemy === 'EMPIRE' ? '@E' : '@F'))
+      || cell.symbol === ' .' || cell.symbol === ' !'
       || cell.symbol === (enemy === 'EMPIRE' ? ')(' : '<>')
       || /^ [A-Z]$/.test(cell.symbol) && fleetSymbols[enemy].includes(cell.symbol[1]);
   });

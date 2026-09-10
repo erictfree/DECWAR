@@ -71,6 +71,21 @@ were checked with the installed Homebrew Telnet client. Clients that refuse
 character mode can still buffer input locally. See the [terminal binding
 decision](decisions.md#d-172--character-delivery-and-keyboard-echo).
 
+The playable Telnet host accepts ordinary editor submissions at least 500 ms
+apart per session. A submission completed too soon is discarded and rings the
+terminal bell (BEL); it is not delayed for later execution. Wait half a second
+and re-enter the line. Rejected input does not replace the line retained for ESC.
+ESC remains exempt, including when it ends a newly typed line. `/` stays inside
+one submitted line; this is a line limit, not a limit on individual commands.
+Interactive answers and the editor's automatic 80-character completion count
+as submissions. Raw name input and initialization-file input are excluded.
+
+Use `--input-interval-ms N` to choose 0–60000 ms; zero disables the policy.
+`--strict` always disables it. Timing is measured when the editor finishes
+reading each line, not when bytes arrive at the socket, so queued input may
+be accepted if game activity spaces out its consumption. This modern host
+policy is not historical DECWAR timing or complete flood protection.
+
 `SCAN` (or `SC`) defaults to ten sectors in each direction; `SRSCAN` defaults
 to seven, clipped at galaxy edges. RESET starts with an 80-column terminal width.
 `SCAN 10` supplies the range explicitly. The startup scan has its own explicit

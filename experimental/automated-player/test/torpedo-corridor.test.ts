@@ -76,3 +76,19 @@ test('Corridor contains CHECK board reads for all legal aim directions and sampl
     }
   }
 });
+
+test('Planet corridor exception permits only the selected enemy or neutral planet', () => {
+  const o = observation(), target = { v: 20, h: 23 };
+  const targetCell = o.scan.cells.find(c => c.v === 20 && c.h === 23)!;
+  targetCell.symbol = '@E';
+  const clear = () => clearTorpedoCorridor(o.scan, o.status.position, target, 'FEDERATION', 1000, true);
+  assert.equal(clearTorpedoCorridor(o.scan, o.status.position, target, 'FEDERATION', 1000), false);
+  assert.equal(clear(), true);
+  targetCell.symbol = ' @'; assert.equal(clear(), true);
+  for (const symbol of ['@F', ' *']) { targetCell.symbol = symbol; assert.equal(clear(), false); }
+  targetCell.symbol = '@E';
+  const beyond = o.scan.cells.find(c => c.v === 20 && c.h === 25)!;
+  for (const symbol of ['@E', '@F', ' @', ' *']) { beyond.symbol = symbol; assert.equal(clear(), false); }
+  beyond.symbol = ' .'; beyond.observedAt = -6000;
+  assert.equal(clear(), false);
+});

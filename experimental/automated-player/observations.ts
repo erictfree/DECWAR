@@ -142,6 +142,21 @@ export function parseTargets(text: string, observedAt = Date.now()): ListedObjec
 
 export type TorpedoOutcome = 'hit' | 'deflected' | 'miss' | 'misfire' | 'black-hole' | 'friendly-neutralized' | 'star-unaffected' | 'nova' | 'unknown';
 
+export type DestructionKind = 'ship' | 'base' | 'planet' | 'unknown';
+
+// Destruction is confirmed only by the server's explicit DESTROYED notice.
+// A weapon hit or an object disappearing from LIST is insufficient evidence.
+export function classifyDestruction(text: string): DestructionKind[] {
+  const kinds: DestructionKind[] = [];
+  for (const line of text.split(/\r?\n/)) {
+    if (!/DESTROYED/i.test(line)) continue;
+    const lower = line.toLowerCase();
+    const kind: DestructionKind = lower.includes('planet') ? 'planet' : lower.includes('base') ? 'base' : /ship|captain|@\d+-\d+/.test(lower) ? 'ship' : 'unknown';
+    if (!kinds.includes(kind)) kinds.push(kind);
+  }
+  return kinds;
+}
+
 // Player TORP emits one result for the one-torpedo bursts used by this bot.
 // Keep unknown distinct: terminal timing can defer a queued hit message, and
 // absence of a phrase is not evidence of a miss. Source: OUTHIT

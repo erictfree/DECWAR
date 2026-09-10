@@ -11,7 +11,7 @@ for (const ships of [4, 10]) test(`Fleet launches ${ships} ships across both fac
   const fixture = await scenario(t); await fixture.client.quit();
   const directory = resolve(`logs/automated-player-fleet-test-${Date.now()}`);
   const seconds = ships === 10 ? 20 : 12;
-  const child = spawn(process.execPath, ['experimental/automated-player/fleet.ts', '--port', String(fixture.port), '--seconds', String(seconds), '--ships', String(ships), '--federation-strategy', ships === 4 ? 'siege' : 'objective', '--empire-strategy', ships === 4 ? 'siege' : 'objective', '--log-dir', directory], { stdio: ['ignore', 'pipe', 'pipe'] });
+  const child = spawn(process.execPath, ['experimental/automated-player/fleet.ts', '--port', String(fixture.port), '--seconds', String(seconds), '--ships', String(ships), '--submission-interval-ms', '0', '--federation-strategy', ships === 4 ? 'siege' : 'objective', '--empire-strategy', ships === 4 ? 'siege' : 'objective', '--log-dir', directory], { stdio: ['ignore', 'pipe', 'pipe'] });
   const ended = once(child, 'exit');
   t.after(() => { if (child.exitCode === null) child.kill('SIGTERM'); });
   child.stdout.on('data', data => appendFileSync(`${directory}.stdout.log`, data));
@@ -25,7 +25,7 @@ for (const ships of [4, 10]) test(`Fleet launches ${ships} ships across both fac
     assert.equal(bot.state, 'interrupted'); assert.ok(bot.decisions > 0);
     assert.ok(bot.retrySchedules >= bot.retryAttempts); assert.ok(bot.retryAttempts >= bot.reconnects);
   }
-  assert.equal(summary.bots.Scout.mode, 'objective'); assert.equal(summary.bots.Raven.mode, 'objective');
+  assert.equal(summary.bots.Scout.mode, ships === 4 ? 'siege' : 'objective'); assert.equal(summary.bots.Raven.mode, ships === 4 ? 'siege' : 'objective');
   assert.equal(summary.bots.Wing.mode, ships === 4 ? 'siege' : 'patrol'); assert.equal(summary.bots.Shade.mode, ships === 4 ? 'siege' : 'patrol');
   const health = JSON.parse(readFileSync(`${directory}/health.json`, 'utf8')); assert.ok(health.elapsedMs >= seconds * 1000);
   t.diagnostic(directory);

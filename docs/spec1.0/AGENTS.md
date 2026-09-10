@@ -68,7 +68,7 @@ implementations in other languages.
 Present each command in the style of a programming-language reference entry:
 
 1. a numbered heading naming the command;
-2. its command form or forms, set apart typographically;
+2. a readable, help-style syntax summary, set apart typographically;
 3. a **Syntax:** paragraph defining the accepted form, operands,
    abbreviations, and grammatical restrictions;
 4. a **Semantics:** paragraph defining validation, state transition, timing,
@@ -79,6 +79,23 @@ Keep syntax and semantics visibly distinct. Syntax states what input denotes a
 well-formed invocation; semantics states what that invocation does. Put related
 forms together when they share one semantic rule, and use the examples to expose
 boundaries or characteristic behavior rather than to restate the rule.
+
+Define formal command productions only in Section 4, Grammar. Command entries
+use readable syntax summaries: literal words, angle-bracket operands, brackets
+for optional input, vertical bars for alternatives, and ellipses for repetition.
+Explain omitted operands and prompting in prose. These summaries are permitted
+restatements, not second formal definitions; check them against the grammar.
+Separate coordinate and COMPUTED forms when their operand types differ. Do not
+use mixed capitalization to imply minimum abbreviations without defining and
+verifying that convention.
+
+Apply the same specificity to every command: parameters and combinations,
+ordered validation, state effects, timing, exact output, and boundary cases.
+A command may be defined as a specialization of another only when the shared
+operation is fully defined and the equivalence is established. State its
+defaults, restrictions, and exceptions explicitly. Sharing historical code is
+not evidence of full semantic equivalence. Reviewer notes identify unfinished
+work; they do not make an entry complete.
 
 ## Voice
 
@@ -128,6 +145,12 @@ only because of the original machine or runtime. If the distinction is
 uncertain, raise it for discussion.
 
 ## Incremental method
+
+When the user defers a semantic choice for discussion, document the alternatives
+and their observable consequences in the relevant specification chapter, not
+only in CHARACTER.md. Mark the discussion as unresolved and continue drafting
+unaffected rules. Do not repeatedly request the same decision or treat deferral
+as approval. Distinguish an unresolved final contract from a drafting blocker.
 
 Work in small vertical slices. Define vocabulary before operations, and define
 an operation before expanding its examples. A useful slice normally contains:
