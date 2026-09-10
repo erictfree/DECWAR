@@ -3,6 +3,7 @@
 import { mkdirSync,appendFileSync } from 'node:fs';
 import { dirname,resolve } from 'node:path';
 import { once } from 'node:events';
+import { isIP } from 'node:net';
 import { createTelnetServer } from '../src/transport/server.ts';
 import { WorldDirectory } from '../src/runtime/world-directory.ts';
 import { reloadableSession,SessionReload } from '../src/runtime/reloadable-session.ts';
@@ -15,13 +16,14 @@ import { acquireDataDirectory } from '../src/runtime/data-directory.ts';
 
 const args=process.argv.slice(2);
 if(args.includes('--help')){
-  process.stdout.write('Usage: npm start -- [--port 2323] [--variant austin|compuserve] [--data directory] [--log logs/telnet-runtime.log] [--strict] [--input-interval-ms 500] [--diagnostic-records 0..100000]\nPlayable DECWAR; localhost only. --strict selects historical diagnostic behavior.\nSee docs/playable-decisions.md for documented compatibility repairs.\n');
+  process.stdout.write('Usage: npm start -- [--bind 127.0.0.1] [--port 2323] [--variant austin|compuserve] [--data directory] [--log logs/telnet-runtime.log] [--strict] [--input-interval-ms 500] [--diagnostic-records 0..100000]\nPlayable DECWAR; localhost by default. Use --bind 0.0.0.0 or --bind :: only when external access is intended. --strict selects historical diagnostic behavior.\nSee docs/playable-decisions.md and docs/external-server.md.\n');
   process.exit(0);
 }
-let variant:VariantId='austin',port=2323,playable=true,inputIntervalMs=500,diagnosticLimit=0,data:string|undefined,log=resolve('logs','telnet-runtime-'+new Date().toISOString().replaceAll(':','-')+'.log');
+let variant:VariantId='austin',bind='127.0.0.1',port=2323,playable=true,inputIntervalMs=500,diagnosticLimit=0,data:string|undefined,log=resolve('logs','telnet-runtime-'+new Date().toISOString().replaceAll(':','-')+'.log');
 for(let i=0;i<args.length;i++){
   const option=args[i];if(option==='--strict'){playable=false;continue;}const value=args[++i];
   if(option==='--variant'&&(value==='austin'||value==='compuserve'))variant=value;
+  else if(option==='--bind'&&value!==undefined&&isIP(value)!==0)bind=value;
   else if(option==='--port'&&value!==undefined&&/^\d+$/.test(value)&&Number(value)<=65535)port=Number(value);
   else if(option==='--input-interval-ms'&&value!==undefined&&/^\d+$/.test(value)&&Number(value)<=60000)inputIntervalMs=Number(value);
   else if(option==='--diagnostic-records'&&value!==undefined&&/^\d+$/.test(value)&&Number(value)<=MAX_DIAGNOSTIC_RECORDS)diagnosticLimit=Number(value);
@@ -68,9 +70,9 @@ function failed(error:unknown){
   void host.close().then(()=>releaseData()).catch(closeError=>process.stderr.write(String(closeError)+'\n'));
 }
 try{
-  host.server.listen(port,'127.0.0.1');await once(host.server,'listening');
+  host.server.listen(port,bind);await once(host.server,'listening');
   host.server.on('error',failed);
   const address=host.server.address();if(!address||typeof address==='string')throw new Error('Expected a TCP listener address');
-  record({event:'listening',diagnosticLimit,inputIntervalMs:playable?inputIntervalMs:0,variant,source:context.definition.evidence.sourceRoot,mapSha256:context.definition.evidence.mapSha256,host:'127.0.0.1',port:address.port,data,profile:playable?'playable':'historical-diagnostic',limitations:playable?'docs/playable-decisions.md':'docs/running.md'});
-  process.stdout.write(`DECWAR ${variant} ${playable?'playable':'historical diagnostic'} runtime: telnet 127.0.0.1 ${address.port}\nHost log: ${log}\nData: ${data}\n${playable?'Documented repairs enabled; see docs/playable-decisions.md.':'Exact historical behavior remains unresolved in some paths; see docs/running.md.'}\n`);
+  record({event:'listening',diagnosticLimit,inputIntervalMs:playable?inputIntervalMs:0,variant,source:context.definition.evidence.sourceRoot,mapSha256:context.definition.evidence.mapSha256,host:bind,port:address.port,data,profile:playable?'playable':'historical-diagnostic',limitations:playable?'docs/playable-decisions.md':'docs/running.md'});
+  process.stdout.write(`DECWAR ${variant} ${playable?'playable':'historical diagnostic'} runtime: telnet ${bind} ${address.port}\nHost log: ${log}\nData: ${data}\n${playable?'Documented repairs enabled; see docs/playable-decisions.md.':'Exact historical behavior remains unresolved in some paths; see docs/running.md.'}\n`);
 }catch(error){failed(error);}

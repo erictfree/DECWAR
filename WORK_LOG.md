@@ -8921,3 +8921,29 @@ The one-minute 18-ship aggressive smoke under `logs/aggressive-profile/energy-su
   (`logs/persistent-ten-20260910/tests.log`). Experimental and root TypeScript
   checks pass (`experimental-typecheck.log`, `root-typecheck.log`), and the
   135-file archive audit passes (`audit.log`) in the same directory.
+
+## 2026-09-10 — AWS Lightsail Bitnami host deployment
+
+- Added an explicit `--bind` IP-address option to `tools/run-telnet.ts`.
+  The safe default remains `127.0.0.1`; `--bind 0.0.0.0` permits an intentionally
+  exposed IPv4 service. The selected address is printed and recorded in the
+  listening telemetry. This changes host reachability only, not Telnet framing,
+  session scheduling or game behavior.
+- Added `deploy/decwar-bitnami.service` for the Bitnami `bitnami` account. It
+  runs Austin playable mode on TCP 2423, keeps mutable galaxy data and logs
+  outside the checkout, restarts after failure and uses normal SIGTERM shutdown.
+- Added `docs/external-server.md` with Node/runtime checks, installation,
+  wildcard-listener verification, systemd setup, Lightsail IPv4 firewall,
+  optional VM firewall, remote Telnet verification, updates and stopped-galaxy
+  backups. README and the running guide link to it and retain localhost as the
+  documented default.
+- Focused connected-host tests pass 2/2, including an Austin listener bound to
+  `0.0.0.0` and reached through loopback. Root typecheck and archive audit pass.
+  Evidence: `logs/external-server-20260910/`.
+- The first full regression run passed 4,593/4,594; an unrelated Austin fixture
+  could not find three safe sectors because it assumed random initial bases left
+  space in a small central rectangle. The fixture now searches the complete
+  playable interior while retaining actual base defenses. Its focused rerun
+  passes 5/5 (`austin-game-rerun-2.log`) and the final root suite passes
+  4,594/4,594 (`root-tests-final.log`). The first failure remains in
+  `root-tests.log`; no game state or generation rule was changed.

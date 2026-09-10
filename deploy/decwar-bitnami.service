@@ -1,0 +1,21 @@
+[Unit]
+Description=DECWAR Austin Telnet server
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=bitnami
+Group=bitnami
+WorkingDirectory=/home/bitnami/DECWAR
+ExecStart=/home/bitnami/bin/node tools/run-telnet.ts --variant austin --bind 0.0.0.0 --port 2423 --data /home/bitnami/decwar-data/austin --log /home/bitnami/decwar-logs/server.jsonl
+Restart=on-failure
+RestartSec=5
+KillSignal=SIGTERM
+TimeoutStopSec=60
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

@@ -64,7 +64,9 @@ test('All eighteen Austin slots share a galaxy and exchange messages across the 
 test('Austin movement, capture, building and docking use the same live command composition',{timeout:45000},async t=>{
   const worlds=new WorldDirectory(undefined,createVariantContext('austin')),game=await captain(t,worlds,1,18,true),f=game.runtime.f,K=variantDefinitions.austin.constants;
   let at:[number,number]|undefined;
-  for(let v=15;v<45&&!at;v++)for(let h=15;h<43;h++)if([0,1,2].every(d=>f.views.high.board.disp(v,h+d)===0)&&[1,2].every(team=>Array.from({length:K.KNBASE},(_,i)=>i+1).every(i=>f.high.read('base',i,3,team)<=0n||Math.max(Math.abs(v-Number(f.high.read('base',i,1,team))),Math.abs(h-Number(f.high.read('base',i,2,team))))>12))){at=[v,h];break;}
+  // Initial bases are random; search the playable interior instead of assuming
+  // the central rectangle contains three clear sectors outside every defense.
+  for(let v=2;v<74&&!at;v++)for(let h=2;h<72;h++)if([0,1,2].every(d=>f.views.high.board.disp(v,h+d)===0)&&[1,2].every(team=>Array.from({length:K.KNBASE},(_,i)=>i+1).every(i=>f.high.read('base',i,3,team)<=0n||Math.max(Math.abs(v-Number(f.high.read('base',i,1,team))),Math.abs(h-Number(f.high.read('base',i,2,team))))>12))){at=[v,h];break;}
   assert.ok(at);const [v,h]=at;
   // Only stage the encounter. Commands retain real parsing, arithmetic, locks,
   // turn accounting and waits. Move an existing neutral planet, preserving 20.

@@ -46,8 +46,12 @@ In another terminal, connect to the game:
 telnet 127.0.0.1 2323
 ```
 
-The server listens on localhost. Open another Telnet connection to
+The server listens on localhost by default. Open another Telnet connection to
 join as another captain; players share the same galaxy.
+
+For an AWS Lightsail Bitnami deployment, including the explicit external bind,
+systemd service, firewall rule, persistence, backups and updates, follow
+[Run DECWAR on AWS Lightsail with Bitnami](docs/external-server.md).
 
 Enter a short captain name, then press Enter at the HELP/PREgame prompt. The
 first captain chooses the game options: press Enter for a regular game, then

@@ -14,9 +14,14 @@ telnet 127.0.0.1 2323
 ```
 
 The default is **Austin reconstruction**, a playable eighteen-player game based
-on the pinned supplied sources. The server binds localhost. Connections share
+on the pinned supplied sources. The server binds localhost by default. Connections share
 a galaxy. This is a playable alpha with [documented repairs](playable-decisions.md),
 not a claim of exact historical compiler or terminal parity.
+
+`--bind` selects an IP listener address. Keep the default `127.0.0.1` for local
+play; use `--bind 0.0.0.0` only when the host firewall is intentionally exposing
+the selected port. See the [AWS Lightsail Bitnami guide](external-server.md) for
+the service, persistence, firewall, backup and update procedure.
 
 ## First captain
 
@@ -181,7 +186,7 @@ The TypeScript game and the preserved PDP-10 reference are separate programs.
 | --- | --- | --- |
 | Environment | Node.js 24 or newer | TOPS-10 under a PDP-10 emulator, with the reference build environment |
 | Launch | `npm start` | Separate emulator boot and TOPS-10 game launch; see [build evidence](austin-build-evidence.md) |
-| Connection | Default localhost port 2323; configurable with `--port` | Emulator terminal port configured separately; the recorded reference setup uses 2030 |
+| Connection | Default `127.0.0.1:2323`; configurable with `--bind` and `--port` | Emulator terminal port configured separately; the recorded reference setup uses 2030 |
 | Login | DECWAR captain-name dialogue | TOPS-10 login before DECWAR |
 
 Port numbers do not select a source variant. `--variant` selects the TypeScript

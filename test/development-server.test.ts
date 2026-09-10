@@ -35,15 +35,15 @@ test('Explicit CompuServe development entry serves source STATUS and logs forced
   await assert.rejects(access(join(data,'.host.lock')),error=>error instanceof Error&&'code'in error&&error.code==='ENOENT');
 });
 
-test('Omitted variant starts Austin, executes its INI and quits without CompuServe statistics',{timeout:15000},async t=>{
+test('Omitted variant starts Austin on an explicit external bind, executes its INI and quits without CompuServe statistics',{timeout:15000},async t=>{
   const directory=await mkdtemp(join(tmpdir(),'decwar-austin-host-')),log=join(directory,'host.log'),data=join(directory,'data');
   t.after(()=>rm(directory,{recursive:true,force:true}));
-  const child=spawn(process.execPath,['tools/run-telnet.ts','--port','0','--input-interval-ms','0','--data',data,'--log',log],{stdio:['ignore','pipe','pipe']});
+  const child=spawn(process.execPath,['tools/run-telnet.ts','--bind','0.0.0.0','--port','0','--input-interval-ms','0','--data',data,'--log',log],{stdio:['ignore','pipe','pipe']});
   const exit=once(child,'exit');let stdout='',stderr='';
   t.after(async()=>{if(child.exitCode===null&&child.signalCode===null)child.kill('SIGKILL');await exit;});
   child.stderr.on('data',bytes=>{stderr+=bytes.toString();});
   let listen:(port:number)=>void=()=>{};const listening=new Promise<number>(resolve=>{listen=resolve;});
-  child.stdout.on('data',bytes=>{stdout+=bytes.toString();const match=/telnet 127\.0\.0\.1 (\d+)/.exec(stdout);if(match)listen(Number(match[1]));});
+  child.stdout.on('data',bytes=>{stdout+=bytes.toString();const match=/telnet 0\.0\.0\.0 (\d+)/.exec(stdout);if(match)listen(Number(match[1]));});
   const port=await Promise.race([listening,exit.then(()=>{throw new Error('Host exited: '+stderr);})]);
   const socket=connect(port,'127.0.0.1'),decoder=new TelnetCodec();let output='',ended=false;const waiting:{pattern:string;start:number;resolve:()=>void;reject:(error:Error)=>void}[]=[];
   t.after(()=>socket.destroy());
@@ -56,7 +56,7 @@ test('Omitted variant starts Austin, executes its INI and quits without CompuSer
   await until('\r\n> ',output.indexOf('> srscan 2 w')+1);await request('STATUS','Radio  On');await request('QUIT','Do you really want to quit? ');
   const end=once(socket,'end');socket.write('YES\r\n');await end;
   child.kill('SIGTERM');assert.deepEqual(await exit,[0,null]);assert.equal(stderr,'');
-  const records=(await readFile(log,'utf8')).trim().split('\n').map(line=>JSON.parse(line));assert.equal(records[0].variant,'austin');
+  const records=(await readFile(log,'utf8')).trim().split('\n').map(line=>JSON.parse(line));assert.equal(records[0].variant,'austin');assert.equal(records[0].host,'0.0.0.0');
   assert.equal(records.find(record=>record.event==='session-end').reason,'completed');assert.equal(JSON.parse(await readFile(join(data,'variant.json'),'utf8')).variant,'austin');
   await assert.rejects(access(join(data,'DECWAR.STA.words')),error=>error instanceof Error&&'code'in error&&error.code==='ENOENT');
   await assert.rejects(access(join(data,'.host.lock')),error=>error instanceof Error&&'code'in error&&error.code==='ENOENT');
