@@ -8947,3 +8947,25 @@ The one-minute 18-ship aggressive smoke under `logs/aggressive-profile/energy-su
   passes 5/5 (`austin-game-rerun-2.log`) and the final root suite passes
   4,594/4,594 (`root-tests-final.log`). The first failure remains in
   `root-tests.log`; no game state or generation rule was changed.
+
+## 2026-09-10 — complete-prompt deadline race
+
+- The first v21 long game eventually left 17 of 18 clients failed after about
+  95 minutes. Their timeout evidence ended in a syntactically complete
+  `Command: ` prompt. The server had responded; this was not evidence of a slow
+  command or missing output.
+- Root cause: `PlayerClient.waitFor` deliberately holds a matched prompt for a
+  short settling window so trailing asynchronous notices stay in the same
+  response. If the prompt arrived inside that settling window immediately
+  before the older response deadline, the deadline callback reported a timeout
+  without rechecking the already matched buffer.
+- The deadline callback now accepts a complete expected prompt before applying
+  grace or timeout classification. Unknown and partial output still fails, so
+  parser errors are not converted into blind reconnect loops. This changes only
+  the experimental Telnet client.
+- The direct race regression passes 12/12 client tests
+  (`logs/prompt-deadline-20260910/client-tests.log`). Integrated client,
+  persistent-fleet, reconnect and war-ending coverage passes 28/28
+  (`integration-tests.log`); experimental TypeScript checking passes
+  (`typecheck.log`). The failed long run remains at
+  `logs/full-game-v21-20260910/` and was stopped before a replacement run.

@@ -143,6 +143,10 @@ export class PlayerClient {
       const expired = () => {
         const winner = warWinner(this.buffer);
         if (winner) { finish(new WarFinished(winner, this.buffer)); return; }
+        // A valid prompt can arrive shortly before the deadline while its
+        // settling timer still waits for trailing notices. At the deadline the
+        // complete prompt is sufficient; do not misclassify it as a timeout.
+        if (pattern.test(this.buffer)) { finish(); return; }
         // Sleep or an event-loop stall can expire every client's timer at
         // once. Give pending socket replies one bounded grace interval.
         const lateMs = Date.now() - due;

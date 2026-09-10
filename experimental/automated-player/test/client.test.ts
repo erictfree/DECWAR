@@ -109,6 +109,16 @@ test('Accepts Austin prompts with repeated carriage returns', { timeout: 5000 },
   assert.match(await client.command('STATUS'), /Command: $/);
 });
 
+test('A complete prompt arriving inside the settle window is accepted at its deadline', { timeout: 5000 }, async t => {
+  const host = createServer(socket => socket.on('data', () => setTimeout(() => socket.write('\r\nCommand: '), 80)));
+  host.listen(0, '127.0.0.1'); await once(host, 'listening');
+  t.after(() => host.close());
+  const address = host.address(); assert.ok(address && typeof address !== 'string');
+  const client = new PlayerClient({ host: '127.0.0.1', port: address.port, timeoutMs: 100, settleMs: 50 });
+  t.after(() => client.close());
+  assert.match(await client.command('STATUS'), /Command: $/);
+});
+
 test('A late deadline grants one grace interval for a pending socket response', { timeout: 5000 }, async t => {
   const realNow = Date.now; let clockJump = 0, graces = 0;
   t.mock.method(Date, 'now', () => realNow() + clockJump);
