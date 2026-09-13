@@ -1,5 +1,5 @@
 import { setTimeout as delay } from 'node:timers/promises';
-import { PlayerClient, ReentryRequired, type RecordEvent, type Team } from './client.ts';
+import { PlayerClient, ReentryRequired, type RecordEvent, type ResponseComplete, type Team } from './client.ts';
 import { WarFinished, type WarWinner } from './war-result.ts';
 import { classifyDestruction, classifyTorpedoOutcome, parseDevices, parseFriendlyBases, parseList, parseScan, parseStatus, parseTargets, parseTeamPoints, fleetSymbols, type ListedObject } from './observations.ts';
 import { PlanetMissions } from './planet-missions.ts';
@@ -79,7 +79,10 @@ export class ObservationReader {
   const radio = [] as import('./radio-coordination.ts').RadioIntent[];
   const seenRadio = new Set<string>();
   const read = async (line: string) => {
-    const response = await client.command(line);
+    const responseComplete: ResponseComplete | undefined = /^LIST\b/i.test(line)
+      ? text => /^(?:[ *](?:Excalibur|Farragut|Intrepid|Lexington|Nimitz|Savannah|Trenton|Vulcan|Yorktown|Buzzard|Cobra|Demon|Goblin|Hawk|Jackal|Manta|Panther|Wolf)\s+(?:@|out of range))/m.test(text)
+      : undefined;
+    const response = await client.command(line, responseComplete);
     for (const intent of extractRadioMessages(response)) {
       const position = 'position' in intent && intent.position ? `${intent.position.v},${intent.position.h}` : '';
       const key = `${intent.kind}|${position}|${intent.text}`;

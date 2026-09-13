@@ -108,6 +108,13 @@ function parseObjectRows(text: string, observedAt: number): ListedObject[] {
     const location = /^@[\t ]*(\d+)-[\t ]*(\d+)(.*)$/.exec(body);
     if (!location) throw new Error(`Invalid LIST location for ${name}`);
     object.position = { v: Number(location[1]), h: Number(location[2]) };
+    // Austin keeps a destroyed/not-yet-released vessel in the roster at
+    // origin. It is a valid roster row, but not a navigable observation.
+    if (kind === 'ship' && object.position.v === 0 && object.position.h === 0) {
+      delete object.position;
+      result.push(object);
+      continue;
+    }
     if (![object.position.v, object.position.h].every(n => n >= 1 && n <= 75)) throw new Error('LIST coordinate outside Austin bounds');
     const detail = location[3].trim();
     if (kind === 'planet') {

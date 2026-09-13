@@ -25,6 +25,8 @@ export class ReentryRequired extends Error {
   constructor() { super('Ship lost; Austin returned to its pregame dialogue'); }
 }
 
+export type ResponseComplete = (text: string) => boolean;
+
 export class PlayerClient {
   private socket: Socket;
   private codec = new ClientTelnet();
@@ -111,7 +113,7 @@ export class PlayerClient {
     this.socket.write(bytes);
   }
 
-  private async waitFor(pattern: RegExp, allowEnd = false): Promise<string> {
+  private async waitFor(pattern: RegExp, allowEnd = false, complete?: ResponseComplete): Promise<string> {
     return new Promise((resolve, reject) => {
       let settle: ReturnType<typeof setTimeout> | undefined;
       let finished = false, graceUsed = false;
@@ -138,7 +140,7 @@ export class PlayerClient {
         }
         if (this.failure) { finish(this.failure); return; }
         if (this.ended) { finish(allowEnd ? undefined : new ConnectionFailure('Connection ended before expected prompt')); return; }
-        if (pattern.test(this.buffer)) settle = setTimeout(() => finish(), this.settleMs);
+        if (pattern.test(this.buffer) && (!complete || complete(this.buffer))) settle = setTimeout(() => finish(), this.settleMs);
       };
       const expired = () => {
         const winner = warWinner(this.buffer);
@@ -146,7 +148,7 @@ export class PlayerClient {
         // A valid prompt can arrive shortly before the deadline while its
         // settling timer still waits for trailing notices. At the deadline the
         // complete prompt is sufficient; do not misclassify it as a timeout.
-        if (pattern.test(this.buffer)) { finish(); return; }
+        if (pattern.test(this.buffer) && (!complete || complete(this.buffer))) { finish(); return; }
         // Sleep or an event-loop stall can expire every client's timer at
         // once. Give pending socket replies one bounded grace interval.
         const lateMs = Date.now() - due;
@@ -246,13 +248,13 @@ export class PlayerClient {
     return this.exclusive(async () => { await this.send(line); return this.waitFor(expected); });
   }
 
-  async command(line: string): Promise<string> {
+  async command(line: string, complete?: ResponseComplete): Promise<string> {
     return this.exclusive(async () => {
       // An unsolicited endgame may arrive between commands. Drain its final
       // report instead of sending another command or closing mid-report.
       if (warWinner(this.buffer)) await this.waitFor(/(?!)/);
       await this.send(line);
-      let text = await this.waitFor(gameOrCoordinateOrReentry);
+      let text = await this.waitFor(gameOrCoordinateOrReentry, false, complete);
       if (coordinateContinuation.test(text)) {
         this.interrupt();
         text += await this.waitFor(gameOrReentry);

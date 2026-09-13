@@ -1,5 +1,18 @@
 # DECWAR implementation work log
 
+## 2026-09-13 — Automated client tolerates asynchronous LIST notices
+
+The local ten-player fleet exposed a client protocol assumption: an unsolicited
+radio notice can carry a `Command:` prompt immediately before the response to a
+requested `LIST`. The client now accepts a command prompt only after the
+command-specific response shape is present for `LIST`, preserving the notice
+and waiting for the actual roster report. Austin's `@0-0` roster rows for
+destroyed or unreleased ships are retained without treating the origin as a
+navigable coordinate. Added regressions for both cases. Typecheck and the
+automated client/observation suite pass (22/22). The corrected local fleet is
+running against `decwarjs.com:2423`, with all ten bots playing. No server
+deployment was required.
+
 ## 2026-09-12 — Implement Austin playable ending across command and activity paths
 
 Completed the previously requested runtime work. Corrected the earlier draft's

@@ -15,6 +15,13 @@ test('LIST keeps hidden ship locations and distant base shields unknown', () => 
   assert.throws(() => parseList(' Wolf\t@90-90 +100.0%\r\n'), /bounds/);
 });
 
+test('LIST accepts Austin origin coordinates for rostered ships', () => {
+  const objects = parseList(' Hawk\t@ 0- 0   +100.0%\r\n', 1000);
+  assert.equal(objects[0].name, 'Hawk');
+  assert.equal(objects[0].position, undefined);
+  assert.equal(objects[0].shieldPercent, undefined);
+});
+
 test('TARGETS accepts enemy-only and empty reports while rejecting incomplete text', () => {
   assert.deepEqual(parseTargets(' Wolf\t\t@10-12 +42.0%\r\n Emp Base\t@12-12 75.0%\r\n', 1000).map(o => [o.name, o.position]), [
     ['Wolf', { v: 10, h: 12 }], ['Emp Base', { v: 12, h: 12 }],

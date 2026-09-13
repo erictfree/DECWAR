@@ -32,6 +32,25 @@ test('Dialogue buffers bytewise prompts, ignores old responses, and rejects conc
   assert.match(second, /answer 2/); assert.doesNotMatch(second, /answer 1/);
 });
 
+test('LIST waits past an unsolicited autonomous prompt for the requested report', { timeout: 5000 }, async t => {
+  const sockets = new Set<Socket>();
+  const host = createServer(socket => {
+    sockets.add(socket);
+    socket.on('data', () => {
+      socket.write('\r\nMessage from Wolf to  E F\r\nLow on energy.\r\n\r\nCommand: ');
+      setTimeout(() => socket.write('\r\n Excalibur   @10-10   +100.0%\r\n\r\nCommand: '), 25);
+    });
+  });
+  host.listen(0, '127.0.0.1'); await once(host, 'listening');
+  t.after(async () => { for (const socket of sockets) socket.destroy(); await new Promise<void>(resolve => host.close(() => resolve())); });
+  const address = host.address(); assert.ok(address && typeof address !== 'string');
+  const client = new PlayerClient({ host: '127.0.0.1', port: address.port, settleMs: 1, timeoutMs: 200 });
+  t.after(() => client.close());
+  const response = await client.command('LIST', text => /(?:^|\r\n) Excalibur\s+@/m.test(text));
+  assert.match(response, /Message from Wolf/);
+  assert.match(response, /Excalibur\s+@10-10/);
+});
+
 test('Coordinate continuation is aborted with Ctrl-C and the connection remains usable', { timeout: 5000 }, async t => {
   const sockets = new Set<Socket>();
   const events: Record<string, unknown>[] = [];
