@@ -3084,10 +3084,18 @@ stage to earn the full award for its own stage.
 A successful BUILD completes a turn, including normal automatic device repair
 and pending-score commitment. A failed eligibility check awards no points.
 
-> Reviewer note — conversion effects: Planet removal invokes port-loss and
-> game-end processing before the historical conversion finishes. Resolve its
-> interaction with the shared lifecycle rules, including C-021, before treating
-> the local replacement and score changes as the complete command transition.
+The conversion is a single BUILD transition for game semantics. Planet removal
+does not finalize the game in the middle of that transition. The new base is
+installed as part of the replacement, then the ending predicate is evaluated
+and any terminal outcome is latched. Conversion output and normal turn
+completion follow, including score commitment. Only then does the player
+receive the ending report and release. Later completion effects cannot change
+the latched result.
+
+> Reviewer note — source ordering: The historical implementation invokes
+> ENDGAM from planet removal before the later base-installation statements.
+> Austin Core adopts replacement followed by latching, completion and final
+> reporting as specified above. The historical early exit is not adopted.
 
 > Reviewer note — readiness and contention: Historical readiness depends on
 > terminal speed and prompt duration. Neither a host-speed quantity nor a
@@ -3135,24 +3143,19 @@ DOCK's replenishment. It creates no separate conversion notification for Wolf.
 The command has a readiness obligation, whose duration remains C-007; the
 table does not select a delay or describe the subsequent prompt transcript.
 
-This example avoids rather than resolves the conversion choices: no docked
-ship needs a support check, the remaining planet prevents ending, and the
-new base is the only base so its enumeration position is unambiguous.
+This example also fixes the final-planet case: if the neutral planet were
+absent and Empire had no bases, the completed conversion would latch Federation
+victory at replacement, before normal BUILD completion effects. It
+would not latch mutual destruction.
 
 ### Discussion — final-planet conversion (C-022)
 
-Remove the neutral planet from the preceding initial state. Conversion now
-removes the galaxy's final planet while the Empire has no bases. Historically,
-ending can occur during removal, before the new base is installed and before
-the conversion announcement. Final reporting uses committed scores: the new
-500-point pending award need not appear in that report.
-
-Completing conversion before checking ending would instead make the new base
-and the conversion announcement precede ending. Committing the award before
-final reporting is a further choice: atomic replacement alone does not imply
-that commitment. A final rule must specify both the ending checkpoint and
-whether normal turn completion occurs. Until that decision, the successful
-local replacement rule is not a complete final-planet BUILD transaction.
+Remove the neutral planet from the preceding initial state and give Empire no
+bases. BUILD replaces the planet with the Federation base and latches Federation
+victory. It then emits the conversion announcement and performs normal turn
+completion before reporting the ending. Final reporting uses
+committed scores; the new 500-point award is committed by the completed turn
+before any final report for that player.
 
 ## 7.17. RADIO
 
@@ -3490,6 +3493,11 @@ After validation and the bank wait, resolve the shot in this order:
 4. Deduct the selected firing energy, set the firing ship's condition to RED,
    and update the selected bank's readiness.
 5. Complete the turn using Section 9.1.
+
+If the hit destroys a base, apply Section 9.4's ending check at that removal.
+A terminal result is latched before the remaining firing and completion steps;
+the ending announcement and release follow those steps. Phasers reduce a
+planet's construction but do not directly destroy it.
 
 Notice creation here does not mean immediate delivery to every recipient;
 Sections 9 and 10 define delivery and recipient-specific rendering. In
@@ -3871,6 +3879,11 @@ A torpedo hit on an enemy ship breaks its tractor link after the damage report
 is created. A full-strength enemy base calls for assistance before damage;
 base destruction can generate a further faction notification. The burst sets
 subsequent torpedo readiness and completes one turn, not one turn per torpedo.
+
+Planet or base destruction checks the ending predicate immediately after that
+removal (Section 9.4). A latched outcome does not itself stop remaining shots,
+nova effects, or the burst's normal completion. Existing fatal-exit rules still
+apply. Ending output and release occur when the command finishes.
 
 > Reviewer note — shared combat dependencies: Section 6 defines initial and critical
 > damage, displacement, sector traversal and ordinary scoring. Sections 9 and

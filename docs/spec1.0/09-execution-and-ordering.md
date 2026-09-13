@@ -361,6 +361,40 @@ A faction with no bases has not yet lost while any planet remains. Conversely,
 having commissioned ships does not prevent defeat once the condition above
 holds. Administrative termination is a separate, unresolved operation.
 
+The first terminal result is stored in `Galaxy.warOutcome`. The check is made
+after the state mutation that removes the final planet or base. A successful
+fifth-stage BUILD installs its new base before this check; therefore it can
+produce a faction victory, but not mutual destruction. A planet destroyed by
+combat or autonomous activity creates mutual destruction when both faction
+base counts are already zero.
+
+Detection produces no ending output and releases no player. The test and latch
+are one indivisible operation with respect to other ending checks. Subsequent
+checks return the stored result, even if later activity destroys the other
+faction's last base.
+
+A command already accepted when the result is latched continues through its
+defined effects and completion phases, including due world activity and score
+commitment. Latching does not add a turn to commands that normally complete no
+turn, or override a command's existing fatal exit. At the command's exit boundary,
+its player receives the ending announcement, final POINTS, and release, in that
+order, before readiness waiting or another prompt. Each participating commission
+receives this sequence once. An idle player receives it without having to submit
+another command; a queued command cannot start after the latch. Commands awaiting
+an operand are already underway and retain their existing completion/cancellation
+rules. No new ordinary command or independently triggered world cycle starts
+after the latch; world activity already underway or belonging to an accepted
+command can finish. These effects cannot change the outcome.
+
+The rule applies to direct planet and base destruction, every removal within a
+nova chain or torpedo burst, and removals caused by autonomous activity. A chain
+can therefore latch victory at one removal and later destroy the victorious
+faction's last base without changing that victory. Mutual destruction occurs
+when both factions have no bases at the first terminal check, for example when
+combat destroys the final planet after both factions have lost their bases.
+Output delivery to different players need not be simultaneous; all ending
+announcements use the same stored result.
+
 For a single-faction victory, the ending output starts with
 `THE WAR IS OVER!!\n\n`, then the appropriate announcement:
 
@@ -376,18 +410,27 @@ Append one line addressed to the receiving player's faction:
 | Empire | Empire | `The Empire salutes you.  Begin slave operations immediately.\n` |
 | Federation | Empire | `The Empire has fallen.  Initiate self-destruction procedure.\n` |
 
-These announcements are not abbreviated by output length. Final POINTS and
+For mutual destruction, emit exactly:
+
+```text
+THE WAR IS OVER!!
+
+The entire known galaxy has been depopulated.
+
+BOTH sides lose!!
+```
+
+Do not append either faction's victory announcement to this form. These
+announcements are not abbreviated by output length. Final POINTS and
 release follow for a participating player, using Section 9.3's committed-score
 rule. The announcement text does not itself authorize another gameplay action.
 
-> Reviewer note — ending integration (C-022): The ending predicate is defined
-> for a consistent galaxy state. The exact check points, remaining command
-> effects, per-player delivery and administrative ending still need integration.
-> In particular, historical final-planet BUILD can enter ending before its
-> base installation and announcement finish. Do not infer an atomic conversion
-> or silently discard its remaining effects from this predicate alone.
-> Mutual-destruction text also prints contradictory faction-victory messages;
-> its final output contract remains under review.
+> Reviewer note — ending integration (C-022): The first-result latch,
+> post-mutation check, completion of an already accepted command, and
+> non-contradictory mutual-destruction output are adopted. Remaining work is
+> detailed ordering with other pending notifications and administrative
+> shutdown. Cross-player delivery need not be simultaneous. No later result
+> may replace the first one.
 
 ## 9.5. Pending notifications and delivery context
 

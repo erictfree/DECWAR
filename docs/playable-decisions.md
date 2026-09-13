@@ -60,6 +60,31 @@ wait from becoming an allocating loop that starves other connections and shutdow
 
 ## Validation
 
+### Austin normal war ending
+
+Austin playable sessions latch the first terminal outcome when a planet or base
+count decreases to a terminal configuration. BUILD has reserved its replacement
+base before removing the planet, so conversion cannot briefly count as mutual
+destruction. Accepted commands finish their effects and normal completion,
+including score commitment. Ending output, final POINTS and release follow
+before readiness waiting or another prompt. Idle players are woken for this
+sequence; queued input cannot start a new command. Each commission receives one
+ending report using the shared outcome. Mutual destruction emits only its
+dedicated announcement. An already accepted burst or nova chain may cause later
+losses, but these cannot replace the recorded outcome.
+
+Source evidence: Austin DECWAR.FOR BUILD:534–594, PLNRMV:2865–2890 and
+ENDGAM:961–1005. Historical ENDGAM exits inside planet removal and rereads live
+counts during output. The repair is bound in `src/runtime/playable-ending.ts`
+and `src/runtime/game-session.ts`; its shared latch belongs to `SharedGameWorld`.
+It applies to Austin playable sessions only. CompuServe and historical diagnostic
+execution retain their existing behavior. Administrative SET ENDFLG remains a
+separate historical path.
+
+Connected tests exercise BUILD scoring and release, torpedo burst and nova
+continuation, phaser last-base destruction, idle wakeup, and overlapping accepted
+commands. These are staged TypeScript regressions, not native parity tests.
+
 Playable lifecycle checks cover zero-turn/empty-team points, nonzero final score
 persisted to disk, normal quit, ship reuse, named LIST, TRACTOR OFF, disconnect
 during output, actual phaser destruction, pregame return, and game-over followed

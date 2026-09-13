@@ -1,5 +1,24 @@
 # Compatibility findings and unresolved dependencies
 
+## Austin playable ending policy — September 12, 2026
+
+Austin DECWAR.FOR:961–1005 (ENDGAM) rereads current base counts during output
+and exits the caller. PLNRMV:2865–2890 calls it inside BUILD:534–594 before
+base installation and turn completion. This can interrupt conversion or let
+later output describe a different outcome. Austin playable execution now
+observes decreasing planet/base counts synchronously and stores the first
+terminal result in its shared galaxy. BUILD's replacement base is already
+included in the base count. Nested ending checks return so the accepted
+command can finish. Final reporting and release run once at its exit boundary;
+idle sessions wake immediately, before accepting more commands.
+
+The frozen result also controls every announcement during interleaved output;
+mutual destruction omits the contradictory faction-victory lines. The repair
+is in `src/runtime/playable-ending.ts`, connected by `game-session.ts`, and
+tested through Austin command sessions in `test/austin-game.test.ts`.
+Historical diagnostic execution, CompuServe, and administrative forced ending
+retain their existing paths. See [playable decisions](playable-decisions.md).
+
 This record began with the CompuServe archive and retains development
 checkpoints. Unqualified source filenames and line numbers refer to that archive
 unless an entry identifies Austin. Earlier integration gaps and proposed policies

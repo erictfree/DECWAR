@@ -52,6 +52,7 @@ function fixture(): Galaxy {
     planets: [{ position: { vertical: 22, horizontal: 20 }, allegiance: "NEUTRAL", construction: 0, knownTo: new Set() }],
     stars: [], blackHoles: { enabled: false }, romulan: { enabled: false },
     communication: { messages: [] }, notifications: [], worldActivityProgress: 0,
+    warOutcome: null,
     teams: { FEDERATION: { score: zeroScore(), admissions: 1, completedTurns: 1 },
       EMPIRE: { score: zeroScore(), admissions: 1, completedTurns: 1 } } };
 }

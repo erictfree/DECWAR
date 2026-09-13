@@ -101,3 +101,177 @@ test('Austin endgame retires the old galaxy and releases its last ship',{timeout
   assert.deepEqual(await game.session.done,{reason:'completed'});assert.equal(f.low.read('who'),0n);assert.equal(f.high.read('numply'),0n);
   assert.notEqual(worlds.load(),old);const next=await captain(t,worlds,2,18,true);await next.quit();
 });
+
+test('Austin final BUILD latches before completion, commits its award and tells an idle opponent',{timeout:10000},async t=>{
+  const worlds=new WorldDirectory(undefined,createVariantContext('austin'));
+  const builder=await captain(t,worlds,1,1,true),opponent=await captain(t,worlds,2,18);
+  const world=worlds.load(),f=builder.runtime.f,K=variantDefinitions.austin.constants;
+  // Staged final-planet encounter, followed by the real parsed BUILD command.
+  for(let v=1;v<=75;v++)for(let h=1;h<=75;h++)f.views.high.board.setdsp(v,h,0);
+  f.high.write('nplnet',1n);f.high.write('nbase',0n,1);f.high.write('nbase',0n,2);
+  for(const side of [1,2])for(let i=1;i<=10;i++)f.high.write('base',0n,i,3,side);
+  f.high.write('shpcon',20n,1,K.KVPOS);f.high.write('shpcon',20n,1,K.KHPOS);f.views.high.board.setdsp(20,20,101);
+  f.high.write('locpln',20n,1,1);f.high.write('locpln',21n,1,2);f.high.write('locpln',4n,1,3);
+  f.high.write('numcap',1n,1);f.views.high.board.setdsp(20,21,701);
+  f.high.write('dotime',-100n);f.high.write('romopt',0n);
+  const before=f.high.read('score',K.KPBBAS,1),turns=f.high.read('shpcon',1,K.KNTURN);
+  const finish=builder.runtime.main.io.finishTurn;
+  let completed=false;
+  builder.runtime.main.io.finishTurn=function*(auto){
+    assert.equal(world.warEnding.outcome,'FEDERATION');
+    assert.equal(f.high.read('base',1,3,1),1000n);
+    assert.doesNotMatch(builder.output(),/THE WAR IS OVER/);
+    yield*finish(auto);
+    // A later completion effect cannot revise the first result.
+    f.high.write('base',0n,1,3,1);f.high.write('nbase',0n,1);
+    completed=true;
+  };
+  builder.session.receive(Buffer.from('BUILD ABSOLUTE 20 21\r\nSTATUS\r\n'));
+  assert.deepEqual(await builder.session.done,{reason:'completed'});
+  assert.deepEqual(await opponent.session.done,{reason:'completed'});
+  assert.ok(completed);assert.equal(world.warEnding.outcome,'FEDERATION');
+  assert.equal(f.high.read('score',K.KPBBAS,1),before+5000n);
+  assert.equal(f.high.read('shpcon',1,K.KNTURN),turns+1n);
+  for(const game of [builder,opponent]){
+    assert.equal((game.output().match(/THE WAR IS OVER!!/g)??[]).length,1);
+    assert.match(game.output(),/Federation has successfully repelled/);
+    assert.doesNotMatch(game.output(),/BOTH sides lose/);
+    assert.equal(game.runtime.f.low.read('who'),0n);
+  }
+  assert.ok(builder.output().indexOf('builds planet')<builder.output().indexOf('THE WAR IS OVER!!'));
+  assert.equal(f.high.read('numply'),0n);
+});
+
+test('Austin removal latches mutual destruction and all idle players finish without input',{timeout:10000},async t=>{
+  const worlds=new WorldDirectory(undefined,createVariantContext('austin'));
+  const a=await captain(t,worlds,1,1,true),b=await captain(t,worlds,2,18),world=worlds.load(),f=a.runtime.f;
+  f.high.write('nplnet',1n);f.high.write('nbase',0n,1);f.high.write('nbase',0n,2);
+  // Exercise the same count store observed from PLNRMV, including an idle wake.
+  f.high.write('nplnet',0n);
+  assert.equal(world.warEnding.outcome,'MUTUAL_DESTRUCTION');
+  for(const game of [a,b]){
+    assert.deepEqual(await game.session.done,{reason:'completed'});
+    assert.equal((game.output().match(/THE WAR IS OVER!!/g)??[]).length,1);
+    assert.match(game.output(),/BOTH sides lose!!/);
+    assert.doesNotMatch(game.output(),/is VICTORIOUS|successfully repelled/);
+    assert.equal(game.runtime.f.low.read('who'),0n);
+  }
+  assert.equal(f.high.read('numply'),0n);assert.notEqual(worlds.load(),world);
+});
+
+for(const fedBases of [0n,1n])test(`Austin final-planet torpedo finishes its burst with ${fedBases} Federation bases`,{timeout:10000},async t=>{
+  const worlds=new WorldDirectory(undefined,createVariantContext('austin'));
+  const game=await captain(t,worlds,1,1,true),world=worlds.load(),f=game.runtime.f,K=variantDefinitions.austin.constants;
+  for(let v=1;v<=75;v++)for(let h=1;h<=75;h++)f.views.high.board.setdsp(v,h,0);
+  f.high.write('nplnet',1n);f.high.write('nbase',fedBases,1);f.high.write('nbase',0n,2);
+  f.high.write('numcap',0n,1);f.high.write('numcap',0n,2);
+  f.high.write('shpcon',20n,1,K.KVPOS);f.high.write('shpcon',20n,1,K.KHPOS);f.views.high.board.setdsp(20,20,101);
+  f.high.write('locpln',20n,1,1);f.high.write('locpln',21n,1,2);f.high.write('locpln',0n,1,3);f.views.high.board.setdsp(20,21,601);
+  f.high.write('dotime',-100n);f.high.write('romopt',0n);f.low.write('tobank',0n);
+  // Fix only integer combat choices: no misfire/drift; the planet loses a build.
+  game.runtime.main.torpedo.io.iran=function*(n){return n===4?4n:1n;};
+  const ammo=f.high.read('shpcon',1,K.KNTORP),turns=f.high.read('shpcon',1,K.KNTURN);
+  const points=f.high.read('score',K.KNPDES,1);
+  game.session.receive(Buffer.from('TORPEDOES ABSOLUTE 3 20 21\r\n'));
+  assert.deepEqual(await game.session.done,{reason:'completed'});
+  assert.equal(f.high.read('nplnet'),0n);
+  assert.equal(f.high.read('shpcon',1,K.KNTORP),ammo-3n);
+  assert.equal(f.high.read('shpcon',1,K.KNTURN),turns+1n);
+  assert.equal(f.high.read('score',K.KNPDES,1),points-1000n);
+  assert.equal(world.warEnding.outcome,fedBases?'FEDERATION':'MUTUAL_DESTRUCTION');
+  assert.equal((game.output().match(/THE WAR IS OVER!!/g)??[]).length,1);
+  assert.equal(f.low.read('who'),0n);
+});
+
+test('Austin nova continues its queued explosions after destroying the final planet',{timeout:10000},async t=>{
+  const worlds=new WorldDirectory(undefined,createVariantContext('austin'));
+  const game=await captain(t,worlds,1,1,true),world=worlds.load(),f=game.runtime.f,K=variantDefinitions.austin.constants;
+  for(let v=1;v<=75;v++)for(let h=1;h<=75;h++)f.views.high.board.setdsp(v,h,0);
+  f.high.write('nplnet',1n);f.high.write('nbase',0n,1);f.high.write('nbase',0n,2);
+  f.high.write('shpcon',20n,1,K.KVPOS);f.high.write('shpcon',20n,1,K.KHPOS);f.views.high.board.setdsp(20,20,101);
+  f.high.write('locpln',20n,1,1);f.high.write('locpln',24n,1,2);f.high.write('locpln',0n,1,3);
+  f.views.high.board.setdsp(20,24,601);f.views.high.board.setdsp(20,23,900);f.views.high.board.setdsp(21,23,900);
+  f.high.write('dotime',-100n);f.high.write('romopt',0n);f.low.write('tobank',0n);
+  game.runtime.main.torpedo.io.iran=function*(){return 1n;};
+  const nova=game.runtime.main.romulan.torpedoes.nova;
+  nova.superIO.iran=function*(){return 1n;};
+  let queuedAfterLatch=false;
+  const hit=nova.superIO.makhit;
+  nova.superIO.makhit=function*(){
+    if(world.warEnding.outcome!==null)queuedAfterLatch=true;
+    yield*hit();
+  };
+  game.session.receive(Buffer.from('TORPEDOES ABSOLUTE 1 20 23\r\n'));
+  assert.deepEqual(await game.session.done,{reason:'completed'});
+  assert.equal(world.warEnding.outcome,'MUTUAL_DESTRUCTION');assert.ok(queuedAfterLatch);
+  assert.equal(f.high.read('nplnet'),0n);assert.equal(f.views.high.board.disp(20,23),0);assert.equal(f.views.high.board.disp(21,23),0);
+  assert.equal(f.m.read(nova.superLocals.strptr),0n);assert.equal(f.low.read('who'),0n);
+});
+
+test('Austin PHASERS last-base destruction latches and commits before final reporting',{timeout:10000},async t=>{
+  const worlds=new WorldDirectory(undefined,createVariantContext('austin'));
+  const game=await captain(t,worlds,1,1,true),world=worlds.load(),f=game.runtime.f,K=variantDefinitions.austin.constants;
+  for(let v=1;v<=75;v++)for(let h=1;h<=75;h++)f.views.high.board.setdsp(v,h,0);
+  f.high.write('nplnet',0n);f.high.write('nbase',1n,1);f.high.write('nbase',1n,2);
+  f.high.write('shpcon',20n,1,K.KVPOS);f.high.write('shpcon',20n,1,K.KHPOS);f.views.high.board.setdsp(20,20,101);
+  f.high.write('base',20n,1,1,2);f.high.write('base',21n,1,2,2);f.high.write('base',1n,1,3,2);f.views.high.board.setdsp(20,21,401);
+  f.high.write('dotime',-100n);f.high.write('romopt',0n);
+  const score=f.high.read('score',K.KPBDAM,1);
+  game.session.receive(Buffer.from('PHASERS ABSOLUTE 500 20 21\r\n'));
+  assert.deepEqual(await game.session.done,{reason:'completed'});
+  assert.equal(world.warEnding.outcome,'FEDERATION');assert.equal(f.high.read('nbase',2),0n);
+  assert.ok(f.high.read('score',K.KPBDAM,1)>score);
+  assert.equal(f.low.read('tpoint',K.KPBDAM),0n);assert.equal(f.low.read('who'),0n);
+});
+
+test('Austin overlapping accepted commands finish separately using one frozen outcome',{timeout:10000},async t=>{
+  const worlds=new WorldDirectory(undefined,createVariantContext('austin'));
+  const a=await captain(t,worlds,1,1,true),b=await captain(t,worlds,2,18),world=worlds.load(),f=a.runtime.f;
+  f.high.write('nplnet',0n);f.high.write('nbase',1n,1);f.high.write('nbase',1n,2);
+  const gates=[{release:false},{release:false}];
+  const started=[a,b].map((game,index)=>new Promise<void>(resolve=>{
+    const invoke=game.runtime.main.io.invoke;
+    game.runtime.main.io.invoke=function*(call){
+      resolve();while(!gates[index].release)yield 'cooperate';
+      return yield*invoke(call);
+    };
+  }));
+  a.session.receive(Buffer.from('STATUS\r\n'));b.session.receive(Buffer.from('STATUS\r\n'));
+  await Promise.all(started);
+  f.high.write('nbase',0n,2);assert.equal(world.warEnding.outcome,'FEDERATION');
+  gates[0].release=true;assert.deepEqual(await a.session.done,{reason:'completed'});
+  assert.doesNotMatch(b.output(),/THE WAR IS OVER/);
+  // Change counts while the second accepted command has not yet finished.
+  b.runtime.f.high.write('nbase',0n,1);gates[1].release=true;
+  assert.deepEqual(await b.session.done,{reason:'completed'});
+  for(const game of [a,b]){
+    assert.equal((game.output().match(/THE WAR IS OVER!!/g)??[]).length,1);
+    assert.match(game.output(),/Federation has successfully repelled/);
+    assert.doesNotMatch(game.output(),/BOTH sides lose/);
+  }
+});
+
+test('Austin scheduled autonomous nova latches without interrupting the triggering turn',{timeout:10000},async t=>{
+  const worlds=new WorldDirectory(undefined,createVariantContext('austin'));
+  const game=await captain(t,worlds,1,1,true),world=worlds.load(),f=game.runtime.f,K=variantDefinitions.austin.constants;
+  for(let v=1;v<=75;v++)for(let h=1;h<=75;h++)f.views.high.board.setdsp(v,h,0);
+  f.high.write('nplnet',1n);f.high.write('nbase',0n,1);f.high.write('nbase',0n,2);
+  f.high.write('numcap',0n,1);f.high.write('numcap',0n,2);
+  f.high.write('shpcon',20n,1,K.KVPOS);f.high.write('shpcon',20n,1,K.KHPOS);f.views.high.board.setdsp(20,20,101);
+  f.high.write('locpln',40n,1,1);f.high.write('locpln',41n,1,2);f.high.write('locpln',0n,1,3);f.views.high.board.setdsp(40,41,601);
+  f.views.high.board.setdsp(40,40,900);f.high.write('dotime',0n);f.high.write('romopt',-1n);
+  const turns=f.high.read('shpcon',1,K.KNTURN);
+  let returned=false;
+  // Select a deterministic autonomous explosion at the real world-cycle phase.
+  // NOVA, PLNRMV, command completion and finalization execute their real paths.
+  game.runtime.main.turnIO.romdrv=function*(){
+    f.low.write('player',0n);f.out.write('h2',40n);f.out.write('v2',40n);
+    yield*game.runtime.main.romulan.torpedoes.nova.supernova();
+    assert.equal(world.warEnding.outcome,'MUTUAL_DESTRUCTION');
+    assert.doesNotMatch(game.output(),/THE WAR IS OVER/);returned=true;
+  };
+  game.session.receive(Buffer.from('IMPULSE ABSOLUTE 20 21\r\n'));
+  assert.deepEqual(await game.session.done,{reason:'completed'});
+  assert.ok(returned);assert.equal(f.high.read('nplnet'),0n);
+  assert.equal(f.high.read('shpcon',1,K.KNTURN),turns+1n);assert.equal(f.low.read('who'),0n);
+});

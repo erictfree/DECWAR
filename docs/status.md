@@ -9,6 +9,13 @@ not established. `--strict` selects a diagnostic profile with unresolved paths,
 not a certified fidelity level. The [playable decisions](playable-decisions.md)
 identify the repairs enabled for ordinary play.
 
+Austin playable ending now fixes the first terminal outcome, allows accepted
+commands to finish, and reports final points before releasing each player.
+Idle players are notified without another input. Connected regressions cover
+final BUILD, torpedoes, novas, phaser base destruction and overlapping commands;
+see [playable decisions](playable-decisions.md). This change requires deployment
+to take effect on an already running server.
+
 The [post-midnight testing checkpoint](testing-checkpoint.md) records the latest
 bounded fleet and both-variant clock/lifecycle checks. The subsequent
 [runtime diagnostic policy](runtime-diagnostics.md) disables live history retention

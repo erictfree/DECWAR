@@ -27,7 +27,7 @@ function world(): Galaxy {
     { team: "EMPIRE", position: { vertical: 36, horizontal: 20 }, strength: 100, knownTo: new Set() } ],
     planets: [{ allegiance: "NEUTRAL", position: { vertical: 22, horizontal: 20 }, construction: 0, knownTo: new Set() }],
     stars: [], blackHoles: { enabled: false }, romulan: { enabled: false },
-    communication: { messages: [] }, teams: {
+    communication: { messages: [] }, warOutcome: null, teams: {
       FEDERATION: { score: { ...score }, admissions: 1, completedTurns: 1 },
       EMPIRE: { score: { ...score }, admissions: 1, completedTurns: 1 } } };
 }

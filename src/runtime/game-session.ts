@@ -28,6 +28,8 @@ import { sourceAsset } from '../runtime/source-assets.ts';
 import { bindPlayablePolicy } from '../../test/fixtures/playable-runtime-policy.ts';
 import { diagnosticRecords,withDiagnosticRecords } from './diagnostic-records.ts';
 import { bindLiveWait } from './live-wait.ts';
+import { bindPlayableEnding } from './playable-ending.ts';
+import { WarEndingState } from './war-ending-state.ts';
 
 // Shared host/test session factory. Statement binders are being migrated from
 // test/fixtures; their synthetic compiler scratch and modern monitor services
@@ -253,6 +255,10 @@ function composeLiveSession(terminal:SessionTerminal,mode:'initialize'|'full'='i
     });
   }
   if(options.playable)bindPlayablePolicy(f,main);
+  const endingState = world?.warEnding ?? new WarEndingState();
+  const ending = options.playable && currentVariant().definition.id === 'austin'
+    ? bindPlayableEnding(f, main, endingState) : undefined;
+  if (ending) endingState.listeners.add(terminal.wake);
   const entrySource=mode==='initialize'?entry.initialize():entry.run();
   const austin=currentVariant().definition.id==='austin';
   function* boot():Generator<string,void,void>{
@@ -262,11 +268,18 @@ function composeLiveSession(terminal:SessionTerminal,mode:'initialize'|'full'='i
     yield*entrySource;
   }
   const source=boot();
-  function* drive(source:Generator<string,void,void>):Generator<SessionWait,void,void>{
+  function* drive(source:Generator<string,void,void>,checkEnding=true):Generator<SessionWait,void,void>{
     for(;;){
+      if (checkEnding && ending?.shouldFinish()) yield* drive(ending.finalize(),false);
       const step=source.next();if(step.done)return;
       if(step.value==='input'||step.value==='name-input'){
-        const byte=yield*terminal.read();if(byte!==null)f.editor.bytes.push(BigInt(byte));
+        const input = terminal.read();
+        for (;;) {
+          if (checkEnding && ending?.shouldFinish()) yield* drive(ending.finalize(),false);
+          const read = input.next();
+          if (read.done) { if(read.value!==null)f.editor.bytes.push(BigInt(read.value)); break; }
+          yield read.value;
+        }
       }else if(step.value.startsWith('hiber:')){
         const operand=BigInt(step.value.slice(6));
         yield {type:'delay',milliseconds:Number(rightHalf(operand)),wakeOnInput:leftHalf(operand)===f.wait.wakeInputLeftHalf};
@@ -277,6 +290,10 @@ function composeLiveSession(terminal:SessionTerminal,mode:'initialize'|'full'='i
     }
   }
   const context=currentVariant();
-  const program:SessionProgram={run:variantGenerator(context,drive(source)),hangup(){f.low.write('hungup',-1n);},interrupt:()=>variantGenerator(context,drive(interrupt()))};
+  function* run():Generator<SessionWait,void,void>{
+    try { yield* drive(source); }
+    finally { if(ending)endingState.listeners.delete(terminal.wake); }
+  }
+  const program:SessionProgram={run:variantGenerator(context,run()),hangup(){f.low.write('hungup',-1n);},interrupt:()=>variantGenerator(context,drive(interrupt()))};
   return {f,main,entry,program,interrupts};
 }

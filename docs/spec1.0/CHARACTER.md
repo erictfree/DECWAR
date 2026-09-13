@@ -581,11 +581,16 @@ lose, the source also prints both factions' victory announcements and both
 personal instructions for the receiving faction. This conflicts with the
 ordinary meaning of those announcements but may be recognizable historical text.
 
-**Status:** unresolved. Propose evaluating normal ending on completed game
-operations, with an explicit decision about final score commitment. Propose
-mutual-destruction wording without contradictory victory lines. Discuss both
-observable changes before adoption. Section 9.4 defines only the stable-state
-predicate and single-victor announcements.
+**Status:** resolved for Austin Core. The first terminal outcome is latched in
+the pure state and later checks cannot replace it. An accepted command finishes
+its transition before the outcome is reported and the player is released.
+Fifth-stage BUILD includes the new base in its replacement before the ending
+check, then completes normal turn effects before final reporting;
+it cannot yield mutual destruction. Mutual destruction is reserved for final
+planet/base destruction without base creation and uses one dedicated
+announcement without contradictory victory lines. Final-report delivery order
+among multiple players and administrative shutdown remain separate lifecycle
+work.
 
 ### C-023: Pending notification order and loss
 

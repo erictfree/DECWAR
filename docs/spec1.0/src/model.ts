@@ -21,6 +21,9 @@ export const GALAXY_SIZE = 75;
 
 export type Team = "FEDERATION" | "EMPIRE";
 
+/** The first terminal war outcome is retained for the life of a Galaxy. */
+export type WarOutcome = Team | "MUTUAL_DESTRUCTION";
+
 export const FEDERATION_SHIPS = [
   "EXCALIBUR",
   "FARRAGUT",
@@ -233,4 +236,5 @@ export interface Galaxy {
   notifications: PendingNotification[];
   teams: Record<Team, TeamState>;
   worldActivityProgress: number;
+  warOutcome: WarOutcome | null;
 }

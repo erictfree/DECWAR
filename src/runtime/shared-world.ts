@@ -3,11 +3,13 @@ import { MonitorResources } from './monitor-resources.ts';
 import { MemoryWordFiles } from './word-files.ts';
 import type { WordFiles } from './word-files.ts';
 import { createVariantContext, type VariantContext } from './variant.ts';
+import { WarEndingState } from './war-ending-state.ts';
 
 // Shared data regions identified by HISEG.FOR/WARMAC and DECWAR.MAP. Private
 // LOWSEG, registers, stacks, compiler scratch and SEED are never attached here.
 // Timer region: WARMAC TIMERS / DECWAR.MAP, same address used by raw DEBUG.
 export class SharedGameWorld{
+  readonly warEnding = new WarEndingState();
   readonly monitor:MonitorResources;
   readonly variant:VariantContext;
   private readonly regions:readonly {address:bigint;words:number}[];

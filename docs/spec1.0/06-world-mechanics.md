@@ -568,6 +568,11 @@ target positions, then applies damage to those targets, then proceeds to the
 most recently selected star whose explosion has not yet been processed.
 This order is observable; the explosions are not simultaneous.
 
+Each planet or base removal checks and, if terminal, latches the war outcome
+under Section 9.4. The chain continues through its remaining targets and
+explosions. Later losses cannot revise the result; reporting and release await
+the containing command's exit boundary or the end of an independent activity.
+
 For each explosion:
 
 1. Enumerate its neighboring sectors within the galaxy by increasing vertical

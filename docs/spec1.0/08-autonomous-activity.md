@@ -5,6 +5,12 @@ affected player. A player's completed turn can trigger attacks on other ships,
 not only on the ship whose command caused the activity. Section 9 specifies
 the order of these phases relative to repair, stardates and score commitment.
 
+Planet and base removals during autonomous activity apply Section 9.4's ending
+check immediately. An activity already underway completes with the outcome
+fixed. For activity invoked by an accepted command, that command then finishes
+its prescribed completion phases before its player receives final reports and
+release. No new independent activity begins after an outcome is latched.
+
 ## 8.1. Base defense
 
 When Section 9.1 triggers a world-activity cycle, activate the opposing

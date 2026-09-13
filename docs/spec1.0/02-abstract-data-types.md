@@ -635,13 +635,25 @@ interface Galaxy {
   notifications: PendingNotification[];
   teams: Record<Team, TeamState>;
   worldActivityProgress: number;
+  warOutcome: WarOutcome | null;
 }
+
+type WarOutcome = "FEDERATION" | "EMPIRE" | "MUTUAL_DESTRUCTION";
 ```
 
 `Galaxy.worldActivityProgress` is a nonnegative integer counting completed
 player turns since the most recent completion-triggered world-activity cycle.
 It is shared by all players, not a separate count for each ship or faction.
 Section 9.1 defines when a completed turn triggers a cycle and resets this count.
+
+`Galaxy.warOutcome` is `null` while the war is undecided. The first normal
+game-end check that returns a terminal result stores that result here. Every
+later end check returns the stored result without recomputing it, and no later
+destruction, autonomous activity, or player command can replace it. Once this
+property is non-null, no new ordinary command is accepted. A command already
+accepted continues through its defined transition; at its completion, the
+issuing player receives the latched outcome's final reports and is released
+according to Section 9.3.
 
 `Galaxy.notifications` retains pending structured notifications.
 Its entries describe separate occurrences, not current tractor links or a

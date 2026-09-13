@@ -1,5 +1,34 @@
 # DECWAR implementation work log
 
+## 2026-09-12 — Implement Austin playable ending across command and activity paths
+
+Completed the previously requested runtime work. Corrected the earlier draft's
+timing error: latch at the qualifying removal/replacement, before completion;
+then let accepted work finish and report/release at its exit boundary. BUILD
+already reserves a replacement base before PLNRMV decrements planets. Added a
+shared immutable-result policy, synchronous count-store detection, deferred
+nested ENDGAM, completion/fatal-exit finalization, idle-session wakeup and a
+guard against post-latch command admission. Report text uses the frozen result
+through output yields. Austin playable only; no deployment or legacy edits.
+
+Source: Austin DECWAR.FOR BUILD:534–594, PLNRMV:2865–2890,
+ENDGAM:961–1005. Corrected the earlier claim that phasers destroy planets:
+they can end the war by destroying a base, but only reduce planet construction.
+Updated Sections 6–9, C-022, ending evidence, completion ledger, playable
+decisions, compatibility and status. Current accepted commands may finish their
+due world activity, so later losses do not replace the first outcome.
+
+Verification: `logs/ending-full-check-authorized.log` passes source audit,
+TypeScript and 4,601 runtime tests. The additional deterministic scheduled
+autonomous-nova regression passes in `logs/ending-autonomous-regression.log`.
+`logs/ending-spec-check.log` passes all 278 specification tests. Connected
+regressions cover actual BUILD scoring, complete torpedo bursts, nova-chain
+continuation, phaser base destruction, idle recipients and overlapping accepted
+commands; staged random/event choices are identified in the tests. Initial
+restricted-suite socket failures remain in `logs/ending-full-check.log`.
+These checks are not original-executable differential parity. Administrative
+forced endings retain their separate behavior. Runtime deployment is pending.
+
 ## 2026-09-09 — Comparison-driver quality classification
 
 Extended `experimental/automated-player/compare-improvements.py` to retain
@@ -8969,3 +8998,33 @@ The one-minute 18-ship aggressive smoke under `logs/aggressive-profile/energy-su
   (`integration-tests.log`); experimental TypeScript checking passes
   (`typecheck.log`). The failed long run remains at
   `logs/full-game-v21-20260910/` and was stopped before a replacement run.
+
+## 2026-09-10 — Latch first terminal war outcome
+
+Adopted the user's decision that the first terminal war outcome is final.
+Added `Galaxy.warOutcome`, a latch operation, and a single non-contradictory
+mutual-destruction announcement; updated Section 9.4, C-022, and the ending
+evidence. The latch prevents later autonomous activity or another session's end
+check from changing a recorded victory into mutual destruction. The exact check
+point inside final-planet BUILD remains an ordering question. Focused tests:
+`logs/spec1.0-nova/war-ending-latch-check.log`. No runtime/archive/PDF changes.
+
+## 2026-09-10 — Restart persistent ten-player fleet
+
+Restarted the established aggressive ten-ship fleet against `decwarjs.com:2423`
+with two planet-squad ships per faction. The run uses a fresh report directory
+at `logs/decwarjs-players-restart-20260910-3`; all ten players reached
+`playing` state during the initial health snapshot. The fleet process remains
+attached to the current session and is configured to keep going until stopped
+or a real war-ending banner is observed.
+
+## 2026-09-12 — Define terminalization at command completion
+
+Clarified C-022 and Section 9.4: terminal detection occurs after the completed
+state mutation; an already accepted command is allowed to finish, and only then
+does the issuing player receive the latched ending report and release. Fifth-
+stage BUILD therefore installs its base and completes normal turn effects before
+it can yield Federation or Empire victory; mutual destruction requires final
+planet/base destruction without base creation. Added the pure
+`completionOutcome` helper and regression coverage. The historical runtime's
+nested ENDGAM exit remains an identified playable-profile implementation gap.
