@@ -2499,6 +2499,11 @@ compatibility assumption; do not fetch an outside implementation.
 - Direct INCHWL supplies T2; it is not the normal editor/input wrapper. There
   is no length bound before IDPB. LF, ESC and BEL end input; NUL and CR retry;
   Ctrl-C or CCFLG returns with partial state (`3828-3845`).
+- At the live terminal boundary, the prompted-name INCHWL binding buffers one
+  completed line and applies Backspace/DEL erasure before supplying bytes to
+  this raw routine. Direct routine fixtures retain the unmodified source-byte
+  behavior. This aligns stored input with the erasure already displayed by the
+  negotiated Telnet echo; it does not add editing to JOBSTA itself.
 - Conversion clears TMP, not HAND. Short cached names preserve prior suffix
   bits. A zero first HAND word retries without resetting T1 from zero. Byte
   operations and the effects of that zero pointer remain CPU services

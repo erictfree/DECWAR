@@ -76,6 +76,10 @@ were checked with the installed Homebrew Telnet client. Clients that refuse
 character mode can still buffer input locally. See the [terminal binding
 decision](decisions.md#d-172--character-delivery-and-keyboard-echo).
 
+At `Your name please:`, Backspace and DEL erase the preceding character before
+the completed name reaches JOBSTA. This editing belongs to the live terminal
+binding: the preserved routine still consumes its monitor characters directly.
+
 The playable Telnet host accepts ordinary editor submissions at least 500 ms
 apart per session. A submission completed too soon is discarded and rings the
 terminal bell (BEL); it is not delayed for later execution. Wait half a second

@@ -67,6 +67,11 @@ test('Live prompted captain name reaches JOBSTA, USERS and the saved GRIPE repor
   await send('GRIPE\r\nNamed captain report\x1a','command:gripe');
   assert.ok(world.files.read('DECWAR.GRP')!.map(unpackAscii).join('').includes('AB9'));
 });
+for(const erase of ['\b','\x7f'])test(`Live prompted captain name applies ${erase==='\b'?'backspace':'DEL'} before JOBSTA stores it`,{timeout:10000},async t=>{
+  const {runtime,send,output}=await game(t,new SharedGameWorld(),1,`EXPERT\r\nERIX${erase}C\r\n\r\n\r\nNO\r\nNO\r\nFEDERATION\r\nLEXINGTON\r\nSTATUS`,{promptForName:true});
+  assert.equal(runtime.f.high.read('job',1,K.KNAM1),signed36(packSixbit('ERIC')));
+  await send('USERS','command:users');assert.ok(output().includes('ERIC'));assert.equal(output().includes('ERIX'),false);
+});
 for(const action of ['interrupt','disconnect'] as const)test(`Live ${action} during raw JOBSTA name input completes pregame MONIT`,{timeout:10000},async t=>{
   const world=new SharedGameWorld();let runtime!:ReturnType<typeof liveSessionRuntime>,ready:()=>void=()=>{},output='';
   const prompted=new Promise<void>(resolve=>{ready=resolve;});

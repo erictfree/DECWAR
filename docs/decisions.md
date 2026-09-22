@@ -4313,6 +4313,13 @@ to perform repeat, line cancellation, redisplay and command interpretation.
 Declining ECHO leaves echo to the client. Unsupported options retain bounded
 refusal behavior, and each timing-mark request still receives its own reply.
 
+JOBSTA's `Your name please:` path calls raw INCHWL rather than the source line
+editor. The live monitor binding collects that one line and applies the same
+Backspace/DEL erasure that the negotiated terminal displays, then supplies the
+edited characters and original terminator to JOBSTA. The preserved JOBSTA body
+and its direct-byte component fixtures remain unchanged. This prevents an erased
+byte from becoming punctuation in the stored captain name.
+
 The game endpoint explicitly maps keyboard CR, CR-NUL and CR-LF to a single LF,
 including across TCP packet boundaries. LF is also accepted. Character-mode
 Telnet sends CR-NUL for Enter in the observed client; without this mapping the
@@ -4321,14 +4328,14 @@ to decode CR-NUL as literal CR. This is an explicit keyboard binding at the game
 endpoint, not a change to the source's distinction between CR and LF.
 
 **Limits.** These choices provide a modern character terminal, not a recovery
-of every TOPS-10 echo rule. Full-width wrapping, tab erasure, exceptional input
-lengths and raw-name editing remain terminal fidelity work. The game source
+of every TOPS-10 echo rule. Full-width wrapping, tab erasure and exceptional input
+lengths remain terminal fidelity work. The game source
 continues to determine output; terminal type and width negotiation are not
 introduced by this change.
 
 **Verification.** The negotiated Austin socket test covers Enter as CR-NUL,
-standalone ESC twice, backspace, Ctrl-U, Ctrl-R, ETX/IP, shared messages and
-18-player admission. Transport tests cover fragmented negotiation and line endings,
+standalone ESC twice, command and captain-name backspace, Ctrl-U, Ctrl-R,
+ETX/IP, shared messages and 18-player admission. Transport tests cover fragmented negotiation and line endings,
 refusal loops and timing marks. The installed Telnet client was separately used
 against a disposable Austin galaxy: name/admission, STATUS, two bare ESC repeats,
 backspace, Ctrl-U, Ctrl-R, later ESC termination, BUILD cancellation with Ctrl-C,

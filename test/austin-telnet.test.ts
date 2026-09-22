@@ -11,6 +11,7 @@ import { reloadableSession,SessionReload } from '../src/runtime/reloadable-sessi
 import { constants as K } from '../src/generated/source-data.ts';
 import type { SessionResult } from '../src/runtime/session.ts';
 import { variantData as austinData } from '../src/generated/variants/austin.ts';
+import { packSixbit,signed36 } from '../src/compat/word36.ts';
 
 test('Austin admission timeout releases an abandoned setup lock',{timeout:5000},async t=>{
   const worlds=new WorldDirectory(undefined,createVariantContext('austin'));
@@ -58,7 +59,7 @@ test('Austin Telnet startup, interrupts, ship reuse and eighteen concurrent capt
     await until('\r\n> ',text.indexOf('> srscan 2 w')+1);await request('STATUS','Radio  On');
     return {socket,request,quit,until,text:()=>text};
   }
-  const first=await client('Alpha','YORKTOWN',true,'FEDERATION',true),second=await client('Beta','VULCAN');
+  const first=await client('AlphX\bA','YORKTOWN',true,'FEDERATION',true),second=await client('Beta','VULCAN');
   async function midnightDock(c:Awaited<ReturnType<typeof client>>,id:number,disconnect=false){
     const r=runtimes.get(id)!,f=r.f,who=Number(f.low.read('who'));
     let adjacent:number[]|undefined;
@@ -82,6 +83,7 @@ test('Austin Telnet startup, interrupts, ship reuse and eighteen concurrent capt
   await midnightDock(first,1);
 
   assert.equal(runtimes.get(1)!.f.low.read('who'),9n);assert.equal(runtimes.get(2)!.f.low.read('who'),8n);
+  assert.equal(runtimes.get(1)!.f.high.read('job',9,K.KNAM1),signed36(packSixbit('ALPHA')));
   // WARMAC INLI.: a first ESC repeats the retained line immediately, without LF.
   for(let repeat=0;repeat<2;repeat++){
     const before=first.text().length;first.socket.write(Buffer.from([27]));

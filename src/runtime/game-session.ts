@@ -113,18 +113,26 @@ function composeLiveSession(terminal:SessionTerminal,mode:'initialize'|'full'='i
   main.time.clockIO.mstime=f.clockIO.mstime;main.time.clockIO.runtim=f.clockIO.runtim;
   bindLiveWait(f.wait.io,f.r,options.playable===true);
   f.jobStatus.io.getppn=function*(){f.r.t1=9n;return false;};
+  const editedName:number[]=[],nameDelivery:number[]=[];
   f.jobStatus.io.inchwl=function*(){
     f.jobStatus.events.push('inchwl');
-    if(!f.editor.bytes.length){
-      yield 'name-input';
-      if(!f.editor.bytes.length&&(f.low.read('hungup')!==0n||f.low.read('ccflg')!==0n)){
-        // Selected host EOF policy for raw INCHWL: request source cancellation.
-        // JOBSTA tests CCFLG, unlike ICHR.T which also checks HUNGUP.
-        if(f.low.read('hungup')!==0n)f.low.write('ccflg',-1n);
-        f.r.t2=0n;return;
+    while(!nameDelivery.length){
+      if(!f.editor.bytes.length){
+        yield 'name-input';
+        if(!f.editor.bytes.length&&(f.low.read('hungup')!==0n||f.low.read('ccflg')!==0n)){
+          // Selected host EOF policy for raw INCHWL: request source cancellation.
+          // JOBSTA tests CCFLG, unlike ICHR.T which also checks HUNGUP.
+          if(f.low.read('hungup')!==0n)f.low.write('ccflg',-1n);
+          editedName.length=0;nameDelivery.length=0;f.r.t2=0n;return;
+        }
       }
+      const byte=f.editor.bytes.shift();if(byte===undefined)throw new Error('Raw name input resumed without data or cancellation');
+      if(byte===8n||byte===127n){editedName.pop();continue;}
+      if(byte===0n||byte===13n)continue;
+      editedName.push(Number(byte));
+      if(byte===10n||byte===27n||byte===7n){nameDelivery.push(...editedName);editedName.length=0;}
     }
-    const byte=f.editor.bytes.shift();if(byte===undefined)throw new Error('Raw name input resumed without data or cancellation');f.r.t2=byte;
+    f.r.t2=BigInt(nameDelivery.shift()!);
   };
   main.admission.io.daytim=function*(address){const now=BigInt(Date.now()%86_400_000);f.m.write(address,now);return now;};
   main.admission.io.runtim=function*(address){const runtime=terminal.runtimeMilliseconds();f.m.write(address,runtime);return runtime;};

@@ -9064,3 +9064,18 @@ nested ENDGAM exit remains an identified playable-profile implementation gap.
   completion, NUMPLY rollback and lock release. The full repository check passes
   4,604/4,604 tests, archive audit and TypeScript checking. Evidence:
   `logs/admission-timeout-20260921/check.log`.
+
+## 2026-09-22 — Edit the prompted captain name at the live monitor boundary
+
+- Reproduced a mismatch at `Your name please:`: negotiated Telnet echo visually
+  erased Backspace/DEL, but live JOBSTA received and stored the erase byte. The
+  resulting sixbit captain name displayed punctuation in USERS output.
+- The live raw-name binding now buffers that one completed line, applies
+  Backspace/DEL to the preceding character, and supplies the edited bytes and
+  original terminator to JOBSTA. The preserved JOBSTA routine remains unchanged;
+  its direct INCHWL component tests still exercise raw byte behavior.
+- Added live-session coverage for both byte 8 and byte 127 and changed the Austin
+  negotiated-Telnet integration path to commission `ALPHA` from edited input.
+  Interrupt and disconnect behavior during raw name input remains covered.
+- `npm run check` passes archive verification, TypeScript checking and
+  4,606/4,606 tests. Evidence: `logs/name-backspace-20260922/check.log`.
