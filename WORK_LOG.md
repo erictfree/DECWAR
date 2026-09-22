@@ -9041,3 +9041,26 @@ it can yield Federation or Empire victory; mutual destruction requires final
 planet/base destruction without base creation. Added the pure
 `completionOutcome` helper and regression coverage. The historical runtime's
 nested ENDGAM exit remains an identified playable-profile implementation gap.
+
+## 2026-09-21 — Bound inactive Austin admission
+
+- Reproduced the public `play.decwar.org:2423` stall: a later captain reached
+  pre-game `ACTIVATE` and then produced no output. Host records showed jobs 46
+  and 47 starting without corresponding session-end records. Source-connected
+  tracing identified Austin SETUP's public lock as the blocking boundary: the
+  lock remains held while the first captain answers the game, side and ship
+  questions.
+- Added a playable host admission timeout, defaulting to 300 seconds. It applies
+  only until `setupAndPlace` successfully commissions a ship. An inactive setup
+  connection is disconnected through the existing source cleanup, which rolls
+  back NUMPLY and releases the job's monitor resources. Active ships are not
+  timed out. `--admission-timeout-seconds` accepts 0–86400; zero disables the
+  policy, and historical diagnostic launch defaults to zero.
+- The JSONL host log records `admission-timeout` with the job and interval. The
+  listening record also includes the configured interval. Updated the running,
+  external-host, playable-decision and status documentation.
+- Focused regressions cover the transport boundary and an Austin captain left at
+  SETU02 while owning public lock 1. The latter verifies normal session
+  completion, NUMPLY rollback and lock release. The full repository check passes
+  4,604/4,604 tests, archive audit and TypeScript checking. Evidence:
+  `logs/admission-timeout-20260921/check.log`.

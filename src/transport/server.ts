@@ -7,6 +7,8 @@ import { TelnetCodec,TelnetEncoder } from './telnet.ts';
 export type TelnetSessionFactory=(terminal:SessionTerminal,connection:{id:number;remoteAddress:string|undefined})=>SessionProgram;
 export type TelnetServerOptions={
   createSession:TelnetSessionFactory;
+  admissionTimeoutMs?:number;
+  onAdmissionTimeout?:(id:number)=>void;
   onSessionEnd?:(id:number,result:SessionResult)=>void;
   onTelemetry?:(event:{id:number;steps:number;stepWallMs:number;stepCpuMs:number;maxStepWallMs:number;outputBytes:number;outputBackpressure:number})=>void;
 };
@@ -48,6 +50,16 @@ export function createTelnetServer(options:TelnetServerOptions):{server:Server;c
       },write,undefined,telemetry);
     }catch(error){options.onSessionEnd?.(id,{reason:'failed',error});socket.destroy();sockets.delete(socket);return;}
     sessions.set(id,session);
+    if((options.admissionTimeoutMs??0)>0){
+      socket.setTimeout(options.admissionTimeoutMs!);
+      socket.on('timeout',()=>{
+        // The timeout protects the global setup lock only. Commissioned ships
+        // may remain idle indefinitely, as the game itself permits.
+        if(session.phase()==='admission'){
+          options.onAdmissionTimeout?.(id);session.disconnect();socket.destroy();
+        }else socket.setTimeout(0);
+      });
+    }
     socket.on('data',bytes=>{
       if(typeof bytes==='string'){socket.destroy(new Error('Telnet socket requires byte input'));return;}
       const parsed=decoder.feed(bytes);if(parsed.reply.length)socket.write(parsed.reply);

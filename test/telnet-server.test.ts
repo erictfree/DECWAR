@@ -11,6 +11,29 @@ import { SharedGameWorld } from '../src/runtime/shared-world.ts';
 import { WorldDirectory } from '../src/runtime/world-directory.ts';
 import { reloadableSession,SessionReload } from '../src/runtime/reloadable-session.ts';
 
+test('Admission inactivity disconnects the pending job without timing out active players',{timeout:5000},async t=>{
+  const timedOut:number[]=[],ended:number[]=[];
+  const host=createTelnetServer({
+    admissionTimeoutMs:40,
+    createSession(terminal,{id}){
+      return {
+        run:(function*(){while((yield*terminal.read())!==null){}})(),
+        hangup(){},interrupt(){},phase:()=>id===1?'admission':'active',
+      };
+    },
+    onAdmissionTimeout(id){timedOut.push(id);},
+    onSessionEnd(id){ended.push(id);},
+  });
+  t.after(()=>host.close());host.server.listen(0,'127.0.0.1');await once(host.server,'listening');
+  const address=host.server.address();assert.ok(address&&typeof address!=='string');
+  const admission=connect(address.port,'127.0.0.1'),admissionClosed=once(admission,'close');admission.resume();await once(admission,'connect');
+  const active=connect(address.port,'127.0.0.1');active.resume();await once(active,'connect');
+  await admissionClosed;
+  await new Promise(resolve=>setTimeout(resolve,80));
+  assert.deepEqual(timedOut,[1]);assert.deepEqual(ended,[1]);assert.equal(active.destroyed,false);
+  const activeClosed=once(active,'close');active.destroy();await activeClosed;
+});
+
 test('Live Telnet connection runs original experience prompt and TYPE startup output',async t=>{
   const endings:SessionResult[]=[],runtimes:ReturnType<typeof liveSessionRuntime>[]=[],application:Buffer[]=[];
   const host=createTelnetServer({createSession(terminal){

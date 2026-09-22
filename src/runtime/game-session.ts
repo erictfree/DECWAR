@@ -40,6 +40,7 @@ export function createGameSession(terminal:SessionTerminal,mode:'initialize'|'fu
 }
 function composeLiveSession(terminal:SessionTerminal,mode:'initialize'|'full'='initialize',world?:SharedGameWorld,job=1,options:{promptForName?:boolean;playable?:boolean;diagnosticLimit?:number;inputIntervalMs?:number;onInputRejected?:()=>void;lifecycle?:{removeHighSegment():void;run():never}}={}){
   const f=pregameRuntimeFixture([]),main=bindMainLoopRuntime(f),entry=bindEntryRuntime(f,main);
+  let commissioned=false;
   for(let a=f.high.address('hfz');a<=f.high.address('hlz');a++)f.m.write(a,0n);
   f.high.write('tim0',-1n);f.editor.bytes.length=0;f.input.pointer=-1n;
   terminal.echoAllowed=()=>f.editor.state.echflg>=0n;
@@ -161,6 +162,9 @@ function composeLiveSession(terminal:SessionTerminal,mode:'initialize'|'full'='i
       });
     };
   }
+  const setupAndPlace=entry.io.setupAndPlace,commands=entry.io.commands;
+  entry.io.setupAndPlace=function*(){commissioned=false;yield*setupAndPlace();commissioned=true;};
+  entry.io.commands=function*(){const result=yield*commands();commissioned=false;return result;};
   f.statistics.io.dateT3=function*(){f.r.t3=utcDateWord(new Date());};
   const core=new PrivateCore(f.m,f.job,0o240000n,0o400000n);
   f.cpu.core=function*(){return core.request(f.r.t3);};
@@ -294,6 +298,9 @@ function composeLiveSession(terminal:SessionTerminal,mode:'initialize'|'full'='i
     try { yield* drive(source); }
     finally { if(ending)endingState.listeners.delete(terminal.wake); }
   }
-  const program:SessionProgram={run:variantGenerator(context,run()),hangup(){f.low.write('hungup',-1n);},interrupt:()=>variantGenerator(context,drive(interrupt()))};
+  const program:SessionProgram={
+    run:variantGenerator(context,run()),hangup(){f.low.write('hungup',-1n);},interrupt:()=>variantGenerator(context,drive(interrupt())),
+    phase:()=>commissioned?'active':'admission',
+  };
   return {f,main,entry,program,interrupts};
 }

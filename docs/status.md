@@ -30,7 +30,7 @@ by default and offers a bounded recent-history option; 4589 runtime tests pass.
 | Gameplay | Command parsing/abbreviations, scans and reports, movement, phasers/torpedoes, shields, repair, energy, tractor beams, radio/messages, capture, construction, docking and scoring are connected to the session runtime. |
 | Multiplayer lifecycle | Shared galaxies, full-galaxy rollover, normal quit, death, disconnect cleanup, ship reuse and game-over. |
 | Terminal | Streaming Telnet adapter, negotiated character delivery and echo, immediate ESC repeat, source application output, raw Ctrl-C and Telnet IP handling. See terminal fidelity limits below. |
-| Input admission | Playable Telnet launch defaults to 500 ms between completed editor submissions; excess lines are discarded with BEL. ESC and initialization input are exempt; strict mode disables this modern policy. See [running instructions](running.md). |
+| Input admission | Playable Telnet launch defaults to 500 ms between completed editor submissions; excess lines are discarded with BEL. A not-yet-commissioned connection that is inactive for five minutes is disconnected so it cannot retain the global setup lock. ESC and initialization input are exempt from rate limiting; strict mode disables these modern defaults. See [running instructions](running.md). |
 | Storage | Separate default directories and variant/format markers; CompuServe word-file statistics and GRIPE persistence. Live galaxies are not saved across host restart. |
 | Source evidence | Both supplied archives, independent generated variant data, and a pinned native Austin reference build are preserved. |
 

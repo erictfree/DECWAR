@@ -17,12 +17,18 @@ compiler/executable. It is a playable alpha, not certified historical parity.
 | LIST ship names | Use the accumulated SHIPS mask for duplicate detection. | LSTSCN's singular SHIP is otherwise uninitialized; the surrounding code accumulates SHIPS. |
 | PAUSE deadlines | Measure private wait deadlines with a monotonic host clock. DAYTIM/ETIM retain UTC time of day. | A raw deadline extending past midnight can never be reached by the wrapped MSTIME clock. |
 | Pending disconnect/interrupt | GETCMD handles control already pending before INPUT. Hangup reaches quit cleanup; Ctrl-C retains the RED-alert no-quit restriction. | Source labels 200→210→350 can spin forever when the flag is already set. |
+| Inactive admission | Disconnect a Telnet connection that remains inactive for five minutes before commissioning. Release its job resources through normal disconnect cleanup. | SETUP holds the global admission lock while asking game, side and ship questions; an abandoned live connection would otherwise prevent every later captain from passing `ACTIVATE`. |
 
 Quit, death and game-over still call the selected source POINTS and FREE
 routines. CompuServe additionally calls UPDSTA; Austin removes those calls. Cleanup releases tractor beams, drains queues, removes the ship from
 the board and updates player counts. CompuServe final statistics retain the source's
 elapsed-time threshold and selection of DECWAR.STA versus DECWAF.STA.
 No fabricated score or blanket cleanup replaces those routines.
+
+The inactive-admission limit is a playable host policy rather than a game rule.
+`--admission-timeout-seconds` changes it, and zero disables it. The historical
+diagnostic profile defaults it to zero. Commissioned players are never subject
+to this timeout.
 
 The host also retains previously documented modern choices: TCP/Telnet NVT,
 cooperative scheduling, UTC clocks, 36-bit word files, a virtual shared-image

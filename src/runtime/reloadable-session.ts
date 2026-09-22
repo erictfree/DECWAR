@@ -16,6 +16,6 @@ export function reloadableSession(load:()=>SessionProgram,beforeReload:()=>void)
     };
   return {
     run:run(),
-    hangup:()=>current.hangup(),interrupt:()=>current.interrupt(),
+    hangup:()=>current.hangup(),interrupt:()=>current.interrupt(),phase:()=>current.phase?.()??'admission',
   };
 }

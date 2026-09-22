@@ -2,7 +2,8 @@
 // waiting occurs. The host supplies byte delivery and scheduling, not commands.
 export type SessionWait={type:'input'}|{type:'delay';milliseconds:number;wakeOnInput:boolean}|{type:'cooperate'};
 type SessionControl=()=>void|Generator<SessionWait,void,void>;
-export type SessionProgram={run:Generator<SessionWait,void,void>;hangup:SessionControl;interrupt:SessionControl};
+export type SessionPhase='admission'|'active';
+export type SessionProgram={run:Generator<SessionWait,void,void>;hangup:SessionControl;interrupt:SessionControl;phase?:()=>SessionPhase};
 export interface SessionTerminal{
   read():Generator<SessionWait,number|null,void>;
   available():boolean;
@@ -64,6 +65,7 @@ export class GameSession{
     this.program=this.measured(()=>create(this.terminal));
   }
   start():Promise<SessionResult>{if(!this.started){this.started=true;void this.drive();}return this.done;}
+  phase():SessionPhase|undefined{return this.program.phase?.();}
   receive(bytes:Uint8Array):void{
     if(this.closed||this.finished||bytes.length===0)return;
     for(const byte of bytes)this.queue.push(byte);

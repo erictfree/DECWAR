@@ -10,6 +10,32 @@ import { createGameSession } from '../src/runtime/game-session.ts';
 import { reloadableSession,SessionReload } from '../src/runtime/reloadable-session.ts';
 import { constants as K } from '../src/generated/source-data.ts';
 import type { SessionResult } from '../src/runtime/session.ts';
+import { variantData as austinData } from '../src/generated/variants/austin.ts';
+
+test('Austin admission timeout releases an abandoned setup lock',{timeout:5000},async t=>{
+  const worlds=new WorldDirectory(undefined,createVariantContext('austin'));
+  const timedOut:number[]=[],ends=new Map<number,SessionResult>();
+  let abandoned:ReturnType<typeof createGameSession>|undefined;
+  const host=createTelnetServer({
+    admissionTimeoutMs:1000,
+    createSession(terminal,{id}){return reloadableSession(()=>{
+      const world=worlds.load(),runtime=createGameSession(terminal,'full',world,id,{playable:true,promptForName:true,lifecycle:{removeHighSegment(){worlds.remove(world);},run(){throw new SessionReload();}}});abandoned=runtime;
+      runtime.f.jobStatus.monitor.job=BigInt(id);runtime.f.jobStatus.monitor.sequenceJob=BigInt(id);return runtime.program;
+    },()=>worlds.monitor.releaseJob(id));},
+    onAdmissionTimeout(id){timedOut.push(id);},
+    onSessionEnd(id,result){worlds.monitor.releaseJob(id);ends.set(id,result);},
+  });
+  t.after(()=>host.close());host.server.listen(0,'127.0.0.1');await once(host.server,'listening');
+  const address=host.server.address();assert.ok(address&&typeof address!=='string');
+  const socket=connect(address.port,'127.0.0.1'),decoder=new TelnetCodec(),changed=new EventEmitter();let text='';
+  socket.on('data',bytes=>{text+=decoder.feed(Buffer.from(bytes)).data.toString('latin1');changed.emit('data');});
+  socket.on('end',()=>changed.emit('data'));t.after(()=>socket.destroy());
+  async function until(value:string){while(!text.includes(value))await once(changed,'data');}
+  await once(socket,'connect');await until('Your name please: ');socket.write('Idle\r\n');await until('line: ');socket.write('\r\n');
+  await until(austinData.messages.setu02.text);assert.equal(worlds.monitor.locks.owner(1n),1);
+  await once(socket,'end');assert.deepEqual(timedOut,[1]);assert.deepEqual(ends.get(1),{reason:'completed'});
+  assert.equal(worlds.monitor.locks.owner(1n),undefined);assert.ok(abandoned);assert.equal(abandoned.f.high.read('numply'),0n);
+});
 
 test('Austin Telnet startup, interrupts, ship reuse and eighteen concurrent captains',{timeout:30000},async t=>{
   const worlds=new WorldDirectory(undefined,createVariantContext('austin')),ends=new Map<number,SessionResult>(),events=new EventEmitter();

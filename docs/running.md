@@ -91,6 +91,13 @@ reading each line, not when bytes arrive at the socket, so queued input may
 be accepted if game activity spaces out its consumption. This modern host
 policy is not historical DECWAR timing or complete flood protection.
 
+During startup and ship selection, DECWAR holds a global admission lock. The
+playable host disconnects a connection that supplies no input for five minutes
+before commissioning, allowing normal disconnect cleanup to release that lock.
+Use `--admission-timeout-seconds N` to choose 0–86400 seconds; zero disables the
+limit. `--strict` defaults it to zero. The limit no longer applies after a ship
+is commissioned, so an idle active player is not disconnected by this policy.
+
 `SCAN` (or `SC`) defaults to ten sectors in each direction; `SRSCAN` defaults
 to seven, clipped at galaxy edges. RESET starts with an 80-column terminal width.
 `SCAN 10` supplies the range explicitly. The startup scan has its own explicit

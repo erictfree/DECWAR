@@ -92,6 +92,12 @@ The unit runs as `bitnami`, restarts only after failure, and leaves an intention
 stop stopped. Edit its `User`, paths, or Node symlink if the instance differs,
 then run `sudo systemctl daemon-reload` and restart it.
 
+The playable host also prevents an abandoned setup connection from holding the
+global admission lock forever. It disconnects a not-yet-commissioned connection
+after five minutes without input and records an `admission-timeout` event in the
+JSONL host log. Active captains are unaffected. Override the interval with
+`--admission-timeout-seconds`; zero disables it.
+
 ## 5. Open Lightsail TCP port 2423
 
 In the AWS Lightsail console, open the instance, choose **Networking**, and in
