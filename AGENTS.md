@@ -62,9 +62,10 @@ requirements and keep required services explicit.
 
 The user's preferred working setting is Luna medium for routine implementation,
 integration, tests, tournament runs, documentation, commits and pushes. Stop and
-ask the user to switch to Astra before work that requires difficult source
-semantics, PDP-10 numeric behavior, random draw ordering or hard concurrency
-debugging, explaining the specific reason. This is a workflow preference, not a
+ask the user to switch to a high-capability setting (Astra, Opus 5.5 high or
+Sol 6.1 high) before work that requires difficult source semantics, PDP-10
+numeric behavior, random draw ordering or hard concurrency debugging,
+explaining the specific reason. This is a workflow preference, not a
 mechanism for changing the app's actual model or reasoning setting. Do not
 silently change settings or relax fidelity requirements when working at Luna
 medium.

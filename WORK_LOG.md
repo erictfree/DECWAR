@@ -14,7 +14,9 @@ playable `PG> TYPE` session failure (H1), decimal token ≥2^35 session failure
 (H2), Austin failed-LOCK later grant in the host model (H3, monitor semantics to
 confirm), spec unmarked-coordinate rule contradicting Austin LOCATE/ICFLG (H4).
 Next: host hardening, playable repairs for H1/H2, Austin non-queuing LOCK;
-H2/H3/M1 and short-circuit draw counts need the Astra setting.
+H2/H3/M1 and short-circuit draw counts need a high-capability setting.
+AGENTS.md updated at the user's request: Astra, Opus 5.5 high or Sol 6.1 high
+each satisfy the high-capability workflow preference.
 
 ## 2026-09-13 — Automated client tolerates asynchronous LIST notices
 

@@ -8,7 +8,9 @@ documentation, including specification 1.0.
 
 This is a review record. It does not change game code, legacy archives or
 generated data. Findings that touch fidelity are evaluated against the porting
-contract in [AGENTS.md](../../AGENTS.md): executable source statements are the
+contract in [AGENTS.md](../../AGENTS.md). Where this review says work needs a
+“high-capability setting”, AGENTS.md lists Astra, Opus 5.5 high or Sol 6.1 high.
+Under that contract, executable source statements are the
 authority, help text and comments are secondary, and modern host mechanisms are
 acceptable where the source calls monitor services.
 
@@ -175,7 +177,7 @@ committed; each entry describes how to reproduce it.
   Alternatively, add a documented playable-only repair, such as classifying the
   token as non-numeric, and keep the diagnostic failure under `--strict`. Add
   regression tests for both profiles. This is PDP-10 numeric work; under the
-  AGENTS.md workflow preference it should be done at the Astra setting.
+  AGENTS.md workflow preference it should be done at a high-capability setting.
 
 ### H3 — A failed Austin LOCK leaves the job queued, so it can later be granted a global lock it does not know it holds (host model mismatch)
 
@@ -205,7 +207,7 @@ committed; each entry describes how to reproduce it.
   - Add a test: Austin failed LOCK, owner release, then no grant to the failed
     job.
 
-  This is ENQ and concurrency semantics; the workflow preference calls for Astra.
+  This is ENQ and concurrency semantics; the workflow preference calls for a high-capability setting.
 
 ### H4 — Specification 1.0 says unmarked coordinates are initially absolute; Austin's executable source makes them relative (documentation/specification)
 
@@ -260,7 +262,7 @@ committed; each entry describes how to reproduce it.
   RAN is unaffected, because `TLZ` clears the sign. This domain interacts with H2.
 - **Fix:** Check the IMUL page of the processor reference and record it in
   `docs/platform-manuals.md`. Then add an `imul36` returning `{word, overflow}`
-  for every IMUL site, with overflow tests in both directions. This needs Astra.
+  for every IMUL site, with overflow tests in both directions. This needs a high-capability setting.
 
 ### M2 — LSTFLG can pass `MSG=0` to OUT, which prints bytes from accumulator 0 (unresolved compiler state, undocumented)
 
@@ -630,7 +632,7 @@ needed. Where that operand calls `IRAN`, this changes the random-draw count:
 
 This is recorded in `docs/compatibility.md:1333,3115` and `docs/decisions.md:2794`.
 It could be settled with a targeted draw-count trace on the preserved Austin
-reference executable (Astra work).
+reference executable (high-capability-setting work).
 
 **I2 — Normalization of negative powers of two.** −0.5 and similar values are
 encoded as whole-word negations, and the decoder rejects the alternative
@@ -767,9 +769,9 @@ found in the production path.
    semantics.
 2. **H1 and H2 (playable crashes).** Add narrow, documented playable repairs,
    following the existing TRACTR pattern, with live regression tests. H2 needs
-   the Astra setting.
+   a high-capability setting.
 3. **H3 (Austin ENQ).** Confirm `.ENQAA` in the authorized monitor manual, then
-   make Austin LOCK non-queuing. This needs Astra.
+   make Austin LOCK non-queuing. This needs a high-capability setting.
 4. **H4, M8–M11 (documentation corrections).** Correct the specification rule,
    unify the list of playable repairs, rebuild `status.md` under the standard,
    and fix the persistence wording and the evidence paths.
@@ -778,4 +780,4 @@ found in the production path.
    job with the `src → test` import rule.
 6. **M1, M2, L7–L9, I1 (fidelity research).** Settle IMUL overflow, the
    LSTFLG/AC0 output and short-circuit draw counts against the manuals and the
-   preserved Austin reference executable. All of these need Astra.
+   preserved Austin reference executable. All of these need a high-capability setting.
