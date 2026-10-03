@@ -36,6 +36,8 @@ consult current status for what is connected now.
   it is not a combined Austin/CompuServe semantic audit.
 - [CPU/compiler manuals](platform-manuals.md): editions, pages, applicability and
   remaining platform uncertainty. Manuals do not supply DECWAR game rules.
+- [Code review, October 3, 2026](codereviews/Opus5.5Oct32026.md): port parity,
+  TypeScript and documentation review at `5c2011b`, with prioritized findings.
 - [Austin implementation plan](austin-default-plan.md): the completed migration's
   original plan, retained as a record rather than a new work queue.
 - [Implementation history](history/implementation-progress.md) and

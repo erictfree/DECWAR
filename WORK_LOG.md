@@ -1,5 +1,21 @@
 # DECWAR implementation work log
 
+## 2026-10-03 — Port, runtime and documentation code review
+
+Reviewed the TypeScript port against both archives (arithmetic primitives,
+combat, movement/commands/main loop, input/output/reports), the modern host,
+and current documentation including specification 1.0. Record:
+docs/codereviews/Opus5.5Oct32026.md. No game code, archive or generated data
+changed. `npm run audit:check`, `npm run typecheck` and `npm test` (4,606/4,606)
+pass at `5c2011b` on Node 22.22; output saved under logs/codereview-2026-10-03/.
+No production-path parity defect was found in reviewed routines; all 324 ASCIZ
+strings per variant match. Reproduced: input-burst event-loop stall (C1),
+playable `PG> TYPE` session failure (H1), decimal token ≥2^35 session failure
+(H2), Austin failed-LOCK later grant in the host model (H3, monitor semantics to
+confirm), spec unmarked-coordinate rule contradicting Austin LOCATE/ICFLG (H4).
+Next: host hardening, playable repairs for H1/H2, Austin non-queuing LOCK;
+H2/H3/M1 and short-circuit draw counts need the Astra setting.
+
 ## 2026-09-13 — Automated client tolerates asynchronous LIST notices
 
 The local ten-player fleet exposed a client protocol assumption: an unsolicited
